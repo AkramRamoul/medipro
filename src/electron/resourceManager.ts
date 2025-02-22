@@ -8,7 +8,8 @@ export function pollResources() {
     const cpuUsage = await getCpuUsage();
     const ramUsage = getRamUsage();
     const storageUsage = getStorageUsage();
-
+    const staticData = getStaticData();
+    console.log(staticData);
     console.log({ cpuUsage, ramUsage, storageUsage: storageUsage.usage });
   }, interval);
 }
