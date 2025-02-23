@@ -5,7 +5,7 @@ import { SidebarProvider, SidebarTrigger } from "./ui/sidebar";
 const Layout = () => {
   return (
     <div className="flex">
-      <SidebarProvider>
+      <SidebarProvider defaultOpen={true}>
         <AppSidebar />
         <main>
           <SidebarTrigger />
