@@ -31,7 +31,7 @@ import {
 // Menu items.
 const items = [
   { title: "Home", url: "/", icon: Home },
-  { title: "Patients", url: "/patients", icon: User },
+  { title: "New Patient", url: "/newpatient", icon: User },
   { title: "Consultations", url: "/consultations", icon: Clipboard },
   { title: "Prescriptions", url: "/prescriptions", icon: PillBottle },
   { title: "Statistics", url: "/statistics", icon: ChartColumnIncreasing },

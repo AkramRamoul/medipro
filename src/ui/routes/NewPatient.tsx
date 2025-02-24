@@ -1,6 +1,6 @@
 import { NavLink } from "react-router-dom";
 
-function Patients() {
+function Patient() {
   return (
     <div>
       Patients
@@ -9,4 +9,4 @@ function Patients() {
   );
 }
 
-export default Patients;
+export default Patient;

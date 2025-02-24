@@ -2,6 +2,8 @@ import { Button } from "../components/ui/button";
 import { type Payment } from "../components/Home/colums";
 import { columns } from "../components/Home/colums";
 import { DataTable } from "../components/Home/Data-table";
+import NewPatientModal from "../components/NewPatient/NewPatientModal";
+import React from "react";
 function getData(): Payment[] {
   // Fetch data from your API here.
   return [
@@ -46,16 +48,22 @@ function getData(): Payment[] {
 
 export function Home() {
   const data = getData();
+  const [isOpen, setIsOpen] = React.useState(false);
 
   return (
     <>
+      <NewPatientModal isOpen={isOpen} onClose={() => setIsOpen(false)} />
+
       <div className="hidden h-full flex-1 flex-col space-y-8 p-8 md:flex">
         <div className="flex items-center justify-between space-y-2">
-          <div>
+          <div className="space-y-6 flex-col">
             <h2 className="text-2xl font-bold tracking-tight">Welcome back!</h2>
             <p className="text-muted-foreground">
               Here&apos;s a list of your patients!
             </p>
+            <Button variant={"secondary"} onClick={() => setIsOpen(true)}>
+              Add new Patient
+            </Button>
           </div>
           <div className="flex items-center space-x-2">
             <Button
