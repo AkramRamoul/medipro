@@ -30,6 +30,7 @@ const patientSchema = z.object({
   gender: z.enum(["Male", "Female"]),
   contact: z.string().min(5, "Contact must be valid"),
   weight: z.coerce.number().min(1, "Weight must be a positive number"),
+  notes: z.string().optional(),
 });
 
 type PatientData = z.infer<typeof patientSchema>;
