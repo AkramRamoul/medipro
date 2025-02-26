@@ -1,9 +1,10 @@
-import { Button } from "../components/ui/button";
 import { type Payment } from "../components/Home/colums";
 import { columns } from "../components/Home/colums";
 import { DataTable } from "../components/Home/Data-table";
 import NewPatientModal from "../components/NewPatient/NewPatientModal";
 import React from "react";
+import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/avatar";
+import { Button } from "../components/ui/button";
 function getData(): Payment[] {
   // Fetch data from your API here.
   return [
@@ -56,23 +57,22 @@ export function Home() {
 
       <div className="hidden h-full flex-1 flex-col space-y-8 p-8 md:flex">
         <div className="flex items-center justify-between space-y-2">
-          <div className="space-y-6 flex-col">
+          <div className="space-y-3 flex-col">
             <h2 className="text-2xl font-bold tracking-tight">Welcome back!</h2>
             <p className="text-muted-foreground">
               Here&apos;s a list of your patients!
             </p>
-            <Button variant={"secondary"} onClick={() => setIsOpen(true)}>
-              Add new Patient
-            </Button>
           </div>
           <div className="flex items-center space-x-2">
-            <Button
-              variant="outline"
-              className="rounded-full"
-              size="lg"
-            ></Button>
+            <Avatar>
+              <AvatarImage src="https://github.com/shadcn.png" />
+              <AvatarFallback>CN</AvatarFallback>
+            </Avatar>
           </div>
         </div>
+        <Button onClick={() => setIsOpen(true)} className="w-fit">
+          Add New Patient
+        </Button>
         <DataTable columns={columns} data={data} />
       </div>
     </>

@@ -55,97 +55,127 @@ export function AddPatientForm({ onClose, onSave }: AddPatientFormProps) {
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Add a new patient</CardTitle>
-        <CardDescription>
-          Fill out the form below to add a new patient to the system.
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="grid gap-6">
-        <div className="grid gap-4 sm:grid-cols-2">
-          {/* Name */}
-          <div className="grid gap-2">
-            <Label htmlFor="name">Name</Label>
-            <Input {...register("name")} id="name" placeholder="Enter name" />
-            {errors.name && (
-              <p className="text-red-500 text-sm">{errors.name.message}</p>
-            )}
+    <Card
+      onClick={(e) => {
+        e.stopPropagation();
+      }}
+    >
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        onClick={(e) => e.stopPropagation()} // Prevents closing when clicking inside
+      >
+        <CardHeader>
+          <CardTitle>Add a new patient</CardTitle>
+          <CardDescription>
+            Fill out the form below to add a new patient to the system.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="grid gap-6">
+          <div className="grid gap-4 sm:grid-cols-2">
+            {/* Name */}
+            <div className="grid gap-2">
+              <Label htmlFor="name">Name</Label>
+              <Input {...register("name")} id="name" placeholder="Enter name" />
+              {errors.name && (
+                <p className="text-red-500 text-sm">{errors.name.message}</p>
+              )}
+            </div>
+
+            {/* Age */}
+            <div className="grid gap-2">
+              <Label htmlFor="age">Age</Label>
+              <Input
+                onClick={(e) => e.stopPropagation()}
+                {...register("age")}
+                id="age"
+                type="number"
+                placeholder="Enter age"
+              />
+              {errors.age && (
+                <p className="text-red-500 text-sm">{errors.age.message}</p>
+              )}
+            </div>
           </div>
 
-          {/* Age */}
+          {/* Gender */}
           <div className="grid gap-2">
-            <Label htmlFor="age">Age</Label>
+            <Label htmlFor="gender">Gender</Label>
+            <Select {...register("gender")}>
+              <SelectTrigger id="gender">
+                <SelectValue placeholder="Select gender" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Male">Male</SelectItem>
+                <SelectItem value="Female">Female</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Contact */}
+          <div className="grid gap-2">
+            <Label htmlFor="contact">Contact</Label>
             <Input
-              {...register("age")}
-              id="age"
-              type="number"
-              placeholder="Enter age"
+              onClick={(e) => e.stopPropagation()}
+              {...register("contact")}
+              id="contact"
+              placeholder="Enter contact number"
             />
-            {errors.age && (
-              <p className="text-red-500 text-sm">{errors.age.message}</p>
+            {errors.contact && (
+              <p className="text-red-500 text-sm">{errors.contact.message}</p>
             )}
           </div>
-        </div>
 
-        {/* Gender */}
-        <div className="grid gap-2">
-          <Label htmlFor="gender">Gender</Label>
-          <Select {...register("gender")}>
-            <SelectTrigger id="gender">
-              <SelectValue placeholder="Select gender" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="Male">Male</SelectItem>
-              <SelectItem value="Female">Female</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+          {/* Weight */}
+          <div className="grid gap-2">
+            <Label htmlFor="weight" onClick={(e) => e.stopPropagation()}>
+              Weight
+            </Label>
+            <Input
+              onClick={(e) => e.stopPropagation()}
+              {...register("weight")}
+              id="weight"
+              type="number"
+              placeholder="Enter weight (kg)"
+            />
+            {errors.weight && (
+              <p className="text-red-500 text-sm">{errors.weight.message}</p>
+            )}
+          </div>
 
-        {/* Contact */}
-        <div className="grid gap-2">
-          <Label htmlFor="contact">Contact</Label>
-          <Input
-            {...register("contact")}
-            id="contact"
-            placeholder="Enter contact number"
-          />
-          {errors.contact && (
-            <p className="text-red-500 text-sm">{errors.contact.message}</p>
-          )}
-        </div>
-
-        {/* Weight */}
-        <div className="grid gap-2">
-          <Label htmlFor="weight">Weight</Label>
-          <Input
-            {...register("weight")}
-            id="weight"
-            type="number"
-            placeholder="Enter weight (kg)"
-          />
-          {errors.weight && (
-            <p className="text-red-500 text-sm">{errors.weight.message}</p>
-          )}
-        </div>
-
-        {/* Special Notes */}
-        <div className="grid gap-2">
-          <Label htmlFor="special-notes">Special Notes (Optional)</Label>
-          <Textarea
-            id="special-notes"
-            placeholder="Any additional notes for the patient."
-          />
-        </div>
-      </CardContent>
-      <CardFooter className="justify-between space-x-2">
-        <Button variant="ghost" size="sm" onClick={onClose}>
-          Cancel
-        </Button>
-        <Button size="sm" onClick={handleSubmit(onSubmit)}>
-          Save
-        </Button>
-      </CardFooter>
+          {/* Special Notes */}
+          <div className="grid gap-2">
+            <Label htmlFor="special-notes">Special Notes (Optional)</Label>
+            <Textarea
+              onClick={(e) => e.stopPropagation()}
+              id="special-notes"
+              placeholder="Any additional notes for the patient."
+              {...register("notes")}
+            />
+          </div>
+        </CardContent>
+        <CardFooter className="justify-between space-x-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={(e) => {
+              e.stopPropagation();
+              onClose();
+            }}
+            type="button"
+          >
+            Cancel
+          </Button>
+          <Button
+            size="sm"
+            type="submit"
+            onClick={(e) => {
+              e.stopPropagation();
+            }}
+          >
+            Save
+          </Button>
+        </CardFooter>
+      </form>
     </Card>
   );
 }

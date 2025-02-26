@@ -19,9 +19,11 @@ function NewPatientModal({ isOpen, onClose }: NewPatientModalProps) {
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose}>
-      <AddPatientForm onClose={onClose} onSave={addPatient} />
-    </Modal>
+    <div onClick={(e) => e.stopPropagation()}>
+      <Modal isOpen={isOpen} onClose={onClose}>
+        <AddPatientForm onClose={onClose} onSave={addPatient} />
+      </Modal>
+    </div>
   );
 }
 

@@ -34,7 +34,7 @@ const items = [
   { title: "New Patient", url: "/newpatient", icon: User },
   { title: "Consultations", url: "/consultations", icon: Clipboard },
   { title: "Prescriptions", url: "/prescriptions", icon: PillBottle },
-  { title: "Statistics", url: "/statistics", icon: ChartColumnIncreasing },
+  { title: "Statistics", url: "/pat/:id", icon: ChartColumnIncreasing },
   { title: "Settings", url: "/settings", icon: Settings },
 ];
 

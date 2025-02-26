@@ -38,8 +38,8 @@ export const columns: ColumnDef<Payment>[] = [
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           className="flex items-center justify-end w-full"
         >
-          Date
-          <ArrowUpDown className="ml-2 h-4 w-4" />
+          Last visit
+          <ArrowUpDown className="h-4 w-4" />
         </Button>
       );
     },
