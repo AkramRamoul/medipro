@@ -3,7 +3,9 @@
     "strict": true,
     "target": "ESNext",
     "module": "NodeNext",
+    "moduleResolution": "NodeNext",
     "outDir": "../../dist-electron",
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "esModuleInterop": true
   }
 }

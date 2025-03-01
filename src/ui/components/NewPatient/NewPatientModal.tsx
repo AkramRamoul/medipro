@@ -1,4 +1,3 @@
-import React from "react";
 import Modal from "../Modal";
 import { AddPatientForm } from "./Form";
 
@@ -13,15 +12,21 @@ interface NewPatientModalProps {
   onClose: () => void;
 }
 function NewPatientModal({ isOpen, onClose }: NewPatientModalProps) {
-  const [patients, setPatients] = React.useState<Patient[]>([]);
-  const addPatient = (patientData: Patient) => {
-    setPatients([...patients, patientData]);
+  const handleSave = async (data: Patient) => {
+    console.log("Saving patient:", data); // Debugging log
+    try {
+      await window.electronAPI.addpatient(data); // Ensure this function exists
+      console.log("Patient saved successfully!");
+      onClose();
+    } catch (error) {
+      console.error("Failed to save patient:", error);
+    }
   };
 
   return (
     <div onClick={(e) => e.stopPropagation()}>
       <Modal isOpen={isOpen} onClose={onClose}>
-        <AddPatientForm onClose={onClose} onSave={addPatient} />
+        <AddPatientForm onClose={onClose} onSave={handleSave} />
       </Modal>
     </div>
   );

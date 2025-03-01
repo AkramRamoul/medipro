@@ -1,33 +1,30 @@
-import { app, BrowserWindow } from "electron";
+import { app, BrowserWindow, ipcMain } from "electron";
 import path from "path";
-import { isDevelopment } from "./util.js";
+import { fileURLToPath } from "url"; // ✅ Needed for ESM
 
-app.whenReady().then(() => {
+// ✅ Fix __dirname in ESM
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const createWindow = () => {
   const win = new BrowserWindow({
     show: false,
     webPreferences: {
-      nodeIntegration: true,
+      preload: path.join(__dirname, "preload.mjs"), // ✅ Make sure this is correct
+      nodeIntegration: false, // Keep it secure
+      contextIsolation: true, // ✅ Required for contextBridge to work
     },
   });
 
   win.maximize();
   win.show();
 
-  if (isDevelopment()) {
-    win.loadURL("http://localhost:5123");
-  } else {
-    win.loadFile(path.join(app.getAppPath(), "dist-react", "index.html"));
-  }
+  win.loadURL("http://localhost:5123");
 
-  win.webContents.setWindowOpenHandler(() => ({ action: "allow" }));
-  // win.webContents.session.webRequest.onHeadersReceived((details, callback) => {
-  //   callback({
-  //     responseHeaders: {
-  //       ...details.responseHeaders,
-  //       "Content-Security-Policy": [
-  //           "default-src 'self'; script-src 'self' 'unsafe-inline'",
-  //       ],
-  //     },
-  //   });
-  // });
-});
+  ipcMain.handle("addpatient", async (_, data) => {
+    console.log("📢 addpatient IPC received:", data);
+    return "Patient added!";
+  });
+};
+
+app.whenReady().then(createWindow);

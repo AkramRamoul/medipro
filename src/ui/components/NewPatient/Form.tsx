@@ -18,7 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Textarea } from "../ui/textarea";
@@ -45,11 +45,13 @@ export function AddPatientForm({ onClose, onSave }: AddPatientFormProps) {
     register,
     handleSubmit,
     formState: { errors },
+    control,
   } = useForm<PatientData>({
     resolver: zodResolver(patientSchema),
   });
 
   const onSubmit = (data: PatientData) => {
+    console.log("Form submitted:", data); // Debugging log
     onSave(data);
     onClose();
   };
@@ -62,7 +64,7 @@ export function AddPatientForm({ onClose, onSave }: AddPatientFormProps) {
     >
       <form
         onSubmit={handleSubmit(onSubmit)}
-        onClick={(e) => e.stopPropagation()} // Prevents closing when clicking inside
+        // Prevents closing when clicking inside
       >
         <CardHeader>
           <CardTitle>Add a new patient</CardTitle>
@@ -85,7 +87,6 @@ export function AddPatientForm({ onClose, onSave }: AddPatientFormProps) {
             <div className="grid gap-2">
               <Label htmlFor="age">Age</Label>
               <Input
-                onClick={(e) => e.stopPropagation()}
                 {...register("age")}
                 id="age"
                 type="number"
@@ -100,22 +101,30 @@ export function AddPatientForm({ onClose, onSave }: AddPatientFormProps) {
           {/* Gender */}
           <div className="grid gap-2">
             <Label htmlFor="gender">Gender</Label>
-            <Select {...register("gender")}>
-              <SelectTrigger id="gender">
-                <SelectValue placeholder="Select gender" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Male">Male</SelectItem>
-                <SelectItem value="Female">Female</SelectItem>
-              </SelectContent>
-            </Select>
+            <Controller
+              name="gender"
+              control={control}
+              render={({ field }) => (
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <SelectTrigger id="gender">
+                    <SelectValue placeholder="Select gender" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Male">Male</SelectItem>
+                    <SelectItem value="Female">Female</SelectItem>
+                  </SelectContent>
+                </Select>
+              )}
+            />
+            {errors.gender && (
+              <p className="text-red-500 text-sm">{errors.gender.message}</p>
+            )}
           </div>
 
           {/* Contact */}
           <div className="grid gap-2">
             <Label htmlFor="contact">Contact</Label>
             <Input
-              onClick={(e) => e.stopPropagation()}
               {...register("contact")}
               id="contact"
               placeholder="Enter contact number"
@@ -127,11 +136,8 @@ export function AddPatientForm({ onClose, onSave }: AddPatientFormProps) {
 
           {/* Weight */}
           <div className="grid gap-2">
-            <Label htmlFor="weight" onClick={(e) => e.stopPropagation()}>
-              Weight
-            </Label>
+            <Label htmlFor="weight">Weight</Label>
             <Input
-              onClick={(e) => e.stopPropagation()}
               {...register("weight")}
               id="weight"
               type="number"
@@ -146,7 +152,6 @@ export function AddPatientForm({ onClose, onSave }: AddPatientFormProps) {
           <div className="grid gap-2">
             <Label htmlFor="special-notes">Special Notes (Optional)</Label>
             <Textarea
-              onClick={(e) => e.stopPropagation()}
               id="special-notes"
               placeholder="Any additional notes for the patient."
               {...register("notes")}
