@@ -53,20 +53,18 @@ export function DataTable<TData, TValue>({
   });
 
   return (
-    <div className="flex flex-col space-y-4 justify-center items-center">
-      <div className="flex items-center py-4 w-[800px] mx-auto">
-        <div className="flex items-center space-x-10">
-          <Input
-            placeholder="Filter names..."
-            value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
-            onChange={(event) =>
-              table.getColumn("name")?.setFilterValue(event.target.value)
-            }
-            className="max-w-sm"
-          />
-        </div>
+    <div className="flex flex-col space-y-4 items-center">
+      <div className="flex items-center py-2 w-[600px] max-w-full mx-auto">
+        <Input
+          placeholder="Filter names..."
+          value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
+          onChange={(event) =>
+            table.getColumn("name")?.setFilterValue(event.target.value)
+          }
+          className="max-w-full"
+        />
       </div>
-      <div className="rounded-md border w-[800px] mx-auto">
+      <div className="rounded-md border w-[600px] max-w-full mx-auto">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -116,7 +114,7 @@ export function DataTable<TData, TValue>({
           </TableBody>
         </Table>
       </div>
-      <div className="flex items-center justify-center space-x-2 py-4">
+      <div className="flex items-center justify-center space-x-2 py-2">
         <Button
           variant={"outline"}
           size={"sm"}
