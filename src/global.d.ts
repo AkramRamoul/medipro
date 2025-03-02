@@ -1,5 +1,5 @@
 export interface IElectronAPI {
-  addpatient: (data: unknown) => Promise<void>;
+  addPatient: (data: unknown) => Promise<void>;
 }
 
 declare global {

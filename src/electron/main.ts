@@ -2,7 +2,8 @@ import { app, BrowserWindow, ipcMain } from "electron";
 import path from "path";
 import { isDevelopment } from "./util.js";
 import { getPreloadPath } from "./pathResolver.js";
-
+import { db } from "./index.js";
+import { patients } from "./schema.js";
 app.on("ready", () => {
   const win = new BrowserWindow({
     show: false,
@@ -22,7 +23,15 @@ app.on("ready", () => {
   }
   ipcMain.handle("addpatient", async (_, data) => {
     console.log("📢 addpatient IPC received:", data);
-    return "Patient added!";
+    try {
+      await db.insert(patients).values(data);
+      win.webContents.executeJavaScript("console.log('📢 Patient added!');");
+    } catch (error) {
+      win.webContents.executeJavaScript(
+        "console.error('📢 Failed to add patient:', error);"
+      );
+      throw error; // Rethrow error to be caught in preload
+    }
   });
 
   win.webContents.setWindowOpenHandler(() => ({ action: "allow" }));

@@ -14,6 +14,13 @@ interface NewPatientModalProps {
 function NewPatientModal({ isOpen, onClose }: NewPatientModalProps) {
   const handleSave = async (data: Patient) => {
     console.log("Saving patient:", data); // Debugging log
+    try {
+      await window.electronAPI.addPatient(data); // Ensure this function exists
+      console.log("!");
+      onClose();
+    } catch (error) {
+      console.error("Failed to save patient:", error);
+    }
   };
 
   return (
