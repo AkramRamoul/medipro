@@ -1,55 +1,39 @@
-import { type Payment } from "../components/Home/colums";
+import { type Patient } from "../components/Home/colums";
 import { columns } from "../components/Home/colums";
 import { DataTable } from "../components/Home/Data-table";
 import NewPatientModal from "../components/NewPatient/NewPatientModal";
-import React from "react";
+import { useState, useEffect } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/avatar";
 import { Button } from "../components/ui/button";
-function getData(): Payment[] {
-  // Fetch data from your API here.
-  return [
-    {
-      id: "728ed52f",
-      contact: "0552705879",
-      name: "ahmed",
-      date: "12/12/2022",
-    },
-    {
-      id: "728ed523",
-      contact: "0552705879",
-      name: "mohamed",
-      date: "12/12/2024",
-    },
-    {
-      id: "728ed524",
-      contact: "0552705879",
-      name: "omar",
-      date: "12/12/2022",
-    },
-    {
-      id: "728ed526",
-      contact: "0552705879",
-      name: "farouk",
-      date: "12/12/2022",
-    },
-    {
-      id: "728ed525",
-      contact: "0552705879",
-      name: "salim",
-      date: "12/12/2022",
-    },
-    {
-      id: "728ed527",
-      contact: "0552705879",
-      name: "fateh",
-      date: "12/12/2022",
-    },
-  ];
+import { Loader2 } from "lucide-react";
+
+async function getData(): Promise<Patient[]> {
+  try {
+    const result = await window.electronAPI.getallpatients();
+    return result;
+  } catch (error) {
+    console.error("Failed to fetch patients in component:", error);
+    return [];
+  }
 }
 
 export function Home() {
-  const data = getData();
-  const [isOpen, setIsOpen] = React.useState(false);
+  // State to hold patients data and loading status
+  const [data, setData] = useState<Patient[]>([]);
+  const [isOpen, setIsOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true); // Loading state
+
+  // Fetch data on component mount
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsLoading(true); // Start loading
+      const patients = await getData();
+      setData(patients); // Set the fetched data to state
+      setIsLoading(false); // Stop loading
+    };
+
+    fetchData();
+  }, []);
 
   return (
     <>
@@ -70,10 +54,19 @@ export function Home() {
             </Avatar>
           </div>
         </div>
+
         <Button onClick={() => setIsOpen(true)} className="w-fit">
           Add New Patient
         </Button>
-        <DataTable columns={columns} data={data} />
+
+        {isLoading ? (
+          <div className="flex items-center justify-center py-10">
+            <Loader2 className="animate-spin text-muted-foreground w-6 h-6" />
+            <span className="ml-2 text-muted-foreground">Loading...</span>
+          </div>
+        ) : (
+          <DataTable columns={columns} data={data} />
+        )}
       </div>
     </>
   );

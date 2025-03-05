@@ -33,6 +33,17 @@ app.on("ready", () => {
       throw error; // Rethrow error to be caught in preload
     }
   });
+  ipcMain.handle("getallpatients", async () => {
+    const result = await db.select().from(patients);
+
+    // Format dates before sending to the frontend
+    const formattedPatients = result.map((patient) => ({
+      ...patient,
+      date: new Date(patient.createdAt!).toISOString().split("T")[0], // Format date as "YYYY-MM-DD"
+    }));
+
+    return formattedPatients; // Sends formatted data to frontend
+  });
 
   win.webContents.setWindowOpenHandler(() => ({ action: "allow" }));
   // win.webContents.session.webRequest.onHeadersReceived((details, callback) => {

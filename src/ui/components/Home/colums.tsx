@@ -3,14 +3,14 @@ import { ArrowUpDown } from "lucide-react";
 import { Button } from "../ui/button";
 
 // This type is used to define the shape of our data.
-export type Payment = {
+export type Patient = {
   id: string;
   name: string;
   contact: string;
   date: string; // Ensure date is in a valid format like "YYYY-MM-DD"
 };
 
-export const columns: ColumnDef<Payment>[] = [
+export const columns: ColumnDef<Patient>[] = [
   {
     accessorKey: "name",
     header: ({ column }) => {
