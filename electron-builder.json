@@ -1,6 +1,12 @@
 {
   "appId": "com.akram.doc-right",
   "files": ["dist-electron", "dist-react"],
+  "extraResources": [
+    {
+      "from": "public/medications.json",
+      "to": "medications.json"
+    }
+  ],
   "icon": "./icon.png",
   "mac": {
     "target": "dmg"

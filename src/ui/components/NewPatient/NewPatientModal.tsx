@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import Modal from "../Modal";
 import { AddPatientForm } from "./Form";
 
@@ -12,12 +13,18 @@ interface NewPatientModalProps {
   onClose: () => void;
 }
 function NewPatientModal({ isOpen, onClose }: NewPatientModalProps) {
+  const navigate = useNavigate();
+
   const handleSave = async (data: Patient) => {
-    console.log("Saving patient:", data); // Debugging log
+    console.log("Saving patient:", data);
     try {
-      await window.electronAPI.addPatient(data); // Ensure this function exists
-      console.log("!");
+      // Await the returned ID from the backend
+      const newPatientId = await window.electronAPI.addPatient(data);
+      console.log("Patient saved with ID:", newPatientId);
       onClose();
+
+      // Navigate to /pat/:id after saving
+      navigate(`/pat/${newPatientId}`);
     } catch (error) {
       console.error("Failed to save patient:", error);
     }

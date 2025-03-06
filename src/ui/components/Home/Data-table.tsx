@@ -1,5 +1,4 @@
 import * as React from "react";
-
 import {
   ColumnDef,
   flexRender,
@@ -22,13 +21,16 @@ import {
 } from "../ui/table";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
+import { useNavigate } from "react-router-dom"; // Use this if you're using react-router-dom
+// import { useRouter } from "next/router"; // Use this if you're using Next.js
 
-interface DataTableProps<TData, TValue> {
+// Constrain TData to have 'id'
+interface DataTableProps<TData extends { id: string }, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
 }
 
-export function DataTable<TData, TValue>({
+export function DataTable<TData extends { id: string }, TValue>({
   columns,
   data,
 }: DataTableProps<TData, TValue>) {
@@ -36,6 +38,8 @@ export function DataTable<TData, TValue>({
     []
   );
   const [sorting, setSorting] = React.useState<SortingState>([]);
+  const navigate = useNavigate(); // For react-router-dom
+  // const router = useRouter(); // For Next.js
 
   const table = useReactTable({
     data,
@@ -90,6 +94,9 @@ export function DataTable<TData, TValue>({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
+                  className="cursor-pointer hover:bg-gray-100" // Change cursor and add hover effect
+                  onClick={() => navigate(`/pat/${row.original.id}`)} // For react-router-dom
+                  // onClick={() => router.push(`/pat/${row.original.id}`)} // For Next.js
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
