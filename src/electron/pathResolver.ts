@@ -9,3 +9,11 @@ export function getPreloadPath() {
     "/dist-electron/preload.cjs"
   );
 }
+
+export function getMedsPath() {
+  return path.join(
+    app.getAppPath(),
+    isDevelopment() ? "public" : path.join("resources", "public"),
+    "meds.json"
+  );
+}

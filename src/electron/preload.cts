@@ -16,4 +16,14 @@ contextBridge.exposeInMainWorld("electronAPI", {
       return []; // Return an empty array if an error occurs
     }
   },
+  getMedications: () => ipcRenderer.invoke("get-medications"),
+  getpatient: async (id: number) => {
+    console.log("📢 Fetching patient with ID:", id);
+    try {
+      return await ipcRenderer.invoke("getpatient", id);
+    } catch (error) {
+      console.error("📢 Failed to fetch patient:", error);
+      return null; // Return null if an error occurs
+    }
+  },
 });
