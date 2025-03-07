@@ -18,18 +18,17 @@ async function getData(): Promise<Patient[]> {
 }
 
 export function Home() {
-  // State to hold patients data and loading status
   const [data, setData] = useState<Patient[]>([]);
   const [isOpen, setIsOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(true); // Loading state
+  const [isLoading, setIsLoading] = useState(true);
 
   // Fetch data on component mount
   useEffect(() => {
     const fetchData = async () => {
-      setIsLoading(true); // Start loading
+      setIsLoading(true);
       const patients = await getData();
-      setData(patients); // Set the fetched data to state
-      setIsLoading(false); // Stop loading
+      setData(patients);
+      setIsLoading(false);
     };
 
     fetchData();

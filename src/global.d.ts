@@ -4,7 +4,7 @@ export interface IElectronAPI {
   getpatient(id: string): Patient | null;
   getMedications: () => Promise<
     { name: string; form: string; dosage: string }[]
-  >; // New method
+  >;
 }
 
 declare global {
