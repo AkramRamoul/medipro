@@ -7,6 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/avatar";
 import { Button } from "../components/ui/button";
 import { Loader2 } from "lucide-react";
 
+// Fetch data from the main process
 async function getData(): Promise<Patient[]> {
   try {
     const result = await window.electronAPI.getallpatients();
@@ -57,7 +58,7 @@ export function Home() {
         <Button onClick={() => setIsOpen(true)} className="w-fit">
           Add New Patient
         </Button>
-
+      
         {isLoading ? (
           <div className="flex items-center justify-center py-10">
             <Loader2 className="animate-spin text-muted-foreground w-6 h-6" />

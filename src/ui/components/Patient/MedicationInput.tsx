@@ -35,7 +35,6 @@ const MedicationsInput = () => {
   const fetchMedications = async () => {
     try {
       const meds = await window.electronAPI.getMedications();
-      console.log("Medications:", meds);
       setMedications(meds);
     } catch (err) {
       console.error("Failed to load medications:", err);
