@@ -5,6 +5,8 @@ export interface IElectronAPI {
   getMedications: () => Promise<
     { name: string; form: string; dosage: string }[]
   >;
+  addConsultation: (data: unknown) => Promise<void>;
+  getConsultations(id: string): Consultation[];
 }
 
 declare global {

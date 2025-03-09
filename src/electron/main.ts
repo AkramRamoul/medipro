@@ -5,7 +5,7 @@ import fs from "fs";
 import { isDevelopment } from "./util.js";
 import { getMedsPath, getPreloadPath } from "./pathResolver.js";
 import { db } from "./index.js";
-import { patients } from "./schema.js";
+import { patients, consultations } from "./schema.js";
 app.on("ready", () => {
   const win = new BrowserWindow({
     show: false,
@@ -106,6 +106,17 @@ app.on("ready", () => {
         }
       });
     });
+  });
+
+  ipcMain.handle("add-consultation", async (_, data) => {
+    await db.insert(consultations).values(data);
+  });
+  ipcMain.handle("get-consultations", async (_, patientId) => {
+    const result = await db
+      .select()
+      .from(consultations)
+      .where(eq(consultations.patientId, patientId));
+    return result;
   });
   win.webContents.setWindowOpenHandler(() => ({ action: "allow" }));
   // win.webContents.session.webRequest.onHeadersReceived((details, callback) => {

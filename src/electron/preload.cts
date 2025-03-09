@@ -26,4 +26,17 @@ contextBridge.exposeInMainWorld("electronAPI", {
       return null; // Return null if an error occurs
     }
   },
+  addConsultation: async (data: unknown) => {
+    console.log("📢 Sending data to main process:", data);
+    return await ipcRenderer.invoke("add-consultation", data);
+  },
+  getConsultations: async (id: number) => {
+    console.log("📢 Fetching consultations for patient ID:", id);
+    try {
+      return await ipcRenderer.invoke("get-consultations", id);
+    } catch (error) {
+      console.error("📢 Failed to fetch consultations:", error);
+      return []; // Return an empty array if an error occurs
+    }
+  },
 });
