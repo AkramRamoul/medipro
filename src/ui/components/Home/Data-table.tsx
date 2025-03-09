@@ -38,8 +38,7 @@ export function DataTable<TData extends { id: string }, TValue>({
     []
   );
   const [sorting, setSorting] = React.useState<SortingState>([]);
-  const navigate = useNavigate(); // For react-router-dom
-  // const router = useRouter(); // For Next.js
+  const navigate = useNavigate();
 
   const table = useReactTable({
     data,
@@ -95,8 +94,7 @@ export function DataTable<TData extends { id: string }, TValue>({
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
                   className="cursor-pointer hover:bg-gray-100" // Change cursor and add hover effect
-                  onClick={() => navigate(`/pat/${row.original.id}`)} // For react-router-dom
-                  // onClick={() => router.push(`/pat/${row.original.id}`)} // For Next.js
+                  onClick={() => navigate(`/pat/${row.original.id}`)}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>

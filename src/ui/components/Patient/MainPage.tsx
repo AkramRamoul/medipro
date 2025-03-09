@@ -1,12 +1,12 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
-import ConsultationForm from "./ConsultationForm";
+import ConsultationForm from "../Consultation/MainConsultationPage";
 import { useParams } from "react-router-dom";
 import MedicationInput from "./MedicationInput";
 function MainPage() {
   const { id } = useParams<{ id: string }>();
   return (
     <div className="p-4 flex justify-center">
-      <Tabs defaultValue="account" className="w-full max-w-7xl">
+      <Tabs defaultValue="account" className="w-full max-w-5xl">
         <TabsList className="w-full flex justify-center">
           <TabsTrigger value="account" className="flex-1">
             Consultation
