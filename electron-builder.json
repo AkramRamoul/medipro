@@ -7,6 +7,7 @@
       "to": "medications.json"
     }
   ],
+  "extraFiles": ["database.db"],
   "icon": "./icon.png",
   "mac": {
     "target": "dmg"

@@ -98,7 +98,6 @@ app.on("ready", () => {
             dosage: med["DOSAGE"] || "N/A",
           }));
 
-          console.log(medications); // Log for debugging
           resolve(medications);
         } catch (parseErr) {
           console.error("Failed to parse JSON:", parseErr);

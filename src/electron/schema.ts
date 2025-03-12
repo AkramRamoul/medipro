@@ -1,8 +1,9 @@
-import { pgTable, text, integer, serial, timestamp } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
+import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
 
 // 🏥 Patients Table
-export const patients = pgTable("patients", {
-  id: serial("id").primaryKey(),
+export const patients = sqliteTable("patients", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
   name: text("name").notNull(),
   age: integer("age").notNull(),
   gender: text("gender").notNull(), // Male, Female, Other
@@ -13,29 +14,29 @@ export const patients = pgTable("patients", {
   medicalHistory: text("medical_history"),
   allergies: text("allergies"),
   notes: text("notes"),
-  createdAt: timestamp("created_at").defaultNow(),
+  createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
 });
 
 // 📝 Consultations Table (Linked to Patients)
-export const consultations = pgTable("consultations", {
-  id: serial("id").primaryKey(),
+export const consultations = sqliteTable("consultations", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
   patientId: integer("patient_id")
     .notNull()
     .references(() => patients.id, { onDelete: "cascade" }), // Foreign key to Patients
-  date: timestamp("date").defaultNow(),
+  date: text("date").default(sql`CURRENT_TIMESTAMP`),
   reason: text("reason").notNull(),
   diagnosis: text("diagnosis").notNull(),
   notes: text("notes"),
 });
 
 // 💊 Prescriptions Table (Linked to Patients, No Link to Consultations)
-export const prescriptions = pgTable("prescriptions", {
-  id: serial("id").primaryKey(),
+export const prescriptions = sqliteTable("prescriptions", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
   patientId: integer("patient_id")
     .notNull()
     .references(() => patients.id, { onDelete: "cascade" }), // Foreign key to Patients
   medicineName: text("medicine_name").notNull(),
   dosage: text("dosage").notNull(),
   instructions: text("instructions"),
-  date: timestamp("date").defaultNow(),
+  date: text("daten").default(sql`CURRENT_TIMESTAMP`),
 });

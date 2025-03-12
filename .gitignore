@@ -15,7 +15,7 @@ migrations
 .env
 dist-ssr
 *.local
-
+database.db
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
