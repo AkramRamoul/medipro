@@ -3,7 +3,7 @@ import path from "path";
 import { eq } from "drizzle-orm";
 import fs from "fs";
 import { isDevelopment } from "./util.js";
-import { getMedsPath, getPreloadPath } from "./pathResolver.js";
+import { getMedsPath } from "./pathResolver.js";
 import { db } from "./index.js";
 import { patients, consultations } from "./schema.js";
 app.on("ready", () => {
@@ -11,7 +11,7 @@ app.on("ready", () => {
     show: false,
     webPreferences: {
       nodeIntegration: true,
-      preload: getPreloadPath(),
+      preload: path.join(app.getAppPath(), "dist-electron", "preload.cjs"),
     },
   });
 
@@ -87,10 +87,8 @@ app.on("ready", () => {
           console.error("Failed to read JSON:", err);
           return reject(err);
         }
-
         try {
           const rawMedications = JSON.parse(data);
-          // Map French keys to English keys
           /* eslint-disable  @typescript-eslint/no-explicit-any */
           const medications = rawMedications.map((med: any) => ({
             name: med["NOM DE MARQUE"] || "N/A",
@@ -118,14 +116,14 @@ app.on("ready", () => {
     return result;
   });
   win.webContents.setWindowOpenHandler(() => ({ action: "allow" }));
-  // win.webContents.session.webRequest.onHeadersReceived((details, callback) => {
-  //   callback({
-  //     responseHeaders: {
-  //       ...details.responseHeaders,
-  //       "Content-Security-Policy": [
-  //         "default-src 'self'; script-src 'self' 'unsafe-inline'",
-  //       ],
-  //     },
-  //   });
-  // });
+  win.webContents.session.webRequest.onHeadersReceived((details, callback) => {
+    callback({
+      responseHeaders: {
+        ...details.responseHeaders,
+        "Content-Security-Policy": [
+          "default-src 'self'; script-src 'self' 'unsafe-inline'",
+        ],
+      },
+    });
+  });
 });

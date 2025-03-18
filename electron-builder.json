@@ -3,20 +3,16 @@
   "files": ["dist-electron", "dist-react"],
   "extraResources": [
     {
-      "from": "public/medications.json",
-      "to": "medications.json"
+      "from": "public/meds.json",
+      "to": "meds.json"
+    },
+    {
+      "from": "database.db",
+      "to": "database.db"
     }
   ],
-  "extraFiles": ["database.db"],
   "icon": "./icon.png",
-  "mac": {
-    "target": "dmg"
-  },
-  "linux": {
-    "target": "AppImage",
-    "category": "Utility"
-  },
-  "win": {
-    "target": ["portable", "msi"]
-  }
+  "mac": { "target": "dmg" },
+  "linux": { "target": "AppImage", "category": "Utility" },
+  "win": { "target": ["portable", "msi"] }
 }
