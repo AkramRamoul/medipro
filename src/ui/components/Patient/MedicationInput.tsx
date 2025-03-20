@@ -28,7 +28,8 @@ const MedicationsInput = () => {
     useState<Medication | null>(null);
   const [highlightedIndex, setHighlightedIndex] = useState<number>(-1);
   const [quantity, setQuantity] = useState<string>("");
-  const [duration, setDuration] = useState<string>("");
+  const [durationValue, setDurationValue] = useState<string>("");
+  const [durationUnit, setDurationUnit] = useState<string>("weeks");
 
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -66,6 +67,11 @@ const MedicationsInput = () => {
     setInputValue(value);
     setSelectedMedication(null);
 
+    if (value.trim() === "") {
+      setSuggestions([]);
+      return;
+    }
+
     const filteredSuggestions = medications.filter((med) =>
       med.name.toLowerCase().includes(value.toLowerCase())
     );
@@ -80,22 +86,6 @@ const MedicationsInput = () => {
     );
     setSuggestions([]);
   };
-
-  const handleAddMedication = () => {
-    if (selectedMedication) {
-      const medicationWithExtras = {
-        ...selectedMedication,
-        quantity,
-        duration,
-      };
-      setSelectedMedications((prev) => [...prev, medicationWithExtras]);
-      setSelectedMedication(null);
-      setInputValue("");
-      setQuantity("");
-      setDuration("");
-    }
-  };
-
   const handleRemoveMedication = (index: number) => {
     setSelectedMedications((prev) =>
       prev.filter((_, medIndex) => medIndex !== index)
@@ -113,12 +103,21 @@ const MedicationsInput = () => {
       handleSuggestionClick(suggestions[highlightedIndex]);
     }
   };
-  const handleQteChange = (value: string) => {
-    setQuantity(value);
-  };
 
-  const handleDurationChange = (value: string) => {
-    setDuration(value);
+  const handleAddMedication = () => {
+    if (selectedMedication) {
+      const medicationWithExtras = {
+        ...selectedMedication,
+        quantity,
+        duration: durationValue ? `${durationValue} ${durationUnit}` : "",
+      };
+      setSelectedMedications((prev) => [...prev, medicationWithExtras]);
+      setSelectedMedication(null);
+      setInputValue("");
+      setQuantity("");
+      setDurationValue("");
+      setDurationUnit("weeks");
+    }
   };
 
   return (
@@ -132,7 +131,8 @@ const MedicationsInput = () => {
           placeholder="Type a medication name..."
           className="border p-2 rounded w-full"
         />
-        <Select value={quantity} onValueChange={handleQteChange}>
+
+        <Select value={quantity} onValueChange={setQuantity}>
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="Qte" />
           </SelectTrigger>
@@ -146,16 +146,21 @@ const MedicationsInput = () => {
           </SelectContent>
         </Select>
 
-        <Select value={duration} onValueChange={handleDurationChange}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Duration" />
+        <Input
+          type="number"
+          value={durationValue}
+          onChange={(e) => setDurationValue(e.target.value)}
+          placeholder="Duration"
+          className="border p-2 rounded w-[100px]"
+        />
+        <Select value={durationUnit} onValueChange={setDurationUnit}>
+          <SelectTrigger className="w-[120px]">
+            <SelectValue placeholder="Unit" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="1 week">1 week</SelectItem>
-            <SelectItem value="2 weeks">2 week</SelectItem>
-            <SelectItem value="1 month">3 week</SelectItem>
-            <SelectItem value="2 moths">5 week</SelectItem>
-            <SelectItem value="3 months">6 week</SelectItem>
+            <SelectItem value="days">Days</SelectItem>
+            <SelectItem value="weeks">Weeks</SelectItem>
+            <SelectItem value="months">Months</SelectItem>
           </SelectContent>
         </Select>
 
@@ -163,7 +168,6 @@ const MedicationsInput = () => {
           Add
         </Button>
       </div>
-
       {suggestions.length > 0 && (
         <div className="absolute z-10 bg-white border rounded w-full shadow-md max-h-60 overflow-y-auto">
           {suggestions.map((med, index) => (
@@ -179,7 +183,6 @@ const MedicationsInput = () => {
           ))}
         </div>
       )}
-
       {selectedMedications.length > 0 && (
         <div className="mt-4">
           <h3 className="font-semibold mb-2">Selected Medications:</h3>

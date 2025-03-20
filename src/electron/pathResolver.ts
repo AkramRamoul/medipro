@@ -9,9 +9,7 @@ export function getPreloadPath() {
 }
 
 export function getMedsPath() {
-  return path.join(
-    app.getAppPath(),
-    isDevelopment() ? "public" : path.join("resources", "public"),
-    "meds.json"
-  );
+  return isDevelopment()
+    ? "public/meds.json"
+    : path.join(process.resourcesPath, "meds.json"); // ✅ Correct path
 }

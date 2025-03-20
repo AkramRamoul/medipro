@@ -116,14 +116,14 @@ app.on("ready", () => {
     return result;
   });
   win.webContents.setWindowOpenHandler(() => ({ action: "allow" }));
-  win.webContents.session.webRequest.onHeadersReceived((details, callback) => {
-    callback({
-      responseHeaders: {
-        ...details.responseHeaders,
-        "Content-Security-Policy": [
-          "default-src 'self'; script-src 'self' 'unsafe-inline'",
-        ],
-      },
-    });
-  });
+  // win.webContents.session.webRequest.onHeadersReceived((details, callback) => {
+  //   callback({
+  //     responseHeaders: {
+  //       ...details.responseHeaders,
+  //       "Content-Security-Policy": [
+  //         "default-src 'self'; script-src 'self' 'unsafe-inline'",
+  //       ],
+  //     },
+  //   });
+  // });
 });
