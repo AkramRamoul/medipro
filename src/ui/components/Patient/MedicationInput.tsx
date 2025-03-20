@@ -27,7 +27,7 @@ const MedicationsInput = () => {
     []
   );
   const { id } = useParams<{ id: string }>();
-
+  console.log(id);
   const [selectedMedication, setSelectedMedication] =
     useState<Medication | null>(null);
   const [highlightedIndex, setHighlightedIndex] = useState<number>(-1);
@@ -148,7 +148,7 @@ const MedicationsInput = () => {
     // Create a new PDF Document
     const pdfDoc = await PDFDocument.create();
     const page = pdfDoc.addPage([420, 595]); // A5 Paper Size
-    const { width, height } = page.getSize();
+    const { height } = page.getSize();
     const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
 
     // Title
