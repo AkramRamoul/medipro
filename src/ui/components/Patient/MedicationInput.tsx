@@ -8,6 +8,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
+import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
+import { useParams } from "react-router-dom";
 
 interface Medication {
   name: string;
@@ -24,6 +26,8 @@ const MedicationsInput = () => {
   const [selectedMedications, setSelectedMedications] = useState<Medication[]>(
     []
   );
+  const { id } = useParams<{ id: string }>();
+
   const [selectedMedication, setSelectedMedication] =
     useState<Medication | null>(null);
   const [highlightedIndex, setHighlightedIndex] = useState<number>(-1);
@@ -135,8 +139,69 @@ const MedicationsInput = () => {
     }
   };
 
+  const handlePrint = async () => {
+    if (selectedMedications.length === 0) {
+      alert("No medications to print!");
+      return;
+    }
+
+    // Create a new PDF Document
+    const pdfDoc = await PDFDocument.create();
+    const page = pdfDoc.addPage([420, 595]); // A5 Paper Size
+    const { width, height } = page.getSize();
+    const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+
+    // Title
+    page.drawText("Medications List", {
+      x: 40,
+      y: height - 40,
+      size: 16,
+      font,
+      color: rgb(0, 0, 0),
+    });
+
+    // Start position for text
+    let yPos = height - 80;
+    const rowHeight = 18;
+
+    // Loop through medications and print in requested format
+    selectedMedications.forEach((med) => {
+      const formattedText = `${med.name} - ${med.form} (${med.dosage}) | ${
+        med.quantity || "-"
+      } | ${med.duration || "-"}`;
+
+      page.drawText(formattedText, {
+        x: 40,
+        y: yPos,
+        font,
+        size: 10,
+        color: rgb(0, 0, 0),
+      });
+
+      yPos -= rowHeight;
+    });
+
+    // Save PDF as bytes
+    const pdfBytes = await pdfDoc.save();
+
+    // Convert to Blob and open in new tab
+    const blob = new Blob([pdfBytes], { type: "application/pdf" });
+    const blobUrl = URL.createObjectURL(blob);
+    const printWindow = window.open(blobUrl);
+
+    if (printWindow) {
+      printWindow.onload = () => {
+        printWindow.print(); // Automatically trigger print dialog
+      };
+    }
+  };
+
   return (
     <div className="relative">
+      <Button onClick={handlePrint} className="ml-3">
+        Print PDF
+      </Button>
+
       <div ref={containerRef} className="flex space-x-3">
         <Input
           type="text"
