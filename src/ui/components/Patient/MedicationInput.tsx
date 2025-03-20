@@ -41,6 +41,33 @@ const MedicationsInput = () => {
       console.error("Failed to load medications:", err);
     }
   };
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === "ArrowDown") {
+      setHighlightedIndex((prev) => {
+        const newIndex = prev < suggestions.length - 1 ? prev + 1 : prev;
+        scrollToHighlighted(newIndex);
+        return newIndex;
+      });
+    } else if (event.key === "ArrowUp") {
+      setHighlightedIndex((prev) => {
+        const newIndex = prev > 0 ? prev - 1 : prev;
+        scrollToHighlighted(newIndex);
+        return newIndex;
+      });
+    } else if (event.key === "Enter" && highlightedIndex >= 0) {
+      handleSuggestionClick(suggestions[highlightedIndex]);
+    }
+  };
+
+  const scrollToHighlighted = (index: number) => {
+    const suggestionList = document.getElementById("suggestions-list");
+    if (suggestionList) {
+      const item = suggestionList.children[index] as HTMLElement;
+      if (item) {
+        item.scrollIntoView({ block: "nearest", behavior: "smooth" });
+      }
+    }
+  };
 
   useEffect(() => {
     fetchMedications();
@@ -90,18 +117,6 @@ const MedicationsInput = () => {
     setSelectedMedications((prev) =>
       prev.filter((_, medIndex) => medIndex !== index)
     );
-  };
-
-  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === "ArrowDown") {
-      setHighlightedIndex((prev) =>
-        prev < suggestions.length - 1 ? prev + 1 : prev
-      );
-    } else if (event.key === "ArrowUp") {
-      setHighlightedIndex((prev) => (prev > 0 ? prev - 1 : prev));
-    } else if (event.key === "Enter" && highlightedIndex >= 0) {
-      handleSuggestionClick(suggestions[highlightedIndex]);
-    }
   };
 
   const handleAddMedication = () => {
@@ -169,7 +184,10 @@ const MedicationsInput = () => {
         </Button>
       </div>
       {suggestions.length > 0 && (
-        <div className="absolute z-10 bg-white border rounded w-full shadow-md max-h-60 overflow-y-auto">
+        <div
+          id="suggestions-list"
+          className="absolute z-10 bg-white border rounded w-full shadow-md max-h-60 overflow-y-auto"
+        >
           {suggestions.map((med, index) => (
             <div
               key={index}
@@ -183,6 +201,7 @@ const MedicationsInput = () => {
           ))}
         </div>
       )}
+
       {selectedMedications.length > 0 && (
         <div className="mt-4">
           <h3 className="font-semibold mb-2">Selected Medications:</h3>
