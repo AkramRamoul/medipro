@@ -27,6 +27,7 @@ export const consultations = sqliteTable("consultations", {
   reason: text("reason").notNull(),
   diagnosis: text("diagnosis").notNull(),
   notes: text("notes"),
+  symptoms: text("symptoms"),
 });
 
 // 💊 Prescriptions Table (Linked to Patients, No Link to Consultations)
@@ -38,5 +39,5 @@ export const prescriptions = sqliteTable("prescriptions", {
   medicineName: text("medicine_name").notNull(),
   dosage: text("dosage").notNull(),
   instructions: text("instructions"),
-  date: text("daten").default(sql`CURRENT_TIMESTAMP`),
+  date: text("date").default(sql`CURRENT_TIMESTAMP`),
 });

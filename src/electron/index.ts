@@ -7,11 +7,12 @@ import { pathToFileURL } from "url";
 
 const isDevelopment = !app.isPackaged;
 
-// Define database paths
-const dbDestination = path.join(app.getPath("userData"), "database.db");
-const dbSource = isDevelopment
+// ✅ Use "D:/Doc/database.db" in development
+const dbDestination = isDevelopment
   ? "D:/Doc/database.db"
-  : path.join(process.resourcesPath, "database.db");
+  : path.join(app.getPath("userData"), "database.db");
+
+const dbSource = path.join(process.resourcesPath, "database.db");
 
 // Ensure the database exists in production
 if (!isDevelopment) {
@@ -22,7 +23,7 @@ if (!isDevelopment) {
 
   // 🔥 Explicitly set file permissions to make it writable
   try {
-    fs.chmodSync(dbDestination, 0o666); // Give read & write permissions
+    fs.chmodSync(dbDestination, 0o666);
     console.log("✅ Database permissions updated");
   } catch (err) {
     console.error("❌ Failed to set database permissions:", err);
