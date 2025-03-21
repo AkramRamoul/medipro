@@ -52,6 +52,16 @@ app.on("ready", () => {
 
     return formattedPatients;
   });
+  ipcMain.handle("delete-consultaion", async (_, id) => {
+    try {
+      await db.delete(consultations).where(eq(consultations.id, id));
+    } catch (error) {
+      win.webContents.executeJavaScript(
+        "console.error('📢 Failed to add patient:', error);"
+      );
+      throw error;
+    }
+  });
 
   ipcMain.handle("getpatient", async (_, id) => {
     console.log("📢 getpatient IPC received for ID:", id);
@@ -107,6 +117,13 @@ app.on("ready", () => {
 
   ipcMain.handle("add-consultation", async (_, data) => {
     await db.insert(consultations).values(data);
+  });
+  ipcMain.handle("get-consultation", async (_, id) => {
+    const result = await db
+      .select()
+      .from(consultations)
+      .where(eq(consultations.id, id));
+    return result;
   });
   ipcMain.handle("get-consultations", async (_, patientId) => {
     const result = await db

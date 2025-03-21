@@ -39,4 +39,20 @@ contextBridge.exposeInMainWorld("electronAPI", {
       return []; // Return an empty array if an error occurs
     }
   },
+  deleteCosultaion: async (id: number) => {
+    try {
+      return await ipcRenderer.invoke("delete-consultaion", id);
+    } catch (error) {
+      console.error("📢 Failed to fetch consultations:", error);
+    }
+  },
+  getConsultation: async (id: number) => {
+    console.log("📢 Fetching consultation with ID:", id);
+    try {
+      return await ipcRenderer.invoke("get-consultation", id);
+    } catch (error) {
+      console.error("📢 Failed to fetch consultation:", error);
+      return []; // Return empty array if an error occurs
+    }
+  },
 });

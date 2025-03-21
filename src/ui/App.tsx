@@ -5,6 +5,7 @@ import Prescriptions from "./routes/Prescriptions";
 import Settings from "./routes/Settings";
 import Home from "./routes/Home";
 import MainPage from "./components/Patient/MainPage";
+import { Toaster } from "sonner";
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
           <Route path="/pat/:id" element={<MainPage />} />
         </Route>
       </Routes>
+      <Toaster />
     </Router>
   );
 }

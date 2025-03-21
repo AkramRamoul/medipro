@@ -7,6 +7,8 @@ export interface IElectronAPI {
   >;
   addConsultation: (data: unknown) => Promise<void>;
   getConsultations(id: string): Consultation[];
+  deleteCosultaion(id: string): Promise<void>;
+  getConsultation(id: string): Consultation | null;
 }
 
 declare global {

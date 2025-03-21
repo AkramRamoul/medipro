@@ -4,8 +4,11 @@ import NewConsultationForm from "./NewConsultationForm";
 import { Button } from "../ui/button";
 import { Consultation } from "../../type";
 import { formatDate } from "../../lib/utils";
+import DeleteDialogue from "../DeleteDialogue";
+import SingleConsultation from "./SingleConsultation";
 
 function ConsultationForm({ id }: { id: string }) {
+  const [isConsOpen, setIsConsOpen] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [consultations, setConsultations] = useState<Consultation[]>([]);
 
@@ -31,9 +34,21 @@ function ConsultationForm({ id }: { id: string }) {
       <div className="mt-4 space-y-4">
         {consultations.map((consultation) => (
           <div
+            onClick={() => setIsConsOpen(true)}
             key={consultation.id}
             className="p-4 border rounded-xl shadow-sm bg-gray-50 hover:bg-gray-100 transition-colors"
           >
+            <Modal isOpen={isConsOpen} onClose={() => setIsConsOpen(false)}>
+              <SingleConsultation
+                id={consultation.id}
+                onClose={() => setIsConsOpen(false)}
+              />
+            </Modal>
+
+            <DeleteDialogue
+              consultationId={consultation.id}
+              setData={setConsultations}
+            />
             <p className="text-sm text-gray-600 font-medium truncate">
               <strong className="text-gray-800">Date:</strong>{" "}
               {formatDate(consultation.date)}
