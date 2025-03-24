@@ -55,4 +55,15 @@ contextBridge.exposeInMainWorld("electronAPI", {
       return []; // Return empty array if an error occurs
     }
   },
+  getPatientPrescriptions: async (id: number) => {
+    console.log("📢 Fetching prescriptions for patient ID:", id);
+    try {
+      return await ipcRenderer.invoke("get-patient-prescriptions", id);
+    } catch (error) {
+      console.error("📢 Failed to fetch prescriptions:", error);
+      return []; // Return an empty array if an error occurs
+    }
+  },
+  addFullPrescription: (data: unknown) =>
+    ipcRenderer.invoke("addFullPrescription", data),
 });

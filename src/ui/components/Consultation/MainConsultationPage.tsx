@@ -36,7 +36,7 @@ function ConsultationForm({ id }: { id: string }) {
           <div
             onClick={() => setIsConsOpen(true)}
             key={consultation.id}
-            className="p-4 border rounded-xl shadow-sm bg-gray-50 hover:bg-gray-100 transition-colors"
+            className="p-4 border rounded-xl shadow-sm bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer"
           >
             <Modal isOpen={isConsOpen} onClose={() => setIsConsOpen(false)}>
               <SingleConsultation

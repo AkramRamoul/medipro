@@ -1,7 +1,7 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import ConsultationForm from "../Consultation/MainConsultationPage";
 import { useParams } from "react-router-dom";
-import MedicationInput from "./MedicationInput";
+import MainPrescriptionPage from "../Prescription/MainPrescriptionPage";
 function MainPage() {
   const { id } = useParams<{ id: string }>();
   return (
@@ -12,7 +12,7 @@ function MainPage() {
             Consultation
           </TabsTrigger>
           <TabsTrigger value="password" className="flex-1">
-            Password
+            Precritption
           </TabsTrigger>
           <TabsTrigger value="example" className="flex-1">
             Example
@@ -22,7 +22,7 @@ function MainPage() {
           <ConsultationForm id={id!} />
         </TabsContent>
         <TabsContent value="password" className="text-center">
-          <MedicationInput />
+          <MainPrescriptionPage id={id!} />
         </TabsContent>
         <TabsContent value="example" className="text-center">
           Example content here.

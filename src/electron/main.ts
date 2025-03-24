@@ -5,7 +5,12 @@ import fs from "fs";
 import { isDevelopment } from "./util.js";
 import { getMedsPath } from "./pathResolver.js";
 import { db } from "./index.js";
-import { patients, consultations } from "./schema.js";
+import {
+  patients,
+  consultations,
+  prescriptions,
+  prescriptionMedications,
+} from "./schema.js";
 app.on("ready", () => {
   const win = new BrowserWindow({
     show: false,
@@ -132,6 +137,86 @@ app.on("ready", () => {
       .where(eq(consultations.patientId, patientId));
     return result;
   });
+
+  ipcMain.handle("get-patient-prescriptions", async (_, patientId) => {
+    try {
+      const result = await db
+        .select({
+          prescriptionId: prescriptions.id,
+          date: prescriptions.date,
+          medications: prescriptionMedications, // Include medications
+        })
+        .from(prescriptions)
+        .leftJoin(
+          prescriptionMedications,
+          eq(prescriptions.id, prescriptionMedications.prescriptionId)
+        )
+        .where(eq(prescriptions.patientId, patientId));
+
+      // Group medications by prescription ID
+      const prescriptionsMap = new Map();
+
+      result.forEach((row) => {
+        if (!prescriptionsMap.has(row.prescriptionId)) {
+          prescriptionsMap.set(row.prescriptionId, {
+            id: row.prescriptionId,
+            date: row.date,
+            medications: [],
+          });
+        }
+        if (row.medications) {
+          prescriptionsMap
+            .get(row.prescriptionId)
+            .medications.push(row.medications);
+        }
+      });
+
+      return Array.from(prescriptionsMap.values());
+    } catch (error) {
+      console.error("Error fetching prescriptions:", error);
+      return [];
+    }
+  });
+  ipcMain.handle(
+    "addFullPrescription",
+    async (_event, { patientId, medications }) => {
+      try {
+        if (
+          !patientId ||
+          !Array.isArray(medications) ||
+          medications.length === 0
+        ) {
+          throw new Error("Invalid prescription data");
+        }
+
+        // 1️⃣ Insert a new prescription (returns the ID)
+        const [newPrescription] = await db
+          .insert(prescriptions)
+          .values({ patientId })
+          .returning({ id: prescriptions.id });
+
+        if (!newPrescription) {
+          throw new Error("Failed to create prescription record.");
+        }
+
+        // 2️⃣ Insert related medications
+        const medicationRecords = medications.map((med) => ({
+          prescriptionId: newPrescription.id,
+          medicineName: med.medicineName,
+          dosage: med.dosage,
+          duration: med.duration,
+          quantity: med.quantity,
+        }));
+
+        await db.insert(prescriptionMedications).values(medicationRecords);
+
+        return { success: true, message: "Prescription saved successfully!" };
+      } catch (error) {
+        console.error("Error adding prescription:", error);
+        return { success: false };
+      }
+    }
+  );
   win.webContents.setWindowOpenHandler(() => ({ action: "allow" }));
   // win.webContents.session.webRequest.onHeadersReceived((details, callback) => {
   //   callback({

@@ -30,14 +30,26 @@ export const consultations = sqliteTable("consultations", {
   symptoms: text("symptoms"),
 });
 
-// 💊 Prescriptions Table (Linked to Patients, No Link to Consultations)
 export const prescriptions = sqliteTable("prescriptions", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   patientId: integer("patient_id")
     .notNull()
-    .references(() => patients.id, { onDelete: "cascade" }), // Foreign key to Patients
-  medicineName: text("medicine_name").notNull(),
-  dosage: text("dosage").notNull(),
-  instructions: text("instructions"),
+    .references(() => patients.id, { onDelete: "cascade" }),
   date: text("date").default(sql`CURRENT_TIMESTAMP`),
 });
+
+// New table for storing multiple medications per prescription
+export const prescriptionMedications = sqliteTable("prescription_medications", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  prescriptionId: integer("prescription_id")
+    .notNull()
+    .references(() => prescriptions.id, { onDelete: "cascade" }), // Links to a prescription
+  medicineName: text("medicine_name").notNull(),
+  dosage: text("dosage").notNull(),
+  duration: text("duration"),
+  quantity: text("quantity"),
+  forme: text("forme"),
+});
+
+export type PrescriptionMed = typeof prescriptionMedications.$inferSelect;
+export type NewPrescriptionMed = typeof prescriptionMedications.$inferInsert;
