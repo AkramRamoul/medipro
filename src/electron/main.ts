@@ -1,6 +1,6 @@
 import { app, BrowserWindow, ipcMain } from "electron";
 import path from "path";
-import { eq } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import fs from "fs";
 import { isDevelopment } from "./util.js";
 import { getMedsPath } from "./pathResolver.js";
@@ -134,7 +134,8 @@ app.on("ready", () => {
     const result = await db
       .select()
       .from(consultations)
-      .where(eq(consultations.patientId, patientId));
+      .where(eq(consultations.patientId, patientId))
+      .orderBy(desc(consultations.date));
     return result;
   });
 
@@ -151,7 +152,8 @@ app.on("ready", () => {
           prescriptionMedications,
           eq(prescriptions.id, prescriptionMedications.prescriptionId)
         )
-        .where(eq(prescriptions.patientId, patientId));
+        .where(eq(prescriptions.patientId, patientId))
+        .orderBy(desc(prescriptions.date));
 
       // Group medications by prescription ID
       const prescriptionsMap = new Map();
@@ -176,6 +178,9 @@ app.on("ready", () => {
       console.error("Error fetching prescriptions:", error);
       return [];
     }
+  });
+  ipcMain.handle("delete-prescription", async (__dirname, id) => {
+    await db.delete(prescriptions).where(eq(prescriptions.id, id));
   });
   ipcMain.handle(
     "addFullPrescription",

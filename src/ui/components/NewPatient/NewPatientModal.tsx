@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import Modal from "../Modal";
 import { AddPatientForm } from "./Form";
+import { toast } from "sonner";
 
 type Patient = {
   name: string;
@@ -21,6 +22,7 @@ function NewPatientModal({ isOpen, onClose }: NewPatientModalProps) {
       // Await the returned ID from the backend
       const newPatientId = await window.electronAPI.addPatient(data);
       console.log("Patient saved with ID:", newPatientId);
+      toast.success("Patient saved successfully!");
       onClose();
 
       // Navigate to /pat/:id after saving

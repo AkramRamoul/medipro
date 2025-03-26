@@ -66,4 +66,11 @@ contextBridge.exposeInMainWorld("electronAPI", {
   },
   addFullPrescription: (data: unknown) =>
     ipcRenderer.invoke("addFullPrescription", data),
+  deletePrescription: async (id: number) => {
+    try {
+      return ipcRenderer.invoke("delete-prescription", id);
+    } catch (error) {
+      console.error("failed to delete prescription", error);
+    }
+  },
 });
