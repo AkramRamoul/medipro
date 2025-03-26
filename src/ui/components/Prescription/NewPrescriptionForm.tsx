@@ -193,8 +193,9 @@ const NewPrescriptionForm = ({
           value={inputValue}
           onChange={handleInputChange}
           placeholder="Type a medication name..."
-          className="border p-2 rounded w-full"
+          className="border p-2 rounded w-[250px]"
         />
+        <Input type="text" value="" placeholder="note" className="w-[500px]" />
 
         <Select value={quantity} onValueChange={setQuantity}>
           <SelectTrigger className="w-[180px]">

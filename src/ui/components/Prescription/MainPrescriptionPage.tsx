@@ -3,6 +3,7 @@ import Modal from "../Modal";
 import { Button } from "../ui/button";
 import NewPrescriptionForm from "./NewPrescriptionForm";
 import SinglePrescription from "./SinglePrescription";
+import DeletePrescriptionDialogue from "./DeletePrescriptionDialogue";
 
 function MainPrescriptionPage({ id }: { id: string }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -43,8 +44,13 @@ function MainPrescriptionPage({ id }: { id: string }) {
           <div
             key={prescription.id}
             onClick={() => setSelectedPrescription(prescription)}
-            className="p-4 border rounded-xl shadow-sm bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer"
+            className="p-4 border rounded-xl shadow-sm bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer "
           >
+            <DeletePrescriptionDialogue
+              priscriptionId={prescription.id}
+              setData={setPrescriptions}
+            />
+
             <p className="text-sm text-gray-600 font-medium truncate">
               <strong className="text-gray-800">Date:</strong>{" "}
               {prescription.date}
