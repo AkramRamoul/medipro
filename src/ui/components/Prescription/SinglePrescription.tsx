@@ -6,6 +6,7 @@ function SinglePrescription({
   onClose: () => void;
   meds: PrescriptionMed[];
 }) {
+  console.log(meds);
   return (
     <div>
       {meds.length > 0 && (
@@ -18,8 +19,8 @@ function SinglePrescription({
                 className="flex items-center justify-between bg-gray-100 p-2 rounded"
               >
                 <span>
-                  {med.medicineName} - {med.dosage} ({med.dosage}) |{" "}
-                  {med.duration} | {med.duration}
+                  {med.medicineName} - {med.form} ({med.dosage}) |{" "}
+                  {med.duration}
                 </span>
               </li>
             ))}

@@ -9,6 +9,7 @@ import {
   SelectValue,
 } from "../ui/select";
 import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
+import { toast } from "sonner";
 
 interface Medication {
   id?: number; // Optional, only needed when retrieving stored medications
@@ -22,9 +23,11 @@ interface Medication {
 const NewPrescriptionForm = ({
   id,
   onClose,
+  refreshPrescriptions,
 }: {
   id: string;
   onClose: () => void;
+  refreshPrescriptions: () => void;
 }) => {
   const [medications, setMedications] = useState<Medication[]>([]);
   const [inputValue, setInputValue] = useState("");
@@ -73,7 +76,8 @@ const NewPrescriptionForm = ({
       );
 
       if (response.success) {
-        alert("saved successfully!");
+        toast.success("saved successfully!");
+        refreshPrescriptions();
         onClose();
       } else {
         alert("Failed to save prescription: ");

@@ -1,22 +1,28 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Modal from "../Modal";
 import { Button } from "../ui/button";
 import NewPrescriptionForm from "./NewPrescriptionForm";
 import SinglePrescription from "./SinglePrescription";
 
 function MainPrescriptionPage({ id }: { id: string }) {
-  const [isPrescOpen, setIsPrescOpen] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [prescriptions, setPrescriptions] = useState<Prescription[]>([]);
+  const [selectedPrescription, setSelectedPrescription] =
+    useState<Prescription | null>(null);
 
-  // Fetch consultations when component mounts or id changes
-  useEffect(() => {
-    const fetchPrescriptions = async () => {
+  // ✅ Wrap fetchPrescriptions in useCallback
+  const fetchPrescriptions = useCallback(async () => {
+    try {
       const data = await window.electronAPI.getPatientPrescriptions(id);
       setPrescriptions(data);
-    };
+    } catch (error) {
+      console.error("Error fetching prescriptions:", error);
+    }
+  }, [id]); // Only re-create when `id` changes
+
+  useEffect(() => {
     fetchPrescriptions();
-  }, [id]);
+  }, [fetchPrescriptions]); // ✅ Now it won't cause an infinite loop
 
   return (
     <div className="p-4 bg-white rounded-xl shadow-lg max-w-[80%] mx-auto">
@@ -24,23 +30,21 @@ function MainPrescriptionPage({ id }: { id: string }) {
         New Prescription
       </Button>
       <Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>
-        <NewPrescriptionForm id={id} onClose={() => setIsOpen(false)} />
+        <NewPrescriptionForm
+          id={id}
+          onClose={() => setIsOpen(false)}
+          refreshPrescriptions={fetchPrescriptions} // ✅ Pass memoized function
+        />
       </Modal>
 
-      {/* Render consultations */}
+      {/* Prescription List */}
       <div className="mt-4 space-y-4">
         {prescriptions.map((prescription) => (
           <div
-            onClick={() => setIsPrescOpen(true)}
             key={prescription.id}
-            className="p-4 border rounded-xl shadow-sm bg-gray-50 hover:bg-gray-100 transition-colors"
+            onClick={() => setSelectedPrescription(prescription)}
+            className="p-4 border rounded-xl shadow-sm bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer"
           >
-            <Modal isOpen={isPrescOpen} onClose={() => setIsPrescOpen(false)}>
-              <SinglePrescription
-                onClose={() => setIsPrescOpen(false)}
-                meds={prescription.medications}
-              />
-            </Modal>
             <p className="text-sm text-gray-600 font-medium truncate">
               <strong className="text-gray-800">Date:</strong>{" "}
               {prescription.date}
@@ -48,6 +52,19 @@ function MainPrescriptionPage({ id }: { id: string }) {
           </div>
         ))}
       </div>
+
+      {/* Single Prescription Modal */}
+      <Modal
+        isOpen={!!selectedPrescription}
+        onClose={() => setSelectedPrescription(null)}
+      >
+        {selectedPrescription && (
+          <SinglePrescription
+            meds={selectedPrescription.medications}
+            onClose={() => setSelectedPrescription(null)}
+          />
+        )}
+      </Modal>
     </div>
   );
 }
