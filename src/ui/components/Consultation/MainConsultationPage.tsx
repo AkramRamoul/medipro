@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Modal from "../Modal";
 import NewConsultationForm from "./NewConsultationForm";
 import { Button } from "../ui/button";
@@ -12,14 +12,19 @@ function ConsultationForm({ id }: { id: string }) {
   const [isOpen, setIsOpen] = useState(false);
   const [consultations, setConsultations] = useState<Consultation[]>([]);
 
-  // Fetch consultations when component mounts or id changes
-  useEffect(() => {
-    const fetchConsultations = async () => {
+  // ✅ Memoized fetch function
+  const fetchConsultations = useCallback(async () => {
+    try {
       const data = await window.electronAPI.getConsultations(id);
       setConsultations(data);
-    };
-    fetchConsultations();
+    } catch (error) {
+      console.error("Error fetching consultations:", error);
+    }
   }, [id]);
+
+  useEffect(() => {
+    fetchConsultations();
+  }, [fetchConsultations]);
 
   return (
     <div className="p-4 bg-white rounded-xl shadow-lg max-w-[80%] mx-auto">
@@ -27,7 +32,11 @@ function ConsultationForm({ id }: { id: string }) {
         New Consultation
       </Button>
       <Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>
-        <NewConsultationForm id={id} onClose={() => setIsOpen(false)} />
+        <NewConsultationForm
+          id={id}
+          onClose={() => setIsOpen(false)}
+          refreshConsultations={fetchConsultations} // ✅ Pass refresh function
+        />
       </Modal>
 
       {/* Render consultations */}

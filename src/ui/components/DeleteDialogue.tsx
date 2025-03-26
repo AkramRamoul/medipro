@@ -45,8 +45,12 @@ function DeleteDialogue({ consultationId, setData }: DeleteDialogueProps) {
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <TrashIcon className="size-4 mr-2 cursor-pointer" />
+        <TrashIcon
+          className="size-4 mr-2 cursor-pointer hover:text-destructive hover:scale-110"
+          onClick={(e) => e.stopPropagation()} // ✅ Prevent opening modal
+        />
       </AlertDialogTrigger>
+
       <AlertDialogContent onClick={(e) => e.stopPropagation()}>
         <AlertDialogHeader>
           <AlertDialogTitle>Delete Consultation</AlertDialogTitle>

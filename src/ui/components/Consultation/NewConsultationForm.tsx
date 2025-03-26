@@ -6,30 +6,29 @@ import { Card } from "../ui/card";
 import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { Patient } from "../../type";
+import { toast } from "sonner";
 
 function NewConsultationForm({
   id,
   onClose,
+  refreshConsultations, // ✅ Receive the function as a prop
 }: {
   id: string;
   onClose: () => void;
+  refreshConsultations: () => void;
 }) {
   const [patient, setPatient] = useState<Patient | null>(null);
   const [loading, setLoading] = useState(true);
-
-  // New state variables for form fields
   const [reason, setReason] = useState("");
   const [symptoms, setSymptoms] = useState("");
   const [diagnosis, setDiagnosis] = useState("");
   const [notes, setNotes] = useState("");
 
-  // Fetch patient data based on ID
   useEffect(() => {
     if (id) {
       window.electronAPI
         .getpatient(id)
         /* eslint-disable  @typescript-eslint/no-explicit-any */
-
         .then((data: any) => {
           const extractedPatient = data[0]
             ? { ...data[0], createdAt: data.createdAt }
@@ -44,7 +43,6 @@ function NewConsultationForm({
     }
   }, [id]);
 
-  // Handle save consultation
   const handleSave = async () => {
     if (!patient) return;
 
@@ -59,14 +57,14 @@ function NewConsultationForm({
     console.log("Saving consultation:", consultationData);
     try {
       await window.electronAPI.addConsultation(consultationData);
+      toast.success("Consultation saved successfully!");
+      refreshConsultations(); // ✅ Refresh consultations dynamically
       onClose();
-      window.location.reload(); // 🔄 Refreshes the entire page
     } catch (error) {
       console.error("Failed to save consultation:", error);
     }
   };
 
-  // Loading state
   if (loading) {
     return (
       <div className="flex items-center justify-center py-10">
