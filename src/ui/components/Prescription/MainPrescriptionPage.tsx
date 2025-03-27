@@ -4,14 +4,13 @@ import { Button } from "../ui/button";
 import NewPrescriptionForm from "./NewPrescriptionForm";
 import SinglePrescription from "./SinglePrescription";
 import DeletePrescriptionDialogue from "./DeletePrescriptionDialogue";
-
+import { Prescription } from "../../type";
 function MainPrescriptionPage({ id }: { id: string }) {
   const [isOpen, setIsOpen] = useState(false);
   const [prescriptions, setPrescriptions] = useState<Prescription[]>([]);
   const [selectedPrescription, setSelectedPrescription] =
     useState<Prescription | null>(null);
 
-  // ✅ Wrap fetchPrescriptions in useCallback
   const fetchPrescriptions = useCallback(async () => {
     try {
       const data = await window.electronAPI.getPatientPrescriptions(id);
@@ -19,12 +18,11 @@ function MainPrescriptionPage({ id }: { id: string }) {
     } catch (error) {
       console.error("Error fetching prescriptions:", error);
     }
-  }, [id]); // Only re-create when `id` changes
+  }, [id]);
 
   useEffect(() => {
     fetchPrescriptions();
-  }, [fetchPrescriptions]); // ✅ Now it won't cause an infinite loop
-
+  }, [fetchPrescriptions]);
   return (
     <div className="p-4 bg-white rounded-xl shadow-lg max-w-[80%] mx-auto">
       <Button onClick={() => setIsOpen(true)} className="mb-4 w-full">
@@ -34,7 +32,7 @@ function MainPrescriptionPage({ id }: { id: string }) {
         <NewPrescriptionForm
           id={id}
           onClose={() => setIsOpen(false)}
-          refreshPrescriptions={fetchPrescriptions} // ✅ Pass memoized function
+          refreshPrescriptions={fetchPrescriptions}
         />
       </Modal>
 
@@ -47,7 +45,7 @@ function MainPrescriptionPage({ id }: { id: string }) {
             className="p-4 border rounded-xl shadow-sm bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer "
           >
             <DeletePrescriptionDialogue
-              priscriptionId={prescription.id}
+              priscriptionId={prescription.id.toString()}
               setData={setPrescriptions}
             />
 

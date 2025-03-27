@@ -67,6 +67,7 @@ const NewPrescriptionForm = ({
         dosage: med.dosage,
         duration: med.duration,
         quantity: med.quantity,
+        form: selectedMedication?.form,
       })),
     };
 

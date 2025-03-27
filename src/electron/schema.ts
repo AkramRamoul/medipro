@@ -53,3 +53,5 @@ export const prescriptionMedications = sqliteTable("prescription_medications", {
 
 export type PrescriptionMed = typeof prescriptionMedications.$inferSelect;
 export type NewPrescriptionMed = typeof prescriptionMedications.$inferInsert;
+
+export type Prescription = typeof prescriptions.$inferSelect;

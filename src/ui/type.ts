@@ -22,3 +22,10 @@ export type Consultation = {
   notes?: string; // Optional additional notes
   date: string; // Timestamp for when the consultation was created
 };
+
+export interface Prescription {
+  id: number;
+  date: string | null;
+  patientId: number;
+  medications: string[]; // Add medications property
+}
