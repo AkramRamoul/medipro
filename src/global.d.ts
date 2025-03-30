@@ -12,6 +12,7 @@ export interface IElectronAPI {
   getPatientPrescriptions(id: string): Prescription[];
   addFullPrescription: (data: unknown) => Promise<{ success: boolean }>;
   deletePrescription: (id: string) => Promise<void>;
+  editConsultation: (data: unknown) => Promise<void>;
 }
 
 declare global {

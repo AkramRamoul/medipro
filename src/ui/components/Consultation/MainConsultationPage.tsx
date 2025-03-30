@@ -50,7 +50,10 @@ function ConsultationForm({ id }: { id: string }) {
             <Modal isOpen={isConsOpen} onClose={() => setIsConsOpen(false)}>
               <SingleConsultation
                 id={consultation.id}
-                onClose={() => setIsConsOpen(false)}
+                onClose={() => {
+                  setIsConsOpen(false);
+                  fetchConsultations();
+                }}
               />
             </Modal>
 

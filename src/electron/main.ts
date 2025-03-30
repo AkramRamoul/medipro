@@ -182,6 +182,11 @@ app.on("ready", () => {
   ipcMain.handle("delete-prescription", async (__dirname, id) => {
     await db.delete(prescriptions).where(eq(prescriptions.id, id));
   });
+
+  ipcMain.handle("edit-consultation", async (_, data) => {
+    const { id, ...rest } = data;
+    await db.update(consultations).set(rest).where(eq(consultations.id, id));
+  });
   ipcMain.handle(
     "addFullPrescription",
     async (_event, { patientId, medications }) => {
@@ -211,6 +216,7 @@ app.on("ready", () => {
           dosage: med.dosage,
           duration: med.duration,
           quantity: med.quantity,
+          form: med.form,
         }));
 
         await db.insert(prescriptionMedications).values(medicationRecords);

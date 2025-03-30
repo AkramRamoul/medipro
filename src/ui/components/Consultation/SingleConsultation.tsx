@@ -6,6 +6,7 @@ import { Card } from "../ui/card";
 import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { Consultation } from "../../type";
+import { toast } from "sonner";
 
 function SingleConsultation({
   id,
@@ -31,15 +32,17 @@ function SingleConsultation({
         /* eslint-disable  @typescript-eslint/no-explicit-any */
 
         .then((data: any) => {
-          const extractedConsultation = data[0]
-            ? { ...data[0], createdAt: data.createdAt }
-            : null;
-          console.log("📢 Extracted Patient Data:", extractedConsultation);
+          const extractedConsultation = data[0] || null;
           setConsultation(extractedConsultation);
-          console.log("📢 Consultation Data:", extractedConsultation);
+          if (extractedConsultation) {
+            setReason(extractedConsultation.reason || "");
+            setSymptoms(extractedConsultation.symptoms || "");
+            setDiagnosis(extractedConsultation.diagnosis || "");
+            setNotes(extractedConsultation.notes || "");
+          }
         })
         .catch((error: Error) =>
-          console.error("Error fetching patient:", error)
+          console.error("Error fetching consultation:", error)
         )
         .finally(() => setLoading(false));
     }
@@ -47,25 +50,26 @@ function SingleConsultation({
 
   // Handle save consultation
   const handleSave = async () => {
-    if (!consultation) return;
+    if (consultation) {
+      const updatedConsultation = {
+        ...consultation,
+        reason, // ✅ Use updated state
+        symptoms,
+        diagnosis,
+        notes,
+      };
 
-    const consultationData = {
-      patientId: id,
-      reason,
-      symptoms,
-      diagnosis,
-      notes,
-    };
-
-    console.log("Saving consultation:", consultationData);
-    try {
-      await window.electronAPI.addConsultation(consultationData);
-      onClose();
-    } catch (error) {
-      console.error("Failed to save consultation:", error);
+      try {
+        await window.electronAPI.editConsultation(updatedConsultation);
+        toast.success("Consultation updated successfully!");
+        const refreshedData = await window.electronAPI.getConsultation(id);
+        setConsultation(refreshedData[0]);
+        onClose();
+      } catch (error) {
+        console.error("Error saving consultation:", error);
+      }
     }
   };
-
   // Loading state
   if (loading) {
     return (
@@ -88,36 +92,32 @@ function SingleConsultation({
         <div className="flex flex-col items-start space-y-1">
           <Label>Reason for Visit</Label>
           <Input
-            readOnly
             placeholder="Short description"
-            value={consultation?.reason || ""}
+            value={reason}
             onChange={(e) => setReason(e.target.value)}
           />
         </div>
         <div className="flex flex-col items-start space-y-1">
           <Label>Symptoms</Label>
           <Textarea
-            readOnly
             placeholder="List symptoms here..."
-            value={consultation?.symptoms || ""}
+            value={symptoms}
             onChange={(e) => setSymptoms(e.target.value)}
           />
         </div>
         <div className="flex flex-col items-start space-y-1">
           <Label>Diagnosis</Label>
           <Textarea
-            readOnly
             placeholder="Doctor's diagnosis"
-            value={consultation?.diagnosis || ""}
+            value={diagnosis}
             onChange={(e) => setDiagnosis(e.target.value)}
           />
         </div>
         <div className="flex flex-col items-start space-y-1">
           <Label>Notes</Label>
           <Textarea
-            readOnly
             placeholder="How should the patient take the medication?"
-            value={consultation?.notes || ""}
+            value={notes}
             onChange={(e) => setNotes(e.target.value)}
           />
         </div>

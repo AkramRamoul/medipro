@@ -73,4 +73,12 @@ contextBridge.exposeInMainWorld("electronAPI", {
       console.error("failed to delete prescription", error);
     }
   },
+  editConsultation: async (data: unknown) => {
+    console.log("Sending data to main process:", data);
+    try {
+      return await ipcRenderer.invoke("edit-consultation", data);
+    } catch (error) {
+      console.error("Failed to edit consultation:", error);
+    }
+  },
 });
