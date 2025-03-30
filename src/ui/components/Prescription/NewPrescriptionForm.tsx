@@ -67,7 +67,7 @@ const NewPrescriptionForm = ({
         dosage: med.dosage,
         duration: med.duration,
         quantity: med.quantity,
-        form: selectedMedication?.form,
+        form: med.form,
       })),
     };
 
@@ -187,7 +187,7 @@ const NewPrescriptionForm = ({
   }, []);
 
   return (
-    <div className="relative">
+    <div className="relative mt-8">
       <div ref={containerRef} className="flex space-x-3">
         <Input
           type="text"

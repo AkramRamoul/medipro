@@ -30,7 +30,9 @@ function DeleteDialogue({ priscriptionId, setData }: DeleteDialogueProps) {
     window.electronAPI
       .deletePrescription(priscriptionId) // ✅ Fixed typo
       .then(() => {
-        setData((prev) => prev.filter((item) => item.id !== priscriptionId)); // ✅ Update state
+        setData((prev) =>
+          prev.filter((item) => item.id !== Number(priscriptionId))
+        );
         toast.success("Prescription deleted successfully");
       })
       .catch((error) => {

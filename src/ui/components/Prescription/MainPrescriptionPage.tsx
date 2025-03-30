@@ -5,6 +5,7 @@ import NewPrescriptionForm from "./NewPrescriptionForm";
 import SinglePrescription from "./SinglePrescription";
 import DeletePrescriptionDialogue from "./DeletePrescriptionDialogue";
 import { Prescription } from "../../type";
+import { formatDate } from "../../lib/utils";
 function MainPrescriptionPage({ id }: { id: string }) {
   const [isOpen, setIsOpen] = useState(false);
   const [prescriptions, setPrescriptions] = useState<Prescription[]>([]);
@@ -50,8 +51,8 @@ function MainPrescriptionPage({ id }: { id: string }) {
             />
 
             <p className="text-sm text-gray-600 font-medium truncate">
-              <strong className="text-gray-800">Date:</strong>{" "}
-              {prescription.date}
+              <strong className="text-gray-800">Oradonance Du :</strong>{" "}
+              {formatDate(prescription.date || "")}
             </p>
           </div>
         ))}
