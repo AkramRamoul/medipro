@@ -52,6 +52,39 @@ const NewPrescriptionForm = ({
       console.error("Failed to load medications:", err);
     }
   };
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (suggestions.length === 0) return;
+
+    if (event.key === "ArrowDown") {
+      setHighlightedIndex((prev) => {
+        const newIndex = Math.min(prev + 1, suggestions.length - 1);
+        scrollToHighlighted(newIndex);
+        return newIndex;
+      });
+    } else if (event.key === "ArrowUp") {
+      setHighlightedIndex((prev) => {
+        const newIndex = Math.max(prev - 1, 0);
+        scrollToHighlighted(newIndex);
+        return newIndex;
+      });
+    } else if (event.key === "Enter" && highlightedIndex !== -1) {
+      handleSuggestionClick(suggestions[highlightedIndex]);
+    } else if (event.key === "Escape") {
+      setSuggestions([]);
+      setHighlightedIndex(-1);
+    }
+  };
+
+  // Function to scroll the highlighted suggestion into view
+  const scrollToHighlighted = (index: number) => {
+    const suggestionElement = document.getElementById(`suggestion-${index}`);
+    if (suggestionElement) {
+      suggestionElement.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest",
+      });
+    }
+  };
 
   // Save prescription to the database
   const handleSave = async () => {
@@ -192,11 +225,11 @@ const NewPrescriptionForm = ({
         <Input
           type="text"
           value={inputValue}
+          onKeyDown={handleKeyDown}
           onChange={handleInputChange}
           placeholder="Type a medication name..."
           className="border p-2 rounded w-[250px]"
         />
-        <Input type="text" value="" placeholder="note" className="w-[500px]" />
 
         <Select value={quantity} onValueChange={setQuantity}>
           <SelectTrigger className="w-[180px]">
@@ -232,6 +265,7 @@ const NewPrescriptionForm = ({
             ))}
           </SelectContent>
         </Select>
+        <Input type="text" value="" placeholder="note" className="w-[500px]" />
 
         <Button onClick={handleAddMedication} disabled={!selectedMedication}>
           Add
@@ -246,6 +280,7 @@ const NewPrescriptionForm = ({
           {suggestions.map((med, index) => (
             <div
               key={index}
+              id={`suggestion-${index}`} // Add an ID for each suggestion
               className={`p-2 cursor-pointer hover:bg-gray-100 ${
                 index === highlightedIndex ? "bg-gray-200" : ""
               }`}
@@ -256,6 +291,7 @@ const NewPrescriptionForm = ({
           ))}
         </div>
       )}
+
       {selectedMedications.length > 0 && (
         <div className="mt-4">
           <h3 className="font-semibold mb-2">Selected Medications:</h3>
