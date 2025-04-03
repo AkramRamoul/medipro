@@ -38,25 +38,31 @@ function MainPrescriptionPage({ id }: { id: string }) {
       </Modal>
 
       {/* Prescription List */}
-      <div className="mt-4 space-y-4">
-        {prescriptions.map((prescription) => (
-          <div
-            key={prescription.id}
-            onClick={() => setSelectedPrescription(prescription)}
-            className="p-4 border rounded-xl shadow-sm bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer "
-          >
-            <DeletePrescriptionDialogue
-              priscriptionId={prescription.id.toString()}
-              setData={setPrescriptions}
-            />
+      {prescriptions.length === 0 ? (
+        <div className="mt-4 p-4 text-center text-gray-500 border rounded-lg bg-gray-50">
+          No prescriptions yet. Click "New Consultation" to add one.
+        </div>
+      ) : (
+        <div className="mt-4 space-y-4">
+          {prescriptions.map((prescription) => (
+            <div
+              key={prescription.id}
+              onClick={() => setSelectedPrescription(prescription)}
+              className="p-4 border rounded-xl shadow-sm bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer "
+            >
+              <DeletePrescriptionDialogue
+                priscriptionId={prescription.id.toString()}
+                setData={setPrescriptions}
+              />
 
-            <p className="text-sm text-gray-600 font-medium truncate">
-              <strong className="text-gray-800">Oradonance Du :</strong>{" "}
-              {formatDate(prescription.date || "")}
-            </p>
-          </div>
-        ))}
-      </div>
+              <p className="text-sm text-gray-600 font-medium truncate">
+                <strong className="text-gray-800">Oradonance Du :</strong>{" "}
+                {formatDate(prescription.date || "")}
+              </p>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* Single Prescription Modal */}
       <Modal
