@@ -4,14 +4,16 @@ import { Button } from "../ui/button";
 import NewPrescriptionForm from "./NewPrescriptionForm";
 import SinglePrescription from "./SinglePrescription";
 import DeletePrescriptionDialogue from "./DeletePrescriptionDialogue";
-import { Prescription } from "../../type";
+import { Patient, Prescription } from "../../type";
 import { formatDate } from "../../lib/utils";
+import PDF from "../Patient/Pdf";
 
 function MainPrescriptionPage({ id }: { id: string }) {
   const [isOpen, setIsOpen] = useState(false);
   const [prescriptions, setPrescriptions] = useState<Prescription[]>([]);
   const [selectedPrescription, setSelectedPrescription] =
     useState<Prescription | null>(null);
+  const [patient, setPatient] = useState<Patient | null>(null);
 
   const fetchPrescriptions = useCallback(async () => {
     try {
@@ -25,6 +27,23 @@ function MainPrescriptionPage({ id }: { id: string }) {
   useEffect(() => {
     fetchPrescriptions();
   }, [fetchPrescriptions]);
+  useEffect(() => {
+    if (id) {
+      window.electronAPI
+        .getpatient(id)
+        /* eslint-disable  @typescript-eslint/no-explicit-any */
+        .then((data: any) => {
+          const extractedPatient = data[0]
+            ? { ...data[0], createdAt: data.createdAt }
+            : null;
+          console.log("📢 djsf Patient Data:", extractedPatient);
+          setPatient(extractedPatient);
+        })
+        .catch((error: Error) =>
+          console.error("Error fetching patient:", error)
+        );
+    }
+  }, [id]);
 
   return (
     <div className="p-4 bg-white rounded-xl shadow-lg max-w-[80%] mx-auto">
@@ -38,6 +57,7 @@ function MainPrescriptionPage({ id }: { id: string }) {
           refreshPrescriptions={fetchPrescriptions}
         />
       </Modal>
+      <PDF patient={patient} />
 
       {/* Prescription List */}
       {prescriptions.length === 0 ? (
