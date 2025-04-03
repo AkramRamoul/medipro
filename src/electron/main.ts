@@ -132,6 +132,9 @@ app.on("ready", () => {
             name: med["NOM DE MARQUE"] || "N/A",
             form: med["FORME"] || "N/A",
             dosage: med["DOSAGE"] || "N/A",
+            note: med["NOTE"] || "N/A",
+            quantity: med["QUANTITE"] || "N/A",
+            duration: med["DUREE"] || "N/A",
           }));
 
           resolve(medications);
@@ -240,6 +243,7 @@ app.on("ready", () => {
           duration: med.duration,
           quantity: med.quantity,
           form: med.form,
+          note: med.note,
         }));
 
         await db.insert(prescriptionMedications).values(medicationRecords);

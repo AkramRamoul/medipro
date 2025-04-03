@@ -19,8 +19,8 @@ function SinglePrescription({
                 className="flex items-center justify-between bg-gray-100 p-2 rounded"
               >
                 <span>
-                  {med.medicineName} - {med.form} ({med.dosage}) |{" "}
-                  {med.duration}
+                  {med.medicineName} - {med.form} ({med.dosage}) |{med.quantity}{" "}
+                  | {med.duration} | {med.note} |{" "}
                 </span>
               </li>
             ))}

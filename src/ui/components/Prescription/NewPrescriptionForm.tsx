@@ -12,12 +12,13 @@ import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
 import { toast } from "sonner";
 
 interface Medication {
-  id?: number; // Optional, only needed when retrieving stored medications
+  id?: number;
   name: string;
   form: string;
   dosage: string;
   quantity?: string;
   duration?: string;
+  note?: string; // Add note field
 }
 
 const NewPrescriptionForm = ({
@@ -32,6 +33,7 @@ const NewPrescriptionForm = ({
   const [medications, setMedications] = useState<Medication[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [suggestions, setSuggestions] = useState<Medication[]>([]);
+
   const [selectedMedications, setSelectedMedications] = useState<Medication[]>(
     []
   );
@@ -41,6 +43,7 @@ const NewPrescriptionForm = ({
   const [quantity, setQuantity] = useState<string>("");
   const [durationValue, setDurationValue] = useState<string>("");
   const [durationUnit, setDurationUnit] = useState<string>("weeks");
+  const [note, setNote] = useState<string>("");
 
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -101,6 +104,7 @@ const NewPrescriptionForm = ({
         duration: med.duration,
         quantity: med.quantity,
         form: med.form,
+        note: med.note, // Include note in request
       })),
     };
 
@@ -127,6 +131,7 @@ const NewPrescriptionForm = ({
         ...selectedMedication,
         quantity,
         duration: durationValue ? `${durationValue} ${durationUnit}` : "",
+        note, // Add note
       };
       setSelectedMedications((prev) => [...prev, medicationWithExtras]);
       setSelectedMedication(null);
@@ -134,8 +139,10 @@ const NewPrescriptionForm = ({
       setQuantity("");
       setDurationValue("");
       setDurationUnit("weeks");
+      setNote(""); // Reset note field after adding
     }
   };
+
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
     setInputValue(value);
@@ -155,7 +162,7 @@ const NewPrescriptionForm = ({
   const handleSuggestionClick = (medication: Medication) => {
     setSelectedMedication(medication);
     setInputValue(
-      `${medication.name} - ${medication.form} (${medication.dosage})`
+      `${medication.name} - ${medication.form} (${medication.dosage} - ${medication.quantity}) ${medication.duration} ${medication.note}`
     );
     setSuggestions([]);
   };
@@ -190,7 +197,7 @@ const NewPrescriptionForm = ({
     selectedMedications.forEach((med) => {
       const formattedText = `${med.name} - ${med.form} (${med.dosage}) | ${
         med.quantity || "-"
-      } | ${med.duration || "-"}`;
+      } | ${med.duration || "-"}${med.note ? ` | Note: ${med.note}` : ""}`;
 
       page.drawText(formattedText, {
         x: 40,
@@ -232,17 +239,15 @@ const NewPrescriptionForm = ({
         />
 
         <Select value={quantity} onValueChange={setQuantity}>
-          <SelectTrigger className="w-[180px]">
+          <SelectTrigger className="w-[100px]">
             <SelectValue placeholder="Qte" />
           </SelectTrigger>
           <SelectContent>
-            {["1 bottle", "2 bottle", "3 bottle", "4 bottle", "5 bottle"].map(
-              (q, index) => (
-                <SelectItem key={index} value={q}>
-                  {q}
-                </SelectItem>
-              )
-            )}
+            {["1 bte", "2 bte", "3 bte", "4 bte", "5 bte"].map((q, index) => (
+              <SelectItem key={index} value={q}>
+                {q}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
 
@@ -265,7 +270,13 @@ const NewPrescriptionForm = ({
             ))}
           </SelectContent>
         </Select>
-        <Input type="text" value="" placeholder="note" className="w-[500px]" />
+        <Input
+          type="text"
+          value={note}
+          onChange={(e) => setNote(e.target.value)}
+          placeholder="Add a note..."
+          className="w-[500px] border p-2 rounded"
+        />
 
         <Button onClick={handleAddMedication} disabled={!selectedMedication}>
           Add
@@ -304,6 +315,9 @@ const NewPrescriptionForm = ({
                 <span>
                   {med.name} - {med.form} ({med.dosage}) | {med.quantity} |{" "}
                   {med.duration}
+                  {med.note && (
+                    <span className="text-gray-500 ml-2">📝 {med.note}</span>
+                  )}
                 </span>
                 <Button
                   variant="destructive"
