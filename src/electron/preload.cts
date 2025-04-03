@@ -81,4 +81,6 @@ contextBridge.exposeInMainWorld("electronAPI", {
       console.error("Failed to edit consultation:", error);
     }
   },
+  editPatient: async (data: unknown) =>
+    ipcRenderer.invoke("edit-patient", data),
 });

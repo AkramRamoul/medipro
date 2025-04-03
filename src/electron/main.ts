@@ -228,6 +228,16 @@ app.on("ready", () => {
       }
     }
   );
+  ipcMain.handle("edit-patient", async (_, data) => {
+    try {
+      const { id, ...rest } = data;
+      await db.update(patients).set(rest).where(eq(patients.id, id));
+      return { success: true };
+    } catch (error) {
+      console.error("Database Update Error:", error);
+      return { success: false, error: (error as Error).message };
+    }
+  });
   win.webContents.setWindowOpenHandler(() => ({ action: "allow" }));
   // win.webContents.session.webRequest.onHeadersReceived((details, callback) => {
   //   callback({

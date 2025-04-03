@@ -1,0 +1,283 @@
+"use client";
+
+import { Button } from "../ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "../ui/card";
+import { Input } from "../ui/input";
+import { Label } from "../ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
+import { useForm, Controller } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Textarea } from "../ui/textarea";
+import { useEffect, useState } from "react";
+import { Loader2 } from "lucide-react";
+
+// Define Zod Schema for Validation
+const patientSchema = z.object({
+  name: z.string().min(2, "Name must be at least 2 characters"),
+  age: z.coerce.number().min(1, "Age must be at least 1"),
+  gender: z.enum(["Male", "Female"]),
+  contact: z.string().min(5, "Contact must be valid"),
+  weight: z.coerce.number().min(1, "Weight must be a positive number"),
+  address: z.string().min(5, "Address must be valid"),
+  bloodType: z.string().min(1, "Blood type is required"),
+  medicalHistory: z.string().optional(),
+  allergies: z.string().optional(),
+  notes: z.string().optional(),
+});
+
+type PatientData = z.infer<typeof patientSchema>;
+
+export function EditPatientForm({ id }: { id: string }) {
+  const [loading, setLoading] = useState(true);
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    control,
+    reset,
+  } = useForm<PatientData>({
+    resolver: zodResolver(patientSchema),
+    defaultValues: {
+      name: "",
+      age: 0,
+      gender: "Male",
+      contact: "",
+      weight: 0,
+      address: "",
+      bloodType: "",
+      medicalHistory: "",
+      allergies: "",
+      notes: "",
+    },
+  });
+
+  useEffect(() => {
+    if (id) {
+      window.electronAPI
+        .getpatient(id)
+        /* eslint-disable  @typescript-eslint/no-explicit-any */
+        .then((data: any) => {
+          const patientData = data[0] ? { ...data[0] } : null;
+          console.log("📢 Extracted Patient Data:", patientData);
+
+          if (patientData) {
+            reset(patientData);
+          }
+        })
+        .catch((error: Error) =>
+          console.error("Error fetching patient:", error)
+        )
+        .finally(() => setLoading(false));
+    }
+  }, [id, reset]);
+
+  const handleSave = async (data: PatientData) => {
+    try {
+      const updatedData = { id, ...data }; // Ensure the ID is included
+      console.log("Submitting Patient Data:", updatedData);
+
+      // Send data to the Electron backend for updating
+      await window.electronAPI.editPatient(updatedData);
+
+      alert("Patient updated successfully!");
+    } catch (error) {
+      console.error("Error updating patient:", error);
+      alert("Failed to update patient. Please try again.");
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-10">
+        <Loader2 className="animate-spin text-muted-foreground w-6 h-6" />
+        <span className="ml-2 text-muted-foreground">Loading...</span>
+      </div>
+    );
+  }
+
+  return (
+    <Card onClick={(e) => e.stopPropagation()}>
+      <form onSubmit={handleSubmit(handleSave)}>
+        <CardHeader>
+          <CardTitle>Edit Patient</CardTitle>
+          <CardDescription>Modify the patient details below.</CardDescription>
+        </CardHeader>
+        <CardContent className="grid gap-6">
+          {/* Name & Age */}
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid gap-2">
+              <Label htmlFor="name">Name</Label>
+              <Input {...register("name")} id="name" placeholder="Enter name" />
+              {errors.name && (
+                <p className="text-red-500 text-sm">{errors.name.message}</p>
+              )}
+            </div>
+
+            <div className="grid gap-2">
+              <Label htmlFor="age">Age</Label>
+              <Input
+                {...register("age")}
+                id="age"
+                type="number"
+                placeholder="Enter age"
+              />
+              {errors.age && (
+                <p className="text-red-500 text-sm">{errors.age.message}</p>
+              )}
+            </div>
+          </div>
+
+          {/* Gender & Contact (Same Row) */}
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid gap-2">
+              <Label htmlFor="gender">Gender</Label>
+              <Controller
+                name="gender"
+                control={control}
+                render={({ field }) => (
+                  <Select {...field} onValueChange={field.onChange}>
+                    <SelectTrigger id="gender">
+                      <SelectValue placeholder="Select gender" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Male">Male</SelectItem>
+                      <SelectItem value="Female">Female</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+              {errors.gender && (
+                <p className="text-red-500 text-sm">{errors.gender.message}</p>
+              )}
+            </div>
+
+            <div className="grid gap-2">
+              <Label htmlFor="contact">Contact</Label>
+              <Input
+                {...register("contact")}
+                id="contact"
+                placeholder="Enter contact number"
+              />
+              {errors.contact && (
+                <p className="text-red-500 text-sm">{errors.contact.message}</p>
+              )}
+            </div>
+          </div>
+
+          {/* Weight & Blood Type (Same Row) */}
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid gap-2">
+              <Label htmlFor="weight">Weight</Label>
+              <Input
+                {...register("weight")}
+                id="weight"
+                type="number"
+                placeholder="Enter weight (kg)"
+              />
+              {errors.weight && (
+                <p className="text-red-500 text-sm">{errors.weight.message}</p>
+              )}
+            </div>
+
+            <div className="grid gap-2">
+              <Label htmlFor="bloodType">Blood Type</Label>
+              <Controller
+                name="bloodType"
+                control={control}
+                render={({ field }) => (
+                  <Select {...field} onValueChange={field.onChange}>
+                    <SelectTrigger id="bloodType">
+                      <SelectValue placeholder="Select blood type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="A+">A+</SelectItem>
+                      <SelectItem value="A-">A-</SelectItem>
+                      <SelectItem value="B+">B+</SelectItem>
+                      <SelectItem value="B-">B-</SelectItem>
+                      <SelectItem value="AB+">AB+</SelectItem>
+                      <SelectItem value="AB-">AB-</SelectItem>
+                      <SelectItem value="O+">O+</SelectItem>
+                      <SelectItem value="O-">O-</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+              {errors.bloodType && (
+                <p className="text-red-500 text-sm">
+                  {errors.bloodType.message}
+                </p>
+              )}
+            </div>
+          </div>
+
+          {/* Address */}
+          <div className="grid gap-2">
+            <Label htmlFor="address">Address</Label>
+            <Input
+              {...register("address")}
+              id="address"
+              placeholder="Enter address"
+            />
+            {errors.address && (
+              <p className="text-red-500 text-sm">{errors.address.message}</p>
+            )}
+          </div>
+
+          {/* Medical History */}
+          <div className="grid gap-2">
+            <Label htmlFor="medicalHistory">Medical History</Label>
+            <Textarea
+              {...register("medicalHistory")}
+              id="medicalHistory"
+              placeholder="Enter medical history"
+            />
+          </div>
+
+          {/* Allergies */}
+          <div className="grid gap-2">
+            <Label htmlFor="allergies">Allergies</Label>
+            <Textarea
+              {...register("allergies")}
+              id="allergies"
+              placeholder="Enter allergies"
+            />
+          </div>
+
+          {/* Special Notes */}
+          <div className="grid gap-2">
+            <Label htmlFor="notes">Special Notes (Optional)</Label>
+            <Textarea
+              {...register("notes")}
+              id="notes"
+              placeholder="Any additional notes for the patient."
+            />
+          </div>
+        </CardContent>
+
+        <CardFooter className="justify-between space-x-2">
+          <Button variant="ghost" size="sm" type="button">
+            Cancel
+          </Button>
+          <Button size="sm" type="submit">
+            Save
+          </Button>
+        </CardFooter>
+      </form>
+    </Card>
+  );
+}
