@@ -24,6 +24,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Textarea } from "../ui/textarea";
 import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 // Define Zod Schema for Validation
 const patientSchema = z.object({
@@ -33,7 +34,7 @@ const patientSchema = z.object({
   contact: z.string().min(5, "Contact must be valid"),
   weight: z.coerce.number().min(1, "Weight must be a positive number"),
   address: z.string().min(5, "Address must be valid"),
-  bloodType: z.string().min(1, "Blood type is required"),
+  bloodType: z.string().optional(),
   medicalHistory: z.string().optional(),
   allergies: z.string().optional(),
   notes: z.string().optional(),
@@ -94,10 +95,10 @@ export function EditPatientForm({ id }: { id: string }) {
       // Send data to the Electron backend for updating
       await window.electronAPI.editPatient(updatedData);
 
-      alert("Patient updated successfully!");
+      toast.success("Patient updated successfully!");
     } catch (error) {
       console.error("Error updating patient:", error);
-      alert("Failed to update patient. Please try again.");
+      toast.error("Failed to update patient. Please try again.");
     }
   };
 
