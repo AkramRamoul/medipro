@@ -1,6 +1,6 @@
 import { app, BrowserWindow, ipcMain } from "electron";
 import path from "path";
-import { desc, eq } from "drizzle-orm";
+import { desc, eq, sql } from "drizzle-orm";
 import fs from "fs";
 import { isDevelopment } from "./util.js";
 import { getMedsPath } from "./pathResolver.js";
@@ -48,15 +48,38 @@ app.on("ready", () => {
   });
 
   ipcMain.handle("getallpatients", async () => {
-    const result = await db.select().from(patients);
+    const result = await db
+      .select({
+        id: patients.id,
+        name: patients.name,
+        age: patients.age,
+        gender: patients.gender,
+        contact: patients.contact,
+        address: patients.address,
+        weight: patients.weight,
+        bloodType: patients.bloodType,
+        medicalHistory: patients.medicalHistory,
+        allergies: patients.allergies,
+        notes: patients.notes,
+        createdAt: patients.createdAt,
+        lastVisit: sql`MAX(consultations.date)`.as("lastVisit"),
+      })
+      .from(patients)
+      .leftJoin(consultations, eq(patients.id, consultations.patientId))
+      .groupBy(patients.id); // Ensure we get one row per patient
 
     const formattedPatients = result.map((patient) => ({
       ...patient,
-      date: new Date(patient.createdAt!).toISOString().split("T")[0], // Format date as "YYYY-MM-DD"
+      createdAt: new Date(patient.createdAt!).toISOString().split("T")[0], // Format created_at
+      lastVisit:
+        patient.lastVisit && typeof patient.lastVisit === "string"
+          ? new Date(patient.lastVisit).toISOString().split("T")[0]
+          : null, // Ensure lastVisit is null if no visits
     }));
 
     return formattedPatients;
   });
+
   ipcMain.handle("delete-consultaion", async (_, id) => {
     try {
       await db.delete(consultations).where(eq(consultations.id, id));

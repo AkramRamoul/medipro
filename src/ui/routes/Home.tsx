@@ -30,6 +30,7 @@ export function Home() {
       const patients = await getData();
       setData(patients);
       setIsLoading(false);
+      console.log("Fetched patients:", patients);
     };
 
     fetchData();
@@ -58,7 +59,7 @@ export function Home() {
         <Button onClick={() => setIsOpen(true)} className="w-fit">
           Add New Patient
         </Button>
-      
+
         {isLoading ? (
           <div className="flex items-center justify-center py-10">
             <Loader2 className="animate-spin text-muted-foreground w-6 h-6" />

@@ -31,7 +31,7 @@ export const columns: ColumnDef<Patient>[] = [
     header: "Contact",
   },
   {
-    accessorKey: "date",
+    accessorKey: "lastVisit",
     header: ({ column }) => {
       return (
         <Button
@@ -45,11 +45,24 @@ export const columns: ColumnDef<Patient>[] = [
       );
     },
     cell: ({ row }) => {
-      const rawDate: string = row.getValue("date");
+      const rawDate: string | null = row.getValue("lastVisit");
+
+      if (!rawDate) {
+        return (
+          <div className="text-right font-medium pr-3 text-muted-foreground">
+            No visits
+          </div>
+        );
+      }
+
       const date = new Date(rawDate);
-      const formattedDate = date.toLocaleDateString("en-GB");
+      const formattedDate = isNaN(date.getTime())
+        ? "Invalid Date"
+        : date.toLocaleDateString("en-GB");
+
       return <div className="text-right font-medium pr-3">{formattedDate}</div>;
     },
+
     sortingFn: (rowA, rowB) => {
       const dateA = new Date(rowA.getValue("date")).getTime();
       const dateB = new Date(rowB.getValue("date")).getTime();
