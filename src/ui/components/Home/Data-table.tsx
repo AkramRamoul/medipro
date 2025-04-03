@@ -21,19 +21,21 @@ import {
 } from "../ui/table";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
-import { useNavigate } from "react-router-dom"; // Use this if you're using react-router-dom
-// import { useRouter } from "next/router"; // Use this if you're using Next.js
+import { useNavigate } from "react-router-dom";
 
-// Constrain TData to have 'id'
-interface DataTableProps<TData extends { id: string }, TValue> {
+// Update TData type to match the new schema
+interface DataTableProps<
+  TData extends { id: string; first_name: string; last_name: string },
+  TValue
+> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
 }
 
-export function DataTable<TData extends { id: string }, TValue>({
-  columns,
-  data,
-}: DataTableProps<TData, TValue>) {
+export function DataTable<
+  TData extends { id: string; first_name: string; last_name: string },
+  TValue
+>({ columns, data }: DataTableProps<TData, TValue>) {
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   );
@@ -59,10 +61,12 @@ export function DataTable<TData extends { id: string }, TValue>({
     <div className="flex flex-col space-y-4 items-center">
       <div className="flex items-center py-2 w-[600px] max-w-full mx-auto">
         <Input
-          placeholder="Filter names..."
-          value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
+          placeholder="Filter by name..."
+          value={
+            (table.getColumn("lastname")?.getFilterValue() as string) ?? ""
+          }
           onChange={(event) =>
-            table.getColumn("name")?.setFilterValue(event.target.value)
+            table.getColumn("lastname")?.setFilterValue(event.target.value)
           }
           className="max-w-full"
         />
@@ -93,7 +97,7 @@ export function DataTable<TData extends { id: string }, TValue>({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
-                  className="cursor-pointer hover:bg-gray-100" // Change cursor and add hover effect
+                  className="cursor-pointer hover:bg-gray-100"
                   onClick={() => navigate(`/pat/${row.original.id}`)}
                 >
                   {row.getVisibleCells().map((cell) => (

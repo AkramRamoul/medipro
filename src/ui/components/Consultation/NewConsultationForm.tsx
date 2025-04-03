@@ -85,6 +85,14 @@ function NewConsultationForm({
           <Input value={patient?.name || ""} readOnly />
         </div>
         <div className="flex flex-col items-start space-y-1">
+          <Label>Patient Name</Label>
+          <Input
+            value={`${patient?.name || ""} ${patient?.lastName || ""}`}
+            readOnly
+          />
+        </div>
+
+        <div className="flex flex-col items-start space-y-1">
           <Label>Age & Gender</Label>
           <Input
             className="font-semibold"

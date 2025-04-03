@@ -28,7 +28,8 @@ import { toast } from "sonner";
 
 // Define Zod Schema for Validation
 const patientSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
+  first_name: z.string().min(2, "First name must be at least 2 characters"),
+  last_name: z.string().min(2, "Last name must be at least 2 characters"),
   age: z.coerce.number().min(1, "Age must be at least 1"),
   gender: z.enum(["Male", "Female"]),
   contact: z.string().min(5, "Contact must be valid"),
@@ -54,7 +55,8 @@ export function EditPatientForm({ id }: { id: string }) {
   } = useForm<PatientData>({
     resolver: zodResolver(patientSchema),
     defaultValues: {
-      name: "",
+      first_name: "",
+      last_name: "",
       age: 0,
       gender: "Male",
       contact: "",
@@ -89,10 +91,9 @@ export function EditPatientForm({ id }: { id: string }) {
 
   const handleSave = async (data: PatientData) => {
     try {
-      const updatedData = { id, ...data }; // Ensure the ID is included
+      const updatedData = { id, ...data };
       console.log("Submitting Patient Data:", updatedData);
 
-      // Send data to the Electron backend for updating
       await window.electronAPI.editPatient(updatedData);
 
       toast.success("Patient updated successfully!");
@@ -119,16 +120,39 @@ export function EditPatientForm({ id }: { id: string }) {
           <CardDescription>Modify the patient details below.</CardDescription>
         </CardHeader>
         <CardContent className="grid gap-6">
-          {/* Name & Age */}
+          {/* First Name & Last Name */}
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="grid gap-2">
-              <Label htmlFor="name">Name</Label>
-              <Input {...register("name")} id="name" placeholder="Enter name" />
-              {errors.name && (
-                <p className="text-red-500 text-sm">{errors.name.message}</p>
+              <Label htmlFor="firstName">First Name</Label>
+              <Input
+                {...register("first_name")}
+                id="firstName"
+                placeholder="Enter first name"
+              />
+              {errors.first_name && (
+                <p className="text-red-500 text-sm">
+                  {errors.first_name.message}
+                </p>
               )}
             </div>
 
+            <div className="grid gap-2">
+              <Label htmlFor="lastName">Last Name</Label>
+              <Input
+                {...register("last_name")}
+                id="lastName"
+                placeholder="Enter last name"
+              />
+              {errors.last_name && (
+                <p className="text-red-500 text-sm">
+                  {errors.last_name.message}
+                </p>
+              )}
+            </div>
+          </div>
+
+          {/* Age & Gender */}
+          <div className="grid gap-4 sm:grid-cols-2">
             <div className="grid gap-2">
               <Label htmlFor="age">Age</Label>
               <Input
@@ -141,10 +165,7 @@ export function EditPatientForm({ id }: { id: string }) {
                 <p className="text-red-500 text-sm">{errors.age.message}</p>
               )}
             </div>
-          </div>
 
-          {/* Gender & Contact (Same Row) */}
-          <div className="grid gap-4 sm:grid-cols-2">
             <div className="grid gap-2">
               <Label htmlFor="gender">Gender</Label>
               <Controller
@@ -162,11 +183,11 @@ export function EditPatientForm({ id }: { id: string }) {
                   </Select>
                 )}
               />
-              {errors.gender && (
-                <p className="text-red-500 text-sm">{errors.gender.message}</p>
-              )}
             </div>
+          </div>
 
+          {/* Contact & Weight */}
+          <div className="grid gap-4 sm:grid-cols-2">
             <div className="grid gap-2">
               <Label htmlFor="contact">Contact</Label>
               <Input
@@ -178,23 +199,19 @@ export function EditPatientForm({ id }: { id: string }) {
                 <p className="text-red-500 text-sm">{errors.contact.message}</p>
               )}
             </div>
+
+            <div className="grid gap-2">
+              <Label htmlFor="address">Address</Label>
+              <Input
+                {...register("address")}
+                id="address"
+                placeholder="Enter address"
+              />
+            </div>
           </div>
 
-          {/* Weight & Blood Type (Same Row) */}
+          {/* Blood Type & Address */}
           <div className="grid gap-4 sm:grid-cols-2">
-            <div className="grid gap-2">
-              <Label htmlFor="weight">Weight</Label>
-              <Input
-                {...register("weight")}
-                id="weight"
-                type="number"
-                placeholder="Enter weight (kg)"
-              />
-              {errors.weight && (
-                <p className="text-red-500 text-sm">{errors.weight.message}</p>
-              )}
-            </div>
-
             <div className="grid gap-2">
               <Label htmlFor="bloodType">Blood Type</Label>
               <Controller
@@ -218,56 +235,31 @@ export function EditPatientForm({ id }: { id: string }) {
                   </Select>
                 )}
               />
-              {errors.bloodType && (
-                <p className="text-red-500 text-sm">
-                  {errors.bloodType.message}
-                </p>
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="weight">Weight</Label>
+              <Input
+                {...register("weight")}
+                id="weight"
+                type="number"
+                placeholder="Enter weight (kg)"
+              />
+              {errors.weight && (
+                <p className="text-red-500 text-sm">{errors.weight.message}</p>
               )}
             </div>
           </div>
 
-          {/* Address */}
-          <div className="grid gap-2">
-            <Label htmlFor="address">Address</Label>
-            <Input
-              {...register("address")}
-              id="address"
-              placeholder="Enter address"
-            />
-            {errors.address && (
-              <p className="text-red-500 text-sm">{errors.address.message}</p>
-            )}
-          </div>
-
-          {/* Medical History */}
-          <div className="grid gap-2">
-            <Label htmlFor="medicalHistory">Medical History</Label>
-            <Textarea
-              {...register("medicalHistory")}
-              id="medicalHistory"
-              placeholder="Enter medical history"
-            />
-          </div>
-
-          {/* Allergies */}
-          <div className="grid gap-2">
-            <Label htmlFor="allergies">Allergies</Label>
-            <Textarea
-              {...register("allergies")}
-              id="allergies"
-              placeholder="Enter allergies"
-            />
-          </div>
-
-          {/* Special Notes */}
-          <div className="grid gap-2">
-            <Label htmlFor="notes">Special Notes (Optional)</Label>
-            <Textarea
-              {...register("notes")}
-              id="notes"
-              placeholder="Any additional notes for the patient."
-            />
-          </div>
+          {/* Medical History, Allergies, Notes */}
+          <Textarea
+            {...register("medicalHistory")}
+            placeholder="Enter medical history"
+          />
+          <Textarea {...register("allergies")} placeholder="Enter allergies" />
+          <Textarea
+            {...register("notes")}
+            placeholder="Any additional notes."
+          />
         </CardContent>
 
         <CardFooter className="justify-between space-x-2">

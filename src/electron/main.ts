@@ -51,7 +51,8 @@ app.on("ready", () => {
     const result = await db
       .select({
         id: patients.id,
-        name: patients.name,
+        firstname: patients.first_name,
+        lastname: patients.last_name,
         age: patients.age,
         gender: patients.gender,
         contact: patients.contact,

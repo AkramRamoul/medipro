@@ -4,7 +4,8 @@ import { AddPatientForm } from "./Form";
 import { toast } from "sonner";
 
 type Patient = {
-  name: string;
+  first_name: string;
+  last_name: string;
   age: number;
   gender: "Male" | "Female";
   contact: string;

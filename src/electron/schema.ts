@@ -4,7 +4,8 @@ import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
 // 🏥 Patients Table
 export const patients = sqliteTable("patients", {
   id: integer("id").primaryKey({ autoIncrement: true }),
-  name: text("name").notNull(),
+  first_name: text("first_name").notNull(),
+  last_name: text("last_name").notNull(),
   age: integer("age").notNull(),
   gender: text("gender").notNull(), // Male, Female, Other
   contact: text("contact").notNull().unique(),

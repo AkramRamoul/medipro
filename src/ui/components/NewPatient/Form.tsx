@@ -25,7 +25,8 @@ import { Textarea } from "../ui/textarea";
 
 // Define Zod Schema for Validation
 const patientSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
+  first_name: z.string().min(2, "First name must be at least 2 characters"),
+  last_name: z.string().min(2, "Last name must be at least 2 characters"),
   age: z.coerce.number().min(1, "Age must be at least 1"),
   gender: z.enum(["Male", "Female"]),
   contact: z.string().min(5, "Contact must be valid"),
@@ -62,10 +63,7 @@ export function AddPatientForm({ onClose, onSave }: AddPatientFormProps) {
         e.stopPropagation();
       }}
     >
-      <form
-        onSubmit={handleSubmit(onSubmit)}
-        // Prevents closing when clicking inside
-      >
+      <form onSubmit={handleSubmit(onSubmit)}>
         <CardHeader>
           <CardTitle>Add a new patient</CardTitle>
           <CardDescription>
@@ -73,17 +71,36 @@ export function AddPatientForm({ onClose, onSave }: AddPatientFormProps) {
           </CardDescription>
         </CardHeader>
         <CardContent className="grid gap-6">
-          <div className="grid gap-4 sm:grid-cols-2">
-            {/* Name */}
+          {/* First Name, Last Name & Age in same row */}
+          <div className="grid gap-4 sm:grid-cols-3">
             <div className="grid gap-2">
-              <Label htmlFor="name">Name</Label>
-              <Input {...register("name")} id="name" placeholder="Enter name" />
-              {errors.name && (
-                <p className="text-red-500 text-sm">{errors.name.message}</p>
+              <Label htmlFor="firstName">First Name</Label>
+              <Input
+                {...register("first_name")}
+                id="firstName"
+                placeholder="Enter first name"
+              />
+              {errors.first_name && (
+                <p className="text-red-500 text-sm">
+                  {errors.first_name.message}
+                </p>
               )}
             </div>
 
-            {/* Age */}
+            <div className="grid gap-2">
+              <Label htmlFor="lastName">Last Name</Label>
+              <Input
+                {...register("last_name")}
+                id="lastName"
+                placeholder="Enter last name"
+              />
+              {errors.last_name && (
+                <p className="text-red-500 text-sm">
+                  {errors.last_name.message}
+                </p>
+              )}
+            </div>
+
             <div className="grid gap-2">
               <Label htmlFor="age">Age</Label>
               <Input
