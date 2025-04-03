@@ -48,10 +48,29 @@ function ConsultationForm({ id }: { id: string }) {
         <div className="mt-4 space-y-4">
           {consultations.map((consultation) => (
             <div
-              onClick={() => setIsConsOpen(true)}
               key={consultation.id}
-              className="p-4 border rounded-xl shadow-sm bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer"
+              className="p-4 border rounded-xl shadow-sm bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer flex justify-between items-center"
             >
+              <div className="flex-1" onClick={() => setIsConsOpen(true)}>
+                <p className="text-sm text-gray-600 font-medium truncate">
+                  <strong className="text-gray-800">Date:</strong>{" "}
+                  {formatDate(consultation.date)}
+                </p>
+                <p className="text-sm text-gray-600 font-medium truncate">
+                  <strong className="text-gray-800">Reason:</strong>{" "}
+                  {consultation.reason}
+                </p>
+                <p className="text-sm text-gray-600 font-medium truncate">
+                  <strong className="text-gray-800">Diagnosis:</strong>{" "}
+                  {consultation.diagnosis}
+                </p>
+              </div>
+
+              <DeleteDialogue
+                consultationId={consultation.id}
+                setData={setConsultations}
+              />
+
               <Modal isOpen={isConsOpen} onClose={() => setIsConsOpen(false)}>
                 <SingleConsultation
                   id={consultation.id}
@@ -61,23 +80,6 @@ function ConsultationForm({ id }: { id: string }) {
                   }}
                 />
               </Modal>
-
-              <DeleteDialogue
-                consultationId={consultation.id}
-                setData={setConsultations}
-              />
-              <p className="text-sm text-gray-600 font-medium truncate">
-                <strong className="text-gray-800">Date:</strong>{" "}
-                {formatDate(consultation.date)}
-              </p>
-              <p className="text-sm text-gray-600 font-medium truncate">
-                <strong className="text-gray-800">Reason:</strong>{" "}
-                {consultation.reason}
-              </p>
-              <p className="text-sm text-gray-600 font-medium truncate">
-                <strong className="text-gray-800">Diagnosis:</strong>{" "}
-                {consultation.diagnosis}
-              </p>
             </div>
           ))}
         </div>

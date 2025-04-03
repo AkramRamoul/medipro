@@ -6,6 +6,7 @@ import SinglePrescription from "./SinglePrescription";
 import DeletePrescriptionDialogue from "./DeletePrescriptionDialogue";
 import { Prescription } from "../../type";
 import { formatDate } from "../../lib/utils";
+
 function MainPrescriptionPage({ id }: { id: string }) {
   const [isOpen, setIsOpen] = useState(false);
   const [prescriptions, setPrescriptions] = useState<Prescription[]>([]);
@@ -24,6 +25,7 @@ function MainPrescriptionPage({ id }: { id: string }) {
   useEffect(() => {
     fetchPrescriptions();
   }, [fetchPrescriptions]);
+
   return (
     <div className="p-4 bg-white rounded-xl shadow-lg max-w-[80%] mx-auto">
       <Button onClick={() => setIsOpen(true)} className="mb-4 w-full">
@@ -47,18 +49,22 @@ function MainPrescriptionPage({ id }: { id: string }) {
           {prescriptions.map((prescription) => (
             <div
               key={prescription.id}
-              onClick={() => setSelectedPrescription(prescription)}
-              className="p-4 border rounded-xl shadow-sm bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer "
+              className="p-4 border rounded-xl shadow-sm bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer flex justify-between items-center"
             >
+              <div
+                className="flex-1"
+                onClick={() => setSelectedPrescription(prescription)}
+              >
+                <p className="text-sm text-gray-600 font-medium truncate">
+                  <strong className="text-gray-800">Ordonnance Du :</strong>{" "}
+                  {formatDate(prescription.date || "")}
+                </p>
+              </div>
+
               <DeletePrescriptionDialogue
                 priscriptionId={prescription.id.toString()}
                 setData={setPrescriptions}
               />
-
-              <p className="text-sm text-gray-600 font-medium truncate">
-                <strong className="text-gray-800">Oradonance Du :</strong>{" "}
-                {formatDate(prescription.date || "")}
-              </p>
             </div>
           ))}
         </div>
