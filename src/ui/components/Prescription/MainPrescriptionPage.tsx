@@ -6,7 +6,7 @@ import SinglePrescription from "./SinglePrescription";
 import DeletePrescriptionDialogue from "./DeletePrescriptionDialogue";
 import { Patient, Prescription } from "../../type";
 import { formatDate } from "../../lib/utils";
-import PDF from "../Patient/Pdf";
+import PrintButton from "./PrintButton";
 
 function MainPrescriptionPage({ id }: { id: string }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -57,7 +57,7 @@ function MainPrescriptionPage({ id }: { id: string }) {
           refreshPrescriptions={fetchPrescriptions}
         />
       </Modal>
-      <PDF patient={patient} />
+      <PrintButton patient={patient} />
 
       {/* Prescription List */}
       {prescriptions.length === 0 ? (

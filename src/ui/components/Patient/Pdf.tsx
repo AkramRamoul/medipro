@@ -1,74 +1,109 @@
-import pdfMake from "pdfmake/build/pdfmake";
-import pdfFonts from "pdfmake/build/vfs_fonts";
+import React from "react";
+import {
+  Document,
+  Page,
+  Text,
+  View,
+  StyleSheet,
+  Font,
+} from "@react-pdf/renderer";
 
-pdfMake.vfs = pdfFonts.vfs;
+import AmiriRegular from "/fonts/Amiri-Regular.ttf";
+import AmiriBold from "/fonts/Amiri-Bold.ttf";
 
-const PDF = ({ patient }) => {
-  const generatePrescription = () => {
-    const docDefinition = {
-      content: [
-        { text: "Dr. LAROUN CH ep. CHEHAD", style: "header" },
-        {
-          text: "Maitre Assistante Spécialiste en Dermatologie",
-          style: "subheader",
-        },
-        {
-          text: "Maladie de Peau, des Ongles et des Cheveux",
-          fontSize: 10,
-          margin: [0, 5],
-        },
-        { text: "Cryothérapie - Peeling - Epilation Laser", fontSize: 10 },
-        { text: "N° Inscription : 25 / 8033", fontSize: 10, margin: [0, 10] },
-        {
-          text: "___________________________________________",
-          margin: [0, 20],
-          alignment: "center",
-        },
-        {
-          columns: [
-            { text: `Nom: ${patient.last_name}`, bold: true },
-            { text: `Prénom: ${patient.first_name}`, bold: true },
-            { text: `Âge: ${patient.age} Ans`, bold: true },
-          ],
-        },
-        { text: "ORDONNANCE", style: "title", margin: [0, 10] },
+Font.register({
+  family: "Amiri",
+  fonts: [{ src: AmiriRegular }, { src: AmiriBold, fontWeight: "bold" }],
+});
 
-        { text: "Médicaments:", style: "sectionHeader", margin: [0, 10] },
+const styles = StyleSheet.create({
+  page: {
+    padding: 30,
+    fontFamily: "Amiri",
+    direction: "rtl",
+  },
+  header: {
+    fontSize: 16,
+    fontWeight: "bold",
+    textAlign: "center",
+    marginBottom: 5,
+  },
+  subheader: {
+    fontSize: 12,
+    textAlign: "center",
+    marginBottom: 5,
+  },
+  line: {
+    borderBottomWidth: 1,
+    borderBottomColor: "black",
+    marginVertical: 10,
+    width: "100%",
+    alignSelf: "center",
+  },
+  title: {
+    fontSize: 14,
+    fontWeight: "bold",
+    textAlign: "center",
+    marginTop: 10,
+  },
+  sectionHeader: {
+    fontSize: 12,
+    fontWeight: "bold",
+    marginTop: 10,
+  },
+  row: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginVertical: 3,
+  },
+  colLeft: {
+    textAlign: "left",
+    fontSize: 10,
+  },
+  colRight: {
+    textAlign: "right",
+    fontSize: 10,
+  },
+  colCenter: {
+    textAlign: "center",
+    fontSize: 10,
+  },
+});
 
-        { text: "Signature", alignment: "right", margin: [0, 20] },
-      ],
-      styles: {
-        header: { fontSize: 16, bold: true, alignment: "center" },
-        subheader: { fontSize: 12, alignment: "center", margin: [0, 5] },
-        title: { fontSize: 14, bold: true, alignment: "center" },
-        sectionHeader: { fontSize: 12, bold: true, margin: [0, 5] },
-      },
-    };
+const PrescriptionPDF = ({ patient }) => (
+  <Document>
+    <Page size="A5" style={styles.page}>
+      {" "}
+      {/* Changed to A5 size */}
+      <Text style={styles.header}>Dr. LAROUN CH ep. CHEHAD</Text>
+      <Text style={styles.header}>الدكتورة لارون ش. شحاد</Text>
+      <View style={styles.row}>
+        <Text style={styles.colLeft}>
+          Maitre Assistante Spécialiste en Dermatologie
+        </Text>
+        <Text style={styles.colRight}>
+          أستاذة مساعدة متخصصة في الأمراض الجلدية
+        </Text>
+      </View>
+      <View style={styles.row}>
+        <Text style={styles.colLeft}>
+          Maladie de Peau, des Ongles et des Cheveux
+        </Text>
+        <Text style={styles.colRight}>أمراض الجلد والأظافر والشعر</Text>
+      </View>
+      <View style={styles.row}>
+        <Text style={styles.colLeft}>
+          Cryothérapie - Peeling - Epilation Laser
+        </Text>
+        <Text style={styles.colRight}>
+          العلاج بالتبريد - التقشير - إزالة الشعر بالليزر
+        </Text>
+      </View>
+      <Text style={styles.colCenter}>N° Inscription : 25 / 8033</Text>
+      <View style={styles.line} />
+      <Text style={styles.title}>ORDONNANCE</Text>
+    </Page>
+  </Document>
+);
 
-    pdfMake.createPdf(docDefinition).open(); // Opens the PDF in a new tab
-  };
-
-  return (
-    <div className="p-5 border rounded bg-white shadow-md w-96">
-      <h2 className="text-xl font-bold">Prescription</h2>
-      <p>
-        <strong>Patient:</strong> {patient.first_name} {patient.last_name}
-      </p>
-      <p>
-        <strong>Age:</strong> {patient.age}
-      </p>
-      <p>
-        <strong>Medications:</strong>
-      </p>
-
-      <button
-        onClick={generatePrescription}
-        className="mt-4 px-4 py-2 bg-blue-500 text-white rounded"
-      >
-        Print Prescription
-      </button>
-    </div>
-  );
-};
-
-export default PDF;
+export default PrescriptionPDF;
