@@ -3,17 +3,16 @@ import {
   Clipboard,
   Home,
   User,
-  Settings,
   PillBottle,
   ChartColumnIncreasing,
-  ChevronDown,
-  Send,
-  LifeBuoy,
+  SettingsIcon,
+  HelpCircleIcon,
 } from "lucide-react";
 
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -21,12 +20,8 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "../components/ui/sidebar";
-
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "./ui/collapsible";
+import { NavSecondary } from "./Nav-secondary";
+import { NavUser } from "./Nav-User";
 
 // Menu items.
 const items = [
@@ -34,9 +29,27 @@ const items = [
   { title: "New Patient", url: "/newpatient", icon: User },
   { title: "Consultations", url: "/consultations", icon: Clipboard },
   { title: "Prescriptions", url: "/prescriptions", icon: PillBottle },
-  { title: "Statistics", url: "/pat/:id", icon: ChartColumnIncreasing },
-  { title: "Settings", url: "/settings", icon: Settings },
+  { title: "Statistics", url: "/stats", icon: ChartColumnIncreasing },
 ];
+const data = {
+  navSecondary: [
+    {
+      title: "Settings",
+      url: "/settings",
+      icon: SettingsIcon,
+    },
+    {
+      title: "Get Help",
+      url: "#",
+      icon: HelpCircleIcon,
+    },
+  ],
+  user: {
+    name: "shadcn",
+    email: "m@example.com",
+    avatar: "/avatar.jpg",
+  },
+};
 
 export function AppSidebar() {
   return (
@@ -54,7 +67,7 @@ export function AppSidebar() {
                       <NavLink
                         to={item.url}
                         className={({ isActive }) =>
-                          `flex items-center gap-2 px-4 py-2 rounded-md transition-colors font-semibold text-lg ${
+                          `flex items-center gap-2 px-2 py-2 rounded-md transition-colors font-semibold text-lg ${
                             isActive ? "bg-blue-500 text-white" : "text-black"
                           }`
                         }
@@ -71,39 +84,12 @@ export function AppSidebar() {
         </div>
 
         {/* Collapsible Help Section at Bottom */}
-        <div className="mt-auto">
-          <Collapsible defaultOpen className="group/collapsible">
-            <SidebarGroup>
-              <SidebarGroupLabel asChild>
-                <CollapsibleTrigger className="flex items-center">
-                  Help
-                  <ChevronDown className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-180" />
-                </CollapsibleTrigger>
-              </SidebarGroupLabel>
-              <CollapsibleContent>
-                <SidebarGroupContent className="list-none">
-                  <SidebarMenuItem>
-                    <SidebarMenuButton asChild>
-                      <a href="#">
-                        <Send />
-                        <span>Feedback</span>
-                      </a>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton asChild>
-                      <a href="#">
-                        <LifeBuoy />
-                        <span>Support</span>
-                      </a>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                </SidebarGroupContent>
-              </CollapsibleContent>
-            </SidebarGroup>
-          </Collapsible>
-        </div>
+        {/* Secondary Sidebar Items */}
+        <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
+      <SidebarFooter>
+        <NavUser user={data.user} />
+      </SidebarFooter>
     </Sidebar>
   );
 }
