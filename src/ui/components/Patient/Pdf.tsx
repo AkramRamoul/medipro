@@ -1,4 +1,3 @@
-import React from "react";
 import {
   Document,
   Page,
@@ -11,10 +10,20 @@ import {
 import AmiriRegular from "/fonts/Amiri-Regular.ttf";
 import AmiriBold from "/fonts/Amiri-Bold.ttf";
 
+// Register Amiri font
 Font.register({
   family: "Amiri",
   fonts: [{ src: AmiriRegular }, { src: AmiriBold, fontWeight: "bold" }],
 });
+
+// Date helper
+const formatDate = (date) => {
+  const d = new Date(date);
+  const day = String(d.getDate()).padStart(2, "0");
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const year = d.getFullYear();
+  return `${day}/${month}/${year}`;
+};
 
 const styles = StyleSheet.create({
   page: {
@@ -22,14 +31,20 @@ const styles = StyleSheet.create({
     fontFamily: "Amiri",
     direction: "rtl",
   },
-  header: {
-    fontSize: 16,
+  headerfr: {
+    fontSize: 14,
     fontWeight: "bold",
-    textAlign: "center",
+    textAlign: "left",
+    marginBottom: 5,
+  },
+  headerar: {
+    fontSize: 14,
+    fontWeight: "bold",
+    textAlign: "right",
     marginBottom: 5,
   },
   subheader: {
-    fontSize: 12,
+    fontSize: 10,
     textAlign: "center",
     marginBottom: 5,
   },
@@ -41,13 +56,14 @@ const styles = StyleSheet.create({
     alignSelf: "center",
   },
   title: {
-    fontSize: 14,
+    textDecoration: "underline",
+    fontSize: 12,
     fontWeight: "bold",
     textAlign: "center",
-    marginTop: 10,
+    marginTop: 8,
   },
   sectionHeader: {
-    fontSize: 12,
+    fontSize: 10,
     fontWeight: "bold",
     marginTop: 10,
   },
@@ -58,25 +74,31 @@ const styles = StyleSheet.create({
   },
   colLeft: {
     textAlign: "left",
-    fontSize: 10,
+    fontSize: 8,
   },
   colRight: {
     textAlign: "right",
-    fontSize: 10,
+    fontSize: 8,
   },
   colCenter: {
     textAlign: "center",
+    fontSize: 8,
+  },
+  infoPatient: {
     fontSize: 10,
+    marginVertical: 2,
+    textAlign: "left",
   },
 });
 
 const PrescriptionPDF = ({ patient }) => (
   <Document>
     <Page size="A5" style={styles.page}>
-      {" "}
-      {/* Changed to A5 size */}
-      <Text style={styles.header}>Dr. LAROUN CH ep. CHEHAD</Text>
-      <Text style={styles.header}>الدكتورة لارون ش. شحاد</Text>
+      <View style={styles.row}>
+        <Text style={styles.headerfr}>Dr. LAROUN CH ep. CHEHAD</Text>
+        <Text style={styles.headerar}>الدكتورة لارون ش. شحاد</Text>
+      </View>
+
       <View style={styles.row}>
         <Text style={styles.colLeft}>
           Maitre Assistante Spécialiste en Dermatologie
@@ -85,12 +107,14 @@ const PrescriptionPDF = ({ patient }) => (
           أستاذة مساعدة متخصصة في الأمراض الجلدية
         </Text>
       </View>
+
       <View style={styles.row}>
         <Text style={styles.colLeft}>
           Maladie de Peau, des Ongles et des Cheveux
         </Text>
         <Text style={styles.colRight}>أمراض الجلد والأظافر والشعر</Text>
       </View>
+
       <View style={styles.row}>
         <Text style={styles.colLeft}>
           Cryothérapie - Peeling - Epilation Laser
@@ -99,8 +123,19 @@ const PrescriptionPDF = ({ patient }) => (
           العلاج بالتبريد - التقشير - إزالة الشعر بالليزر
         </Text>
       </View>
+
       <Text style={styles.colCenter}>N° Inscription : 25 / 8033</Text>
+
       <View style={styles.line} />
+
+      {/* Patient Information */}
+      <View style={styles.row}>
+        <Text style={styles.infoPatient}>Nom : {patient?.last_name}</Text>
+        <Text style={styles.infoPatient}>Prénom : {patient?.first_name}</Text>
+        <Text style={styles.infoPatient}>Âge : {patient?.age}</Text>
+        <Text style={styles.infoPatient}>le : {formatDate(new Date())}</Text>
+      </View>
+
       <Text style={styles.title}>ORDONNANCE</Text>
     </Page>
   </Document>

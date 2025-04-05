@@ -113,7 +113,10 @@ export function EditPatientForm({ id }: { id: string }) {
   }
 
   return (
-    <Card onClick={(e) => e.stopPropagation()}>
+    <Card
+      onClick={(e) => e.stopPropagation()}
+      className="w-full max-w-[90%] mx-auto mt-5"
+    >
       <form onSubmit={handleSubmit(handleSave)}>
         <CardHeader>
           <CardTitle>Edit Patient</CardTitle>
@@ -123,7 +126,9 @@ export function EditPatientForm({ id }: { id: string }) {
           {/* First Name & Last Name */}
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="grid gap-2">
-              <Label htmlFor="firstName">First Name</Label>
+              <Label htmlFor="firstName" className="text-left">
+                First Name
+              </Label>
               <Input
                 {...register("first_name")}
                 id="firstName"
@@ -137,7 +142,9 @@ export function EditPatientForm({ id }: { id: string }) {
             </div>
 
             <div className="grid gap-2">
-              <Label htmlFor="lastName">Last Name</Label>
+              <Label htmlFor="lastName" className="text-left">
+                Last Name
+              </Label>
               <Input
                 {...register("last_name")}
                 id="lastName"
@@ -154,7 +161,9 @@ export function EditPatientForm({ id }: { id: string }) {
           {/* Age & Gender */}
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="grid gap-2">
-              <Label htmlFor="age">Age</Label>
+              <Label htmlFor="age" className="text-left">
+                Age
+              </Label>
               <Input
                 {...register("age")}
                 id="age"
@@ -167,7 +176,9 @@ export function EditPatientForm({ id }: { id: string }) {
             </div>
 
             <div className="grid gap-2">
-              <Label htmlFor="gender">Gender</Label>
+              <Label htmlFor="gender" className="text-left">
+                Gender
+              </Label>
               <Controller
                 name="gender"
                 control={control}
@@ -189,7 +200,9 @@ export function EditPatientForm({ id }: { id: string }) {
           {/* Contact & Weight */}
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="grid gap-2">
-              <Label htmlFor="contact">Contact</Label>
+              <Label htmlFor="contact" className="text-left">
+                Contact
+              </Label>
               <Input
                 {...register("contact")}
                 id="contact"
@@ -201,7 +214,9 @@ export function EditPatientForm({ id }: { id: string }) {
             </div>
 
             <div className="grid gap-2">
-              <Label htmlFor="address">Address</Label>
+              <Label htmlFor="address" className="text-left">
+                Address
+              </Label>
               <Input
                 {...register("address")}
                 id="address"
@@ -213,7 +228,9 @@ export function EditPatientForm({ id }: { id: string }) {
           {/* Blood Type & Address */}
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="grid gap-2">
-              <Label htmlFor="bloodType">Blood Type</Label>
+              <Label htmlFor="bloodType" className="text-left">
+                Blood Type
+              </Label>
               <Controller
                 name="bloodType"
                 control={control}
@@ -237,7 +254,9 @@ export function EditPatientForm({ id }: { id: string }) {
               />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="weight">Weight</Label>
+              <Label htmlFor="weight" className="text-left">
+                Weight
+              </Label>
               <Input
                 {...register("weight")}
                 id="weight"
@@ -251,22 +270,35 @@ export function EditPatientForm({ id }: { id: string }) {
           </div>
 
           {/* Medical History, Allergies, Notes */}
-          <Textarea
-            {...register("medicalHistory")}
-            placeholder="Enter medical history"
-          />
+          <div className="grid gap-2">
+            <Label htmlFor="medicalHistory" className="text-left">
+              Medical History
+            </Label>
+            <Textarea
+              {...register("medicalHistory")}
+              id="medicalHistory"
+              placeholder="Enter medical history"
+            />
+          </div>
+          <Label htmlFor="allergies" className="text-left">
+            Allergies
+          </Label>
           <Textarea {...register("allergies")} placeholder="Enter allergies" />
+          <Label htmlFor="notes" className="text-left">
+            Notes
+          </Label>
           <Textarea
             {...register("notes")}
             placeholder="Any additional notes."
           />
         </CardContent>
 
-        <CardFooter className="justify-between space-x-2">
-          <Button variant="ghost" size="sm" type="button">
-            Cancel
-          </Button>
-          <Button size="sm" type="submit">
+        <CardFooter className="justify-end">
+          <Button
+            size="lg"
+            type="submit"
+            className="bg-primary hover:bg-primary/80"
+          >
             Save
           </Button>
         </CardFooter>

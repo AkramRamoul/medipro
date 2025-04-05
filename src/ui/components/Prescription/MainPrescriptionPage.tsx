@@ -57,7 +57,7 @@ function MainPrescriptionPage({ id }: { id: string }) {
           refreshPrescriptions={fetchPrescriptions}
         />
       </Modal>
-      <PrintButton patient={patient} />
+      <PrintButton patient={patient} window={window} />
 
       {/* Prescription List */}
       {prescriptions.length === 0 ? (

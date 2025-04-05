@@ -6,6 +6,7 @@ import Settings from "./routes/Settings";
 import Home from "./routes/Home";
 import MainPage from "./components/Patient/MainPage";
 import { Toaster } from "sonner";
+import DashboardPage from "./dashboard/Page";
 
 function App() {
   return (
@@ -15,8 +16,9 @@ function App() {
           <Route index element={<Home />} />
           <Route path="newpatient" element={<NewPatient />} />
           <Route path="prescriptions" element={<Prescriptions />} />
-          <Route path="settings" element={<Settings />} />
+          <Route path="/settings" element={<Settings />} />
           <Route path="/pat/:id" element={<MainPage />} />
+          <Route path="/stats" element={<DashboardPage />} />
         </Route>
       </Routes>
       <Toaster />

@@ -3,7 +3,6 @@ import { columns } from "../components/Home/colums";
 import { DataTable } from "../components/Home/Data-table";
 import NewPatientModal from "../components/NewPatient/NewPatientModal";
 import { useState, useEffect } from "react";
-import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/avatar";
 import { Button } from "../components/ui/button";
 import { Loader2 } from "lucide-react";
 
@@ -47,12 +46,6 @@ export function Home() {
             <p className="text-muted-foreground">
               Here&apos;s a list of your patients!
             </p>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Avatar>
-              <AvatarImage src="https://github.com/shadcn.png" />
-              <AvatarFallback>CN</AvatarFallback>
-            </Avatar>
           </div>
         </div>
 
