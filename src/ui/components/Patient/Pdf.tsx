@@ -9,6 +9,7 @@ import {
 
 import AmiriRegular from "/fonts/Amiri-Regular.ttf";
 import AmiriBold from "/fonts/Amiri-Bold.ttf";
+import { Patient } from "../../type";
 
 // Register Amiri font
 Font.register({
@@ -17,7 +18,7 @@ Font.register({
 });
 
 // Date helper
-const formatDate = (date) => {
+const formatDate = (date: string | number | Date) => {
   const d = new Date(date);
   const day = String(d.getDate()).padStart(2, "0");
   const month = String(d.getMonth() + 1).padStart(2, "0");
@@ -91,7 +92,7 @@ const styles = StyleSheet.create({
   },
 });
 
-const PrescriptionPDF = ({ patient }) => (
+const PrescriptionPDF = ({ patient }: { patient: Patient }) => (
   <Document>
     <Page size="A5" style={styles.page}>
       <View style={styles.row}>

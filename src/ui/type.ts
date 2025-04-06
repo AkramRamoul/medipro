@@ -1,6 +1,9 @@
+import { PrescriptionMed } from "../electron/schema";
+
 export type Patient = {
   id: number;
-  name: string;
+  first_name: string;
+  last_name: string;
   age: number;
   gender: string;
   contact: string;
@@ -27,5 +30,5 @@ export interface Prescription {
   id: number;
   date: string | null;
   patientId: number;
-  medications: string[]; // Add medications property
+  medications: PrescriptionMed[]; // Add medications property
 }

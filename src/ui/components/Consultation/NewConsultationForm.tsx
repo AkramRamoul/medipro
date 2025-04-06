@@ -81,15 +81,12 @@ function NewConsultationForm({
       {/* Patient Info */}
       <div className="space-y-4">
         <div className="flex flex-col items-start space-y-1">
-          <Label>Patient Name</Label>
-          <Input value={patient?.name || ""} readOnly />
+          <Label>Nom</Label>
+          <Input value={patient?.last_name || ""} readOnly />
         </div>
         <div className="flex flex-col items-start space-y-1">
-          <Label>Patient Name</Label>
-          <Input
-            value={`${patient?.name || ""} ${patient?.lastName || ""}`}
-            readOnly
-          />
+          <Label>Prénom</Label>
+          <Input value={`${patient?.first_name || ""}`} readOnly />
         </div>
 
         <div className="flex flex-col items-start space-y-1">
