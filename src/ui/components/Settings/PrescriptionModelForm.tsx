@@ -9,6 +9,9 @@ import {
   CardTitle,
 } from "../ui/card";
 import { Button } from "../ui/button";
+import { FileDropzone } from "../File-DropZone";
+import { useFileUploader } from "../../hooks/use-file-uploader";
+import { RoundedTool } from "../Rounded-tool";
 
 export function PrescriptionModelForm() {
   const [form, setForm] = useState({
@@ -87,6 +90,7 @@ export function PrescriptionModelForm() {
     updated[index][lang] = value;
     setServices(updated);
   };
+  const fileUploaderProps = useFileUploader();
 
   return (
     <Card
@@ -224,6 +228,15 @@ export function PrescriptionModelForm() {
                 onChange={handleChange}
                 className="w-full p-2 border rounded mt-2"
               />
+            </div>
+            <div>
+              <FileDropzone
+                setCurrentFile={fileUploaderProps.handleFileUpload}
+                acceptedFileTypes={["image/*", "application/pdf"]}
+                dropText="Drag and drop a file here or click to upload"
+              >
+                <RoundedTool />
+              </FileDropzone>
             </div>
             <Button
               type="submit"
