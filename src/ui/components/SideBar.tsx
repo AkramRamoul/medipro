@@ -1,4 +1,4 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import {
   Clipboard,
   Home,
@@ -52,10 +52,12 @@ const data = {
 };
 
 export function AppSidebar() {
+  const location = useLocation();
+  const currentPath = location.pathname;
+
   return (
     <Sidebar className="h-screen">
       <SidebarContent className="flex flex-col h-full">
-        {/* Main Sidebar Items */}
         <div>
           <SidebarGroup>
             <SidebarGroupLabel>Menu</SidebarGroupLabel>
@@ -63,14 +65,18 @@ export function AppSidebar() {
               <SidebarMenu>
                 {items.map((item) => (
                   <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild>
+                    <SidebarMenuButton asChild className="mt-2">
                       <NavLink
                         to={item.url}
-                        className={({ isActive }) =>
-                          `flex items-center gap-2 px-2 py-2 rounded-md transition-colors font-semibold text-lg ${
-                            isActive ? "bg-blue-500 text-white" : "text-black"
-                          }`
-                        }
+                        className={`flex items-center gap-2 px-2 py-2 rounded-md transition-colors font-semibold text-lg ${
+                          item.url === "/"
+                            ? currentPath === "/"
+                              ? "bg-primary text-white"
+                              : "text-black hover:bg-secondary"
+                            : currentPath.startsWith(item.url)
+                            ? "bg-primary text-white"
+                            : "text-black hover:bg-secondary"
+                        }`}
                       >
                         <item.icon />
                         <span>{item.title}</span>
@@ -83,8 +89,7 @@ export function AppSidebar() {
           </SidebarGroup>
         </div>
 
-        {/* Collapsible Help Section at Bottom */}
-        {/* Secondary Sidebar Items */}
+        {/* Secondary Section */}
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
