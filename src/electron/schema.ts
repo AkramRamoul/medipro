@@ -53,6 +53,10 @@ export const prescriptionMedications = sqliteTable("prescription_medications", {
   note: text("note"),
 });
 
+export const image = sqliteTable("image", {
+  imagePath: text("image_path"), // store file path here
+});
+
 export type PrescriptionMed = typeof prescriptionMedications.$inferSelect;
 export type NewPrescriptionMed = typeof prescriptionMedications.$inferInsert;
 

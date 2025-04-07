@@ -83,4 +83,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
   },
   editPatient: async (data: unknown) =>
     ipcRenderer.invoke("edit-patient", data),
+  uploadImage: async (data: unknown) => {
+    return await ipcRenderer.invoke("upload-image", data);
+  },
 });

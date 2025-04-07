@@ -14,6 +14,11 @@ export interface IElectronAPI {
   deletePrescription: (id: string) => Promise<void>;
   editConsultation: (data: unknown) => Promise<void>;
   editPatient: (data: unknown) => Promise<{ success: boolean }>;
+  uploadImage: (filePath: string) => {
+    success: boolean;
+    path: string;
+    error?: string;
+  };
 }
 
 declare global {

@@ -10,6 +10,7 @@ import {
   consultations,
   prescriptions,
   prescriptionMedications,
+  image,
 } from "./schema.js";
 app.on("ready", () => {
   const win = new BrowserWindow({
@@ -266,6 +267,34 @@ app.on("ready", () => {
       return { success: false, error: (error as Error).message };
     }
   });
+
+  ipcMain.handle("upload-image", async (_, imageDataUrl) => {
+    try {
+      const destDir = path.join(app.getPath("userData"), "images");
+      fs.mkdirSync(destDir, { recursive: true });
+
+      const matches = imageDataUrl.match(/^data:(image\/\w+);base64,(.+)$/);
+      if (!matches || matches.length !== 3) {
+        throw new Error("Invalid base64 image format");
+      }
+
+      const mimeType = matches[1];
+      const base64Data = matches[2];
+      const fileExt = mimeType.split("/")[1]; // "jpeg", "png", etc.
+      const uniqueName = `${Date.now()}.${fileExt}`;
+      const destPath = path.join(destDir, uniqueName);
+
+      // Convert base64 to binary and write to file
+      fs.writeFileSync(destPath, Buffer.from(base64Data, "base64"));
+
+      await db.insert(image).values({ imagePath: destPath });
+      return { success: true, path: destPath };
+    } catch (err) {
+      console.error("📢 Image upload failed:", err);
+      return { success: false, error: (err as Error).message };
+    }
+  });
+
   win.webContents.setWindowOpenHandler(() => ({ action: "allow" }));
   // win.webContents.session.webRequest.onHeadersReceived((details, callback) => {
   //   callback({
