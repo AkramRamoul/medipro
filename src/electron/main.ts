@@ -11,6 +11,7 @@ import {
   prescriptions,
   prescriptionMedications,
   image,
+  prescriptionModel,
 } from "./schema.js";
 app.on("ready", () => {
   const win = new BrowserWindow({
@@ -291,6 +292,64 @@ app.on("ready", () => {
       return { success: true, path: destPath };
     } catch (err) {
       console.error("📢 Image upload failed:", err);
+      return { success: false, error: (err as Error).message };
+    }
+  });
+
+  ipcMain.handle("save-prescription-model", async (_, formData) => {
+    try {
+      const {
+        nameFr,
+        nameAr,
+        specialtyFr,
+        specialtyAr,
+        inscriptionNumber,
+        services,
+      } = formData;
+
+      const servicesFr = services.map((s: any) => s.fr);
+      const servicesAr = services.map((s: any) => s.ar);
+
+      const existing = await db.select().from(prescriptionModel).limit(1);
+
+      if (existing.length === 0) {
+        // First time creation
+        await db.insert(prescriptionModel).values({
+          nameFr,
+          nameAr,
+          specialtyFr,
+          specialtyAr,
+          inscriptionNumber,
+          servicesFr: JSON.stringify(servicesFr),
+          servicesAr: JSON.stringify(servicesAr),
+        });
+      } else {
+        // Update the existing row
+        await db
+          .update(prescriptionModel)
+          .set({
+            nameFr,
+            nameAr,
+            specialtyFr,
+            specialtyAr,
+            inscriptionNumber,
+            servicesFr: JSON.stringify(servicesFr),
+            servicesAr: JSON.stringify(servicesAr),
+          })
+          .where(eq(prescriptionModel.id, existing[0].id));
+      }
+
+      return { success: true };
+    } catch (err) {
+      console.error("❌ Failed to save or update prescription model:", err);
+      return { success: false, error: (err as Error).message };
+    }
+  });
+  ipcMain.handle("get-prescription-model", async () => {
+    try {
+      const [model] = await db.select().from(prescriptionModel).limit(1);
+      return { success: true, model };
+    } catch (err) {
       return { success: false, error: (err as Error).message };
     }
   });

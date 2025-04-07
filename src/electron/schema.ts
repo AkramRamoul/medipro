@@ -57,6 +57,17 @@ export const image = sqliteTable("image", {
   imagePath: text("image_path"), // store file path here
 });
 
+export const prescriptionModel = sqliteTable("prescription_model", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  nameFr: text("name_fr").notNull(),
+  nameAr: text("name_ar").notNull(),
+  specialtyFr: text("specialty_fr").notNull(),
+  specialtyAr: text("specialty_ar").notNull(),
+  inscriptionNumber: text("inscription_number", { length: 255 }).notNull(),
+  servicesFr: text("services_fr").notNull(), // store as JSON string
+  servicesAr: text("services_ar").notNull(),
+});
+
 export type PrescriptionMed = typeof prescriptionMedications.$inferSelect;
 export type NewPrescriptionMed = typeof prescriptionMedications.$inferInsert;
 

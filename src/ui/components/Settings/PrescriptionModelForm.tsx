@@ -53,11 +53,6 @@ export function PrescriptionModelForm() {
     setForm((prev: FormState) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    console.log("Form submitted:", form);
-    // Process or store the form data here
-  };
   const [services, setServices] = useState([
     { fr: "", ar: "" }, // start with one pair
   ]);
@@ -91,6 +86,22 @@ export function PrescriptionModelForm() {
     setServices(updated);
   };
   const fileUploaderProps = useFileUploader();
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    const payload = {
+      ...form,
+      services,
+    };
+
+    const result = await window.electronAPI.savePrescriptionModel(payload);
+
+    if (result.success) {
+      alert("Modèle enregistré avec succès !");
+    } else {
+      alert("Erreur lors de l'enregistrement : " + result.error);
+    }
+  };
 
   return (
     <Card

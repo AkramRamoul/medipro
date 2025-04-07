@@ -68,7 +68,7 @@ export function AppSidebar() {
                     <SidebarMenuButton asChild className="mt-2">
                       <NavLink
                         to={item.url}
-                        className={`flex items-center gap-2 px-2 py-2 rounded-md transition-colors font-semibold text-lg ${
+                        className={`flex items-center gap-2 px-2 py-2 rounded-md transition-colors font-semibold text-lg hover:bg-gray-300 ${
                           item.url === "/"
                             ? currentPath === "/"
                               ? "bg-primary text-white"
