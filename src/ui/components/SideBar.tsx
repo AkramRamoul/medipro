@@ -68,14 +68,14 @@ export function AppSidebar() {
                     <SidebarMenuButton asChild className="mt-2">
                       <NavLink
                         to={item.url}
-                        className={`flex items-center gap-2 px-2 py-2 rounded-md transition-colors font-semibold text-lg hover:bg-gray-300 ${
+                        className={`flex items-center gap-2 px-2 py-2 rounded-md transition-colors font-semibold text-lg  ${
                           item.url === "/"
                             ? currentPath === "/"
                               ? "bg-primary text-white"
-                              : "text-black hover:bg-secondary"
+                              : "text-black "
                             : currentPath.startsWith(item.url)
                             ? "bg-primary text-white"
-                            : "text-black hover:bg-secondary"
+                            : "text-black hover:bg-gray-200"
                         }`}
                       >
                         <item.icon />

@@ -22,6 +22,11 @@ export interface IElectronAPI {
   savePrescriptionModel: (
     data: unknown
   ) => Promise<{ success: boolean; error?: string }>;
+  getPrescriptionModel: () => Promise<{
+    success: boolean;
+    model: PrescriptionModel;
+    error?: string;
+  }>;
 }
 
 declare global {

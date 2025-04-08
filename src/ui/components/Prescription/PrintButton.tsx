@@ -1,34 +1,59 @@
 import { pdf } from "@react-pdf/renderer";
-import PrescriptionPDF from "../Patient/Pdf"; // Import your PDF component
+import PrescriptionPDF from "../Patient/Pdf"; // Your PDF component
+import { useEffect, useState } from "react";
+import { Patient } from "../../type";
 
-const PrintButton = ({ patient, window }) => {
+const PrintButton = ({
+  patient,
+  window,
+}: {
+  patient: Patient;
+  window: Window;
+}) => {
+  const [prescriptionModel, setPrescriptionModel] = useState(null);
+
+  // Fetch prescription model on mount
+  useEffect(() => {
+    const fetchModel = async () => {
+      const data = await window.electronAPI.getPrescriptionModel();
+      if (data.success) {
+        setPrescriptionModel(data.model);
+      } else {
+        console.error("❌ Failed to fetch model:", data.error);
+      }
+    };
+    fetchModel();
+  }, [window.electronAPI]);
+
   const handlePrint = async () => {
-    const blob = await pdf(<PrescriptionPDF patient={patient} />).toBlob();
+    if (!prescriptionModel) {
+      alert("Prescription model not loaded yet.");
+      return;
+    }
+
+    // Generate PDF as blob
+    const blob = await pdf(
+      <PrescriptionPDF
+        patient={patient}
+        prescriptionModel={prescriptionModel}
+      />
+    ).toBlob();
+
     const url = URL.createObjectURL(blob);
 
-    // Create an object URL for the generated PDF
+    // Open in new tab and print
     const newTab = window.open(url);
 
-    // Automatically print when the PDF has loaded
     if (newTab) {
       newTab.onload = () => {
-        // This method is where we set the print options, such as paper size
         newTab.print();
-
-        // Customizing print settings
-        const printOptions = {
-          pageSize: "A5", // Set the paper size to A5
-          landscape: false, // Set to false for portrait orientation
-          marginsType: 0, // Default margin
-        };
-
-        // Triggering printing automatically with custom options
-        newTab.webContents.print(printOptions);
-
+        // Cannot use `webContents` in browser context
         newTab.onafterprint = () => {
-          newTab.close(); // Close the window after printing
+          newTab.close();
         };
       };
+    } else {
+      alert("Popup blocked! Please allow popups for this site.");
     }
   };
 
