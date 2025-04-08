@@ -1,9 +1,7 @@
 import { type Patient } from "../components/Home/colums";
 import { columns } from "../components/Home/colums";
 import { DataTable } from "../components/Home/Data-table";
-import NewPatientModal from "../components/NewPatient/NewPatientModal";
 import { useState, useEffect } from "react";
-import { Button } from "../components/ui/button";
 import { Loader2 } from "lucide-react";
 
 // Fetch data from the main process
@@ -19,7 +17,6 @@ async function getData(): Promise<Patient[]> {
 
 export function Home() {
   const [data, setData] = useState<Patient[]>([]);
-  const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   // Fetch data on component mount
@@ -37,8 +34,6 @@ export function Home() {
 
   return (
     <>
-      <NewPatientModal isOpen={isOpen} onClose={() => setIsOpen(false)} />
-
       <div className="h-full flex-1 flex-col space-y-8 p-4 md:p-8 flex">
         <div className="flex items-center justify-between space-y-2">
           <div className="space-y-3 flex-col">
@@ -48,10 +43,6 @@ export function Home() {
             </p>
           </div>
         </div>
-
-        <Button onClick={() => setIsOpen(true)} className="w-fit">
-          Add New Patient
-        </Button>
 
         {isLoading ? (
           <div className="flex items-center justify-center py-10">

@@ -220,6 +220,7 @@ export function PrescriptionModelForm() {
             <div className="mb-4">
               {services.length < 3 && (
                 <Button
+                  type="button"
                   className="bg-primary font-semibold"
                   onClick={addService}
                 >
