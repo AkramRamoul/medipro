@@ -274,6 +274,20 @@ app.on("ready", () => {
       const destDir = path.join(app.getPath("userData"), "images");
       fs.mkdirSync(destDir, { recursive: true });
 
+      // Get all previous images (assuming only one should exist)
+      const existing = await db.select().from(image);
+
+      for (const row of existing) {
+        const oldPath = row.imagePath;
+        if (oldPath && fs.existsSync(oldPath)) {
+          fs.unlinkSync(oldPath); // Delete file from disk
+        }
+      }
+
+      // Delete if exist
+      await db.delete(image);
+
+      // Decode base64
       const matches = imageDataUrl.match(/^data:(image\/\w+);base64,(.+)$/);
       if (!matches || matches.length !== 3) {
         throw new Error("Invalid base64 image format");
@@ -281,17 +295,47 @@ app.on("ready", () => {
 
       const mimeType = matches[1];
       const base64Data = matches[2];
-      const fileExt = mimeType.split("/")[1]; // "jpeg", "png", etc.
+      const fileExt = mimeType.split("/")[1];
       const uniqueName = `${Date.now()}.${fileExt}`;
       const destPath = path.join(destDir, uniqueName);
 
-      // Convert base64 to binary and write to file
+      // Save the new image
       fs.writeFileSync(destPath, Buffer.from(base64Data, "base64"));
 
+      // Insert new image path into DB
       await db.insert(image).values({ imagePath: destPath });
+
       return { success: true, path: destPath };
     } catch (err) {
       console.error("📢 Image upload failed:", err);
+      return { success: false, error: (err as Error).message };
+    }
+  });
+
+  ipcMain.handle("get-image", async () => {
+    try {
+      // Fetch the most recent image record (assuming only one exists)
+      const result = await db.select().from(image).limit(1);
+
+      if (result.length === 0) {
+        return { success: false, error: "No image found" };
+      }
+
+      const imagePath = result[0].imagePath;
+
+      if (!imagePath || !fs.existsSync(imagePath)) {
+        return { success: false, error: "Image file not found on disk" };
+      }
+
+      // Read image and convert to base64
+      const imageBuffer = fs.readFileSync(imagePath);
+      const base64Image = `data:image/${path
+        .extname(imagePath)
+        .slice(1)};base64,${imageBuffer.toString("base64")}`;
+
+      return { success: true, image: base64Image };
+    } catch (err) {
+      console.error("📢 Failed to get image:", err);
       return { success: false, error: (err as Error).message };
     }
   });
