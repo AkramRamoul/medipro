@@ -27,6 +27,7 @@ export interface IElectronAPI {
     model: PrescriptionModel;
     error?: string;
   }>;
+  getImage: () => Promise<{ success: boolean; image: string; error?: string }>;
 }
 
 declare global {

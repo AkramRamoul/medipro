@@ -11,6 +11,19 @@ const PrintButton = ({
   window: Window;
 }) => {
   const [prescriptionModel, setPrescriptionModel] = useState(null);
+  const [image, setImage] = useState<string | null>(null);
+  useEffect(() => {
+    const getImage = async () => {
+      const result = await window.electronAPI.getImage();
+      if (result.success) {
+        setImage(result.image);
+        console.log("Image fetched:", result.image);
+      } else {
+        console.error("Error fetching image:", result.error);
+      }
+    };
+    getImage();
+  }, [window.electronAPI]);
 
   // Fetch prescription model on mount
   useEffect(() => {
@@ -36,6 +49,7 @@ const PrintButton = ({
       <PrescriptionPDF
         patient={patient}
         prescriptionModel={prescriptionModel}
+        image={image}
       />
     ).toBlob();
 

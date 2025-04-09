@@ -5,6 +5,7 @@ import {
   View,
   StyleSheet,
   Font,
+  Image,
 } from "@react-pdf/renderer";
 
 import AmiriRegular from "/fonts/Amiri-Regular.ttf";
@@ -80,6 +81,7 @@ const styles = StyleSheet.create({
 const PrescriptionPDF = ({
   patient,
   prescriptionModel,
+  image,
 }: {
   patient: Patient;
   prescriptionModel: {
@@ -91,6 +93,7 @@ const PrescriptionPDF = ({
     servicesAr: string;
     inscriptionNumber: string;
   };
+  image: string | null;
 }) => {
   const servicesFr = JSON.parse(prescriptionModel.servicesFr);
   const servicesAr = JSON.parse(prescriptionModel.servicesAr);
@@ -121,6 +124,14 @@ const PrescriptionPDF = ({
         <Text style={styles.colCenter}>
           N° Inscription : {prescriptionModel.inscriptionNumber}
         </Text>
+        {image && (
+          <View style={{ marginVertical: 10, alignItems: "center" }}>
+            <Image
+              src={image}
+              style={{ width: 80, height: 80, objectFit: "contain" }}
+            />
+          </View>
+        )}
 
         <View style={styles.line} />
 

@@ -92,4 +92,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
   getPrescriptionModel: async () => {
     return await ipcRenderer.invoke("get-prescription-model");
   },
+  getImage: async () => {
+    return await ipcRenderer.invoke("get-image");
+  },
 });
