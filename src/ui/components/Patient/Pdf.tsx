@@ -66,7 +66,7 @@ const styles = StyleSheet.create({
   line: {
     borderBottomWidth: 1,
     borderBottomColor: "black",
-    marginVertical: 10,
+    marginVertical: 5,
     width: "100%",
     alignSelf: "center",
   },
@@ -75,7 +75,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: "bold",
     textAlign: "center",
-    marginTop: 8,
+    marginTop: 6,
   },
 });
 
@@ -99,6 +99,21 @@ const PrescriptionPDF = ({
   return (
     <Document>
       <Page size="A5" style={styles.page}>
+        {image && (
+          <Image
+            src={image}
+            style={{
+              position: "absolute",
+              top: "25%",
+              left: "25%",
+              width: "50%",
+              height: "50%",
+              opacity: 0.1,
+              objectFit: "contain",
+            }}
+          />
+        )}
+
         {/* HEADER SECTION */}
         <View
           style={{

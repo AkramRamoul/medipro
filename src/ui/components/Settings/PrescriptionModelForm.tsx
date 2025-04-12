@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Card,
   CardContent,
@@ -24,6 +24,43 @@ export function PrescriptionModelForm() {
     inscriptionNumber: "",
   });
 
+  const [services, setServices] = useState([{ fr: "", ar: "" }]);
+
+  useEffect(() => {
+    const fetchModel = async () => {
+      const result = await window.electronAPI.getPrescriptionModel();
+      if (result.success && result.model) {
+        const model = result.model;
+
+        setForm({
+          nameFr: model.nameFr || "",
+          nameAr: model.nameAr || "",
+          specialtyFr: model.specialtyFr || "",
+          specialtyAr: model.specialtyAr || "",
+          servicesFr: model.servicesFr || "",
+          servicesAr: model.servicesAr || "",
+          inscriptionNumber: model.inscriptionNumber || "",
+        });
+
+        try {
+          const fr = JSON.parse(model.servicesFr || "[]");
+          const ar = JSON.parse(model.servicesAr || "[]");
+          const parsed = fr.map((frService: string, idx: number) => ({
+            fr: frService,
+            ar: ar[idx] || "",
+          }));
+
+          if (parsed.length > 0) {
+            setServices(parsed);
+          }
+        } catch (err) {
+          console.warn("Couldn't parse services:", err);
+        }
+      }
+    };
+
+    fetchModel();
+  }, []);
   interface FormState {
     nameFr: string;
     nameAr: string;
@@ -52,10 +89,6 @@ export function PrescriptionModelForm() {
 
     setForm((prev: FormState) => ({ ...prev, [name]: value }));
   };
-
-  const [services, setServices] = useState([
-    { fr: "", ar: "" }, // start with one pair
-  ]);
 
   const addService = () => {
     if (services.length < 3) {
