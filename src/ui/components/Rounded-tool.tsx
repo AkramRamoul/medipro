@@ -56,8 +56,7 @@ function RoundedToolCore(props: { fileUploaderProps: FileUploaderResult }) {
   if (!imageMetadata) {
     return (
       <UploadBox
-        title="Add rounded borders to images."
-        subtitle="Allows pasting images from clipboard"
+        title="Add your logo to the prescription."
         description="Upload Image"
         accept="image/*"
         onChange={handleFileUploadEvent}

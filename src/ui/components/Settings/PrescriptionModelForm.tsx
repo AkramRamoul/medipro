@@ -241,15 +241,7 @@ export function PrescriptionModelForm() {
                 className="w-full p-2 border rounded mt-2"
               />
             </div>
-            <div>
-              <FileDropzone
-                setCurrentFile={fileUploaderProps.handleFileUpload}
-                acceptedFileTypes={["image/*", "application/pdf"]}
-                dropText="Drag and drop a file here or click to upload"
-              >
-                <RoundedTool />
-              </FileDropzone>
-            </div>
+            <div></div>
             <Button
               type="submit"
               className="bg-primary font-semibold p-2 text-md"
@@ -259,6 +251,13 @@ export function PrescriptionModelForm() {
           </div>
         </CardContent>
       </form>
+      <FileDropzone
+        setCurrentFile={fileUploaderProps.handleFileUpload}
+        acceptedFileTypes={["image/*", "application/pdf"]}
+        dropText="Drag and drop a file here or click to upload"
+      >
+        <RoundedTool />
+      </FileDropzone>
     </Card>
   );
 }

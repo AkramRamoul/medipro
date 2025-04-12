@@ -29,9 +29,10 @@ const formatDate = (date: string | number | Date) => {
 
 const styles = StyleSheet.create({
   page: {
-    padding: 30,
     fontFamily: "Amiri",
     direction: "rtl",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
   },
   headerfr: {
     fontSize: 14,
@@ -95,46 +96,72 @@ const PrescriptionPDF = ({
   };
   image: string | null;
 }) => {
-  const servicesFr = JSON.parse(prescriptionModel.servicesFr);
-  const servicesAr = JSON.parse(prescriptionModel.servicesAr);
-
   return (
     <Document>
       <Page size="A5" style={styles.page}>
-        <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
-          <Text style={styles.headerfr}>{prescriptionModel.nameFr}</Text>
-          <Text style={styles.headerar}>{prescriptionModel.nameAr}</Text>
-        </View>
-
-        <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
-          <Text style={styles.colLeft}>{prescriptionModel.specialtyFr}</Text>
-          <Text style={styles.colRight}>{prescriptionModel.specialtyAr}</Text>
-        </View>
-
-        {servicesFr.map((service: string, idx: number) => (
-          <View
-            key={idx}
-            style={{ flexDirection: "row", justifyContent: "space-between" }}
-          >
-            <Text style={styles.colLeft}>{service}</Text>
-            <Text style={styles.colRight}>{servicesAr[idx]}</Text>
+        {/* HEADER SECTION */}
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "flex-start",
+            marginBottom: 5,
+          }}
+        >
+          {/* Left side: French */}
+          <View style={{ flex: 1, gap: 2 }}>
+            <Text style={styles.headerfr}>{prescriptionModel.nameFr}</Text>
+            <Text style={styles.colLeft}>{prescriptionModel.specialtyFr}</Text>
+            {(JSON.parse(prescriptionModel.servicesFr) as string[]).map(
+              (srv: string, idx: number) => (
+                <Text key={idx} style={styles.colLeft}>
+                  {srv}
+                </Text>
+              )
+            )}
           </View>
-        ))}
 
+          {/* Center image */}
+          {image && (
+            <View
+              style={{
+                width: 70,
+                height: 70,
+                marginHorizontal: 6,
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <Image
+                src={image}
+                style={{ width: 60, height: 60, objectFit: "contain" }}
+              />
+            </View>
+          )}
+
+          {/* Right side: Arabic */}
+          <View style={{ flex: 1, gap: 2 }}>
+            <Text style={styles.headerar}>{prescriptionModel.nameAr}</Text>
+            <Text style={styles.colRight}>{prescriptionModel.specialtyAr}</Text>
+            {(JSON.parse(prescriptionModel.servicesAr) as string[]).map(
+              (srv: string, idx: number) => (
+                <Text key={idx} style={styles.colRight}>
+                  {srv}
+                </Text>
+              )
+            )}
+          </View>
+        </View>
+
+        {/* Inscription number */}
         <Text style={styles.colCenter}>
           N° Inscription : {prescriptionModel.inscriptionNumber}
         </Text>
-        {image && (
-          <View style={{ marginVertical: 10, alignItems: "center" }}>
-            <Image
-              src={image}
-              style={{ width: 80, height: 80, objectFit: "contain" }}
-            />
-          </View>
-        )}
 
+        {/* Divider */}
         <View style={styles.line} />
 
+        {/* PATIENT INFO */}
         <View
           style={{
             flexDirection: "row",
@@ -142,16 +169,48 @@ const PrescriptionPDF = ({
             marginBottom: 5,
           }}
         >
-          <Text style={styles.infoPatient}>Nom : {patient?.last_name}</Text>
-          <Text style={styles.infoPatient}>Prénom : {patient?.first_name}</Text>
-          <Text style={styles.infoPatient}>Âge : {patient?.age}</Text>
+          <View style={{ flexDirection: "column", gap: 2 }}>
+            <Text style={styles.infoPatient}>Nom : {patient.last_name}</Text>
+            <Text style={styles.infoPatient}>Âge : {patient.age} Ans</Text>
+          </View>
+
+          <View
+            style={{ flexDirection: "column", alignItems: "flex-end", gap: 2 }}
+          >
+            <Text style={styles.infoPatient}>
+              Prénoms : {patient.first_name}
+            </Text>
+            <Text style={styles.infoPatient}>
+              Constantine, le : {formatDate(new Date())}
+            </Text>
+          </View>
         </View>
 
-        <View style={{ flexDirection: "row", justifyContent: "flex-end" }}>
-          <Text style={styles.infoPatient}>le : {formatDate(new Date())}</Text>
-        </View>
-
+        {/* TITLE */}
         <Text style={styles.title}>ORDONNANCE</Text>
+
+        {/* PRESCRIPTION CONTENT */}
+        <View style={{ marginTop: 8, gap: 6 }}>
+          <Text>- EBASTA CP boîte de 30cp (1 bte)</Text>
+          <Text style={{ paddingLeft: 10 }}>1 cp / soir (oro dispersible)</Text>
+
+          <Text>- CORTISAF ou LOCACORT crème : (1 bte)</Text>
+          <Text style={{ paddingLeft: 10 }}>1 app le soir pdt 7jrs</Text>
+          <Text style={{ paddingLeft: 10 }}>1 app 1j/2 pdt 7jrs</Text>
+        </View>
+
+        {/* SIGNATURE BLOCK */}
+        <View
+          style={{
+            marginTop: 20,
+            alignItems: "flex-end",
+            marginRight: 20,
+          }}
+        >
+          <Text style={{ fontSize: 10 }}>Dr. {prescriptionModel.nameFr}</Text>
+          <Text style={{ fontSize: 8 }}>Maître Assistante</Text>
+          <Text style={{ fontSize: 8 }}>Dermatologie</Text>
+        </View>
       </Page>
     </Document>
   );
