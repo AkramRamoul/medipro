@@ -2,17 +2,23 @@ import { useCallback, useEffect, useState } from "react";
 import Modal from "../Modal";
 import { Button } from "../ui/button";
 import NewPrescriptionForm from "./NewPrescriptionForm";
-import SinglePrescription from "./SinglePrescription";
-import DeletePrescriptionDialogue from "./DeletePrescriptionDialogue";
+
 import { Patient, Prescription } from "../../type";
-import { formatDate } from "../../lib/utils";
-import PrintButton from "./PrintButton";
+// import PrintButton from "./PrintButton";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "../ui/table";
+import PrescriptionRow from "./PrescriptionRow";
 
 function MainPrescriptionPage({ id }: { id: string }) {
   const [isOpen, setIsOpen] = useState(false);
   const [prescriptions, setPrescriptions] = useState<Prescription[]>([]);
-  const [selectedPrescription, setSelectedPrescription] =
-    useState<Prescription | null>(null);
+
   const [patient, setPatient] = useState<Patient | null>(null);
 
   const fetchPrescriptions = useCallback(async () => {
@@ -57,51 +63,43 @@ function MainPrescriptionPage({ id }: { id: string }) {
           refreshPrescriptions={fetchPrescriptions}
         />
       </Modal>
-      <PrintButton patient={patient} window={window} />
+      {/* <PrintButton patient={patient!} window={window} /> */}
 
       {/* Prescription List */}
-      {prescriptions.length === 0 ? (
-        <div className="mt-4 p-4 text-center text-gray-500 border rounded-lg bg-gray-50">
-          No prescriptions yet. Click "New Consultation" to add one.
-        </div>
-      ) : (
-        <div className="mt-4 space-y-4">
-          {prescriptions.map((prescription) => (
-            <div
-              key={prescription.id}
-              className="p-4 border rounded-xl shadow-sm bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer flex justify-between items-center"
-            >
-              <div
-                className="flex-1"
-                onClick={() => setSelectedPrescription(prescription)}
-              >
-                <p className="text-sm text-gray-600 font-medium truncate">
-                  <strong className="text-gray-800">Ordonnance Du :</strong>{" "}
-                  {formatDate(prescription.date || "")}
-                </p>
-              </div>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead className="w-[45%]">Date</TableHead>
+            <TableHead className="hidden md:table-cell">Time</TableHead>
+            <TableHead className="text-right">Actions</TableHead>
+          </TableRow>
+        </TableHeader>
 
-              <DeletePrescriptionDialogue
-                priscriptionId={prescription.id.toString()}
+        {prescriptions.length === 0 ? (
+          <TableBody>
+            <TableRow className="hover:bg-transparent border-none">
+              <TableCell
+                colSpan={2}
+                className="h-24 text-center text-muted-foreground"
+              >
+                No documents found
+              </TableCell>
+            </TableRow>
+          </TableBody>
+        ) : (
+          <TableBody>
+            {prescriptions.map((prescription) => (
+              <PrescriptionRow
+                prescription={prescription}
                 setData={setPrescriptions}
+                patinet={patient!}
               />
-            </div>
-          ))}
-        </div>
-      )}
+            ))}
+          </TableBody>
+        )}
+      </Table>
 
       {/* Single Prescription Modal */}
-      <Modal
-        isOpen={!!selectedPrescription}
-        onClose={() => setSelectedPrescription(null)}
-      >
-        {selectedPrescription && (
-          <SinglePrescription
-            meds={selectedPrescription.medications}
-            onClose={() => setSelectedPrescription(null)}
-          />
-        )}
-      </Modal>
     </div>
   );
 }

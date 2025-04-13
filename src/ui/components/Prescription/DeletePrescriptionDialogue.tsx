@@ -1,5 +1,4 @@
 "use client";
-import { TrashIcon } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -17,11 +16,16 @@ import { toast } from "sonner";
 interface DeleteDialogueProps {
   priscriptionId: string;
   /* eslint-disable  @typescript-eslint/no-explicit-any */
+  children: React.ReactNode;
 
   setData: React.Dispatch<React.SetStateAction<any[]>>; // Pass setData as a prop
 }
 
-function DeleteDialogue({ priscriptionId, setData }: DeleteDialogueProps) {
+function DeleteDialogue({
+  priscriptionId,
+  setData,
+  children,
+}: DeleteDialogueProps) {
   const [isDeleting, setIsDeleting] = useState(false);
 
   const handleDelete = () => {
@@ -46,12 +50,7 @@ function DeleteDialogue({ priscriptionId, setData }: DeleteDialogueProps) {
 
   return (
     <AlertDialog>
-      <AlertDialogTrigger asChild>
-        <TrashIcon
-          className="size-4 mr-2 cursor-pointer hover:text-destructive hover:scale-110"
-          onClick={(e) => e.stopPropagation()} // ✅ Prevent opening modal
-        />
-      </AlertDialogTrigger>
+      <AlertDialogTrigger asChild>{children}</AlertDialogTrigger>
 
       <AlertDialogContent onClick={(e) => e.stopPropagation()}>
         <AlertDialogHeader>

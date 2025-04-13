@@ -2,6 +2,8 @@ import { pdf } from "@react-pdf/renderer";
 import PrescriptionPDF from "../Patient/Pdf"; // Your PDF component
 import { useEffect, useState } from "react";
 import { Patient } from "../../type";
+import { Printer } from "lucide-react";
+import { DropdownMenuItem } from "../ui/dropdown-menu";
 
 const PrintButton = ({
   patient,
@@ -72,12 +74,10 @@ const PrintButton = ({
   };
 
   return (
-    <button
-      onClick={handlePrint}
-      className="px-4 py-2 bg-blue-500 text-white rounded"
-    >
-      Print Prescription
-    </button>
+    <DropdownMenuItem onClick={handlePrint}>
+      <Printer className="mr-2 h-4 w-4" onClick={(e) => e.stopPropagation()} />
+      Print
+    </DropdownMenuItem>
   );
 };
 
