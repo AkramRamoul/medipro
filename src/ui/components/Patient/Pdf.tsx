@@ -220,8 +220,6 @@ const PrescriptionPDF = ({
             </View>
           ))}
         </View>
-
-        {/* SIGNATURE BLOCK */}
       </Page>
     </Document>
   );
