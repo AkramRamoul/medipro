@@ -45,6 +45,7 @@ function PrescriptionRow({
             prescription={prescription}
             setData={setData}
             patient={patinet}
+            medications={prescription.medications}
           />
         </TableCell>
       </TableRow>

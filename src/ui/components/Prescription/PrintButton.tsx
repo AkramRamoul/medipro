@@ -4,13 +4,16 @@ import { useEffect, useState } from "react";
 import { Patient } from "../../type";
 import { Printer } from "lucide-react";
 import { DropdownMenuItem } from "../ui/dropdown-menu";
+import { PrescriptionMed } from "../../../electron/schema";
 
 const PrintButton = ({
   patient,
   window,
+  prescription,
 }: {
   patient: Patient;
   window: Window;
+  prescription: PrescriptionMed[];
 }) => {
   const [prescriptionModel, setPrescriptionModel] = useState(null);
   const [image, setImage] = useState<string | null>(null);
@@ -52,6 +55,7 @@ const PrintButton = ({
         patient={patient}
         prescriptionModel={prescriptionModel}
         image={image}
+        medications={prescription}
       />
     ).toBlob();
 

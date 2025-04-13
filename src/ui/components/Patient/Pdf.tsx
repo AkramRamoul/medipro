@@ -11,6 +11,7 @@ import {
 import AmiriRegular from "/fonts/Amiri-Regular.ttf";
 import AmiriBold from "/fonts/Amiri-Bold.ttf";
 import { Patient } from "../../type";
+import { PrescriptionMed } from "../../../electron/schema";
 
 // Register Amiri font
 Font.register({
@@ -83,6 +84,7 @@ const PrescriptionPDF = ({
   patient,
   prescriptionModel,
   image,
+  medications,
 }: {
   patient: Patient;
   prescriptionModel: {
@@ -95,6 +97,7 @@ const PrescriptionPDF = ({
     inscriptionNumber: string;
   };
   image: string | null;
+  medications: PrescriptionMed[];
 }) => {
   return (
     <Document>
@@ -206,26 +209,19 @@ const PrescriptionPDF = ({
 
         {/* PRESCRIPTION CONTENT */}
         <View style={{ marginTop: 8, gap: 6 }}>
-          <Text>- EBASTA CP boîte de 30cp (1 bte)</Text>
-          <Text style={{ paddingLeft: 10 }}>1 cp / soir (oro dispersible)</Text>
-
-          <Text>- CORTISAF ou LOCACORT crème : (1 bte)</Text>
-          <Text style={{ paddingLeft: 10 }}>1 app le soir pdt 7jrs</Text>
-          <Text style={{ paddingLeft: 10 }}>1 app 1j/2 pdt 7jrs</Text>
+          {medications.map((med, index) => (
+            <View key={index}>
+              <Text>
+                - {med.medicineName} {med.form ? `${med.form}` : ""}{" "}
+                {med.quantity ? `(${med.quantity})` : ""}
+              </Text>
+              <Text style={{ paddingLeft: 10 }}>{med.dosage}</Text>
+              {med.note && <Text style={{ paddingLeft: 10 }}>{med.note}</Text>}
+            </View>
+          ))}
         </View>
 
         {/* SIGNATURE BLOCK */}
-        <View
-          style={{
-            marginTop: 20,
-            alignItems: "flex-end",
-            marginRight: 20,
-          }}
-        >
-          <Text style={{ fontSize: 10 }}>Dr. {prescriptionModel.nameFr}</Text>
-          <Text style={{ fontSize: 8 }}>Maître Assistante</Text>
-          <Text style={{ fontSize: 8 }}>Dermatologie</Text>
-        </View>
       </Page>
     </Document>
   );

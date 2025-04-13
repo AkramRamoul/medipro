@@ -4,18 +4,25 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from "../../components/ui/dropdown-menu";
-import { DropdownMenuTrigger } from "@radix-ui/react-dropdown-menu";
+import { DropdownMenuTrigger } from "../../components/ui/dropdown-menu";
 import { MoreVertical, TrashIcon } from "lucide-react";
 import { Patient, Prescription } from "../../type";
 import DeletePrescriptionDialogue from "./DeletePrescriptionDialogue";
 import PrintButton from "./PrintButton";
+import { PrescriptionMed } from "../../../electron/schema";
 
 interface DropDownProps {
   prescription: Prescription;
   setData: React.Dispatch<React.SetStateAction<Prescription[]>>;
   patient: Patient;
+  medications: PrescriptionMed[];
 }
-function DropDown({ prescription, setData, patient }: DropDownProps) {
+function DropDown({
+  prescription,
+  setData,
+  patient,
+  medications,
+}: DropDownProps) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -41,7 +48,11 @@ function DropDown({ prescription, setData, patient }: DropDownProps) {
             Remove
           </DropdownMenuItem>
         </DeletePrescriptionDialogue>
-        <PrintButton patient={patient} window={window} />
+        <PrintButton
+          patient={patient}
+          window={window}
+          prescription={medications}
+        />
       </DropdownMenuContent>
     </DropdownMenu>
   );
