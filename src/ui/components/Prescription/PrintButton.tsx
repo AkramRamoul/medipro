@@ -78,7 +78,12 @@ const PrintButton = ({
   };
 
   return (
-    <DropdownMenuItem onClick={handlePrint}>
+    <DropdownMenuItem
+      onClick={(e) => {
+        e.stopPropagation();
+        handlePrint();
+      }}
+    >
       <Printer className="mr-2 h-4 w-4" onClick={(e) => e.stopPropagation()} />
       Print
     </DropdownMenuItem>

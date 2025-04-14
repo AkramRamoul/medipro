@@ -99,6 +99,7 @@ const PrescriptionPDF = ({
   image: string | null;
   medications: PrescriptionMed[];
 }) => {
+  console.log("medications", medications);
   return (
     <Document>
       <Page size="A5" style={styles.page}>
@@ -211,12 +212,12 @@ const PrescriptionPDF = ({
         <View style={{ marginTop: 8, gap: 6 }}>
           {medications.map((med, index) => (
             <View key={index}>
-              <Text>
+              <Text style={{ fontSize: 10 }}>
                 - {med.medicineName} {med.form ? `${med.form}` : ""}{" "}
-                {med.quantity ? `(${med.quantity})` : ""}
+                {med.dosage} {med.quantity ? `${med.quantity}` : ""}{" "}
+                {med.duration ? `${med.duration}` : ""}
+                {med.note}
               </Text>
-              <Text style={{ paddingLeft: 10 }}>{med.dosage}</Text>
-              {med.note && <Text style={{ paddingLeft: 10 }}>{med.note}</Text>}
             </View>
           ))}
         </View>
