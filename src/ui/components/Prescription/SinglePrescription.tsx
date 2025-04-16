@@ -1,10 +1,16 @@
 import { PrescriptionMed } from "../../../electron/schema";
+import { Patient } from "../../type";
+import PrintButton from "../PrintButton";
+import { Button } from "../ui/button";
 
 function SinglePrescription({
+  onClose,
   meds,
+  patient,
 }: {
   onClose: () => void;
   meds: PrescriptionMed[];
+  patient: Patient;
 }) {
   console.log(meds);
   return (
@@ -27,6 +33,21 @@ function SinglePrescription({
           </ul>
         </div>
       )}
+      <div className="flex justify-end mt-4 space-x-3">
+        <Button
+          onClick={() => {
+            onClose();
+          }}
+          className="bg-blue-500 text-white px-4 py-2 rounded"
+        >
+          Close
+        </Button>
+        <PrintButton
+          prescription={meds}
+          patient={patient}
+          window={window}
+        ></PrintButton>
+      </div>
     </div>
   );
 }

@@ -4,7 +4,6 @@ import { Button } from "../ui/button";
 import NewPrescriptionForm from "./NewPrescriptionForm";
 
 import { Patient, Prescription } from "../../type";
-// import PrintButton from "./PrintButton";
 import {
   Table,
   TableBody,
@@ -61,11 +60,10 @@ function MainPrescriptionPage({ id }: { id: string }) {
           id={id}
           onClose={() => setIsOpen(false)}
           refreshPrescriptions={fetchPrescriptions}
+          patient={patient!}
         />
       </Modal>
-      {/* <PrintButton patient={patient!} window={window} /> */}
 
-      {/* Prescription List */}
       <Table>
         <TableHeader>
           <TableRow>

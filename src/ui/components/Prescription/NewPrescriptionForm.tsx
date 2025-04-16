@@ -8,8 +8,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
-import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
 import { toast } from "sonner";
+import { Patient } from "../../type";
+import PrintButton from "../PrintButton";
+import { PrescriptionMed } from "../../../electron/schema";
 
 interface Medication {
   id?: number;
@@ -25,18 +27,20 @@ const NewPrescriptionForm = ({
   id,
   onClose,
   refreshPrescriptions,
+  patient,
 }: {
   id: string;
   onClose: () => void;
   refreshPrescriptions: () => void;
+  patient: Patient;
 }) => {
   const [medications, setMedications] = useState<Medication[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [suggestions, setSuggestions] = useState<Medication[]>([]);
 
-  const [selectedMedications, setSelectedMedications] = useState<Medication[]>(
-    []
-  );
+  const [selectedMedications, setSelectedMedications] = useState<
+    PrescriptionMed[]
+  >([]);
   const [selectedMedication, setSelectedMedication] =
     useState<Medication | null>(null);
   const [highlightedIndex, setHighlightedIndex] = useState<number>(-1);
@@ -99,7 +103,7 @@ const NewPrescriptionForm = ({
     const prescriptionData = {
       patientId: id,
       medications: selectedMedications.map((med) => ({
-        medicineName: med.name,
+        medicineName: med.medicineName,
         dosage: med.dosage,
         duration: med.duration,
         quantity: med.quantity,
@@ -127,11 +131,15 @@ const NewPrescriptionForm = ({
 
   const handleAddMedication = () => {
     if (selectedMedication) {
-      const medicationWithExtras = {
-        ...selectedMedication,
-        quantity,
-        duration: durationValue ? `${durationValue} ${durationUnit}` : "",
-        note, // Add note
+      const medicationWithExtras: PrescriptionMed = {
+        id: selectedMedication.id || 0,
+        prescriptionId: 0, // Replace with the actual prescriptionId if available
+        medicineName: selectedMedication.name,
+        dosage: selectedMedication.dosage,
+        quantity: quantity || null,
+        form: selectedMedication.form || null,
+        duration: durationValue ? `${durationValue} ${durationUnit}` : null,
+        note: note || null,
       };
       setSelectedMedications((prev) => [...prev, medicationWithExtras]);
       setSelectedMedication(null);
@@ -170,56 +178,6 @@ const NewPrescriptionForm = ({
     setSelectedMedications((prev) =>
       prev.filter((_, medIndex) => medIndex !== index)
     );
-  };
-
-  const handlePrint = async () => {
-    if (selectedMedications.length === 0) {
-      alert("No medications to print!");
-      return;
-    }
-
-    const pdfDoc = await PDFDocument.create();
-    const page = pdfDoc.addPage([420, 595]); // A5 Paper Size
-    const { height } = page.getSize();
-    const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
-
-    page.drawText("Prescription", {
-      x: 40,
-      y: height - 40,
-      size: 16,
-      font,
-      color: rgb(0, 0, 0),
-    });
-
-    let yPos = height - 80;
-    const rowHeight = 18;
-
-    selectedMedications.forEach((med) => {
-      const formattedText = `${med.name} - ${med.form} (${med.dosage}) | ${
-        med.quantity || "-"
-      } | ${med.duration || "-"}${med.note ? ` | Note: ${med.note}` : ""}`;
-
-      page.drawText(formattedText, {
-        x: 40,
-        y: yPos,
-        font,
-        size: 10,
-        color: rgb(0, 0, 0),
-      });
-
-      yPos -= rowHeight;
-    });
-
-    const pdfBytes = await pdfDoc.save();
-    const blob = new Blob([pdfBytes], { type: "application/pdf" });
-    const blobUrl = URL.createObjectURL(blob);
-    const printWindow = window.open(blobUrl);
-
-    if (printWindow) {
-      printWindow.onload = () => {
-        printWindow.print();
-      };
-    }
   };
 
   useEffect(() => {
@@ -313,8 +271,8 @@ const NewPrescriptionForm = ({
                 className="flex items-center justify-between bg-gray-100 p-2 rounded"
               >
                 <span>
-                  {med.name} - {med.form} ({med.dosage}) | {med.quantity} |{" "}
-                  {med.duration}
+                  {med.medicineName} - {med.form} ({med.dosage}) |{" "}
+                  {med.quantity} | {med.duration}
                   {med.note && (
                     <span className="text-gray-500 ml-2">📝 {med.note}</span>
                   )}
@@ -335,12 +293,11 @@ const NewPrescriptionForm = ({
         <Button onClick={handleSave} className="bg-blue-500 hover:bg-blue-600">
           Save
         </Button>
-        <Button
-          onClick={handlePrint}
-          className="bg-green-500 hover:bg-green-600"
-        >
-          Print
-        </Button>
+        <PrintButton
+          prescription={selectedMedications}
+          patient={patient}
+          window={window}
+        ></PrintButton>
         <Button onClick={onClose} variant="destructive">
           Cancel
         </Button>

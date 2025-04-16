@@ -58,6 +58,7 @@ function PrescriptionRow({
           <SinglePrescription
             meds={selectedPrescription.medications}
             onClose={() => setSelectedPrescription(null)}
+            patient={patinet}
           />
         )}
       </Modal>
