@@ -22,6 +22,7 @@ export function PrescriptionModelForm() {
     servicesFr: "",
     servicesAr: "",
     inscriptionNumber: "",
+    address: "",
   });
 
   const [services, setServices] = useState([{ fr: "", ar: "" }]);
@@ -40,6 +41,7 @@ export function PrescriptionModelForm() {
           servicesFr: model.servicesFr || "",
           servicesAr: model.servicesAr || "",
           inscriptionNumber: model.inscriptionNumber || "",
+          address: model.address || "",
         });
 
         try {
@@ -69,6 +71,7 @@ export function PrescriptionModelForm() {
     servicesFr: string;
     servicesAr: string;
     inscriptionNumber: string;
+    address: string; // <-- Add this
   }
 
   const handleChange = (
@@ -263,9 +266,7 @@ export function PrescriptionModelForm() {
             </div>
 
             <div>
-              <label className="block font-medium">
-                N° d'inscription (Français seulement)
-              </label>
+              <label className="block font-medium">N° d'inscription</label>
               <input
                 type="text"
                 name="inscriptionNumber"
@@ -274,7 +275,17 @@ export function PrescriptionModelForm() {
                 className="w-full p-2 border rounded mt-2"
               />
             </div>
-            <div></div>
+            <div>
+              <label className="block font-medium">Adresse</label>
+              <input
+                type="text"
+                name="address"
+                value={form.address}
+                onChange={handleChange}
+                className="w-full p-2 border rounded mt-2"
+                placeholder="Votre adresse ici"
+              />
+            </div>
             <Button
               type="submit"
               className="bg-primary font-semibold p-2 text-md"

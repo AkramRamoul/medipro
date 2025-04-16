@@ -349,6 +349,7 @@ app.on("ready", () => {
         specialtyAr,
         inscriptionNumber,
         services,
+        address,
       } = formData;
 
       const servicesFr = services.map((s: any) => s.fr);
@@ -366,6 +367,7 @@ app.on("ready", () => {
           inscriptionNumber,
           servicesFr: JSON.stringify(servicesFr),
           servicesAr: JSON.stringify(servicesAr),
+          address,
         });
       } else {
         // Update the existing row

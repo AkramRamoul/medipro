@@ -77,10 +77,10 @@ function MainPrescriptionPage({ id }: { id: string }) {
           <TableBody>
             <TableRow className="hover:bg-transparent border-none">
               <TableCell
-                colSpan={2}
+                colSpan={3}
                 className="h-24 text-center text-muted-foreground"
               >
-                No documents found
+                No Presciptions found
               </TableCell>
             </TableRow>
           </TableBody>

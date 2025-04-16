@@ -36,13 +36,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   headerfr: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: "bold",
     textAlign: "left",
     marginBottom: 5,
   },
   headerar: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: "bold",
     textAlign: "right",
     marginBottom: 5,
@@ -95,6 +95,7 @@ const PrescriptionPDF = ({
     servicesFr: string;
     servicesAr: string;
     inscriptionNumber: string;
+    address: string;
   };
   image: string | null;
   medications: PrescriptionMed[];
@@ -220,6 +221,26 @@ const PrescriptionPDF = ({
               </Text>
             </View>
           ))}
+        </View>
+        <View
+          style={{
+            position: "absolute",
+            bottom: 20,
+            left: 30,
+            right: 30,
+            borderTopWidth: 1,
+            borderColor: "#aaa",
+            paddingTop: 4,
+            fontSize: 8,
+            textAlign: "center",
+            lineHeight: 1.5,
+          }}
+        >
+          <Text>{prescriptionModel.address}</Text>
+          <Text>
+            Tél. : 031 73 98 21 Mob. : 0541 098 333 E-mail :
+            larounchahinez@gmail.com
+          </Text>
         </View>
       </Page>
     </Document>

@@ -66,6 +66,7 @@ export const prescriptionModel = sqliteTable("prescription_model", {
   inscriptionNumber: text("inscription_number", { length: 255 }).notNull(),
   servicesFr: text("services_fr").notNull(), // store as JSON string
   servicesAr: text("services_ar").notNull(),
+  address: text("address").notNull(),
 });
 
 export type PrescriptionMed = typeof prescriptionMedications.$inferSelect;
