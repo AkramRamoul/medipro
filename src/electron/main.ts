@@ -3,8 +3,10 @@ import path from "path";
 import { desc, eq, sql } from "drizzle-orm";
 import fs from "fs";
 import { isDevelopment } from "./util.js";
-import { getMedsPath } from "./pathResolver.js";
+import { getfontPath, getMedsPath } from "./pathResolver.js";
 import { db } from "./index.js";
+import os from "os";
+
 import {
   patients,
   consultations,
@@ -47,6 +49,38 @@ app.on("ready", () => {
       );
       throw error;
     }
+  });
+  ipcMain.handle("load-fonts", async () => {
+    const fontPath = getfontPath();
+    console.log("Font path resolved:", fontPath); // <- log this
+
+    return fontPath;
+  });
+
+  ipcMain.handle("print-pdf", async (event, buffer) => {
+    const tempPath = path.join(os.tmpdir(), `prescription-${Date.now()}.pdf`);
+    fs.writeFileSync(tempPath, buffer);
+
+    const printWindow = new BrowserWindow({
+      show: false, // hide the window
+      webPreferences: {
+        nodeIntegration: false,
+      },
+    });
+
+    await printWindow.loadURL(`file://${tempPath}`);
+
+    printWindow.webContents.on("did-finish-load", () => {
+      printWindow.webContents.print({
+        silent: false,
+        printBackground: true,
+        deviceName: "", // optional: specify printer
+        margins: {
+          marginType: "none",
+        },
+        pageSize: "A5", // 👈 this actually works here!
+      });
+    });
   });
 
   ipcMain.handle("getallpatients", async () => {
@@ -397,6 +431,60 @@ app.on("ready", () => {
       return { success: true, model };
     } catch (err) {
       return { success: false, error: (err as Error).message };
+    }
+  });
+
+  ipcMain.handle("get-dashboard-stats", async () => {
+    try {
+      // Get stats
+      const [consultationsThisMonth] = await db
+        .select({ count: sql<number>`count(*)` })
+        .from(consultations)
+        .where(
+          sql`strftime('%Y-%m', ${consultations.date}) = strftime('%Y-%m', CURRENT_TIMESTAMP)`
+        );
+
+      const [consultationsToday] = await db
+        .select({ count: sql<number>`count(*)` })
+        .from(consultations)
+        .where(sql`date(${consultations.date}) = date('now')`);
+
+      const [prescriptionsThisMonth] = await db
+        .select({ count: sql<number>`count(*)` })
+        .from(prescriptions)
+        .where(
+          sql`strftime('%Y-%m', ${prescriptions.date}) = strftime('%Y-%m', CURRENT_TIMESTAMP)`
+        );
+
+      const [activePatients] = await db
+        .select({
+          count: sql<number>`count(distinct ${consultations.patientId})`,
+        })
+        .from(consultations);
+
+      const recentConsultations = await db
+        .select({
+          firstName: patients.first_name,
+          lastName: patients.last_name,
+          reason: consultations.reason,
+          diagnosis: consultations.diagnosis,
+          date: consultations.date,
+        })
+        .from(consultations)
+        .innerJoin(patients, eq(consultations.patientId, patients.id))
+        .orderBy(sql`date(${consultations.date}) DESC`)
+        .limit(5);
+
+      return {
+        consultationsThisMonth: consultationsThisMonth.count,
+        consultationsToday: consultationsToday.count,
+        prescriptionsThisMonth: prescriptionsThisMonth.count,
+        activePatients: activePatients.count,
+        recentConsultations,
+      };
+    } catch (error) {
+      console.error("Failed to load dashboard stats:", error);
+      throw error;
     }
   });
 
