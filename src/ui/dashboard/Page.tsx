@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import {
   Card,
   CardContent,
@@ -9,6 +10,29 @@ import { Overview } from "./Overview";
 import { RecentSales } from "./recent-sales";
 
 export default function DashboardPage() {
+  const [stats, setStats] = useState({
+    consultationsThisMonth: 0,
+    consultationsToday: 0,
+    prescriptionsThisMonth: 0,
+    activePatients: 0,
+    recentConsultations: [],
+  });
+
+  const fetchDashboardStats = async () => {
+    try {
+      const data = await window.electronAPI.getDashboardStats();
+      setStats(data);
+    } catch (error) {
+      console.error("Error fetching dashboard stats:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchDashboardStats();
+  }, []);
+
+  const estimatedRevenue = stats.consultationsThisMonth * 1500;
+
   return (
     <>
       <div className="flex flex-col md:flex">
@@ -20,7 +44,7 @@ export default function DashboardPage() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
-                  Total Revenue
+                  Istimated Revenue
                 </CardTitle>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -36,16 +60,18 @@ export default function DashboardPage() {
                 </svg>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">$45,231.89</div>
-                <p className="text-xs text-muted-foreground">
+                <div className="text-2xl font-bold pt-2">
+                  {estimatedRevenue.toLocaleString()} DA
+                </div>
+                {/* <p className="text-xs text-muted-foreground">
                   +20.1% from last month
-                </p>
+                </p> */}
               </CardContent>
             </Card>
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
-                  Subscriptions
+                  Active Patients
                 </CardTitle>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -63,40 +89,43 @@ export default function DashboardPage() {
                 </svg>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">+2350</div>
-                <p className="text-xs text-muted-foreground">
-                  +180.1% from last month
-                </p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Sales</CardTitle>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  className="h-4 w-4 text-muted-foreground"
-                >
-                  <rect width="20" height="14" x="2" y="5" rx="2" />
-                  <path d="M2 10h20" />
-                </svg>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">+12,234</div>
-                <p className="text-xs text-muted-foreground">
-                  +19% from last month
-                </p>
+                <div className="text-2xl font-bold">
+                  +{stats.activePatients}
+                </div>
               </CardContent>
             </Card>
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
-                  Active Now
+                  {" "}
+                  Prescriptions This Month
+                </CardTitle>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="h-4 w-4 text-muted-foreground"
+                >
+                  <rect x="6" y="3" width="12" height="4" rx="1" />
+                  <rect x="5" y="7" width="14" height="14" rx="2" />
+                  <path d="M10 12h4" />
+                  <path d="M10 16h4" />
+                </svg>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">
+                  {stats.prescriptionsThisMonth}
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">
+                  Consultations Today
                 </CardTitle>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -112,7 +141,9 @@ export default function DashboardPage() {
                 </svg>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">+573</div>
+                <div className="text-2xl font-bold">
+                  {stats.consultationsToday}
+                </div>
                 <p className="text-xs text-muted-foreground">
                   +201 since last hour
                 </p>
@@ -130,13 +161,13 @@ export default function DashboardPage() {
             </Card>
             <Card className="col-span-3">
               <CardHeader>
-                <CardTitle>Recent Sales</CardTitle>
+                <CardTitle>Recent Consultations</CardTitle>
                 <CardDescription>
-                  You made 265 sales this month.
+                  You made {stats.consultationsThisMonth} sales this month.
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <RecentSales />
+                <RecentSales patients={stats.recentConsultations} />
               </CardContent>
             </Card>
           </div>
