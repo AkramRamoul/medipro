@@ -9,6 +9,10 @@
     {
       "from": "database.db",
       "to": "database.db"
+    },
+    {
+      "from": "public/fonts",
+      "to": "public/fonts"
     }
   ],
   "icon": "./icon.png",

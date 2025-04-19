@@ -22,7 +22,6 @@ const PrintButton = ({
       const result = await window.electronAPI.getImage();
       if (result.success) {
         setImage(result.image);
-        console.log("Image fetched:", result.image);
       } else {
         console.error("Error fetching image:", result.error);
       }

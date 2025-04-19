@@ -95,4 +95,14 @@ contextBridge.exposeInMainWorld("electronAPI", {
   getImage: async () => {
     return await ipcRenderer.invoke("get-image");
   },
+  getDashboardStats: async () => {
+    return await ipcRenderer.invoke("get-dashboard-stats");
+  },
+  loadFonts: async () => {
+    return await ipcRenderer.invoke("load-fonts");
+  },
+  /* eslint-disable @typescript-eslint/no-explicit-any */
+  printPdf: (buffer: any) => {
+    return ipcRenderer.invoke("print-pdf", buffer);
+  },
 });

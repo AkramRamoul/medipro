@@ -86,8 +86,9 @@ function MainPrescriptionPage({ id }: { id: string }) {
           </TableBody>
         ) : (
           <TableBody>
-            {prescriptions.map((prescription) => (
+            {prescriptions.map((prescription, index) => (
               <PrescriptionRow
+                key={index}
                 prescription={prescription}
                 setData={setPrescriptions}
                 patinet={patient!}

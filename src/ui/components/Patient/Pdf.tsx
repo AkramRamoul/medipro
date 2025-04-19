@@ -103,7 +103,7 @@ const PrescriptionPDF = ({
   console.log("medications", medications);
   return (
     <Document>
-      <Page size="A5" style={styles.page}>
+      <Page size={{ width: 419.53, height: 595.28 }} style={styles.page}>
         {image && (
           <Image
             src={image}

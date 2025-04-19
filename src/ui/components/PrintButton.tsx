@@ -21,7 +21,6 @@ const PrintButton = ({
       const result = await window.electronAPI.getImage();
       if (result.success) {
         setImage(result.image);
-        console.log("Image fetched:", result.image);
       } else {
         console.error("Error fetching image:", result.error);
       }
@@ -57,6 +56,12 @@ const PrintButton = ({
         medications={prescription}
       />
     ).toBlob();
+
+    const arrayBuffer = await blob.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+
+    // Send to main
+    await window.electronAPI.printPdf(buffer);
 
     const url = URL.createObjectURL(blob);
 

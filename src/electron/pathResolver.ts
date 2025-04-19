@@ -13,3 +13,9 @@ export function getMedsPath() {
     ? "public/meds.json"
     : path.join(process.resourcesPath, "meds.json"); // ✅ Correct path
 }
+
+export function getfontPath() {
+  return isDevelopment()
+    ? path.join(app.getAppPath(), "public/fonts")
+    : path.join(process.resourcesPath, "public");
+}

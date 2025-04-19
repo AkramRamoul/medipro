@@ -1,3 +1,17 @@
+export interface DashboardStats {
+  consultationsThisMonth: number;
+  consultationsToday: number;
+  prescriptionsThisMonth: number;
+  activePatients: number;
+  recentConsultations: {
+    firstName: string;
+    lastName: string;
+    reason: string;
+    diagnosis: string;
+    date: string;
+  }[];
+}
+
 export interface IElectronAPI {
   addPatient: (data: unknown) => Promise<void>;
   getallpatients(): Patient[];
@@ -5,6 +19,7 @@ export interface IElectronAPI {
   getMedications: () => Promise<
     { name: string; form: string; dosage: string }[]
   >;
+  loadFonts: () => Promise<string>;
   addConsultation: (data: unknown) => Promise<void>;
   getConsultations(id: string): Consultation[];
   deleteCosultaion(id: string): Promise<void>;
@@ -28,6 +43,8 @@ export interface IElectronAPI {
     error?: string;
   }>;
   getImage: () => Promise<{ success: boolean; image: string; error?: string }>;
+  getDashboardStats: () => Promise<DashboardStats>; // ✅ FIX HERE
+  printPdf: (data: Buffer) => Promise<void>;
 }
 
 declare global {
