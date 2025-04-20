@@ -45,6 +45,8 @@ export interface IElectronAPI {
   getImage: () => Promise<{ success: boolean; image: string; error?: string }>;
   getDashboardStats: () => Promise<DashboardStats>; // ✅ FIX HERE
   printPdf: (data: Buffer) => Promise<void>;
+  getAllPrescriptions: () => Promise<Prescription[]>;
+  getAllConsultations: () => Promise<Consultation[]>;
 }
 
 declare global {

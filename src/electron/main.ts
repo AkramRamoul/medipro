@@ -83,6 +83,49 @@ app.on("ready", () => {
     });
   });
 
+  // Get all prescriptions with patient info
+  ipcMain.handle("get-all-prescriptions", async () => {
+    const result = await db
+      .select({
+        id: prescriptions.id,
+        date: prescriptions.date,
+        patient: {
+          id: patients.id,
+          first_name: patients.first_name,
+          last_name: patients.last_name,
+          age: patients.age,
+        },
+      })
+      .from(prescriptions)
+      .leftJoin(patients, eq(prescriptions.patientId, patients.id))
+      .orderBy(desc(prescriptions.date));
+
+    return result;
+  });
+
+  // Get all consultations with patient info
+  ipcMain.handle("get-all-consultations", async () => {
+    const result = await db
+      .select({
+        id: consultations.id,
+        date: consultations.date,
+        reason: consultations.reason,
+        diagnosis: consultations.diagnosis,
+        notes: consultations.notes,
+        patient: {
+          id: patients.id,
+          first_name: patients.first_name,
+          last_name: patients.last_name,
+          age: patients.age,
+        },
+      })
+      .from(consultations)
+      .leftJoin(patients, eq(consultations.patientId, patients.id))
+      .orderBy(desc(consultations.date));
+
+    return result;
+  });
+
   ipcMain.handle("getallpatients", async () => {
     const result = await db
       .select({

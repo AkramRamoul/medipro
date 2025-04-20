@@ -24,6 +24,7 @@ import { NavSecondary } from "./Nav-secondary";
 import { NavUser } from "./Nav-User";
 
 // Menu items.
+
 const items = [
   { title: "Home", url: "/", icon: Home },
   { title: "New Patient", url: "/newpatient", icon: User },
