@@ -26,7 +26,7 @@ export type Consultation = {
   date: string; // Timestamp for when the consultation was created
 };
 
-export interface DashboardStats {
+export type DashboardStats = {
   consultationsThisMonth: number;
   consultationsToday: number;
   prescriptionsThisMonth: number;
@@ -38,7 +38,7 @@ export interface DashboardStats {
     diagnosis: string;
     date: string;
   }[];
-}
+};
 export interface Prescription {
   id: number;
   date: string | null;

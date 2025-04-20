@@ -8,9 +8,10 @@ import {
 } from "../components/ui/card";
 import { Overview } from "./Overview";
 import { RecentSales } from "./recent-sales";
+import { DashboardStats } from "../type";
 
 export default function DashboardPage() {
-  const [stats, setStats] = useState({
+  const [stats, setStats] = useState<DashboardStats>({
     consultationsThisMonth: 0,
     consultationsToday: 0,
     prescriptionsThisMonth: 0,
@@ -163,7 +164,8 @@ export default function DashboardPage() {
               <CardHeader>
                 <CardTitle>Recent Consultations</CardTitle>
                 <CardDescription>
-                  You made {stats.consultationsThisMonth} sales this month.
+                  You made {stats.consultationsThisMonth} consultations this
+                  month.
                 </CardDescription>
               </CardHeader>
               <CardContent>
