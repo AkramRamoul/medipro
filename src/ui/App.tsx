@@ -7,7 +7,7 @@ import Home from "./routes/Home";
 import MainPage from "./components/Patient/MainPage";
 import { Toaster } from "sonner";
 import DashboardPage from "./dashboard/Page";
-import Page from "./components/Prescription/Page";
+import Page from "./routes/Consultations";
 
 function App() {
   return (

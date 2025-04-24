@@ -57,6 +57,19 @@ export type PrescriptionWithPatient = {
     age: number;
   } | null; // because it's a left join, patient can be null
 };
+export type ConsultationWithPatient = {
+  id: number;
+  date: Date;
+  reason: string;
+  diagnosis: string;
+  notes: string;
+  patient: {
+    id: number;
+    first_name: string;
+    last_name: string;
+    age: number;
+  } | null; // because it's a left join, patient can be null
+};
 
 export type smallPatient = {
   id: number;

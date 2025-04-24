@@ -128,7 +128,7 @@ function NewConsultationForm({
         <div className="flex flex-col items-start space-y-1">
           <Label>Notes</Label>
           <Textarea
-            placeholder="How should the patient take the medication?"
+            placeholder="Notes Additional"
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
           />
