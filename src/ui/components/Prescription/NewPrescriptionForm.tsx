@@ -271,11 +271,10 @@ const NewPrescriptionForm = ({
                 className="flex items-center justify-between bg-gray-100 p-2 rounded"
               >
                 <span>
-                  {med.medicineName} - {med.form} ({med.dosage}) |{" "}
-                  {med.quantity} | {med.duration}
-                  {med.note && (
-                    <span className="text-gray-500 ml-2">📝 {med.note}</span>
-                  )}
+                  - {med.medicineName} {med.form ? `${med.form}` : ""}{" "}
+                  {med.dosage} {med.quantity ? `${med.quantity}` : ""}{" "}
+                  {med.duration ? `${med.duration}` : ""}
+                  {med.note}
                 </span>
                 <Button
                   variant="destructive"

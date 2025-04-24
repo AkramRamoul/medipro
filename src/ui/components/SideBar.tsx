@@ -2,7 +2,6 @@ import { NavLink, useLocation } from "react-router-dom";
 import {
   Clipboard,
   Home,
-  User,
   PillBottle,
   ChartColumnIncreasing,
   SettingsIcon,
@@ -21,24 +20,22 @@ import {
   SidebarMenuItem,
 } from "../components/ui/sidebar";
 import { NavSecondary } from "./Nav-secondary";
-import { NavUser } from "./Nav-User";
 
 // Menu items.
 
 const items = [
   { title: "Home", url: "/", icon: Home },
-  { title: "New Patient", url: "/newpatient", icon: User },
   { title: "Consultations", url: "/consultations", icon: Clipboard },
   { title: "Prescriptions", url: "/prescriptions", icon: PillBottle },
-  { title: "Statistics", url: "/stats", icon: ChartColumnIncreasing },
+  { title: "Dashboard", url: "/stats", icon: ChartColumnIncreasing },
+  {
+    title: "Settings",
+    url: "/settings",
+    icon: SettingsIcon,
+  },
 ];
 const data = {
   navSecondary: [
-    {
-      title: "Settings",
-      url: "/settings",
-      icon: SettingsIcon,
-    },
     {
       title: "Get Help",
       url: "#",
@@ -92,10 +89,9 @@ export function AppSidebar() {
         </div>
 
         {/* Secondary Section */}
-        <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarFooter>
     </Sidebar>
   );

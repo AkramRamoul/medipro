@@ -28,7 +28,8 @@ export function RecentSales({
 
               <div className="ml-4 space-y-1">
                 <p className="text-sm font-medium leading-none">{fullName}</p>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-gray-600 font-medium truncate">
+                  <strong className="text-gray-800">Reason de visite:</strong>{" "}
                   {patient.reason}
                 </p>
               </div>

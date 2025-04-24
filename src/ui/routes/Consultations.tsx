@@ -19,9 +19,10 @@ function Page() {
   const [query, setQuery] = useState("");
   const fetchConsultations = useCallback(async () => {
     try {
+      setIsLoading(true);
       const data = await window.electronAPI.getAllConsultations();
-      setIsLoading(false);
       setData(data);
+      setIsLoading(false);
     } catch (error) {
       console.error("Error fetching consultations:", error);
     }
