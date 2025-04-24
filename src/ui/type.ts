@@ -45,3 +45,22 @@ export interface Prescription {
   patientId: number;
   medications: PrescriptionMed[]; // Add medications property
 }
+
+export type PrescriptionWithPatient = {
+  id: number;
+  date: string;
+  medications: PrescriptionMed[]; // or Date, depending on how Drizzle returns it
+  patient: {
+    id: number;
+    first_name: string;
+    last_name: string;
+    age: number;
+  } | null; // because it's a left join, patient can be null
+};
+
+export type smallPatient = {
+  id: number;
+  first_name: string;
+  last_name: string;
+  age: number;
+};

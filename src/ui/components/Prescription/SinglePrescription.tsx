@@ -1,5 +1,5 @@
 import { PrescriptionMed } from "../../../electron/schema";
-import { Patient } from "../../type";
+import { smallPatient } from "../../type";
 import PrintButton from "../PrintButton";
 import { Button } from "../ui/button";
 
@@ -10,14 +10,14 @@ function SinglePrescription({
 }: {
   onClose: () => void;
   meds: PrescriptionMed[];
-  patient: Patient;
+  patient: smallPatient;
 }) {
   console.log(meds);
   return (
     <div>
       {meds.length > 0 && (
-        <div className="mt-4">
-          <h3 className="font-semibold mb-2">Selected Medications:</h3>
+        <div className="mt-4 p-2">
+          <h3 className="font-semibold mb-2"> Medications:</h3>
           <ul className="space-y-2">
             {meds.map((med, index) => (
               <li

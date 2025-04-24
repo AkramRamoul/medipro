@@ -95,12 +95,56 @@ app.on("ready", () => {
           last_name: patients.last_name,
           age: patients.age,
         },
+        medication_id: prescriptionMedications.id,
+        medicineName: prescriptionMedications.medicineName,
+        dosage: prescriptionMedications.dosage,
+        duration: prescriptionMedications.duration,
+        quantity: prescriptionMedications.quantity,
+        form: prescriptionMedications.form,
+        note: prescriptionMedications.note,
       })
       .from(prescriptions)
       .leftJoin(patients, eq(prescriptions.patientId, patients.id))
+      .leftJoin(
+        prescriptionMedications,
+        eq(prescriptions.id, prescriptionMedications.prescriptionId)
+      )
       .orderBy(desc(prescriptions.date));
 
-    return result;
+    // Group the medications by prescription ID
+    /* eslint-disable  @typescript-eslint/no-explicit-any */
+    const prescriptionsGrouped = result.reduce((acc: any[], row: any) => {
+      // Find the existing prescription in the accumulator
+      let prescription = acc.find((p) => p.id === row.id);
+
+      if (!prescription) {
+        // If prescription doesn't exist, create a new entry
+        prescription = {
+          id: row.id,
+          date: row.date,
+          patient: row.patient,
+          medications: [],
+        };
+        acc.push(prescription);
+      }
+
+      // Push the medication to the medications array
+      if (row.medication_id) {
+        prescription.medications.push({
+          medication_id: row.medication_id,
+          medicineName: row.medicineName,
+          dosage: row.dosage,
+          duration: row.duration,
+          quantity: row.quantity,
+          form: row.form,
+          note: row.note,
+        });
+      }
+
+      return acc;
+    }, []);
+
+    return prescriptionsGrouped;
   });
 
   // Get all consultations with patient info

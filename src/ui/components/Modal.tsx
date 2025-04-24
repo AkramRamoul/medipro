@@ -1,5 +1,3 @@
-"use client";
-
 import React, { Fragment } from "react";
 import {
   Dialog,
@@ -47,9 +45,9 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
               h-full 
               max-w-none
               sm:max-w-none
-              rounded-none
               flex 
               flex-col
+              rounded-lg
             "
             onClick={(e) => e.stopPropagation()} // Prevents unwanted closing
           >

@@ -1,7 +1,7 @@
 import { pdf } from "@react-pdf/renderer";
 import { useEffect, useState } from "react";
 import { PrescriptionMed } from "../../electron/schema";
-import { Patient } from "../type";
+import { smallPatient } from "../type";
 import PrescriptionPDF from "./Patient/Pdf";
 import { Button } from "./ui/button";
 
@@ -10,7 +10,7 @@ const PrintButton = ({
   window,
   prescription,
 }: {
-  patient: Patient;
+  patient: smallPatient;
   window: Window;
   prescription: PrescriptionMed[];
 }) => {

@@ -10,7 +10,7 @@ import {
 
 import AmiriRegular from "/fonts/Amiri-Regular.ttf";
 import AmiriBold from "/fonts/Amiri-Bold.ttf";
-import { Patient } from "../../type";
+import { smallPatient } from "../../type";
 import { PrescriptionMed } from "../../../electron/schema";
 
 // Register Amiri font
@@ -86,7 +86,7 @@ const PrescriptionPDF = ({
   image,
   medications,
 }: {
-  patient: Patient;
+  patient: smallPatient;
   prescriptionModel: {
     nameFr: string;
     nameAr: string;
