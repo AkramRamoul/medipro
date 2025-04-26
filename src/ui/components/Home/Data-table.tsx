@@ -66,7 +66,7 @@ export function DataTable<
       <NewPatientModal isOpen={isOpen} onClose={() => setIsOpen(false)} />
 
       <div className="flex flex-col space-y-4 items-center">
-        <div className="flex items-center py-2 w-[600px] max-w-full mx-auto space-x-5">
+        <div className="flex items-center py-2 w-[800px] max-w-full mx-auto space-x-5">
           <Input
             placeholder="Filter by name..."
             value={
@@ -81,7 +81,7 @@ export function DataTable<
             Add New Patient
           </Button>
         </div>
-        <div className="rounded-md border w-[600px] max-w-full mx-auto">
+        <div className="rounded-md border w-[800px] max-w-full mx-auto">
           <Table>
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (

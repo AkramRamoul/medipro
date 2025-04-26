@@ -1,9 +1,11 @@
 import { Avatar, AvatarFallback } from "../components/ui/avatar";
+import { useNavigate } from "react-router-dom";
 
 export function RecentSales({
   patients,
 }: {
   patients: {
+    id: number;
     firstName: string;
     lastName: string;
     reason: string;
@@ -11,6 +13,8 @@ export function RecentSales({
     date: string;
   }[];
 }) {
+  const navigate = useNavigate();
+
   return (
     <div className="space-y-8">
       {patients.length > 0 ? (
@@ -18,9 +22,13 @@ export function RecentSales({
           const fullName = `${patient.firstName} ${patient.lastName}`;
 
           return (
-            <div className="flex items-center" key={index}>
+            <div
+              className="flex items-center hover:bg-gray-100 p-4 rounded-md cursor-pointer group"
+              key={index}
+              onClick={() => navigate(`/pat/${patient.id}`)}
+            >
               <Avatar>
-                <AvatarFallback>
+                <AvatarFallback className="group-hover:bg-gray-300">
                   {patient.firstName[0]}
                   {patient.lastName[0]}
                 </AvatarFallback>

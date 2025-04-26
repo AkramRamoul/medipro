@@ -551,6 +551,7 @@ app.on("ready", () => {
 
       const recentConsultations = await db
         .select({
+          id: patients.id,
           firstName: patients.first_name,
           lastName: patients.last_name,
           reason: consultations.reason,
