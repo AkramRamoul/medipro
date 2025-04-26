@@ -23,6 +23,9 @@ export function PrescriptionModelForm() {
     servicesAr: "",
     inscriptionNumber: "",
     address: "",
+    phoneNumber1: "", // New field
+    phoneNumber2: "", // New field
+    city: "", // New field
   });
 
   const [services, setServices] = useState([{ fr: "", ar: "" }]);
@@ -42,6 +45,9 @@ export function PrescriptionModelForm() {
           servicesAr: model.servicesAr || "",
           inscriptionNumber: model.inscriptionNumber || "",
           address: model.address || "",
+          phoneNumber1: model.phoneNumber1 || "",
+          phoneNumber2: model.phoneNumber2 || "",
+          city: model.city || "",
         });
 
         try {
@@ -63,6 +69,7 @@ export function PrescriptionModelForm() {
 
     fetchModel();
   }, []);
+
   interface FormState {
     nameFr: string;
     nameAr: string;
@@ -71,7 +78,10 @@ export function PrescriptionModelForm() {
     servicesFr: string;
     servicesAr: string;
     inscriptionNumber: string;
-    address: string; // <-- Add this
+    address: string;
+    phoneNumber1: string;
+    phoneNumber2: string;
+    city: string;
   }
 
   const handleChange = (
@@ -79,7 +89,6 @@ export function PrescriptionModelForm() {
   ) => {
     const { name, value } = e.target;
 
-    // Arabic-only regex: allows Arabic letters, Arabic numerals, spaces, and common punctuation
     const arabicRegex = /^[\u0600-\u06FF\s\u0660-\u0669.,،ء-ي]*$/;
 
     if (
@@ -87,7 +96,7 @@ export function PrescriptionModelForm() {
       value !== "" &&
       !arabicRegex.test(value)
     ) {
-      return; // skip update if value contains non-Arabic characters
+      return;
     }
 
     setForm((prev: FormState) => ({ ...prev, [name]: value }));
@@ -113,7 +122,6 @@ export function PrescriptionModelForm() {
     value: string
   ) => {
     const updated = [...services];
-    // Optional Arabic-only enforcement
     if (lang === "ar") {
       const arabicRegex = /^[\u0600-\u06FF\s\u0660-\u0669.,،ء-ي]*$/;
       if (value !== "" && !arabicRegex.test(value)) return;
@@ -121,7 +129,9 @@ export function PrescriptionModelForm() {
     updated[index][lang] = value;
     setServices(updated);
   };
+
   const fileUploaderProps = useFileUploader();
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -142,9 +152,7 @@ export function PrescriptionModelForm() {
   return (
     <Card
       className="w-full px-4 sm:px-6 lg:px-8 max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl xl:max-w-3xl mx-auto"
-      onClick={(e) => {
-        e.stopPropagation();
-      }}
+      onClick={(e) => e.stopPropagation()}
     >
       <form onSubmit={handleSubmit}>
         <CardHeader>
@@ -157,6 +165,7 @@ export function PrescriptionModelForm() {
         </CardHeader>
         <CardContent className="grid gap-6">
           <div className="grid gap-4 sm:grid-cols-1">
+            {/* Existing fields */}
             <div className="border-none">
               <label className="block font-medium">
                 Nom du docteur / clinique (Français)
@@ -184,6 +193,8 @@ export function PrescriptionModelForm() {
                 dir="rtl"
               />
             </div>
+
+            {/* Specialty fields */}
             <div>
               <label className="block font-medium">Spécialité (Français)</label>
               <input
@@ -207,6 +218,8 @@ export function PrescriptionModelForm() {
                 dir="rtl"
               />
             </div>
+
+            {/* Services */}
             {services.map((service, index) => (
               <div key={index} className="mb-6 border p-4 rounded-lg shadow-sm">
                 <div className="mb-4">
@@ -228,7 +241,7 @@ export function PrescriptionModelForm() {
                     الخدمات (العربية) {index + 1}
                   </label>
                   <textarea
-                    placeholder=" مثال :أمراض الجلد والأظافر "
+                    placeholder="مثال: أمراض الجلد والأظافر"
                     value={service.ar}
                     onChange={(e) =>
                       handleServiceChange(index, "ar", e.target.value)
@@ -265,6 +278,7 @@ export function PrescriptionModelForm() {
               )}
             </div>
 
+            {/* New fields */}
             <div>
               <label className="block font-medium">N° d'inscription</label>
               <input
@@ -286,6 +300,42 @@ export function PrescriptionModelForm() {
                 placeholder="Votre adresse ici"
               />
             </div>
+            <div>
+              <label className="block font-medium">Ville</label>
+              <input
+                type="text"
+                name="city"
+                value={form.city}
+                onChange={handleChange}
+                className="w-full p-2 border rounded mt-2"
+                placeholder="Votre ville"
+              />
+            </div>
+            <div>
+              <label className="block font-medium">
+                Num Tel Fix(si existe)
+              </label>
+              <input
+                type="text"
+                name="phoneNumber1"
+                value={form.phoneNumber1}
+                onChange={handleChange}
+                className="w-full p-2 border rounded mt-2"
+                placeholder="Ex: 0555 55 55 55"
+              />
+            </div>
+            <div>
+              <label className="block font-medium">Num Mobile</label>
+              <input
+                type="text"
+                name="phoneNumber2"
+                value={form.phoneNumber2}
+                onChange={handleChange}
+                className="w-full p-2 border rounded mt-2"
+                placeholder="Ex: 0777 77 77 77"
+              />
+            </div>
+
             <Button
               type="submit"
               className="bg-primary font-semibold p-2 text-md"

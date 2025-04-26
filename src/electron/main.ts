@@ -471,6 +471,9 @@ app.on("ready", () => {
         inscriptionNumber,
         services,
         address,
+        phoneNumber1,
+        phoneNumber2,
+        city,
       } = formData;
 
       const servicesFr = services.map((s: any) => s.fr);
@@ -489,6 +492,9 @@ app.on("ready", () => {
           servicesFr: JSON.stringify(servicesFr),
           servicesAr: JSON.stringify(servicesAr),
           address,
+          phoneNumber1,
+          phoneNumber2,
+          city,
         });
       } else {
         // Update the existing row
@@ -502,6 +508,10 @@ app.on("ready", () => {
             inscriptionNumber,
             servicesFr: JSON.stringify(servicesFr),
             servicesAr: JSON.stringify(servicesAr),
+            address,
+            phoneNumber1,
+            phoneNumber2,
+            city,
           })
           .where(eq(prescriptionModel.id, existing[0].id));
       }

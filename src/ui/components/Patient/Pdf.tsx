@@ -96,10 +96,14 @@ const PrescriptionPDF = ({
     servicesAr: string;
     inscriptionNumber: string;
     address: string;
+    phoneNumber1: string | undefined;
+    phoneNumber2: string | undefined;
+    city: string;
   };
   image: string | null;
   medications: PrescriptionMed[];
 }) => {
+  console.log(prescriptionModel);
   console.log("medications", medications);
   return (
     <Document>
@@ -190,7 +194,9 @@ const PrescriptionPDF = ({
           }}
         >
           <View style={{ flexDirection: "column", gap: 2 }}>
-            <Text style={styles.infoPatient}>Nom : {patient.last_name}</Text>
+            <Text style={styles.infoPatient}>
+              Nom : {patient.first_name} {patient.last_name}
+            </Text>
             <Text style={styles.infoPatient}>Âge : {patient.age} Ans</Text>
           </View>
 
@@ -198,10 +204,7 @@ const PrescriptionPDF = ({
             style={{ flexDirection: "column", alignItems: "flex-end", gap: 2 }}
           >
             <Text style={styles.infoPatient}>
-              Prénoms : {patient.first_name}
-            </Text>
-            <Text style={styles.infoPatient}>
-              Constantine, le : {formatDate(new Date())}
+              {prescriptionModel.city}, le : {formatDate(new Date())}
             </Text>
           </View>
         </View>
@@ -238,8 +241,8 @@ const PrescriptionPDF = ({
         >
           <Text>{prescriptionModel.address}</Text>
           <Text>
-            Tél. : 031 73 98 21 Mob. : 0541 098 333 E-mail :
-            larounchahinez@gmail.com
+            Tél. : {prescriptionModel.phoneNumber1} Mob. :{" "}
+            {prescriptionModel.phoneNumber2}
           </Text>
         </View>
       </Page>
