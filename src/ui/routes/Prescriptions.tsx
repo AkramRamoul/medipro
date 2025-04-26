@@ -12,6 +12,7 @@ import {
 import { PrescriptionWithPatient } from "../type";
 import Modal from "../components/Modal";
 import SinglePrescription from "../components/Prescription/SinglePrescription";
+import Pagination from "../components/Pagination"; // ⬅️ don't forget to import Pagination!
 
 async function getData(): Promise<PrescriptionWithPatient[]> {
   try {
@@ -28,6 +29,8 @@ function Prescriptions() {
   const [query, setQuery] = useState("");
   const [selectedPrescription, setSelectedPrescription] =
     useState<PrescriptionWithPatient | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
@@ -39,7 +42,7 @@ function Prescriptions() {
     fetchData();
   }, []);
 
-  console.log("Prescriptions data:", data);
+  const itemsPerPage = 10;
   const filteredData = data.filter((prescription) => {
     const first = prescription.patient?.first_name?.toLowerCase() || "";
     const last = prescription.patient?.last_name?.toLowerCase() || "";
@@ -55,6 +58,16 @@ function Prescriptions() {
     );
   });
 
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = filteredData.slice(indexOfFirstItem, indexOfLastItem);
+
+  // Important: Reset to page 1 when query changes!
+  const handleQueryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setQuery(e.target.value);
+    setCurrentPage(1); // ⬅️ reset page!
+  };
+
   return (
     <>
       <div className="flex flex-col gap-4 p-6 border rounded-lg bg-white shadow-md max-w-4xl mx-auto">
@@ -63,7 +76,7 @@ function Prescriptions() {
             placeholder="Filter by first or last name..."
             className="w-[80%]"
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            onChange={handleQueryChange}
           />
         </div>
         <div className="px-4">
@@ -73,7 +86,7 @@ function Prescriptions() {
             </p>
           ) : (
             <Table>
-              <TableCaption className="mt-6 text-gray-600">
+              <TableCaption className="mt-6 text-gray-600 mb-3">
                 A list of your recent prescriptions.
               </TableCaption>
               <TableHeader>
@@ -85,8 +98,8 @@ function Prescriptions() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredData.length > 0 ? (
-                  filteredData.map((prescription) => (
+                {currentItems.length > 0 ? (
+                  currentItems.map((prescription) => (
                     <TableRow
                       key={prescription.id}
                       onClick={() => setSelectedPrescription(prescription)}
@@ -122,8 +135,15 @@ function Prescriptions() {
               </TableBody>
             </Table>
           )}
+          <Pagination
+            itemsPerPage={itemsPerPage}
+            totalItems={filteredData.length}
+            currentPage={currentPage}
+            onPageChange={setCurrentPage}
+          />
         </div>
       </div>
+
       <Modal
         isOpen={!!selectedPrescription}
         onClose={() => setSelectedPrescription(null)}
