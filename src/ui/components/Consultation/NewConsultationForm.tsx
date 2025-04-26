@@ -141,7 +141,7 @@ function NewConsultationForm({
           Cancel
         </Button>
         <Button
-          className="bg-blue-600 hover:bg-blue-700 text-white"
+          className="bg-primary hover:bg-primary-600 text-white"
           onClick={handleSave}
         >
           Save Consultation

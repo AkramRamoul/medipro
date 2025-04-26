@@ -90,9 +90,7 @@ export default function DashboardPage() {
                 </svg>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">
-                  +{stats.activePatients}
-                </div>
+                <div className="text-2xl font-bold">{stats.activePatients}</div>
               </CardContent>
             </Card>
             <Card>
@@ -145,9 +143,6 @@ export default function DashboardPage() {
                 <div className="text-2xl font-bold">
                   {stats.consultationsToday}
                 </div>
-                <p className="text-xs text-muted-foreground">
-                  +201 since last hour
-                </p>
               </CardContent>
             </Card>
           </div>

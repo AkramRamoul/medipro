@@ -36,9 +36,12 @@ export function RecentSales({
 
               <div className="ml-4 space-y-1">
                 <p className="text-sm font-medium leading-none">{fullName}</p>
-                <p className="text-sm text-gray-600 font-medium truncate">
-                  <strong className="text-gray-800">Reason de visite:</strong>{" "}
-                  {patient.reason}
+                <p className="text-sm text-gray-600 font truncate flex items-center">
+                  <strong className="text-gray-800">Raison de visite: </strong>
+                  {"  "}
+                  <span className="truncate text-sm inline-block max-w-[150px]">
+                    {patient.reason}
+                  </span>
                 </p>
               </div>
 

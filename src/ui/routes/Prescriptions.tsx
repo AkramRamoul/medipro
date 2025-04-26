@@ -42,7 +42,7 @@ function Prescriptions() {
     fetchData();
   }, []);
 
-  const itemsPerPage = 10;
+  const itemsPerPage = 8;
   const filteredData = data.filter((prescription) => {
     const first = prescription.patient?.first_name?.toLowerCase() || "";
     const last = prescription.patient?.last_name?.toLowerCase() || "";
