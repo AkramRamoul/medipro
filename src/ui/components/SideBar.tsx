@@ -1,11 +1,11 @@
 import { NavLink, useLocation } from "react-router-dom";
 import {
   Clipboard,
-  Home,
   PillBottle,
   ChartColumnIncreasing,
   SettingsIcon,
   HelpCircleIcon,
+  User,
 } from "lucide-react";
 
 import {
@@ -24,10 +24,10 @@ import { NavSecondary } from "./Nav-secondary";
 // Menu items.
 
 const items = [
-  { title: "Home", url: "/", icon: Home },
+  { title: "Dashboard", url: "/", icon: ChartColumnIncreasing },
+  { title: "Patients", url: "/patients", icon: User },
   { title: "Consultations", url: "/consultations", icon: Clipboard },
   { title: "Prescriptions", url: "/prescriptions", icon: PillBottle },
-  { title: "Dashboard", url: "/stats", icon: ChartColumnIncreasing },
   {
     title: "Settings",
     url: "/settings",

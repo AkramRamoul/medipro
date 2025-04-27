@@ -43,10 +43,9 @@ export function RecentSales({
                     {patient.reason}
                   </span>
                 </p>
-              </div>
-
-              <div className="ml-auto text-xs text-muted-foreground">
-                {new Date(patient.date).toLocaleDateString()}
+                <div className="ml-auto text-xs text-muted-foreground">
+                  {new Date(patient.date).toLocaleDateString()}
+                </div>
               </div>
             </div>
           );

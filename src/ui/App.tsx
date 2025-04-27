@@ -1,6 +1,5 @@
 import { HashRouter as Router, Routes, Route } from "react-router-dom";
 import Layout from "./routes/Layout";
-import NewPatient from "./routes/NewPatient";
 import Prescriptions from "./routes/Prescriptions";
 import Settings from "./components/Settings/Settings";
 import Home from "./routes/Home";
@@ -14,13 +13,12 @@ function App() {
     <Router>
       <Routes>
         <Route path="/" element={<Layout />}>
-          <Route index element={<Home />} />
-          <Route path="/newpatient" element={<NewPatient />} />
+          <Route index element={<DashboardPage />} />
           <Route path="/prescriptions" element={<Prescriptions />} />
           <Route path="/consultations" element={<Page />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/pat/:id" element={<MainPage />} />
-          <Route path="/stats" element={<DashboardPage />} />
+          <Route path="/patients" element={<Home />} />
         </Route>
       </Routes>
       <Toaster />
