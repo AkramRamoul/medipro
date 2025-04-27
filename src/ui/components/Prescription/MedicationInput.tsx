@@ -10,6 +10,7 @@ import {
 } from "../ui/select";
 import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
 import { useParams } from "react-router-dom";
+import { toast } from "sonner";
 
 interface Medication {
   name: string;
@@ -141,7 +142,7 @@ const MedicationsInput = () => {
 
   const handlePrint = async () => {
     if (selectedMedications.length === 0) {
-      alert("No medications to print!");
+      toast.error("No medications to print!");
       return;
     }
 

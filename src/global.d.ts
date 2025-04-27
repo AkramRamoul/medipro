@@ -47,6 +47,10 @@ export interface IElectronAPI {
   printPdf: (data: Buffer) => Promise<void>;
   getAllPrescriptions: () => Promise<Prescription[]>;
   getAllConsultations: () => Promise<Consultation[]>;
+  getMonthlyPatients: () => Promise<{
+    success: boolean;
+    data: { name: string; total: number }[];
+  }>;
 }
 
 declare global {

@@ -16,7 +16,7 @@ export function RecentSales({
   const navigate = useNavigate();
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-4">
       {patients.length > 0 ? (
         patients.map((patient, index) => {
           const fullName = `${patient.firstName} ${patient.lastName}`;

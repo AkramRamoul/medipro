@@ -78,3 +78,8 @@ export type smallPatient = {
   last_name: string;
   age: number;
 };
+
+export type monthlyPatients = {
+  name: string;
+  total: number;
+};

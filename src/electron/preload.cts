@@ -111,4 +111,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
   getAllConsultations: async () => {
     return await ipcRenderer.invoke("get-all-consultations");
   },
+  getMonthlyPatients: async () => {
+    return await ipcRenderer.invoke("get-monthly-patients");
+  },
 });

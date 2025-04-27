@@ -586,6 +586,72 @@ app.on("ready", () => {
     }
   });
 
+  const months = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+
+  // simple in-memory cache
+  let cache: { data: any; timestamp: number } | null = null;
+  const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
+  async function getMonthlyPatients() {
+    const now = Date.now();
+
+    // if cache exists and not expired, return cached data
+    if (cache && now - cache.timestamp < CACHE_DURATION) {
+      return cache.data;
+    }
+
+    const results = await db.all(
+      sql`
+      SELECT 
+        strftime('%m', created_at) AS month,
+        COUNT(*) AS total
+      FROM ${patients}
+      GROUP BY month
+    `
+    );
+
+    const monthMap: Record<string, number> = {};
+    for (const row of results as { month: string; total: number }[]) {
+      monthMap[row.month] = row.total;
+    }
+
+    const data = months.map((name, index) => {
+      const monthNumber = String(index + 1).padStart(2, "0");
+      return {
+        name,
+        total: monthMap[monthNumber] || 0,
+      };
+    });
+
+    // update cache
+    cache = { data, timestamp: now };
+
+    return data;
+  }
+
+  ipcMain.handle("get-monthly-patients", async () => {
+    try {
+      const data = await getMonthlyPatients();
+      return { success: true, data };
+    } catch (err) {
+      console.error(err);
+      return { success: false, error: "Failed to fetch monthly patients." };
+    }
+  });
+
   win.webContents.setWindowOpenHandler(() => ({ action: "allow" }));
   // win.webContents.session.webRequest.onHeadersReceived((details, callback) => {
   //   callback({
