@@ -12,6 +12,7 @@ import { Button } from "../ui/button";
 import { FileDropzone } from "../File-DropZone";
 import { useFileUploader } from "../../hooks/use-file-uploader";
 import { RoundedTool } from "../Rounded-tool";
+import { toast } from "sonner";
 
 export function PrescriptionModelForm() {
   const [form, setForm] = useState({
@@ -143,9 +144,9 @@ export function PrescriptionModelForm() {
     const result = await window.electronAPI.savePrescriptionModel(payload);
 
     if (result.success) {
-      alert("Modèle enregistré avec succès !");
+      toast.success("Modèle enregistré avec succès !");
     } else {
-      alert("Erreur lors de l'enregistrement : " + result.error);
+      toast.error("Erreur lors de l'enregistrement : " + result.error);
     }
   };
 

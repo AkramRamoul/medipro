@@ -49,7 +49,7 @@ function RoundedToolCore(props: { fileUploaderProps: FileUploaderResult }) {
       }
     } catch (err) {
       console.error("❌ Unexpected error during upload:", err);
-      alert("Unexpected error during upload.");
+      toast.error("Unexpected error during upload.");
     }
   };
 

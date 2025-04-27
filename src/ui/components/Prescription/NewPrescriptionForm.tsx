@@ -96,7 +96,7 @@ const NewPrescriptionForm = ({
   // Save prescription to the database
   const handleSave = async () => {
     if (selectedMedications.length === 0) {
-      alert("Please add at least one medication!");
+      toast.error("Please add at least one medication!");
       return;
     }
 
@@ -122,7 +122,7 @@ const NewPrescriptionForm = ({
         refreshPrescriptions();
         onClose();
       } else {
-        alert("Failed to save prescription: ");
+        toast.error("Failed to save prescription: ");
       }
     } catch (error) {
       console.error("Failed to save prescription:", error);

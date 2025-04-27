@@ -4,6 +4,7 @@ import { PrescriptionMed } from "../../electron/schema";
 import { smallPatient } from "../type";
 import PrescriptionPDF from "./Patient/Pdf";
 import { Button } from "./ui/button";
+import { toast } from "sonner";
 
 const PrintButton = ({
   patient,
@@ -43,7 +44,7 @@ const PrintButton = ({
 
   const handlePrint = async () => {
     if (!prescriptionModel) {
-      alert("Prescription model not loaded yet.");
+      toast("Prescription model not loaded yet.");
       return;
     }
 
@@ -77,7 +78,7 @@ const PrintButton = ({
         };
       };
     } else {
-      alert("Popup blocked! Please allow popups for this site.");
+      toast.error("Popup blocked! Please allow popups for this site.");
     }
   };
 
