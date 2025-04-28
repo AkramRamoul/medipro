@@ -37,6 +37,7 @@ export function Overview() {
         <YAxis
           stroke="#888888"
           fontSize={12}
+          allowDecimals={false}
           tickLine={false}
           axisLine={false}
           tickFormatter={(value) => `${value}`}

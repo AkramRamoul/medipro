@@ -70,12 +70,17 @@ export function AppSidebar() {
                       <NavLink
                         to={item.url}
                         className={`flex items-center gap-2 px-2 py-2 rounded-md transition-colors font-semibold text-lg
-    ${
-      (item.url === "/" && currentPath === "/") ||
-      (item.url !== "/" && currentPath.startsWith(item.url))
-        ? "bg-primary text-white pointer-events-none"
-        : "text-black hover:bg-gray-300"
-    }`}
+                          ${
+                            (item.url === "/" && currentPath === "/") ||
+                            (item.url === "/patients" &&
+                              (currentPath.startsWith("/patients") ||
+                                currentPath.startsWith("/pat/"))) ||
+                            (item.url !== "/" &&
+                              item.url !== "/patients" &&
+                              currentPath.startsWith(item.url))
+                              ? "bg-primary text-white pointer-events-none"
+                              : "text-black hover:bg-gray-300"
+                          }`}
                       >
                         <item.icon />
                         <span>{item.title}</span>

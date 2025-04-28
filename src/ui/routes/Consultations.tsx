@@ -13,11 +13,16 @@ import { Input } from "../components/ui/input";
 import Modal from "../components/Modal";
 import SingleConsultation from "../components/Consultation/SingleConsultation";
 import Pagination from "../components/Pagination";
+import { Search } from "lucide-react";
 
 function Page() {
   const [data, setData] = useState<ConsultationWithPatient[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [query, setQuery] = useState("");
+  const [selectedPrescriptionId, setSelectedPrescriptionId] = useState<
+    string | null
+  >(null);
+
   const fetchConsultations = useCallback(async () => {
     try {
       setIsLoading(true);
@@ -58,31 +63,41 @@ function Page() {
   };
   return (
     <>
-      <div className="flex flex-col gap-4 p-6 border rounded-lg bg-white shadow-md max-w-4xl mx-auto">
-        <div className="flex justify-center mb-8">
-          <Input
-            placeholder="Filter by first or last name..."
-            className="w-[80%]"
-            value={query}
-            onChange={handleQueryChange}
-          />
+      <div className="flex flex-col gap-6 p-8 border rounded-2xl bg-white shadow-lg max-w-5xl mx-auto mt-10">
+        {/* Search Bar */}
+        <div className="flex justify-center">
+          <div className="relative w-full max-w-md">
+            <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+              <Search className="w-5 h-5" />
+            </span>
+            <Input
+              placeholder="Search by first or last name..."
+              className="pl-10 py-3 rounded-lg border-gray-300 focus:ring-2 focus:ring-primary focus:border-primary"
+              value={query}
+              onChange={handleQueryChange}
+            />
+          </div>
         </div>
-        <div className="px-4">
+
+        {/* Table */}
+        <div className="overflow-x-auto">
           {isLoading ? (
-            <p className="text-center text-gray-500">
+            <p className="text-center text-gray-500 py-10">
               Loading prescriptions...
             </p>
           ) : (
             <Table>
-              <TableCaption className="mt-6 text-gray-600 mb-3">
+              <TableCaption className="mt-6 text-gray-500">
                 A list of your recent prescriptions.
               </TableCaption>
               <TableHeader>
-                <TableRow>
-                  <TableHead>First Name</TableHead>
-                  <TableHead>Last Name</TableHead>
-                  <TableHead>Date</TableHead>
-                  <TableHead className="text-right">Time</TableHead>
+                <TableRow className="bg-gray-100">
+                  <TableHead className="text-gray-700">First Name</TableHead>
+                  <TableHead className="text-gray-700">Last Name</TableHead>
+                  <TableHead className="text-gray-700">Date</TableHead>
+                  <TableHead className="text-gray-700 text-right">
+                    Time
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -91,10 +106,12 @@ function Page() {
                     <TableRow
                       key={prescription.id}
                       onClick={() => {
+                        setSelectedPrescriptionId(prescription.id.toString());
                         setIsConsOpen(true);
                       }}
+                      className="hover:bg-gray-50 transition-colors cursor-pointer"
                     >
-                      <TableCell className="font-medium">
+                      <TableCell className="font-semibold">
                         {prescription.patient?.first_name || "N/A"}
                       </TableCell>
                       <TableCell>
@@ -110,25 +127,13 @@ function Page() {
                           hour12: false,
                         })}
                       </TableCell>
-                      <Modal
-                        isOpen={isConsOpen}
-                        onClose={() => setIsConsOpen(false)}
-                      >
-                        <SingleConsultation
-                          id={prescription.id.toString()}
-                          onClose={() => {
-                            setIsConsOpen(false);
-                            fetchConsultations();
-                          }}
-                        />
-                      </Modal>
                     </TableRow>
                   ))
                 ) : (
                   <TableRow>
                     <TableCell
                       colSpan={4}
-                      className="text-center text-gray-400"
+                      className="text-center text-gray-400 py-6"
                     >
                       No matching prescriptions found.
                     </TableCell>
@@ -137,13 +142,30 @@ function Page() {
               </TableBody>
             </Table>
           )}
-          <Pagination
-            itemsPerPage={itemsPerPage}
-            totalItems={filteredData.length}
-            currentPage={currentPage}
-            onPageChange={setCurrentPage}
-          />
+
+          {/* Pagination */}
+          <div className="mt-6">
+            <Pagination
+              itemsPerPage={itemsPerPage}
+              totalItems={filteredData.length}
+              currentPage={currentPage}
+              onPageChange={setCurrentPage}
+            />
+          </div>
         </div>
+
+        {/* Modal */}
+        {selectedPrescriptionId && (
+          <Modal isOpen={isConsOpen} onClose={() => setIsConsOpen(false)}>
+            <SingleConsultation
+              id={selectedPrescriptionId}
+              onClose={() => {
+                setIsConsOpen(false);
+                fetchConsultations();
+              }}
+            />
+          </Modal>
+        )}
       </div>
     </>
   );

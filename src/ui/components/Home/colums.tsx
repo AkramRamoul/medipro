@@ -70,7 +70,7 @@ export const columns: ColumnDef<Patient>[] = [
       if (!rawDate) {
         return (
           <div className="text-right font-medium pr-3 text-muted-foreground">
-            No visits
+            <em className="text-muted-foreground">Jamais visité</em>
           </div>
         );
       }
@@ -78,7 +78,11 @@ export const columns: ColumnDef<Patient>[] = [
       const date = new Date(rawDate);
       const formattedDate = isNaN(date.getTime())
         ? "Invalid Date"
-        : date.toLocaleDateString("en-GB");
+        : date.toLocaleDateString("fr-FR", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+          });
 
       return <div className="text-right font-medium pr-3">{formattedDate}</div>;
     },

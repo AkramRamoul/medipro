@@ -13,6 +13,7 @@ import { PrescriptionWithPatient } from "../type";
 import Modal from "../components/Modal";
 import SinglePrescription from "../components/Prescription/SinglePrescription";
 import Pagination from "../components/Pagination"; // ⬅️ don't forget to import Pagination!
+import { Search } from "lucide-react";
 
 async function getData(): Promise<PrescriptionWithPatient[]> {
   try {
@@ -70,31 +71,41 @@ function Prescriptions() {
 
   return (
     <>
-      <div className="flex flex-col gap-4 p-6 border rounded-lg bg-white shadow-md max-w-4xl mx-auto">
+      <div className="flex flex-col gap-6 p-8 border rounded-2xl bg-white shadow-lg max-w-5xl mx-auto mt-10">
+        {/* Search Bar */}
         <div className="flex justify-center mb-8">
-          <Input
-            placeholder="Filter by first or last name..."
-            className="w-[80%]"
-            value={query}
-            onChange={handleQueryChange}
-          />
+          <div className="relative w-full max-w-md">
+            <Input
+              placeholder="Filter by first or last name..."
+              className="pl-10 py-3 rounded-lg border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-primary"
+              value={query}
+              onChange={handleQueryChange}
+            />
+            <span className="absolute inset-y-0 left-3 flex items-center text-gray-400">
+              <Search className="w-5 h-5" />
+            </span>
+          </div>
         </div>
-        <div className="px-4">
+
+        {/* Table Section */}
+        <div className="px-4 overflow-x-auto">
           {isLoading ? (
-            <p className="text-center text-gray-500">
+            <p className="text-center text-gray-500 py-10">
               Loading prescriptions...
             </p>
           ) : (
             <Table>
-              <TableCaption className="mt-6 text-gray-600 mb-3">
+              <TableCaption className="mt-6 text-gray-500">
                 A list of your recent prescriptions.
               </TableCaption>
               <TableHeader>
-                <TableRow>
-                  <TableHead>First Name</TableHead>
-                  <TableHead>Last Name</TableHead>
-                  <TableHead>Date</TableHead>
-                  <TableHead className="text-right">Time</TableHead>
+                <TableRow className="bg-gray-100">
+                  <TableHead className="text-gray-700">First Name</TableHead>
+                  <TableHead className="text-gray-700">Last Name</TableHead>
+                  <TableHead className="text-gray-700">Date</TableHead>
+                  <TableHead className="text-right text-gray-700">
+                    Time
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -103,8 +114,9 @@ function Prescriptions() {
                     <TableRow
                       key={prescription.id}
                       onClick={() => setSelectedPrescription(prescription)}
+                      className="hover:bg-gray-50 transition-colors cursor-pointer"
                     >
-                      <TableCell className="font-medium">
+                      <TableCell className="font-semibold">
                         {prescription.patient?.first_name || "N/A"}
                       </TableCell>
                       <TableCell>
@@ -126,7 +138,7 @@ function Prescriptions() {
                   <TableRow>
                     <TableCell
                       colSpan={4}
-                      className="text-center text-gray-400"
+                      className="text-center text-gray-400 py-6"
                     >
                       No matching prescriptions found.
                     </TableCell>
@@ -135,15 +147,20 @@ function Prescriptions() {
               </TableBody>
             </Table>
           )}
-          <Pagination
-            itemsPerPage={itemsPerPage}
-            totalItems={filteredData.length}
-            currentPage={currentPage}
-            onPageChange={setCurrentPage}
-          />
+
+          {/* Pagination */}
+          <div className="mt-6">
+            <Pagination
+              itemsPerPage={itemsPerPage}
+              totalItems={filteredData.length}
+              currentPage={currentPage}
+              onPageChange={setCurrentPage}
+            />
+          </div>
         </div>
       </div>
 
+      {/* Modal */}
       <Modal
         isOpen={!!selectedPrescription}
         onClose={() => setSelectedPrescription(null)}

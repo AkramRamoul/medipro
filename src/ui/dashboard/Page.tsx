@@ -36,16 +36,16 @@ export default function DashboardPage() {
 
   return (
     <>
-      <div className="flex flex-col md:flex">
+      <div className="min-h-screen bg-gray-50 flex flex-col md:flex">
         <div className="flex-1 space-y-4 p-8 pt-6">
           <div className="flex items-center justify-between space-y-2">
             <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
           </div>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            <Card>
+            <Card className="shadow-sm rounded-xl">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
-                  Istimated Revenue
+                  Estimated Revenue
                 </CardTitle>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -55,21 +55,18 @@ export default function DashboardPage() {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth="2"
-                  className="h-4 w-4 text-muted-foreground"
+                  className="h-4 w-4 text-gray-400"
                 >
                   <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
                 </svg>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold pt-2">
+                <div className="text-2xl font-bold text-teal-600 pt-2">
                   {estimatedRevenue.toLocaleString()} DA
                 </div>
-                {/* <p className="text-xs text-muted-foreground">
-                  +20.1% from last month
-                </p> */}
               </CardContent>
             </Card>
-            <Card>
+            <Card className="shadow-sm rounded-xl">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
                   Active Patients
@@ -82,7 +79,7 @@ export default function DashboardPage() {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth="2"
-                  className="h-4 w-4 text-muted-foreground"
+                  className="h-4 w-4 text-gray-400"
                 >
                   <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
                   <circle cx="9" cy="7" r="4" />
@@ -90,10 +87,12 @@ export default function DashboardPage() {
                 </svg>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{stats.activePatients}</div>
+                <div className="text-2xl font-bold text-teal-600 pt-2">
+                  {stats.activePatients}
+                </div>
               </CardContent>
             </Card>
-            <Card>
+            <Card className="shadow-sm rounded-xl">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
                   {" "}
@@ -107,7 +106,7 @@ export default function DashboardPage() {
                   strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  className="h-4 w-4 text-muted-foreground"
+                  className="h-4 w-4 text-gray-400"
                 >
                   <rect x="6" y="3" width="12" height="4" rx="1" />
                   <rect x="5" y="7" width="14" height="14" rx="2" />
@@ -116,12 +115,12 @@ export default function DashboardPage() {
                 </svg>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">
+                <div className="text-2xl font-bold text-teal-600 pt-2">
                   {stats.prescriptionsThisMonth}
                 </div>
               </CardContent>
             </Card>
-            <Card>
+            <Card className="shadow-sm rounded-xl">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
                   Consultations Today
@@ -134,22 +133,24 @@ export default function DashboardPage() {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth="2"
-                  className="h-4 w-4 text-muted-foreground"
+                  className="h-4 w-4 text-gray-400"
                 >
                   <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
                 </svg>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">
+                <div className="text-2xl font-bold text-teal-600 pt-2">
                   {stats.consultationsToday}
                 </div>
               </CardContent>
             </Card>
           </div>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7 items-start">
-            <Card className="col-span-4">
+            <Card className="col-span-4 shadow-sm rounded-xl">
               <CardHeader>
-                <CardTitle>Overview</CardTitle>
+                <CardTitle className="text-2xl text-teal-600">
+                  Overview
+                </CardTitle>
               </CardHeader>
               <CardContent className="pl-2">
                 <Overview />
@@ -157,7 +158,9 @@ export default function DashboardPage() {
             </Card>
             <Card className="col-span-3">
               <CardHeader>
-                <CardTitle>Recent Consultations</CardTitle>
+                <CardTitle className="text-2xl text-teal-600">
+                  Recent Consultations
+                </CardTitle>
                 <CardDescription>
                   You made {stats.consultationsThisMonth} consultations this
                   month.
