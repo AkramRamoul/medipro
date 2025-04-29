@@ -6,7 +6,7 @@ import { isDevelopment } from "./util.js";
 import { getfontPath, getMedsPath } from "./pathResolver.js";
 import { db } from "./index.js";
 import os from "os";
-
+import bcrypt from "bcrypt";
 import {
   patients,
   consultations,
@@ -14,6 +14,7 @@ import {
   prescriptionMedications,
   image,
   prescriptionModel,
+  auth,
 } from "./schema.js";
 app.on("ready", () => {
   const win = new BrowserWindow({
@@ -650,6 +651,45 @@ app.on("ready", () => {
       console.error(err);
       return { success: false, error: "Failed to fetch monthly patients." };
     }
+  });
+
+  ipcMain.handle("check-password", async (_, inputPassword) => {
+    const result = await db.select().from(auth).limit(1);
+    const storedHash = result[0]?.passwordHash;
+
+    if (!storedHash) return false;
+
+    const match = await bcrypt.compare(inputPassword, storedHash);
+    return match;
+  });
+
+  ipcMain.handle("create-password", async (_, password) => {
+    const existing = await db.select().from(auth).limit(1);
+    if (existing.length > 0) {
+      throw new Error("Password already set");
+    }
+    const hashed = await bcrypt.hash(password, 10);
+    await db.insert(auth).values({ passwordHash: hashed });
+  });
+  ipcMain.handle("change-password", async (_, oldPassword, newPassword) => {
+    // Step 1: Get current stored hash
+    const result = await db.select().from(auth).limit(1);
+    const storedHash = result[0]?.passwordHash;
+
+    if (!storedHash) {
+      throw new Error("No password set");
+    }
+    const isCorrect = await bcrypt.compare(oldPassword, storedHash);
+    if (!isCorrect) {
+      return { success: false, message: "Incorrect old password" };
+    }
+    const newHashed = await bcrypt.hash(newPassword, 10);
+    await db
+      .update(auth)
+      .set({ passwordHash: newHashed })
+      .where(eq(auth.id, result[0].id));
+
+    return { success: true };
   });
 
   win.webContents.setWindowOpenHandler(() => ({ action: "allow" }));

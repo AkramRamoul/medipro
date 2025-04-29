@@ -72,6 +72,11 @@ export const prescriptionModel = sqliteTable("prescription_model", {
   city: text("city").notNull(),
 });
 
+export const auth = sqliteTable("auth", {
+  id: integer("id").primaryKey(),
+  passwordHash: text("password_hash").notNull(),
+});
+
 export type PrescriptionMed = typeof prescriptionMedications.$inferSelect;
 export type NewPrescriptionMed = typeof prescriptionMedications.$inferInsert;
 

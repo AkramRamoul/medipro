@@ -51,6 +51,8 @@ export interface IElectronAPI {
     success: boolean;
     data: { name: string; total: number }[];
   }>;
+  createPassword: (password: string) => Promise<void>;
+  checkPassword: (password: string) => Promise<{ match: boolean }>;
 }
 
 declare global {

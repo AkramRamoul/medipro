@@ -114,4 +114,10 @@ contextBridge.exposeInMainWorld("electronAPI", {
   getMonthlyPatients: async () => {
     return await ipcRenderer.invoke("get-monthly-patients");
   },
+  createPassword: async (password: string) => {
+    return await ipcRenderer.invoke("create-password", password);
+  },
+  checkPassword: async (password: string) => {
+    return await ipcRenderer.invoke("check-password");
+  },
 });
