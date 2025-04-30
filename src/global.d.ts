@@ -53,6 +53,11 @@ export interface IElectronAPI {
   }>;
   createPassword: (password: string) => Promise<void>;
   checkPassword: (password: string) => Promise<{ match: boolean }>;
+  checkPasswordExists: () => Promise<{ exists: boolean }>;
+  changePassword: (
+    oldPassword: string,
+    newPassword: string
+  ) => Promise<{ success: boolean }>;
 }
 
 declare global {

@@ -692,6 +692,11 @@ app.on("ready", () => {
     return { success: true };
   });
 
+  ipcMain.handle("check-password-exists", async () => {
+    const result = await db.select().from(auth).limit(1);
+    return Boolean(result[0]?.passwordHash);
+  });
+
   win.webContents.setWindowOpenHandler(() => ({ action: "allow" }));
   // win.webContents.session.webRequest.onHeadersReceived((details, callback) => {
   //   callback({

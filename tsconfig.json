@@ -9,6 +9,7 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./*"]
-    }
+    },
+    "jsx": "react-jsx"
   }
 }

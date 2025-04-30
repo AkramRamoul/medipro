@@ -118,6 +118,14 @@ contextBridge.exposeInMainWorld("electronAPI", {
     return await ipcRenderer.invoke("create-password", password);
   },
   checkPassword: async (password: string) => {
-    return await ipcRenderer.invoke("check-password");
+    return await ipcRenderer.invoke("check-password", password);
+  },
+  checkPasswordExists: () => ipcRenderer.invoke("check-password-exists"),
+  changePassword: async (oldPassword: string, newPassword: string) => {
+    return await ipcRenderer.invoke(
+      "change-password",
+      oldPassword,
+      newPassword
+    );
   },
 });
