@@ -66,11 +66,11 @@ export function DataTable<
     <>
       <NewPatientModal isOpen={isOpen} onClose={() => setIsOpen(false)} />
 
-      <div className="flex flex-col space-y-4 items-center bg-gray-50">
+      <div className="flex flex-col space-y-4 items-center bg-background text-foreground transition-colors">
         <div className="flex items-center py-2 w-[800px] max-w-full mx-auto space-x-5">
           <div className="relative w-full">
-            <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-              <Search className="w-5 h-5 " />
+            <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-muted-foreground">
+              <Search className="w-5 h-5" />
             </span>
             <Input
               placeholder="Filter by name..."
@@ -80,37 +80,37 @@ export function DataTable<
               onChange={(event) =>
                 table.getColumn("lastname")?.setFilterValue(event.target.value)
               }
-              className="pl-10" // <-- Important: add left padding
+              className="pl-10 bg-card border border-border text-foreground placeholder:text-muted-foreground"
             />
           </div>
 
           <Button
             onClick={() => setIsOpen(true)}
-            className="w-fit flex items-center space-x-2"
+            className="w-fit flex items-center space-x-2 bg-primary text-primary-foreground hover:bg-primary/90"
           >
             <span>Add New Patient</span>
-            <span>
-              <Plus className="w-4 h-4 font-bold" />
-            </span>
+            <Plus className="w-4 h-4 font-bold" />
           </Button>
         </div>
-        <div className="rounded-md border w-[800px] max-w-full mx-auto">
+
+        <div className="rounded-md border border-border w-[800px] max-w-full mx-auto bg-card">
           <Table>
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow key={headerGroup.id}>
-                  {headerGroup.headers.map((header) => {
-                    return (
-                      <TableHead key={header.id}>
-                        {header.isPlaceholder
-                          ? null
-                          : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
-                      </TableHead>
-                    );
-                  })}
+                <TableRow key={headerGroup.id} className="bg-muted">
+                  {headerGroup.headers.map((header) => (
+                    <TableHead
+                      key={header.id}
+                      className="text-muted-foreground"
+                    >
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                    </TableHead>
+                  ))}
                 </TableRow>
               ))}
             </TableHeader>
@@ -120,11 +120,11 @@ export function DataTable<
                   <TableRow
                     key={row.id}
                     data-state={row.getIsSelected() && "selected"}
-                    className="cursor-pointer hover:bg-gray-100 even:bg-gray-50"
+                    className="cursor-pointer hover:bg-muted even:bg-background"
                     onClick={() => navigate(`/pat/${row.original.id}`)}
                   >
                     {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
+                      <TableCell key={cell.id} className="text-foreground">
                         {flexRender(
                           cell.column.columnDef.cell,
                           cell.getContext()
@@ -137,7 +137,7 @@ export function DataTable<
                 <TableRow>
                   <TableCell
                     colSpan={columns.length}
-                    className="h-24 text-center"
+                    className="h-24 text-center text-muted-foreground"
                   >
                     No results.
                   </TableCell>
@@ -146,20 +146,23 @@ export function DataTable<
             </TableBody>
           </Table>
         </div>
+
         <div className="flex items-center justify-center space-x-2 py-2">
           <Button
-            variant={"outline"}
-            size={"sm"}
+            variant="outline"
+            size="sm"
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
+            className="text-foreground border-border"
           >
             Previous
           </Button>
           <Button
-            variant={"outline"}
-            size={"sm"}
+            variant="outline"
+            size="sm"
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
+            className="text-foreground border-border"
           >
             Next
           </Button>

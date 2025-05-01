@@ -51,55 +51,66 @@ function MainPrescriptionPage({ id }: { id: string }) {
   }, [id]);
 
   return (
-    <div className="p-4 bg-white rounded-xl shadow-lg max-w-[80%] mx-auto">
-      <Button onClick={() => setIsOpen(true)} className="mb-4 w-full">
-        New Prescription
-      </Button>
-      <Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>
-        <NewPrescriptionForm
-          id={id}
-          onClose={() => setIsOpen(false)}
-          refreshPrescriptions={fetchPrescriptions}
-          patient={patient!}
-        />
-      </Modal>
+    <>
+      <div className="p-4 bg-white dark:bg-gray-900 rounded-xl max-w-[80%] mx-auto">
+        <Button
+          onClick={() => setIsOpen(true)}
+          className="mb-4 w-full dark:text-white"
+        >
+          New Prescription
+        </Button>
+      </div>
+      <div className="p-4 bg-white dark:bg-gray-800 rounded-xl shadow-lg max-w-[80%] mx-auto">
+        <Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>
+          <NewPrescriptionForm
+            id={id}
+            onClose={() => setIsOpen(false)}
+            refreshPrescriptions={fetchPrescriptions}
+            patient={patient!}
+          />
+        </Modal>
 
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="w-[45%]">Date</TableHead>
-            <TableHead className="hidden md:table-cell">Time</TableHead>
-            <TableHead className="text-right">Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-
-        {prescriptions.length === 0 ? (
-          <TableBody>
-            <TableRow className="hover:bg-transparent border-none">
-              <TableCell
-                colSpan={3}
-                className="h-24 text-center text-muted-foreground"
-              >
-                No Presciptions found
-              </TableCell>
+        <Table>
+          <TableHeader className="bg-gray-100 dark:bg-gray-900">
+            <TableRow>
+              <TableHead className="w-[45%] text-gray-700 dark:text-gray-200">
+                Date
+              </TableHead>
+              <TableHead className="hidden md:table-cell text-gray-700 dark:text-gray-200">
+                Time
+              </TableHead>
+              <TableHead className="text-right text-gray-700 dark:text-gray-200">
+                Actions
+              </TableHead>
             </TableRow>
-          </TableBody>
-        ) : (
-          <TableBody>
-            {prescriptions.map((prescription, index) => (
-              <PrescriptionRow
-                key={index}
-                prescription={prescription}
-                setData={setPrescriptions}
-                patinet={patient!}
-              />
-            ))}
-          </TableBody>
-        )}
-      </Table>
+          </TableHeader>
 
-      {/* Single Prescription Modal */}
-    </div>
+          {prescriptions.length === 0 ? (
+            <TableBody>
+              <TableRow className="hover:bg-transparent border-none">
+                <TableCell
+                  colSpan={3}
+                  className="h-24 text-center text-muted-foreground dark:text-gray-400"
+                >
+                  No Prescriptions found
+                </TableCell>
+              </TableRow>
+            </TableBody>
+          ) : (
+            <TableBody>
+              {prescriptions.map((prescription, index) => (
+                <PrescriptionRow
+                  key={index}
+                  prescription={prescription}
+                  setData={setPrescriptions}
+                  patinet={patient!}
+                />
+              ))}
+            </TableBody>
+          )}
+        </Table>
+      </div>
+    </>
   );
 }
 

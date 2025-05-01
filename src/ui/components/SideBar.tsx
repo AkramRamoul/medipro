@@ -54,11 +54,13 @@ export function AppSidebar() {
   const currentPath = location.pathname;
 
   return (
-    <Sidebar className="h-screen">
+    <Sidebar className="h-screen bg-white dark:bg-muted text-black dark:text-white">
       <SidebarContent className="flex flex-col h-full">
         <div>
           <SidebarGroup>
-            <SidebarGroupLabel>Menu</SidebarGroupLabel>
+            <SidebarGroupLabel className="text-gray-800 dark:text-gray-200">
+              Menu
+            </SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
                 {items.map((item) => (
@@ -70,17 +72,17 @@ export function AppSidebar() {
                       <NavLink
                         to={item.url}
                         className={`flex items-center gap-2 px-2 py-2 rounded-md transition-colors font-semibold text-lg
-                          ${
-                            (item.url === "/" && currentPath === "/") ||
-                            (item.url === "/patients" &&
-                              (currentPath.startsWith("/patients") ||
-                                currentPath.startsWith("/pat/"))) ||
-                            (item.url !== "/" &&
-                              item.url !== "/patients" &&
-                              currentPath.startsWith(item.url))
-                              ? "bg-primary text-white pointer-events-none"
-                              : "text-black hover:bg-gray-300"
-                          }`}
+                        ${
+                          (item.url === "/" && currentPath === "/") ||
+                          (item.url === "/patients" &&
+                            (currentPath.startsWith("/patients") ||
+                              currentPath.startsWith("/pat/"))) ||
+                          (item.url !== "/" &&
+                            item.url !== "/patients" &&
+                            currentPath.startsWith(item.url))
+                            ? "bg-primary text-white pointer-events-none"
+                            : "text-black dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-800"
+                        }`}
                       >
                         <item.icon />
                         <span>{item.title}</span>
@@ -95,8 +97,12 @@ export function AppSidebar() {
 
         {/* Secondary Section */}
       </SidebarContent>
+
       <SidebarFooter>
-        <NavSecondary items={data.navSecondary} className="mt-auto" />
+        <NavSecondary
+          items={data.navSecondary}
+          className="mt-auto text-gray-800 dark:text-gray-300"
+        />
       </SidebarFooter>
     </Sidebar>
   );

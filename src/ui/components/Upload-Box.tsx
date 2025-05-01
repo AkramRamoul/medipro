@@ -16,16 +16,17 @@ export function UploadBox({
   return (
     <div className="flex flex-col items-center justify-center gap-4 p-4">
       <div className="flex flex-col items-center gap-2">
-        <p className="text-center text-gray-800">{title}</p>
+        <p className="text-center text-foreground">{title}</p>
         {subtitle && (
-          <p className="inline-block rounded-full border border-gray-300 bg-gray-100 px-2 py-0.5 text-center text-sm text-gray-600">
+          <p className="inline-block rounded-full border border-border bg-muted px-2 py-0.5 text-center text-sm text-muted-foreground">
             {subtitle}
           </p>
         )}
       </div>
-      <div className="flex w-72 flex-col items-center justify-center gap-4 rounded-xl border-2 border-dashed border-gray-300 bg-white p-6 shadow-sm">
+
+      <div className="flex w-72 flex-col items-center justify-center gap-4 rounded-xl border-2 border-dashed border-border bg-card p-6 shadow-sm">
         <svg
-          className="h-8 w-8 text-gray-500"
+          className="h-8 w-8 text-muted-foreground"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -37,9 +38,9 @@ export function UploadBox({
             d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
           />
         </svg>
-        <p className="text-sm text-gray-500">Drag and Drop</p>
-        <p className="text-sm text-gray-500">or</p>
-        <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-primary px-4 py-2 font-semibold text-white shadow-md transition-colors duration-200 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-opacity-75">
+        <p className="text-sm text-muted-foreground">Drag and Drop</p>
+        <p className="text-sm text-muted-foreground">or</p>
+        <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-primary px-4 py-2 font-semibold text-primary-foreground shadow-md transition-colors duration-200 hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-75">
           <span>{description}</span>
           <input
             type="file"

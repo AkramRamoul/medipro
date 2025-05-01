@@ -23,27 +23,28 @@ export function RecentSales({
 
           return (
             <div
-              className="flex items-center hover:bg-gray-100 p-4 rounded-md cursor-pointer group"
+              className="flex items-center hover:bg-gray-100 dark:hover:bg-gray-800 p-4 rounded-md cursor-pointer group transition-colors"
               key={index}
               onClick={() => navigate(`/pat/${patient.id}`)}
             >
               <Avatar>
-                <AvatarFallback className="group-hover:bg-gray-300">
+                <AvatarFallback className="group-hover:bg-gray-300 dark:group-hover:bg-gray-700">
                   {patient.firstName[0]}
                   {patient.lastName[0]}
                 </AvatarFallback>
               </Avatar>
 
-              <div className="ml-4 space-y-1">
+              <div className="ml-4 space-y-1 text-black dark:text-gray-200">
                 <p className="text-sm font-medium leading-none">{fullName}</p>
-                <p className="text-sm text-gray-600 font truncate flex items-center">
-                  <strong className="text-gray-800">Raison de visite: </strong>
-                  {"  "}
+                <p className="text-sm text-gray-600 dark:text-gray-400 font truncate flex items-center">
+                  <strong className="text-gray-800 dark:text-gray-300">
+                    Raison de visite:
+                  </strong>{" "}
                   <span className="truncate text-sm inline-block max-w-[150px]">
                     {patient.reason}
                   </span>
                 </p>
-                <div className="ml-auto text-xs text-muted-foreground">
+                <div className="ml-auto text-xs text-muted-foreground dark:text-gray-500">
                   {new Date(patient.date).toLocaleDateString()}
                 </div>
               </div>
@@ -51,7 +52,7 @@ export function RecentSales({
           );
         })
       ) : (
-        <p className="text-sm text-muted-foreground">
+        <p className="text-sm text-muted-foreground dark:text-gray-400">
           No recent consultations.
         </p>
       )}

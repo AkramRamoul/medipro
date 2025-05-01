@@ -10,32 +10,35 @@ import Page from "./routes/Consultations";
 import { EnterPasswordScreen } from "./routes/EnterPasswordScreen";
 import { AuthProvider } from "./context/auth-context";
 import RequirePassword from "./lib/RequirePassword";
+import { ThemeProvider } from "./components/theme-provider";
 
 function App() {
   return (
     <AuthProvider>
-      <Router>
-        <Routes>
-          <Route path="/enter-password" element={<EnterPasswordScreen />} />
+      <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
+        <Router>
+          <Routes>
+            <Route path="/enter-password" element={<EnterPasswordScreen />} />
 
-          <Route
-            path="/"
-            element={
-              <RequirePassword>
-                <Layout />
-              </RequirePassword>
-            }
-          >
-            <Route index element={<DashboardPage />} />
-            <Route path="/prescriptions" element={<Prescriptions />} />
-            <Route path="/consultations" element={<Page />} />
-            <Route path="/settings" element={<Settings />} />
-            <Route path="/pat/:id" element={<MainPage />} />
-            <Route path="/patients" element={<Home />} />
-          </Route>
-        </Routes>
-        <Toaster />
-      </Router>
+            <Route
+              path="/"
+              element={
+                <RequirePassword>
+                  <Layout />
+                </RequirePassword>
+              }
+            >
+              <Route index element={<DashboardPage />} />
+              <Route path="/prescriptions" element={<Prescriptions />} />
+              <Route path="/consultations" element={<Page />} />
+              <Route path="/settings" element={<Settings />} />
+              <Route path="/pat/:id" element={<MainPage />} />
+              <Route path="/patients" element={<Home />} />
+            </Route>
+          </Routes>
+          <Toaster />
+        </Router>
+      </ThemeProvider>
     </AuthProvider>
   );
 }

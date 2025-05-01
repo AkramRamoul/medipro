@@ -4,11 +4,11 @@ import { SidebarProvider, SidebarTrigger } from "../components/ui/sidebar";
 
 const Layout = () => {
   return (
-    <div className="flex bg-gray-50">
+    <div className="flex bg-background">
       <SidebarProvider defaultOpen={true}>
         <AppSidebar />
-        <main className="flex-1">
-          <SidebarTrigger />
+        <main className="flex-1 dark:bg-background">
+          <SidebarTrigger className="dark:text-white" />
           <Outlet />
         </main>
       </SidebarProvider>

@@ -152,7 +152,7 @@ export function PrescriptionModelForm() {
 
   return (
     <Card
-      className="w-full px-4 sm:px-6 lg:px-8 max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl xl:max-w-3xl mx-auto"
+      className="w-full px-4 sm:px-6 lg:px-8 max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl xl:max-w-3xl mx-auto bg-card text-card-foreground"
       onClick={(e) => e.stopPropagation()}
     >
       <form onSubmit={handleSubmit}>
@@ -166,8 +166,8 @@ export function PrescriptionModelForm() {
         </CardHeader>
         <CardContent className="grid gap-6">
           <div className="grid gap-4 sm:grid-cols-1">
-            {/* Existing fields */}
-            <div className="border-none">
+            {/* Name fields */}
+            <div>
               <label className="block font-medium">
                 Nom du docteur / clinique (Français)
               </label>
@@ -177,7 +177,7 @@ export function PrescriptionModelForm() {
                 name="nameFr"
                 value={form.nameFr}
                 onChange={handleChange}
-                className="w-full p-2 border rounded mt-2"
+                className="w-full p-2 border border-input bg-background text-foreground rounded mt-2"
               />
             </div>
             <div>
@@ -190,7 +190,7 @@ export function PrescriptionModelForm() {
                 placeholder="الدكتور(ة) اسم الطبيب / اسم العيادة"
                 value={form.nameAr}
                 onChange={handleChange}
-                className="w-full p-2 border rounded text-right mt-2"
+                className="w-full p-2 border border-input bg-background text-foreground rounded mt-2 text-right"
                 dir="rtl"
               />
             </div>
@@ -204,7 +204,7 @@ export function PrescriptionModelForm() {
                 name="specialtyFr"
                 value={form.specialtyFr}
                 onChange={handleChange}
-                className="w-full p-2 border rounded mt-2"
+                className="w-full p-2 border border-input bg-background text-foreground rounded mt-2"
               />
             </div>
             <div>
@@ -215,14 +215,17 @@ export function PrescriptionModelForm() {
                 placeholder="مثال: دكتور(ة) متخصص(ة) في الأمراض الجلدية"
                 value={form.specialtyAr}
                 onChange={handleChange}
-                className="w-full p-2 border rounded text-right mt-2"
+                className="w-full p-2 border border-input bg-background text-foreground rounded mt-2 text-right"
                 dir="rtl"
               />
             </div>
 
             {/* Services */}
             {services.map((service, index) => (
-              <div key={index} className="mb-6 border p-4 rounded-lg shadow-sm">
+              <div
+                key={index}
+                className="mb-6 border border-border p-4 rounded-lg bg-card text-card-foreground shadow-sm"
+              >
                 <div className="mb-4">
                   <label className="block font-medium">
                     Services (Français) {index + 1}
@@ -233,7 +236,7 @@ export function PrescriptionModelForm() {
                     onChange={(e) =>
                       handleServiceChange(index, "fr", e.target.value)
                     }
-                    className="w-full p-2 border rounded mt-2"
+                    className="w-full p-2 border border-input bg-background text-foreground rounded mt-2"
                     rows={2}
                   />
                 </div>
@@ -247,7 +250,7 @@ export function PrescriptionModelForm() {
                     onChange={(e) =>
                       handleServiceChange(index, "ar", e.target.value)
                     }
-                    className="w-full p-2 border rounded mt-2 text-right"
+                    className="w-full p-2 border border-input bg-background text-foreground rounded mt-2 text-right"
                     rows={2}
                     dir="rtl"
                   />
@@ -258,7 +261,7 @@ export function PrescriptionModelForm() {
                     <button
                       type="button"
                       onClick={() => removeService(index)}
-                      className="text-red-600 hover:underline"
+                      className="text-destructive hover:underline"
                     >
                       Supprimer / حذف
                     </button>
@@ -267,11 +270,12 @@ export function PrescriptionModelForm() {
               </div>
             ))}
 
+            {/* Add service */}
             <div className="mb-4">
               {services.length < 3 && (
                 <Button
                   type="button"
-                  className="bg-primary font-semibold"
+                  className="bg-primary text-primary-foreground font-semibold"
                   onClick={addService}
                 >
                   + Ajouter un service
@@ -279,7 +283,7 @@ export function PrescriptionModelForm() {
               )}
             </div>
 
-            {/* New fields */}
+            {/* Registration fields */}
             <div>
               <label className="block font-medium">N° d'inscription</label>
               <input
@@ -287,7 +291,7 @@ export function PrescriptionModelForm() {
                 name="inscriptionNumber"
                 value={form.inscriptionNumber}
                 onChange={handleChange}
-                className="w-full p-2 border rounded mt-2"
+                className="w-full p-2 border border-input bg-background text-foreground rounded mt-2"
               />
             </div>
             <div>
@@ -297,7 +301,7 @@ export function PrescriptionModelForm() {
                 name="address"
                 value={form.address}
                 onChange={handleChange}
-                className="w-full p-2 border rounded mt-2"
+                className="w-full p-2 border border-input bg-background text-foreground rounded mt-2"
                 placeholder="Votre adresse ici"
               />
             </div>
@@ -308,20 +312,20 @@ export function PrescriptionModelForm() {
                 name="city"
                 value={form.city}
                 onChange={handleChange}
-                className="w-full p-2 border rounded mt-2"
+                className="w-full p-2 border border-input bg-background text-foreground rounded mt-2"
                 placeholder="Votre ville"
               />
             </div>
             <div>
               <label className="block font-medium">
-                Num Tel Fix(si existe)
+                Num Tel Fix (si existe)
               </label>
               <input
                 type="text"
                 name="phoneNumber1"
                 value={form.phoneNumber1}
                 onChange={handleChange}
-                className="w-full p-2 border rounded mt-2"
+                className="w-full p-2 border border-input bg-background text-foreground rounded mt-2"
                 placeholder="Ex: 0555 55 55 55"
               />
             </div>
@@ -332,20 +336,22 @@ export function PrescriptionModelForm() {
                 name="phoneNumber2"
                 value={form.phoneNumber2}
                 onChange={handleChange}
-                className="w-full p-2 border rounded mt-2"
+                className="w-full p-2 border border-input bg-background text-foreground rounded mt-2"
                 placeholder="Ex: 0777 77 77 77"
               />
             </div>
 
+            {/* Submit */}
             <Button
               type="submit"
-              className="bg-primary font-semibold p-2 text-md"
+              className="bg-primary text-primary-foreground font-semibold p-2 text-md"
             >
               Soumettre / إرسال
             </Button>
           </div>
         </CardContent>
       </form>
+
       <FileDropzone
         setCurrentFile={fileUploaderProps.handleFileUpload}
         acceptedFileTypes={["image/*", "application/pdf"]}

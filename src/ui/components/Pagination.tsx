@@ -25,10 +25,11 @@ function Pagination({
 
   return (
     <ShadPagination>
-      <PaginationContent>
+      <PaginationContent className="bg-background border border-border rounded-lg px-4 py-2 shadow-sm">
         <PaginationItem>
           <PaginationPrevious
             href="#"
+            className="text-muted-foreground hover:text-foreground"
             onClick={(e) => {
               e.preventDefault();
               if (currentPage > 1) onPageChange(currentPage - 1);
@@ -40,11 +41,16 @@ function Pagination({
           <PaginationItem key={number}>
             <PaginationLink
               href="#"
-              isActive={number === currentPage}
               onClick={(e) => {
                 e.preventDefault();
                 onPageChange(number);
               }}
+              isActive={number === currentPage}
+              className={`px-3 py-1 rounded-md transition-colors ${
+                number === currentPage
+                  ? "bg-accent text-accent-foreground font-bold"
+                  : "text-muted-foreground hover:bg-muted"
+              }`}
             >
               {number}
             </PaginationLink>
@@ -54,6 +60,7 @@ function Pagination({
         <PaginationItem>
           <PaginationNext
             href="#"
+            className="text-muted-foreground hover:text-foreground"
             onClick={(e) => {
               e.preventDefault();
               if (currentPage < totalPages) onPageChange(currentPage + 1);

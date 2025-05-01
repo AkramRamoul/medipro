@@ -12,7 +12,7 @@ import {
 import { PrescriptionWithPatient } from "../type";
 import Modal from "../components/Modal";
 import SinglePrescription from "../components/Prescription/SinglePrescription";
-import Pagination from "../components/Pagination"; // ⬅️ don't forget to import Pagination!
+import Pagination from "../components/Pagination";
 import { Search } from "lucide-react";
 
 async function getData(): Promise<PrescriptionWithPatient[]> {
@@ -71,17 +71,17 @@ function Prescriptions() {
 
   return (
     <>
-      <div className="flex flex-col gap-6 p-8 border rounded-2xl bg-white shadow-lg max-w-5xl mx-auto mt-10">
+      <div className="flex flex-col gap-6 p-8 border rounded-2xl bg-card text-card-foreground shadow-lg max-w-5xl mx-auto mt-10">
         {/* Search Bar */}
         <div className="flex justify-center mb-8">
           <div className="relative w-full max-w-md">
             <Input
               placeholder="Filter by first or last name..."
-              className="pl-10 py-3 rounded-lg border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-primary"
+              className="pl-10 py-3 rounded-lg border border-input text-foreground focus:ring-2 focus:ring-primary focus:border-primary"
               value={query}
               onChange={handleQueryChange}
             />
-            <span className="absolute inset-y-0 left-3 flex items-center text-gray-400">
+            <span className="absolute inset-y-0 left-3 flex items-center text-muted-foreground">
               <Search className="w-5 h-5" />
             </span>
           </div>
@@ -90,20 +90,24 @@ function Prescriptions() {
         {/* Table Section */}
         <div className="px-4 overflow-x-auto">
           {isLoading ? (
-            <p className="text-center text-gray-500 py-10">
+            <p className="text-center text-muted-foreground py-10">
               Loading prescriptions...
             </p>
           ) : (
             <Table>
-              <TableCaption className="mt-6 text-gray-500">
+              <TableCaption className="mt-6 text-muted-foreground">
                 A list of your recent prescriptions.
               </TableCaption>
               <TableHeader>
-                <TableRow className="bg-gray-100">
-                  <TableHead className="text-gray-700">First Name</TableHead>
-                  <TableHead className="text-gray-700">Last Name</TableHead>
-                  <TableHead className="text-gray-700">Date</TableHead>
-                  <TableHead className="text-right text-gray-700">
+                <TableRow className="bg-muted">
+                  <TableHead className="text-muted-foreground">
+                    First Name
+                  </TableHead>
+                  <TableHead className="text-muted-foreground">
+                    Last Name
+                  </TableHead>
+                  <TableHead className="text-muted-foreground">Date</TableHead>
+                  <TableHead className="text-right text-muted-foreground">
                     Time
                   </TableHead>
                 </TableRow>
@@ -114,7 +118,7 @@ function Prescriptions() {
                     <TableRow
                       key={prescription.id}
                       onClick={() => setSelectedPrescription(prescription)}
-                      className="hover:bg-gray-50 transition-colors cursor-pointer"
+                      className="hover:bg-accent transition-colors cursor-pointer"
                     >
                       <TableCell className="font-semibold">
                         {prescription.patient?.first_name || "N/A"}
@@ -138,7 +142,7 @@ function Prescriptions() {
                   <TableRow>
                     <TableCell
                       colSpan={4}
-                      className="text-center text-gray-400 py-6"
+                      className="text-center text-muted-foreground py-6"
                     >
                       No matching prescriptions found.
                     </TableCell>

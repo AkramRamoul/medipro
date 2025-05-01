@@ -82,12 +82,14 @@ export function FileDropzone({
     >
       {isDragging && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
-          {/* Light backdrop */}
-          <div className="absolute inset-0 bg-white/80 backdrop-blur-sm" />
+          {/* Backdrop */}
+          <div className="absolute inset-0 bg-background/80 backdrop-blur-sm" />
 
-          {/* Dropzone overlay */}
-          <div className="animate-in fade-in zoom-in relative flex h-[90%] w-[90%] transform items-center justify-center rounded-xl border-2 border-dashed border-gray-300 bg-white shadow-lg transition-all duration-200 ease-out">
-            <p className="text-2xl font-semibold text-gray-800">{dropText}</p>
+          {/* Dropzone Overlay */}
+          <div className="animate-in fade-in zoom-in relative flex h-[90%] w-[90%] transform items-center justify-center rounded-xl border-2 border-dashed border-border bg-card shadow-xl transition-all duration-200 ease-out">
+            <p className="text-2xl font-semibold text-card-foreground">
+              {dropText}
+            </p>
           </div>
         </div>
       )}

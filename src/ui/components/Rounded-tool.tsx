@@ -66,19 +66,22 @@ function RoundedToolCore(props: { fileUploaderProps: FileUploaderResult }) {
 
   return (
     <div className="mx-auto flex max-w-2xl flex-col items-center justify-center gap-6 p-6">
-      <div className="flex w-full flex-col items-center gap-4 rounded-xl p-4">
+      <div className="flex w-full flex-col items-center gap-4 rounded-xl bg-muted p-4">
         <ImageRenderer imageContent={imageContent} />
-        <p className="text-lg font-medium text-gray/80">{imageMetadata.name}</p>
+        <p className="text-lg font-medium text-muted-foreground">
+          {imageMetadata.name}
+        </p>
+
         {uploadSuccess && (
-          <p className="text-green-600 text-sm font-medium mt-2">
+          <p className="text-sm font-medium text-green-600 mt-2">
             ✅ Image uploaded successfully
           </p>
         )}
       </div>
 
-      <div className="flex flex-col items-center rounded-lg bg-white/5">
-        <span className="text-sm text-gray/60">Original Size</span>
-        <span className="font-medium text-gray">
+      <div className="flex flex-col items-center rounded-lg bg-accent/50 px-4 py-2">
+        <span className="text-sm text-muted-foreground">Original Size</span>
+        <span className="font-medium text-foreground">
           {imageMetadata.width} × {imageMetadata.height}
         </span>
       </div>
@@ -87,16 +90,16 @@ function RoundedToolCore(props: { fileUploaderProps: FileUploaderResult }) {
         <button
           onClick={() => {
             cancel();
-            setUploadSuccess(false); // Reset message on cancel
+            setUploadSuccess(false);
           }}
-          className="rounded-lg bg-red-700 px-4 py-2 text-sm font-medium text-white/90 transition-colors hover:bg-red-800"
+          className="rounded-lg bg-destructive px-4 py-2 text-sm font-medium text-destructive-foreground hover:bg-destructive/80"
         >
           Cancel
         </button>
         <button
-          className="rounded-lg bg-green-700 px-4 py-2 text-sm font-medium text-white/90 transition-colors hover:bg-green-800"
           onClick={onUpload}
-          disabled={uploadSuccess} // Disable button if upload is successful
+          disabled={uploadSuccess}
+          className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
         >
           Upload
         </button>

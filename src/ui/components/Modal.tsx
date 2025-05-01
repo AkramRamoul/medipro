@@ -27,34 +27,37 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
+          <div className="fixed inset-0 bg-gray-500 bg-opacity-75 dark:bg-black dark:bg-opacity-70 transition-opacity" />
         </TransitionChild>
 
         {/* Full-Screen Modal */}
         <div className="fixed inset-0 z-10 flex items-center justify-center p-4">
           <DialogPanel
             className="
-              relative 
-              transform 
-              overflow-hidden 
-              bg-white 
-              text-left 
-              shadow-xl 
-              transition-all
-              w-full 
-              h-full 
-              max-w-none
-              sm:max-w-none
-              flex 
-              flex-col
-              rounded-lg
-            "
+          relative 
+          transform 
+          overflow-hidden 
+          bg-white 
+          dark:bg-gray-900 
+          text-left 
+          text-black 
+          dark:text-white 
+          shadow-xl 
+          transition-all 
+          w-full 
+          h-full 
+          max-w-none 
+          sm:max-w-none 
+          flex 
+          flex-col 
+          rounded-lg
+        "
             onClick={(e) => e.stopPropagation()} // Prevents unwanted closing
           >
             {/* Close Button */}
             <div className="absolute top-4 right-4 z-10">
               <button
-                className="p-2 bg-white text-gray-500 hover:text-gray-700 focus:outline-none"
+                className="p-2 bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-white focus:outline-none"
                 onClick={onClose}
               >
                 <IoClose className="h-6 w-6" />

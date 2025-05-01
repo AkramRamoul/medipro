@@ -82,15 +82,16 @@ export function PasswordForm() {
   if (status === "loading") return null;
 
   return (
-    <div className="flex justify-center min-h-screen bg-gray-50 px-4">
+    <div className="flex justify-center min-h-screen bg-background px-4">
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
           className="flex flex-col m-8 space-y-8 w-full max-w-xl"
         >
-          <h2 className="text-xl font-bold text-center">
+          <h2 className="text-xl font-bold text-center text-foreground">
             {status === "not-exists" ? "Create a Password" : "Update Password"}
           </h2>
+
           {status === "exists" && (
             <FormField
               control={form.control}
@@ -103,7 +104,6 @@ export function PasswordForm() {
                       type="password"
                       placeholder="Enter current password"
                       {...field}
-                      className="w-full"
                     />
                   </FormControl>
                   <FormMessage />
@@ -112,7 +112,6 @@ export function PasswordForm() {
             />
           )}
 
-          {/* Password */}
           <FormField
             control={form.control}
             name="password"
@@ -124,7 +123,6 @@ export function PasswordForm() {
                     type="password"
                     placeholder="Enter new password"
                     {...field}
-                    className="w-full"
                   />
                 </FormControl>
                 <FormDescription>Use at least 6 characters.</FormDescription>
@@ -133,7 +131,6 @@ export function PasswordForm() {
             )}
           />
 
-          {/* Confirm Password */}
           <FormField
             control={form.control}
             name="confirmPassword"
@@ -145,7 +142,6 @@ export function PasswordForm() {
                     type="password"
                     placeholder="Repeat new password"
                     {...field}
-                    className="w-full"
                   />
                 </FormControl>
                 <FormMessage />
@@ -154,7 +150,7 @@ export function PasswordForm() {
           />
 
           <div className="pt-4">
-            <Button type="submit" className="px-6" disabled={submitting}>
+            <Button type="submit" disabled={submitting}>
               {status === "not-exists" ? "Create Password" : "Update Password"}
             </Button>
           </div>

@@ -22,12 +22,19 @@ export default function DashboardPage() {
   const fetchDashboardStats = async () => {
     try {
       const data = await window.electronAPI.getDashboardStats();
-      setStats(data);
+      setStats({
+        ...data,
+        recentConsultations: data.recentConsultations.map(
+          (consultation, index) => ({
+            id: index + 1, // Assign a unique ID
+            ...consultation,
+          })
+        ),
+      });
     } catch (error) {
       console.error("Error fetching dashboard stats:", error);
     }
   };
-
   useEffect(() => {
     fetchDashboardStats();
   }, []);
@@ -36,18 +43,23 @@ export default function DashboardPage() {
 
   return (
     <>
-      <div className="min-h-screen bg-gray-50 flex flex-col md:flex">
+      <div className="min-h-screen flex flex-col bg-background md:flex text-foreground">
         <div className="flex-1 space-y-4 p-8 pt-6">
           <div className="flex items-center justify-between space-y-2">
-            <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
+            <h2 className="text-3xl font-bold tracking-tight text-foreground">
+              Dashboard
+            </h2>
           </div>
+
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            <Card className="shadow-sm rounded-xl">
+            {/* Estimated Revenue Card */}
+            <Card className="shadow-sm rounded-xl bg-card border border-border">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
+                <CardTitle className="text-sm font-medium text-foreground">
                   Estimated Revenue
                 </CardTitle>
                 <svg
+                  className="h-4 w-4 text-muted-foreground"
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 24 24"
                   fill="none"
@@ -55,23 +67,25 @@ export default function DashboardPage() {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth="2"
-                  className="h-4 w-4 text-gray-400"
                 >
                   <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
                 </svg>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-teal-600 pt-2">
+                <div className="text-2xl font-bold text-primary pt-2">
                   {estimatedRevenue.toLocaleString()} DA
                 </div>
               </CardContent>
             </Card>
-            <Card className="shadow-sm rounded-xl">
+
+            {/* Active Patients Card */}
+            <Card className="shadow-sm rounded-xl bg-card border border-border">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
+                <CardTitle className="text-sm font-medium text-foreground">
                   Active Patients
                 </CardTitle>
                 <svg
+                  className="h-4 w-4 text-muted-foreground"
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 24 24"
                   fill="none"
@@ -79,7 +93,6 @@ export default function DashboardPage() {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth="2"
-                  className="h-4 w-4 text-gray-400"
                 >
                   <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
                   <circle cx="9" cy="7" r="4" />
@@ -87,18 +100,20 @@ export default function DashboardPage() {
                 </svg>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-teal-600 pt-2">
+                <div className="text-2xl font-bold text-primary pt-2">
                   {stats.activePatients}
                 </div>
               </CardContent>
             </Card>
-            <Card className="shadow-sm rounded-xl">
+
+            {/* Prescriptions This Month Card */}
+            <Card className="shadow-sm rounded-xl bg-card border border-border">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  {" "}
+                <CardTitle className="text-sm font-medium text-foreground">
                   Prescriptions This Month
                 </CardTitle>
                 <svg
+                  className="h-4 w-4 text-muted-foreground"
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 24 24"
                   fill="none"
@@ -106,7 +121,6 @@ export default function DashboardPage() {
                   strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  className="h-4 w-4 text-gray-400"
                 >
                   <rect x="6" y="3" width="12" height="4" rx="1" />
                   <rect x="5" y="7" width="14" height="14" rx="2" />
@@ -115,17 +129,20 @@ export default function DashboardPage() {
                 </svg>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-teal-600 pt-2">
+                <div className="text-2xl font-bold text-primary pt-2">
                   {stats.prescriptionsThisMonth}
                 </div>
               </CardContent>
             </Card>
-            <Card className="shadow-sm rounded-xl">
+
+            {/* Consultations Today Card */}
+            <Card className="shadow-sm rounded-xl bg-card border border-border">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
+                <CardTitle className="text-sm font-medium text-foreground">
                   Consultations Today
                 </CardTitle>
                 <svg
+                  className="h-4 w-4 text-muted-foreground"
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 24 24"
                   fill="none"
@@ -133,22 +150,24 @@ export default function DashboardPage() {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth="2"
-                  className="h-4 w-4 text-gray-400"
                 >
                   <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
                 </svg>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-teal-600 pt-2">
+                <div className="text-2xl font-bold text-primary pt-2">
                   {stats.consultationsToday}
                 </div>
               </CardContent>
             </Card>
           </div>
+
+          {/* Overview and Recent Consultations */}
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7 items-start">
-            <Card className="col-span-4 shadow-sm rounded-xl">
+            {/* Overview Card */}
+            <Card className="col-span-4 shadow-sm rounded-xl bg-card border border-border">
               <CardHeader>
-                <CardTitle className="text-2xl text-teal-600">
+                <CardTitle className="text-2xl text-primary">
                   Overview
                 </CardTitle>
               </CardHeader>
@@ -156,12 +175,14 @@ export default function DashboardPage() {
                 <Overview />
               </CardContent>
             </Card>
-            <Card className="col-span-3">
+
+            {/* Recent Consultations Card */}
+            <Card className="col-span-3 bg-card border border-border">
               <CardHeader>
-                <CardTitle className="text-2xl text-teal-600">
+                <CardTitle className="text-2xl text-primary">
                   Recent Consultations
                 </CardTitle>
-                <CardDescription>
+                <CardDescription className="text-muted-foreground">
                   You made {stats.consultationsThisMonth} consultations this
                   month.
                 </CardDescription>

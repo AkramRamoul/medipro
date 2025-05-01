@@ -62,11 +62,14 @@ export function AddPatientForm({ onClose, onSave }: AddPatientFormProps) {
       onClick={(e) => {
         e.stopPropagation();
       }}
+      className="bg-white dark:bg-gray-900 text-black dark:text-white"
     >
       <form onSubmit={handleSubmit(onSubmit)}>
         <CardHeader>
-          <CardTitle>Add a new patient</CardTitle>
-          <CardDescription>
+          <CardTitle className="text-black dark:text-white">
+            Add a new patient
+          </CardTitle>
+          <CardDescription className="text-gray-600 dark:text-gray-300">
             Fill out the form below to add a new patient to the system.
           </CardDescription>
         </CardHeader>
@@ -74,11 +77,14 @@ export function AddPatientForm({ onClose, onSave }: AddPatientFormProps) {
           {/* First Name, Last Name & Age in same row */}
           <div className="grid gap-4 sm:grid-cols-3">
             <div className="grid gap-2">
-              <Label htmlFor="firstName">First Name</Label>
+              <Label htmlFor="firstName" className="text-black dark:text-white">
+                First Name
+              </Label>
               <Input
                 {...register("first_name")}
                 id="firstName"
                 placeholder="Enter first name"
+                className="bg-white dark:bg-gray-800 dark:text-white"
               />
               {errors.first_name && (
                 <p className="text-red-500 text-sm">
@@ -88,11 +94,14 @@ export function AddPatientForm({ onClose, onSave }: AddPatientFormProps) {
             </div>
 
             <div className="grid gap-2">
-              <Label htmlFor="lastName">Last Name</Label>
+              <Label htmlFor="lastName" className="text-black dark:text-white">
+                Last Name
+              </Label>
               <Input
                 {...register("last_name")}
                 id="lastName"
                 placeholder="Enter last name"
+                className="bg-white dark:bg-gray-800 dark:text-white"
               />
               {errors.last_name && (
                 <p className="text-red-500 text-sm">
@@ -102,12 +111,15 @@ export function AddPatientForm({ onClose, onSave }: AddPatientFormProps) {
             </div>
 
             <div className="grid gap-2">
-              <Label htmlFor="age">Age</Label>
+              <Label htmlFor="age" className="text-black dark:text-white">
+                Age
+              </Label>
               <Input
                 {...register("age")}
                 id="age"
                 type="number"
                 placeholder="Enter age"
+                className="bg-white dark:bg-gray-800 dark:text-white"
               />
               {errors.age && (
                 <p className="text-red-500 text-sm">{errors.age.message}</p>
@@ -117,16 +129,21 @@ export function AddPatientForm({ onClose, onSave }: AddPatientFormProps) {
 
           {/* Gender */}
           <div className="grid gap-2">
-            <Label htmlFor="gender">Gender</Label>
+            <Label htmlFor="gender" className="text-black dark:text-white">
+              Gender
+            </Label>
             <Controller
               name="gender"
               control={control}
               render={({ field }) => (
                 <Select onValueChange={field.onChange} value={field.value}>
-                  <SelectTrigger id="gender">
+                  <SelectTrigger
+                    id="gender"
+                    className="bg-white dark:bg-gray-800 dark:text-white"
+                  >
                     <SelectValue placeholder="Select gender" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-white dark:bg-gray-800 dark:text-white">
                     <SelectItem value="Male">Male</SelectItem>
                     <SelectItem value="Female">Female</SelectItem>
                   </SelectContent>
@@ -140,11 +157,14 @@ export function AddPatientForm({ onClose, onSave }: AddPatientFormProps) {
 
           {/* Contact */}
           <div className="grid gap-2">
-            <Label htmlFor="contact">Contact</Label>
+            <Label htmlFor="contact" className="text-black dark:text-white">
+              Contact
+            </Label>
             <Input
               {...register("contact")}
               id="contact"
               placeholder="Enter contact number"
+              className="bg-white dark:bg-gray-800 dark:text-white"
             />
             {errors.contact && (
               <p className="text-red-500 text-sm">{errors.contact.message}</p>
@@ -153,12 +173,15 @@ export function AddPatientForm({ onClose, onSave }: AddPatientFormProps) {
 
           {/* Weight */}
           <div className="grid gap-2">
-            <Label htmlFor="weight">Weight</Label>
+            <Label htmlFor="weight" className="text-black dark:text-white">
+              Weight
+            </Label>
             <Input
               {...register("weight")}
               id="weight"
               type="number"
               placeholder="Enter weight (kg)"
+              className="bg-white dark:bg-gray-800 dark:text-white"
             />
             {errors.weight && (
               <p className="text-red-500 text-sm">{errors.weight.message}</p>
@@ -167,11 +190,17 @@ export function AddPatientForm({ onClose, onSave }: AddPatientFormProps) {
 
           {/* Special Notes */}
           <div className="grid gap-2">
-            <Label htmlFor="special-notes">Special Notes (Optional)</Label>
+            <Label
+              htmlFor="special-notes"
+              className="text-black dark:text-white"
+            >
+              Special Notes (Optional)
+            </Label>
             <Textarea
               id="special-notes"
               placeholder="Any additional notes for the patient."
               {...register("notes")}
+              className="bg-white dark:bg-gray-800 dark:text-white"
             />
           </div>
         </CardContent>
@@ -184,6 +213,7 @@ export function AddPatientForm({ onClose, onSave }: AddPatientFormProps) {
               onClose();
             }}
             type="button"
+            className="dark:text-white"
           >
             Cancel
           </Button>
