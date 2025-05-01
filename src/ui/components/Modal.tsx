@@ -41,7 +41,6 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
           dark:bg-gray-900 
           text-left 
           text-black 
-          dark:text-white 
           shadow-xl 
           transition-all 
           w-full 
@@ -57,7 +56,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
             {/* Close Button */}
             <div className="absolute top-4 right-4 z-10">
               <button
-                className="p-2 bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-white focus:outline-none"
+                className="p-2 bg-white dark:bg-gray-800 text-gray-500 focus:outline-none"
                 onClick={onClose}
               >
                 <IoClose className="h-6 w-6" />

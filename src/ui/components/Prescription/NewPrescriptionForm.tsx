@@ -185,7 +185,7 @@ const NewPrescriptionForm = ({
   }, []);
 
   return (
-    <div className="relative mt-8">
+    <div className="relative mt-10">
       <div ref={containerRef} className="flex space-x-3">
         <Input
           type="text"
@@ -289,7 +289,7 @@ const NewPrescriptionForm = ({
       )}
 
       <div className="flex justify-end space-x-3 mt-4 p-4 border-t">
-        <Button onClick={handleSave} className="bg-blue-500 hover:bg-blue-600">
+        <Button onClick={handleSave} className="bg-primary hover:bg-blue-600 ">
           Save
         </Button>
         <PrintButton
@@ -297,7 +297,7 @@ const NewPrescriptionForm = ({
           patient={patient}
           window={window}
         ></PrintButton>
-        <Button onClick={onClose} variant="destructive">
+        <Button onClick={onClose} className="bg-primary ">
           Cancel
         </Button>
       </div>

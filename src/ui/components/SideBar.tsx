@@ -54,7 +54,7 @@ export function AppSidebar() {
   const currentPath = location.pathname;
 
   return (
-    <Sidebar className="h-screen bg-white dark:bg-muted text-black dark:text-white">
+    <Sidebar className="h-screen bg-white dark:bg-muted text-black">
       <SidebarContent className="flex flex-col h-full">
         <div>
           <SidebarGroup>

@@ -58,60 +58,56 @@ export function AddPatientForm({ onClose, onSave }: AddPatientFormProps) {
   };
 
   return (
-    <Card
-      onClick={(e) => {
-        e.stopPropagation();
-      }}
-      className="bg-white dark:bg-gray-900 text-black dark:text-white"
-    >
+    <Card onClick={(e) => e.stopPropagation()} className="bg-background">
       <form onSubmit={handleSubmit(onSubmit)}>
         <CardHeader>
-          <CardTitle className="text-black dark:text-white">
-            Add a new patient
-          </CardTitle>
-          <CardDescription className="text-gray-600 dark:text-gray-300">
+          <CardTitle className="text-foreground">Add a new patient</CardTitle>
+          <CardDescription className="text-muted-foreground">
             Fill out the form below to add a new patient to the system.
           </CardDescription>
         </CardHeader>
+
         <CardContent className="grid gap-6">
-          {/* First Name, Last Name & Age in same row */}
           <div className="grid gap-4 sm:grid-cols-3">
+            {/* First Name */}
             <div className="grid gap-2">
-              <Label htmlFor="firstName" className="text-black dark:text-white">
+              <Label htmlFor="firstName" className="text-foreground">
                 First Name
               </Label>
               <Input
                 {...register("first_name")}
                 id="firstName"
                 placeholder="Enter first name"
-                className="bg-white dark:bg-gray-800 dark:text-white"
+                className="bg-background text-foreground"
               />
               {errors.first_name && (
-                <p className="text-red-500 text-sm">
+                <p className="text-destructive text-sm">
                   {errors.first_name.message}
                 </p>
               )}
             </div>
 
+            {/* Last Name */}
             <div className="grid gap-2">
-              <Label htmlFor="lastName" className="text-black dark:text-white">
+              <Label htmlFor="lastName" className="text-foreground">
                 Last Name
               </Label>
               <Input
                 {...register("last_name")}
                 id="lastName"
                 placeholder="Enter last name"
-                className="bg-white dark:bg-gray-800 dark:text-white"
+                className="bg-background text-foreground"
               />
               {errors.last_name && (
-                <p className="text-red-500 text-sm">
+                <p className="text-destructive text-sm">
                   {errors.last_name.message}
                 </p>
               )}
             </div>
 
+            {/* Age */}
             <div className="grid gap-2">
-              <Label htmlFor="age" className="text-black dark:text-white">
+              <Label htmlFor="age" className="text-foreground">
                 Age
               </Label>
               <Input
@@ -119,17 +115,17 @@ export function AddPatientForm({ onClose, onSave }: AddPatientFormProps) {
                 id="age"
                 type="number"
                 placeholder="Enter age"
-                className="bg-white dark:bg-gray-800 dark:text-white"
+                className="bg-background text-foreground"
               />
               {errors.age && (
-                <p className="text-red-500 text-sm">{errors.age.message}</p>
+                <p className="text-destructive text-sm">{errors.age.message}</p>
               )}
             </div>
           </div>
 
           {/* Gender */}
           <div className="grid gap-2">
-            <Label htmlFor="gender" className="text-black dark:text-white">
+            <Label htmlFor="gender" className="text-foreground">
               Gender
             </Label>
             <Controller
@@ -139,11 +135,11 @@ export function AddPatientForm({ onClose, onSave }: AddPatientFormProps) {
                 <Select onValueChange={field.onChange} value={field.value}>
                   <SelectTrigger
                     id="gender"
-                    className="bg-white dark:bg-gray-800 dark:text-white"
+                    className="bg-background text-foreground"
                   >
                     <SelectValue placeholder="Select gender" />
                   </SelectTrigger>
-                  <SelectContent className="bg-white dark:bg-gray-800 dark:text-white">
+                  <SelectContent className="bg-background text-foreground">
                     <SelectItem value="Male">Male</SelectItem>
                     <SelectItem value="Female">Female</SelectItem>
                   </SelectContent>
@@ -151,29 +147,33 @@ export function AddPatientForm({ onClose, onSave }: AddPatientFormProps) {
               )}
             />
             {errors.gender && (
-              <p className="text-red-500 text-sm">{errors.gender.message}</p>
+              <p className="text-destructive text-sm">
+                {errors.gender.message}
+              </p>
             )}
           </div>
 
           {/* Contact */}
           <div className="grid gap-2">
-            <Label htmlFor="contact" className="text-black dark:text-white">
+            <Label htmlFor="contact" className="text-foreground">
               Contact
             </Label>
             <Input
               {...register("contact")}
               id="contact"
               placeholder="Enter contact number"
-              className="bg-white dark:bg-gray-800 dark:text-white"
+              className="bg-background text-foreground"
             />
             {errors.contact && (
-              <p className="text-red-500 text-sm">{errors.contact.message}</p>
+              <p className="text-destructive text-sm">
+                {errors.contact.message}
+              </p>
             )}
           </div>
 
           {/* Weight */}
           <div className="grid gap-2">
-            <Label htmlFor="weight" className="text-black dark:text-white">
+            <Label htmlFor="weight" className="text-foreground">
               Weight
             </Label>
             <Input
@@ -181,49 +181,43 @@ export function AddPatientForm({ onClose, onSave }: AddPatientFormProps) {
               id="weight"
               type="number"
               placeholder="Enter weight (kg)"
-              className="bg-white dark:bg-gray-800 dark:text-white"
+              className="bg-background text-foreground"
             />
             {errors.weight && (
-              <p className="text-red-500 text-sm">{errors.weight.message}</p>
+              <p className="text-destructive text-sm">
+                {errors.weight.message}
+              </p>
             )}
           </div>
 
-          {/* Special Notes */}
+          {/* Notes */}
           <div className="grid gap-2">
-            <Label
-              htmlFor="special-notes"
-              className="text-black dark:text-white"
-            >
+            <Label htmlFor="special-notes" className="text-foreground">
               Special Notes (Optional)
             </Label>
             <Textarea
+              {...register("notes")}
               id="special-notes"
               placeholder="Any additional notes for the patient."
-              {...register("notes")}
-              className="bg-white dark:bg-gray-800 dark:text-white"
+              className="bg-background text-foreground"
             />
           </div>
         </CardContent>
+
         <CardFooter className="justify-between space-x-2">
           <Button
             variant="ghost"
             size="sm"
+            type="button"
             onClick={(e) => {
               e.stopPropagation();
               onClose();
             }}
-            type="button"
-            className="dark:text-white"
+            className="text-foreground"
           >
             Cancel
           </Button>
-          <Button
-            size="sm"
-            type="submit"
-            onClick={(e) => {
-              e.stopPropagation();
-            }}
-          >
+          <Button size="sm" type="submit" onClick={(e) => e.stopPropagation()}>
             Save
           </Button>
         </CardFooter>

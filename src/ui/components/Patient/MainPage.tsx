@@ -6,24 +6,24 @@ import { EditPatientForm } from "./EditPatientForm";
 function MainPage() {
   const { id } = useParams<{ id: string }>();
   return (
-    <div className="p-4 flex justify-center bg-white dark:bg-gray-800">
+    <div className="p-4 flex justify-center bg-background">
       <Tabs defaultValue="example" className="w-full max-w-5xl">
-        <TabsList className="w-full flex justify-center bg-gray-100 dark:bg-gray-900 rounded-lg">
+        <TabsList className="w-full flex justify-center bg-muted rounded-lg">
           <TabsTrigger
             value="example"
-            className="flex-1 dark:text-white data-[state=active]:bg-primary data-[state=active]:text-white"
+            className="flex-1 text-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
           >
             Patient Details
           </TabsTrigger>
           <TabsTrigger
             value="account"
-            className="flex-1 dark:text-white data-[state=active]:bg-primary data-[state=active]:text-white"
+            className="flex-1 text-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
           >
             Consultation
           </TabsTrigger>
           <TabsTrigger
             value="password"
-            className="flex-1 dark:text-white data-[state=active]:bg-primary data-[state=active]:text-white"
+            className="flex-1 text-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
           >
             Prescription
           </TabsTrigger>
@@ -31,19 +31,19 @@ function MainPage() {
 
         <TabsContent
           value="example"
-          className="text-center bg-white dark:bg-gray-900 p-4 rounded-lg"
+          className="bg-card text-card-foreground p-4 rounded-lg"
         >
           <EditPatientForm id={id!} />
         </TabsContent>
         <TabsContent
           value="account"
-          className="text-center bg-white dark:bg-gray-900 p-4 rounded-lg"
+          className="bg-card text-card-foreground p-4 rounded-lg"
         >
           <ConsultationForm id={id!} />
         </TabsContent>
         <TabsContent
           value="password"
-          className="text-center bg-white dark:bg-gray-900 p-4 rounded-lg"
+          className="bg-card text-card-foreground p-4 rounded-lg"
         >
           <MainPrescriptionPage id={id!} />
         </TabsContent>

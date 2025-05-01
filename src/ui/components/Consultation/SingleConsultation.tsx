@@ -128,7 +128,7 @@ function SingleConsultation({
         <Button variant="ghost" onClick={onClose}>
           Cancel
         </Button>
-        <Button className="bg-primary text-white" onClick={handleSave}>
+        <Button className="bg-primary" onClick={handleSave}>
           Save Consultation
         </Button>
       </div>

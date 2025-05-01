@@ -39,7 +39,7 @@ function SettingsForm() {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="max-w-xl space-y-8 rounded-lg bg-background p-8 shadow-md"
+        className="max-w-xl space-y-8 rounded-lg bg-background p-8 "
       >
         <FormField
           control={form.control}

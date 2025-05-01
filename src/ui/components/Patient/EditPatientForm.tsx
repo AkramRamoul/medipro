@@ -102,7 +102,6 @@ export function EditPatientForm({ id }: { id: string }) {
       toast.error("Failed to update patient. Please try again.");
     }
   };
-
   if (loading) {
     return (
       <div className="flex items-center justify-center py-10">
@@ -115,50 +114,40 @@ export function EditPatientForm({ id }: { id: string }) {
   return (
     <Card
       onClick={(e) => e.stopPropagation()}
-      className="w-full max-w-[90%] mx-auto mt-5 bg-white text-black dark:bg-gray-900 dark:text-white"
+      className="w-full max-w-[90%] mx-auto mt-5 bg-card text-card-foreground"
     >
       <form onSubmit={handleSubmit(handleSave)}>
         <CardHeader>
-          <CardTitle className="text-black dark:text-white">
-            Edit Patient
-          </CardTitle>
-          <CardDescription className="text-gray-600 dark:text-gray-300">
-            Modify the patient details below.
-          </CardDescription>
+          <CardTitle>Edit Patient</CardTitle>
+          <CardDescription>Modify the patient details below.</CardDescription>
         </CardHeader>
 
         <CardContent className="grid gap-6">
           {/* First Name & Last Name */}
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="grid gap-2">
-              <Label htmlFor="firstName" className="text-left dark:text-white">
-                First Name
-              </Label>
+              <Label htmlFor="firstName">First Name</Label>
               <Input
                 {...register("first_name")}
                 id="firstName"
                 placeholder="Enter first name"
-                className="bg-white dark:bg-gray-800 dark:text-white"
               />
               {errors.first_name && (
-                <p className="text-red-500 text-sm">
+                <p className="text-destructive text-sm">
                   {errors.first_name.message}
                 </p>
               )}
             </div>
 
             <div className="grid gap-2">
-              <Label htmlFor="lastName" className="text-left dark:text-white">
-                Last Name
-              </Label>
+              <Label htmlFor="lastName">Last Name</Label>
               <Input
                 {...register("last_name")}
                 id="lastName"
                 placeholder="Enter last name"
-                className="bg-white dark:bg-gray-800 dark:text-white"
               />
               {errors.last_name && (
-                <p className="text-red-500 text-sm">
+                <p className="text-destructive text-sm">
                   {errors.last_name.message}
                 </p>
               )}
@@ -168,37 +157,29 @@ export function EditPatientForm({ id }: { id: string }) {
           {/* Age & Gender */}
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="grid gap-2">
-              <Label htmlFor="age" className="text-left dark:text-white">
-                Age
-              </Label>
+              <Label htmlFor="age">Age</Label>
               <Input
                 {...register("age")}
                 id="age"
                 type="number"
                 placeholder="Enter age"
-                className="bg-white dark:bg-gray-800 dark:text-white"
               />
               {errors.age && (
-                <p className="text-red-500 text-sm">{errors.age.message}</p>
+                <p className="text-destructive text-sm">{errors.age.message}</p>
               )}
             </div>
 
             <div className="grid gap-2">
-              <Label htmlFor="gender" className="text-left dark:text-white">
-                Gender
-              </Label>
+              <Label htmlFor="gender">Gender</Label>
               <Controller
                 name="gender"
                 control={control}
                 render={({ field }) => (
                   <Select {...field} onValueChange={field.onChange}>
-                    <SelectTrigger
-                      id="gender"
-                      className="bg-white dark:bg-gray-800 dark:text-white"
-                    >
+                    <SelectTrigger id="gender">
                       <SelectValue placeholder="Select gender" />
                     </SelectTrigger>
-                    <SelectContent className="bg-white dark:bg-gray-800 dark:text-white">
+                    <SelectContent>
                       <SelectItem value="Male">Male</SelectItem>
                       <SelectItem value="Female">Female</SelectItem>
                     </SelectContent>
@@ -211,29 +192,25 @@ export function EditPatientForm({ id }: { id: string }) {
           {/* Contact & Address */}
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="grid gap-2">
-              <Label htmlFor="contact" className="text-left dark:text-white">
-                Contact
-              </Label>
+              <Label htmlFor="contact">Contact</Label>
               <Input
                 {...register("contact")}
                 id="contact"
                 placeholder="Enter contact number"
-                className="bg-white dark:bg-gray-800 dark:text-white"
               />
               {errors.contact && (
-                <p className="text-red-500 text-sm">{errors.contact.message}</p>
+                <p className="text-destructive text-sm">
+                  {errors.contact.message}
+                </p>
               )}
             </div>
 
             <div className="grid gap-2">
-              <Label htmlFor="address" className="text-left dark:text-white">
-                Address
-              </Label>
+              <Label htmlFor="address">Address</Label>
               <Input
                 {...register("address")}
                 id="address"
                 placeholder="Enter address"
-                className="bg-white dark:bg-gray-800 dark:text-white"
               />
             </div>
           </div>
@@ -241,21 +218,16 @@ export function EditPatientForm({ id }: { id: string }) {
           {/* Blood Type & Weight */}
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="grid gap-2">
-              <Label htmlFor="bloodType" className="text-left dark:text-white">
-                Blood Type
-              </Label>
+              <Label htmlFor="bloodType">Blood Type</Label>
               <Controller
                 name="bloodType"
                 control={control}
                 render={({ field }) => (
                   <Select {...field} onValueChange={field.onChange}>
-                    <SelectTrigger
-                      id="bloodType"
-                      className="bg-white dark:bg-gray-800 dark:text-white"
-                    >
+                    <SelectTrigger id="bloodType">
                       <SelectValue placeholder="Select blood type" />
                     </SelectTrigger>
-                    <SelectContent className="bg-white dark:bg-gray-800 dark:text-white">
+                    <SelectContent>
                       <SelectItem value="A+">A+</SelectItem>
                       <SelectItem value="A-">A-</SelectItem>
                       <SelectItem value="B+">B+</SelectItem>
@@ -271,63 +243,43 @@ export function EditPatientForm({ id }: { id: string }) {
             </div>
 
             <div className="grid gap-2">
-              <Label htmlFor="weight" className="text-left dark:text-white">
-                Weight
-              </Label>
+              <Label htmlFor="weight">Weight</Label>
               <Input
                 {...register("weight")}
                 id="weight"
                 type="number"
                 placeholder="Enter weight (kg)"
-                className="bg-white dark:bg-gray-800 dark:text-white"
               />
               {errors.weight && (
-                <p className="text-red-500 text-sm">{errors.weight.message}</p>
+                <p className="text-destructive text-sm">
+                  {errors.weight.message}
+                </p>
               )}
             </div>
           </div>
 
           {/* Medical History, Allergies, Notes */}
           <div className="grid gap-2">
-            <Label
-              htmlFor="medicalHistory"
-              className="text-left dark:text-white"
-            >
-              Medical History
-            </Label>
+            <Label htmlFor="medicalHistory">Medical History</Label>
             <Textarea
               {...register("medicalHistory")}
               id="medicalHistory"
               placeholder="Enter medical history"
-              className="bg-white dark:bg-gray-800 dark:text-white"
             />
           </div>
 
-          <Label htmlFor="allergies" className="text-left dark:text-white">
-            Allergies
-          </Label>
-          <Textarea
-            {...register("allergies")}
-            placeholder="Enter allergies"
-            className="bg-white dark:bg-gray-800 dark:text-white"
-          />
+          <Label htmlFor="allergies">Allergies</Label>
+          <Textarea {...register("allergies")} placeholder="Enter allergies" />
 
-          <Label htmlFor="notes" className="text-left dark:text-white">
-            Notes
-          </Label>
+          <Label htmlFor="notes">Notes</Label>
           <Textarea
             {...register("notes")}
             placeholder="Any additional notes."
-            className="bg-white dark:bg-gray-800 dark:text-white"
           />
         </CardContent>
 
         <CardFooter className="justify-end">
-          <Button
-            size="lg"
-            type="submit"
-            className="bg-primary hover:bg-primary/80 text-white"
-          >
+          <Button size="lg" type="submit">
             Save
           </Button>
         </CardFooter>

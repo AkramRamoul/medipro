@@ -75,7 +75,7 @@ function NewConsultationForm({
   }
 
   return (
-    <Card className="p-6 space-y-4 max-w-2xl mx-auto">
+    <Card className="p-6 space-y-4 max-w-2xl mx-auto bg-background">
       <h2 className="text-2xl font-bold">New Consultation</h2>
 
       {/* Patient Info */}
@@ -140,10 +140,7 @@ function NewConsultationForm({
         <Button variant="ghost" onClick={onClose}>
           Cancel
         </Button>
-        <Button
-          className="bg-primary hover:bg-primary-600 text-white"
-          onClick={handleSave}
-        >
+        <Button className="bg-primary" onClick={handleSave}>
           Save Consultation
         </Button>
       </div>
