@@ -130,25 +130,33 @@ const NewPrescriptionForm = ({
   };
 
   const handleAddMedication = () => {
-    if (selectedMedication) {
-      const medicationWithExtras: PrescriptionMed = {
-        id: selectedMedication.id || 0,
-        prescriptionId: 0, // Replace with the actual prescriptionId if available
-        medicineName: selectedMedication.name,
-        dosage: selectedMedication.dosage,
-        quantity: quantity || null,
-        form: selectedMedication.form || null,
-        duration: durationValue ? `${durationValue} ${durationUnit}` : null,
-        note: note || null,
-      };
-      setSelectedMedications((prev) => [...prev, medicationWithExtras]);
-      setSelectedMedication(null);
-      setInputValue("");
-      setQuantity("");
-      setDurationValue("");
-      setDurationUnit("weeks");
-      setNote(""); // Reset note field after adding
+    const medName = selectedMedication
+      ? selectedMedication.name
+      : inputValue.trim();
+
+    if (!medName) {
+      toast.error("Medication name cannot be empty.");
+      return;
     }
+
+    const medicationWithExtras: PrescriptionMed = {
+      id: selectedMedication?.id || 0,
+      prescriptionId: 0,
+      medicineName: medName,
+      dosage: selectedMedication?.dosage || "N/A",
+      quantity: quantity || null,
+      form: selectedMedication?.form || "N/A",
+      duration: durationValue ? `${durationValue} ${durationUnit}` : null,
+      note: note || null,
+    };
+
+    setSelectedMedications((prev) => [...prev, medicationWithExtras]);
+    setSelectedMedication(null);
+    setInputValue("");
+    setQuantity("");
+    setDurationValue("");
+    setDurationUnit("weeks");
+    setNote("");
   };
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -186,41 +194,42 @@ const NewPrescriptionForm = ({
 
   return (
     <div className="relative mt-10">
-      <div ref={containerRef} className="flex space-x-3">
+      {/* Medication Form Row */}
+      <div ref={containerRef} className="flex flex-wrap gap-3">
         <Input
           type="text"
           value={inputValue}
           onKeyDown={handleKeyDown}
           onChange={handleInputChange}
           placeholder="Type a medication name..."
-          className="border p-2 rounded w-[250px]"
+          className="w-[250px] bg-background text-foreground"
         />
 
-        <Select value={quantity} onValueChange={setQuantity}>
-          <SelectTrigger className="w-[100px]">
-            <SelectValue placeholder="Qte" />
-          </SelectTrigger>
-          <SelectContent>
-            {["1 bte", "2 bte", "3 bte", "4 bte", "5 bte"].map((q, index) => (
-              <SelectItem key={index} value={q}>
-                {q}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <Input
+          type="number"
+          min={1}
+          value={quantity.replace(" bte", "")}
+          onChange={(e) => {
+            const val = e.target.value;
+            setQuantity(val ? `${val} bte` : "");
+          }}
+          placeholder="Qty"
+          className="w-[100px] bg-background text-foreground"
+        />
 
         <Input
           type="number"
           value={durationValue}
           onChange={(e) => setDurationValue(e.target.value)}
           placeholder="Duration"
-          className="border p-2 rounded w-[100px]"
+          className="w-[100px] bg-background text-foreground"
         />
+
         <Select value={durationUnit} onValueChange={setDurationUnit}>
-          <SelectTrigger className="w-[120px]">
+          <SelectTrigger className="w-[120px] bg-background text-foreground">
             <SelectValue placeholder="Unit" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="bg-popover text-popover-foreground">
             {["days", "weeks", "months"].map((unit, index) => (
               <SelectItem key={index} value={unit}>
                 {unit}
@@ -228,30 +237,32 @@ const NewPrescriptionForm = ({
             ))}
           </SelectContent>
         </Select>
+
         <Input
           type="text"
           value={note}
           onChange={(e) => setNote(e.target.value)}
           placeholder="Add a note..."
-          className="w-[500px] border p-2 rounded"
+          className="w-[500px] bg-background text-foreground"
         />
 
-        <Button onClick={handleAddMedication} disabled={!selectedMedication}>
+        <Button
+          onClick={handleAddMedication}
+          disabled={inputValue.trim() === ""}
+        >
           Add
         </Button>
       </div>
 
+      {/* Suggestions Dropdown */}
       {suggestions.length > 0 && (
-        <div
-          id="suggestions-list"
-          className="absolute z-10 bg-white border rounded w-full shadow-md max-h-60 overflow-y-auto"
-        >
+        <div className="absolute z-10 w-full max-h-60 overflow-y-auto bg-popover border border-border rounded shadow-md mt-2">
           {suggestions.map((med, index) => (
             <div
               key={index}
-              id={`suggestion-${index}`} // Add an ID for each suggestion
-              className={`p-2 cursor-pointer hover:bg-gray-100 ${
-                index === highlightedIndex ? "bg-gray-200" : ""
+              id={`suggestion-${index}`}
+              className={`p-2 cursor-pointer hover:bg-muted ${
+                index === highlightedIndex ? "bg-muted" : ""
               }`}
               onMouseDown={() => handleSuggestionClick(med)}
             >
@@ -261,20 +272,22 @@ const NewPrescriptionForm = ({
         </div>
       )}
 
+      {/* Selected Medications */}
       {selectedMedications.length > 0 && (
         <div className="mt-4">
-          <h3 className="font-semibold mb-2">Selected Medications:</h3>
+          <h3 className="font-semibold mb-2 text-foreground">
+            Selected Medications:
+          </h3>
           <ul className="space-y-2">
             {selectedMedications.map((med, index) => (
               <li
                 key={index}
-                className="flex items-center justify-between bg-gray-100 p-2 rounded"
+                className="flex items-center justify-between bg-muted p-2 rounded"
               >
                 <span>
                   - {med.medicineName} {med.form ? `${med.form}` : ""}{" "}
                   {med.dosage} {med.quantity ? `${med.quantity}` : ""}{" "}
-                  {med.duration ? `${med.duration}` : ""}
-                  {med.note}
+                  {med.duration ? `${med.duration}` : ""} {med.note}
                 </span>
                 <Button
                   variant="destructive"
@@ -288,16 +301,15 @@ const NewPrescriptionForm = ({
         </div>
       )}
 
-      <div className="flex justify-end space-x-3 mt-4 p-4 border-t">
-        <Button onClick={handleSave} className="bg-primary hover:bg-blue-600 ">
-          Save
-        </Button>
+      {/* Action Buttons */}
+      <div className="flex justify-end space-x-3 mt-4 p-4 border-t border-border">
+        <Button onClick={handleSave}>Save</Button>
         <PrintButton
           prescription={selectedMedications}
           patient={patient}
           window={window}
-        ></PrintButton>
-        <Button onClick={onClose} className="bg-primary ">
+        />
+        <Button onClick={onClose} variant="ghost">
           Cancel
         </Button>
       </div>

@@ -22,7 +22,6 @@ function Page() {
   const [selectedPrescriptionId, setSelectedPrescriptionId] = useState<
     string | null
   >(null);
-  const [isConsOpen, setIsConsOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
 
@@ -114,7 +113,6 @@ function Page() {
                     key={prescription.id}
                     onClick={() => {
                       setSelectedPrescriptionId(prescription.id.toString());
-                      setIsConsOpen(true);
                     }}
                     className="hover:bg-muted transition-colors cursor-pointer"
                   >
@@ -163,11 +161,11 @@ function Page() {
 
       {/* Modal */}
       {selectedPrescriptionId && (
-        <Modal isOpen={isConsOpen} onClose={() => setIsConsOpen(false)}>
+        <Modal isOpen onClose={() => setSelectedPrescriptionId(null)}>
           <SingleConsultation
             id={selectedPrescriptionId}
             onClose={() => {
-              setIsConsOpen(false);
+              setSelectedPrescriptionId(null);
               fetchConsultations();
             }}
           />

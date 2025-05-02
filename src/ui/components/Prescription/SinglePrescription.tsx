@@ -16,37 +16,30 @@ function SinglePrescription({
   return (
     <div>
       {meds.length > 0 && (
-        <div className="mt-4 p-2">
-          <h3 className="font-semibold mb-2"> Medications:</h3>
+        <div className="mt-4 p-4">
+          <h3 className="font-semibold mb-2 text-foreground">Medications:</h3>
           <ul className="space-y-2">
             {meds.map((med, index) => (
               <li
                 key={index}
-                className="flex items-center justify-between bg-gray-100 p-2 rounded"
+                className="flex items-center justify-between bg-muted p-2 rounded"
               >
-                <span>
-                  {med.medicineName} - {med.form} ({med.dosage}) |{med.quantity}{" "}
-                  | {med.duration} | {med.note} |{" "}
+                <span className="text-sm dark:text-white">
+                  {med.medicineName} {med.form ? `${med.form}` : ""}{" "}
+                  {med.dosage} {med.quantity ? `${med.quantity}` : ""}{" "}
+                  {med.duration ? `${med.duration}` : ""} {med.note}
                 </span>
               </li>
             ))}
           </ul>
         </div>
       )}
-      <div className="flex justify-end mt-4 space-x-3">
-        <Button
-          onClick={() => {
-            onClose();
-          }}
-          className="bg-blue-500  px-4 py-2 rounded"
-        >
+
+      <div className="flex justify-end mt-4 space-x-3 px-4">
+        <Button variant="ghost" onClick={onClose}>
           Close
         </Button>
-        <PrintButton
-          prescription={meds}
-          patient={patient}
-          window={window}
-        ></PrintButton>
+        <PrintButton prescription={meds} patient={patient} window={window} />
       </div>
     </div>
   );

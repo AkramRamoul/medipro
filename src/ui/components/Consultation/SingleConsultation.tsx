@@ -125,11 +125,17 @@ function SingleConsultation({
 
       {/* Buttons */}
       <div className="flex justify-between mt-4">
-        <Button variant="ghost" onClick={onClose}>
+        <Button
+          variant="ghost"
+          onClick={(e) => {
+            e.stopPropagation();
+            onClose();
+          }}
+        >
           Cancel
         </Button>
         <Button className="bg-primary" onClick={handleSave}>
-          Save Consultation
+          Modifier Consultation
         </Button>
       </div>
     </Card>

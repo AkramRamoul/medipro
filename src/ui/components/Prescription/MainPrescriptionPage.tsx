@@ -52,13 +52,13 @@ function MainPrescriptionPage({ id }: { id: string }) {
 
   return (
     <>
-      <div className="p-4 bg-background  rounded-xl max-w-[80%] mx-auto">
+      <div className="p-4 bg-background rounded-xl max-w-[80%] mx-auto">
         <Button onClick={() => setIsOpen(true)} className="mb-4 w-full">
           New Prescription
         </Button>
       </div>
 
-      <div className="p-4 bg-background dark:bg-gray-800 rounded-xl shadow-lg max-w-[80%] mx-auto">
+      <div className="p-4 bg-background rounded-xl shadow-lg max-w-[80%] mx-auto">
         <Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>
           <NewPrescriptionForm
             id={id}
@@ -69,15 +69,13 @@ function MainPrescriptionPage({ id }: { id: string }) {
         </Modal>
 
         <Table>
-          <TableHeader className="bg-muted-foreground dark:bg-gray-900">
+          <TableHeader className="bg-muted">
             <TableRow>
-              <TableHead className="w-[45%] text-foreground dark:text-gray-200">
-                Date
-              </TableHead>
-              <TableHead className="hidden md:table-cell text-foreground dark:text-gray-200">
+              <TableHead className="w-[45%] text-foreground">Date</TableHead>
+              <TableHead className="hidden md:table-cell text-foreground">
                 Time
               </TableHead>
-              <TableHead className="text-right text-foreground dark:text-gray-200">
+              <TableHead className="text-right text-foreground">
                 Actions
               </TableHead>
             </TableRow>
@@ -88,9 +86,9 @@ function MainPrescriptionPage({ id }: { id: string }) {
               <TableRow className="hover:bg-transparent border-none">
                 <TableCell
                   colSpan={3}
-                  className="h-24 text-center text-muted-foreground dark:text-gray-400"
+                  className="h-24 text-center text-muted-foreground"
                 >
-                  No Prescriptions found
+                  No prescriptions found
                 </TableCell>
               </TableRow>
             </TableBody>
@@ -101,7 +99,7 @@ function MainPrescriptionPage({ id }: { id: string }) {
                   key={index}
                   prescription={prescription}
                   setData={setPrescriptions}
-                  patinet={patient!}
+                  patinet={patient!} // typo here
                 />
               ))}
             </TableBody>

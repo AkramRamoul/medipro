@@ -8,9 +8,11 @@ import DeleteDialogue from "../DeleteDialogue";
 import SingleConsultation from "./SingleConsultation";
 
 function ConsultationForm({ id }: { id: string }) {
-  const [isConsOpen, setIsConsOpen] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [consultations, setConsultations] = useState<Consultation[]>([]);
+  const [openConsultationId, setOpenConsultationId] = useState<string | null>(
+    null
+  );
 
   // ✅ Memoized fetch function
   const fetchConsultations = useCallback(async () => {
@@ -53,7 +55,7 @@ function ConsultationForm({ id }: { id: string }) {
             >
               <div
                 className="flex-1 flex flex-col items-center"
-                onClick={() => setIsConsOpen(true)}
+                onClick={() => setOpenConsultationId(consultation.id)}
               >
                 <p className="text-sm text-muted-foreground font-medium truncate">
                   <strong className="text-foreground">Date:</strong>{" "}
@@ -74,15 +76,17 @@ function ConsultationForm({ id }: { id: string }) {
                 setData={setConsultations}
               />
 
-              <Modal isOpen={isConsOpen} onClose={() => setIsConsOpen(false)}>
-                <SingleConsultation
-                  id={consultation.id}
-                  onClose={() => {
-                    setIsConsOpen(false);
-                    fetchConsultations();
-                  }}
-                />
-              </Modal>
+              {openConsultationId === consultation.id && (
+                <Modal isOpen onClose={() => setOpenConsultationId(null)}>
+                  <SingleConsultation
+                    id={consultation.id}
+                    onClose={() => {
+                      setOpenConsultationId(null);
+                      fetchConsultations();
+                    }}
+                  />
+                </Modal>
+              )}
             </div>
           ))}
         </div>
