@@ -5,6 +5,7 @@ import {
   PaginationLink,
   PaginationPrevious,
   PaginationNext,
+  PaginationEllipsis,
 } from "../components/ui/pagination";
 
 interface PaginationProps {
@@ -21,7 +22,65 @@ function Pagination({
   onPageChange,
 }: PaginationProps) {
   const totalPages = Math.ceil(totalItems / itemsPerPage);
-  const pageNumbers = Array.from({ length: totalPages }, (_, i) => i + 1);
+
+  if (totalPages <= 1) return null;
+
+  const renderPageNumber = (pageNumber: number) => (
+    <PaginationItem key={pageNumber}>
+      <PaginationLink
+        href="#"
+        onClick={(e) => {
+          e.preventDefault();
+          onPageChange(pageNumber);
+        }}
+        isActive={pageNumber === currentPage}
+        className={`px-3 py-1 rounded-md transition-colors ${
+          pageNumber === currentPage
+            ? "bg-accent text-accent-foreground font-bold"
+            : "text-muted-foreground hover:bg-muted"
+        }`}
+      >
+        {pageNumber}
+      </PaginationLink>
+    </PaginationItem>
+  );
+
+  const pageItems: React.ReactNode[] = [];
+
+  // Always show first page
+  pageItems.push(renderPageNumber(1));
+
+  // Show leading ellipsis if needed
+  if (currentPage > 3) {
+    pageItems.push(
+      <PaginationItem key="start-ellipsis">
+        <PaginationEllipsis />
+      </PaginationItem>
+    );
+  }
+
+  // Show middle pages (currentPage - 1, currentPage, currentPage + 1)
+  for (
+    let i = Math.max(2, currentPage - 1);
+    i <= Math.min(totalPages - 1, currentPage + 1);
+    i++
+  ) {
+    pageItems.push(renderPageNumber(i));
+  }
+
+  // Show trailing ellipsis if needed
+  if (currentPage < totalPages - 2) {
+    pageItems.push(
+      <PaginationItem key="end-ellipsis">
+        <PaginationEllipsis />
+      </PaginationItem>
+    );
+  }
+
+  // Always show last page (if not already shown)
+  if (totalPages > 1) {
+    pageItems.push(renderPageNumber(totalPages));
+  }
 
   return (
     <ShadPagination>
@@ -37,25 +96,7 @@ function Pagination({
           />
         </PaginationItem>
 
-        {pageNumbers.map((number) => (
-          <PaginationItem key={number}>
-            <PaginationLink
-              href="#"
-              onClick={(e) => {
-                e.preventDefault();
-                onPageChange(number);
-              }}
-              isActive={number === currentPage}
-              className={`px-3 py-1 rounded-md transition-colors ${
-                number === currentPage
-                  ? "bg-accent text-accent-foreground font-bold"
-                  : "text-muted-foreground hover:bg-muted"
-              }`}
-            >
-              {number}
-            </PaginationLink>
-          </PaginationItem>
-        ))}
+        {pageItems}
 
         <PaginationItem>
           <PaginationNext
