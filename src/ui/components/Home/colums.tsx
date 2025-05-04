@@ -5,8 +5,8 @@ import { Button } from "../ui/button";
 // Define Patient type
 export type Patient = {
   id: string;
-  first_name: string;
-  last_name: string;
+  firstname: string;
+  lastname: string;
   contact: string;
   lastVisit: string | null; // Ensure date is in a valid format like "YYYY-MM-DD"
 };

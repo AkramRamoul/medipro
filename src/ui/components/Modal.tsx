@@ -1,10 +1,5 @@
 import React, { Fragment } from "react";
-import {
-  Dialog,
-  DialogPanel,
-  Transition,
-  TransitionChild,
-} from "@headlessui/react";
+import { Dialog, DialogPanel, Transition } from "@headlessui/react";
 import { IoClose } from "react-icons/io5";
 
 interface ModalProps {
@@ -18,7 +13,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
     <Transition.Root show={isOpen} as={Fragment}>
       <Dialog as="div" className="relative z-50" onClose={onClose}>
         {/* Background Overlay */}
-        <TransitionChild
+        {/* <TransitionChild
           as={Fragment}
           enter="ease-out duration-300"
           enterFrom="opacity-0"
@@ -26,9 +21,9 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
           leave="ease-in duration-200"
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
-        >
-          <div className="fixed inset-0 bg-background/80 backdrop-blur-sm transition-opacity" />
-        </TransitionChild>
+        > */}
+        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm transition-opacity" />
+        {/* </TransitionChild> */}
 
         {/* Full-Screen Modal */}
         <div className="fixed inset-0 z-10 flex items-center justify-center p-4">
@@ -43,7 +38,6 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
           bg-card text-card-foreground
           shadow-xl transition-all
         "
-            onClick={(e) => e.stopPropagation()} // Prevents unwanted closing
           >
             {/* Close Button */}
             <div className="absolute top-4 right-4 z-10">

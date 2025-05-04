@@ -8,7 +8,7 @@ export const patients = sqliteTable("patients", {
   last_name: text("last_name").notNull(),
   age: integer("age").notNull(),
   gender: text("gender").notNull(), // Male, Female, Other
-  contact: text("contact").notNull().unique(),
+  contact: text("contact"),
   address: text("address"),
   weight: integer("weight"),
   bloodType: text("blood_type"),

@@ -6,14 +6,13 @@ import { useLocation } from "react-router-dom";
 
 const Layout = () => {
   const location = useLocation();
-  const hideBackButton = location.pathname === "/"; // or whatever your dashboard route is
-
+  const hideBackButton = location.pathname === "/";
   return (
     <div className="flex">
       <SidebarProvider defaultOpen={true}>
         <AppSidebar />
         <main className="flex-1 dark:bg-background">
-          <div className="flex items-center p-4">
+          <div className="flex items-center p-2">
             <SidebarTrigger />
             {!hideBackButton && <BackButton />}
           </div>

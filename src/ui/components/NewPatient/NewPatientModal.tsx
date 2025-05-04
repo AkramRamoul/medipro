@@ -8,7 +8,9 @@ type Patient = {
   last_name: string;
   age: number;
   gender: "Male" | "Female";
-  contact: string;
+  weight?: number;
+  contact?: string;
+  notes?: string;
 };
 interface NewPatientModalProps {
   isOpen?: boolean;

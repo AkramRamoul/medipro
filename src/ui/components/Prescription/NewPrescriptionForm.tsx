@@ -143,9 +143,9 @@ const NewPrescriptionForm = ({
       id: selectedMedication?.id || 0,
       prescriptionId: 0,
       medicineName: medName,
-      dosage: selectedMedication?.dosage || "N/A",
+      dosage: selectedMedication?.dosage || "",
       quantity: quantity || null,
-      form: selectedMedication?.form || "N/A",
+      form: selectedMedication?.form || "",
       duration: durationValue ? `${durationValue} ${durationUnit}` : null,
       note: note || null,
     };
@@ -202,7 +202,7 @@ const NewPrescriptionForm = ({
           onKeyDown={handleKeyDown}
           onChange={handleInputChange}
           placeholder="Type a medication name..."
-          className="w-[250px] bg-background text-foreground"
+          className="w-[350px] bg-background text-foreground"
         />
 
         <Input
@@ -243,7 +243,7 @@ const NewPrescriptionForm = ({
           value={note}
           onChange={(e) => setNote(e.target.value)}
           placeholder="Add a note..."
-          className="w-[500px] bg-background text-foreground"
+          className="w-[200px] bg-background text-foreground"
         />
 
         <Button

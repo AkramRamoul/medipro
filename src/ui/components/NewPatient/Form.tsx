@@ -1,5 +1,3 @@
-"use client";
-
 import { Button } from "../ui/button";
 import {
   Card,
@@ -29,8 +27,8 @@ const patientSchema = z.object({
   last_name: z.string().min(2, "Last name must be at least 2 characters"),
   age: z.coerce.number().min(1, "Age must be at least 1"),
   gender: z.enum(["Male", "Female"]),
-  contact: z.string().min(5, "Contact must be valid"),
-  weight: z.coerce.number().min(1, "Weight must be a positive number"),
+  contact: z.string().optional(),
+  weight: z.coerce.number().optional(),
   notes: z.string().optional(),
 });
 
@@ -58,7 +56,7 @@ export function AddPatientForm({ onClose, onSave }: AddPatientFormProps) {
   };
 
   return (
-    <Card onClick={(e) => e.stopPropagation()} className="bg-background">
+    <Card className="bg-background my-auto">
       <form onSubmit={handleSubmit(onSubmit)}>
         <CardHeader>
           <CardTitle className="text-foreground">Add a new patient</CardTitle>
@@ -68,8 +66,8 @@ export function AddPatientForm({ onClose, onSave }: AddPatientFormProps) {
         </CardHeader>
 
         <CardContent className="grid gap-6">
-          <div className="grid gap-4 sm:grid-cols-3">
-            {/* First Name */}
+          {/* First Name & Last Name */}
+          <div className="grid gap-4 sm:grid-cols-2">
             <div className="grid gap-2">
               <Label htmlFor="firstName" className="text-foreground">
                 First Name
@@ -87,7 +85,6 @@ export function AddPatientForm({ onClose, onSave }: AddPatientFormProps) {
               )}
             </div>
 
-            {/* Last Name */}
             <div className="grid gap-2">
               <Label htmlFor="lastName" className="text-foreground">
                 Last Name
@@ -104,8 +101,39 @@ export function AddPatientForm({ onClose, onSave }: AddPatientFormProps) {
                 </p>
               )}
             </div>
+          </div>
 
-            {/* Age */}
+          {/* Gender & Age */}
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid gap-2">
+              <Label htmlFor="gender" className="text-foreground">
+                Gender
+              </Label>
+              <Controller
+                name="gender"
+                control={control}
+                render={({ field }) => (
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <SelectTrigger
+                      id="gender"
+                      className="bg-background text-foreground"
+                    >
+                      <SelectValue placeholder="Select gender" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-background text-foreground">
+                      <SelectItem value="Male">Male</SelectItem>
+                      <SelectItem value="Female">Female</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+              {errors.gender && (
+                <p className="text-destructive text-sm">
+                  {errors.gender.message}
+                </p>
+              )}
+            </div>
+
             <div className="grid gap-2">
               <Label htmlFor="age" className="text-foreground">
                 Age
@@ -123,71 +151,42 @@ export function AddPatientForm({ onClose, onSave }: AddPatientFormProps) {
             </div>
           </div>
 
-          {/* Gender */}
-          <div className="grid gap-2">
-            <Label htmlFor="gender" className="text-foreground">
-              Gender
-            </Label>
-            <Controller
-              name="gender"
-              control={control}
-              render={({ field }) => (
-                <Select onValueChange={field.onChange} value={field.value}>
-                  <SelectTrigger
-                    id="gender"
-                    className="bg-background text-foreground"
-                  >
-                    <SelectValue placeholder="Select gender" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-background text-foreground">
-                    <SelectItem value="Male">Male</SelectItem>
-                    <SelectItem value="Female">Female</SelectItem>
-                  </SelectContent>
-                </Select>
+          {/* Contact & Weight */}
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid gap-2">
+              <Label htmlFor="contact" className="text-foreground">
+                Contact
+              </Label>
+              <Input
+                {...register("contact")}
+                id="contact"
+                placeholder="Enter contact number"
+                className="bg-background text-foreground"
+              />
+              {errors.contact && (
+                <p className="text-destructive text-sm">
+                  {errors.contact.message}
+                </p>
               )}
-            />
-            {errors.gender && (
-              <p className="text-destructive text-sm">
-                {errors.gender.message}
-              </p>
-            )}
-          </div>
+            </div>
 
-          {/* Contact */}
-          <div className="grid gap-2">
-            <Label htmlFor="contact" className="text-foreground">
-              Contact
-            </Label>
-            <Input
-              {...register("contact")}
-              id="contact"
-              placeholder="Enter contact number"
-              className="bg-background text-foreground"
-            />
-            {errors.contact && (
-              <p className="text-destructive text-sm">
-                {errors.contact.message}
-              </p>
-            )}
-          </div>
-
-          {/* Weight */}
-          <div className="grid gap-2">
-            <Label htmlFor="weight" className="text-foreground">
-              Weight
-            </Label>
-            <Input
-              {...register("weight")}
-              id="weight"
-              type="number"
-              placeholder="Enter weight (kg)"
-              className="bg-background text-foreground"
-            />
-            {errors.weight && (
-              <p className="text-destructive text-sm">
-                {errors.weight.message}
-              </p>
-            )}
+            <div className="grid gap-2">
+              <Label htmlFor="weight" className="text-foreground">
+                Weight
+              </Label>
+              <Input
+                {...register("weight")}
+                id="weight"
+                type="number"
+                placeholder="Enter weight (kg)"
+                className="bg-background text-foreground"
+              />
+              {errors.weight && (
+                <p className="text-destructive text-sm">
+                  {errors.weight.message}
+                </p>
+              )}
+            </div>
           </div>
 
           {/* Notes */}
@@ -209,15 +208,13 @@ export function AddPatientForm({ onClose, onSave }: AddPatientFormProps) {
             variant="ghost"
             size="sm"
             type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              onClose();
-            }}
+            onClick={onClose}
             className="text-foreground"
           >
             Cancel
           </Button>
-          <Button size="sm" type="submit" onClick={(e) => e.stopPropagation()}>
+
+          <Button size="sm" type="submit">
             Save
           </Button>
         </CardFooter>
