@@ -1,8 +1,7 @@
 import { type Patient } from "../components/Home/colums";
-import { columns } from "../components/Home/colums";
-import { DataTable } from "../components/Home/Data-table";
 import { useState, useEffect } from "react";
 import { Loader2 } from "lucide-react";
+import PatientsTable from "../components/Patients/Table";
 
 // Fetch data from the main process
 async function getData(): Promise<Patient[]> {
@@ -34,7 +33,7 @@ export function Home() {
 
   return (
     <>
-      <div className="h-full flex-1 flex-col space-y-8 p-4 md:p-8 flex bg-background text-foreground transition-colors">
+      <div className="h-full flex-1 flex-col space-y-6 p-4 md:p-8 flex bg-background text-foreground transition-colors">
         <div className="flex items-center justify-between space-y-2">
           <div className="space-y-3 flex-col">
             <h2 className="text-2xl font-bold tracking-tight">Welcome back!</h2>
@@ -50,7 +49,7 @@ export function Home() {
             <span className="ml-2 text-muted-foreground">Loading...</span>
           </div>
         ) : (
-          <DataTable columns={columns} data={data} />
+          <PatientsTable patients={data} />
         )}
       </div>
     </>
