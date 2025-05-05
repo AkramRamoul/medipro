@@ -25,30 +25,52 @@ export function Overview() {
     fetchData();
   }, []);
   return (
-    <ResponsiveContainer width="100%" height={350}>
-      <BarChart data={data}>
-        <XAxis
-          dataKey="name"
-          stroke="#888888"
-          fontSize={12}
-          tickLine={false}
-          axisLine={false}
-        />
-        <YAxis
-          stroke="#888888"
-          fontSize={12}
-          allowDecimals={false}
-          tickLine={false}
-          axisLine={false}
-          tickFormatter={(value) => `${value}`}
-        />
-        <Bar
-          dataKey="total"
-          fill="currentColor"
-          radius={[4, 4, 0, 0]}
-          className="fill-primary"
-        />
-      </BarChart>
-    </ResponsiveContainer>
+    <div className="w-[90vh]">
+      <ResponsiveContainer width="100%" height={350}>
+        <BarChart
+          data={data}
+          margin={{ top: 20, right: 20, left: 20, bottom: 40 }}
+        >
+          <XAxis
+            dataKey="name"
+            stroke="#888888"
+            fontSize={12}
+            tickLine={false}
+            axisLine={false}
+            label={{
+              value: "Month",
+              position: "bottom",
+              offset: 10, // pushes label down
+              style: { fill: "#555", fontWeight: "bold" },
+            }}
+          />
+          <YAxis
+            stroke="#888888"
+            fontSize={12}
+            allowDecimals={false}
+            tickLine={false}
+            axisLine={false}
+            tickFormatter={(value) => `${value}`}
+            label={{
+              value: "Number of Patients",
+              angle: -90,
+              position: "outsideLeft",
+              offset: 20, // pushes label away from axis
+              style: { fill: "#555", fontWeight: "bold" },
+            }}
+          />
+
+          <Bar
+            dataKey="total"
+            fill="currentColor"
+            radius={[4, 4, 0, 0]}
+            className="fill-primary"
+          />
+        </BarChart>
+      </ResponsiveContainer>
+      <p className="text-sm text-muted-foreground text-center mt-2">
+        Monthly number of patients recorded in the clinic
+      </p>
+    </div>
   );
 }

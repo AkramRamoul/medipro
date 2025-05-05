@@ -272,7 +272,9 @@ app.on("ready", () => {
   });
 
   ipcMain.handle("add-consultation", async (_, data) => {
-    await db.insert(consultations).values(data);
+    await db
+      .insert(consultations)
+      .values({ ...data, date: new Date().toISOString() });
   });
   ipcMain.handle("get-consultation", async (_, id) => {
     const result = await db
@@ -353,7 +355,7 @@ app.on("ready", () => {
         // 1️⃣ Insert a new prescription (returns the ID)
         const [newPrescription] = await db
           .insert(prescriptions)
-          .values({ patientId })
+          .values({ patientId, date: new Date().toISOString() })
           .returning({ id: prescriptions.id });
 
         if (!newPrescription) {
@@ -614,14 +616,17 @@ app.on("ready", () => {
       return cache.data;
     }
 
+    const currentYear = new Date().getFullYear();
+
     const results = await db.all(
       sql`
-      SELECT 
-        strftime('%m', created_at) AS month,
-        COUNT(*) AS total
-      FROM ${patients}
-      GROUP BY month
-    `
+  SELECT 
+    strftime('%m', created_at) AS month,
+    COUNT(*) AS total
+  FROM ${patients}
+  WHERE strftime('%Y', created_at) = ${String(currentYear)}
+  GROUP BY month
+  `
     );
 
     const monthMap: Record<string, number> = {};
