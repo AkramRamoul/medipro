@@ -195,7 +195,7 @@ const NewPrescriptionForm = ({
   return (
     <div className="relative mt-10">
       {/* Medication Form Row */}
-      <div ref={containerRef} className="flex flex-wrap gap-3">
+      <div ref={containerRef} className="flex flex-wrap items-center gap-3">
         <Input
           type="text"
           value={inputValue}
@@ -213,16 +213,16 @@ const NewPrescriptionForm = ({
             const val = e.target.value;
             setQuantity(val ? `${val} bte` : "");
           }}
-          placeholder="Qty"
+          placeholder="Qte"
           className="w-[100px] bg-background text-foreground"
         />
-
+        <span className="text-foreground text-sm ">Ou</span>
         <Input
           type="number"
           value={durationValue}
           onChange={(e) => setDurationValue(e.target.value)}
-          placeholder="Duration"
-          className="w-[100px] bg-background text-foreground"
+          placeholder="Qsp"
+          className="w-[80px] bg-background text-foreground"
         />
 
         <Select value={durationUnit} onValueChange={setDurationUnit}>
@@ -230,7 +230,7 @@ const NewPrescriptionForm = ({
             <SelectValue placeholder="Unit" />
           </SelectTrigger>
           <SelectContent className="bg-popover text-popover-foreground">
-            {["days", "weeks", "months"].map((unit, index) => (
+            {["jours", "semaines", "mois"].map((unit, index) => (
               <SelectItem key={index} value={unit}>
                 {unit}
               </SelectItem>
@@ -309,7 +309,7 @@ const NewPrescriptionForm = ({
           patient={patient}
           window={window}
         />
-        <Button onClick={onClose} variant="ghost">
+        <Button onClick={onClose} variant="outline">
           Cancel
         </Button>
       </div>

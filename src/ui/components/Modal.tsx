@@ -11,19 +11,12 @@ interface ModalProps {
 const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
   return (
     <Transition.Root show={isOpen} as={Fragment}>
-      <Dialog as="div" className="relative z-50" onClose={onClose}>
-        {/* Background Overlay */}
-        {/* <TransitionChild
-          as={Fragment}
-          enter="ease-out duration-300"
-          enterFrom="opacity-0"
-          enterTo="opacity-100"
-          leave="ease-in duration-200"
-          leaveFrom="opacity-100"
-          leaveTo="opacity-0"
-        > */}
+      <Dialog
+        as="div"
+        className="relative z-50"
+        onClose={() => {}} // disables closing by outside click or Esc
+      >
         <div className="fixed inset-0 bg-background/80 backdrop-blur-sm transition-opacity" />
-        {/* </TransitionChild> */}
 
         {/* Full-Screen Modal */}
         <div className="fixed inset-0 z-10 flex items-center justify-center p-4">
@@ -31,7 +24,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
             className="
           relative
           flex flex-col
-          w-full h-full
+          w-full h-[90vh]
           max-w-none sm:max-w-none
           overflow-hidden
           rounded-lg

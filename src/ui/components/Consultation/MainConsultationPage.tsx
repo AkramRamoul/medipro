@@ -47,34 +47,42 @@ function ConsultationForm({ id }: { id: string }) {
           No consultations yet. Click "New Consultation" to add one.
         </div>
       ) : (
-        <div className="mt-4 space-y-4">
+        <div className="mt-6 space-y-4">
           {consultations.map((consultation) => (
             <div
               key={consultation.id}
-              className="p-4 border border-border rounded-xl shadow-sm bg-muted hover:bg-accent transition-colors cursor-pointer flex justify-between items-center"
+              className={`p-5 border border-border rounded-2xl shadow-sm bg-muted hover:bg-accent transition-all cursor-pointer flex flex-col md:flex-row justify-between items-start md:items-center gap-4 ${
+                openConsultationId === consultation.id
+                  ? "ring-2 ring-accent"
+                  : ""
+              }`}
             >
               <div
-                className="flex-1 flex flex-col items-center"
+                className="flex-1 space-y-1"
                 onClick={() => setOpenConsultationId(consultation.id)}
               >
-                <p className="text-sm text-muted-foreground font-medium truncate">
-                  <strong className="text-foreground">Date:</strong>{" "}
+                <p className="text-sm text-muted-foreground font-medium">
+                  <span className="text-foreground font-semibold">Date:</span>{" "}
                   {formatDate(consultation.date)}
                 </p>
-                <p className="text-sm text-muted-foreground font-medium truncate">
-                  <strong className="text-foreground">Reason:</strong>{" "}
+                <p className="text-sm text-muted-foreground font-medium">
+                  <span className="text-foreground font-semibold">Reason:</span>{" "}
                   {consultation.reason}
                 </p>
-                <p className="text-sm text-muted-foreground font-medium truncate">
-                  <strong className="text-foreground">Diagnosis:</strong>{" "}
+                <p className="text-sm text-muted-foreground font-medium">
+                  <span className="text-foreground font-semibold">
+                    Diagnosis:
+                  </span>{" "}
                   {consultation.diagnosis}
                 </p>
               </div>
 
-              <DeleteDialogue
-                consultationId={consultation.id}
-                setData={setConsultations}
-              />
+              <div className="flex-shrink-0">
+                <DeleteDialogue
+                  consultationId={consultation.id}
+                  setData={setConsultations}
+                />
+              </div>
 
               {openConsultationId === consultation.id && (
                 <Modal isOpen onClose={() => setOpenConsultationId(null)}>

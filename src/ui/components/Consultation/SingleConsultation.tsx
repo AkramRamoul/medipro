@@ -83,14 +83,17 @@ function SingleConsultation({
   return (
     <Card className="p-6 space-y-4 max-w-2xl mx-auto">
       <h2 className="text-2xl font-bold">
-        Cosultation du : {consultation?.date}
+        Cosultation du :{" "}
+        {consultation?.date
+          ? new Date(consultation.date).toLocaleDateString()
+          : "Date not available"}
       </h2>
 
       {/* Patient Info */}
       {/* Consultation Details */}
-      <div className="space-y-4">
+      <div className="space-y-6">
         <div className="flex flex-col items-start space-y-1">
-          <Label>Reason for Visit</Label>
+          <Label className="mb-2">Reason for Visit</Label>
           <Input
             placeholder="Short description"
             value={reason}

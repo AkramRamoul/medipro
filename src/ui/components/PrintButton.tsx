@@ -88,7 +88,7 @@ const PrintButton = ({
         e.stopPropagation();
         handlePrint();
       }}
-      className="  bg-primary px-4 py-2 rounded"
+      className="  bg-primary px-4 py-2"
     >
       Print
     </Button>

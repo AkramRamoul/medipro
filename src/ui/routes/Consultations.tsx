@@ -126,10 +126,11 @@ function Page() {
                       {new Date(prescription.date).toLocaleDateString()}
                     </TableCell>
                     <TableCell className="text-right text-foreground">
-                      {new Date(prescription.date).toLocaleTimeString([], {
+                      {new Date(prescription.date).toLocaleTimeString("fr-FR", {
                         hour: "2-digit",
                         minute: "2-digit",
                         hour12: false,
+                        timeZone: "Africa/Algiers",
                       })}
                     </TableCell>
                   </TableRow>
