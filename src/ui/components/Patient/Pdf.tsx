@@ -146,7 +146,7 @@ const PrescriptionPDF = ({
             }}
           >
             {/* Left side: French */}
-            <View style={{ flex: 1, gap: 2 }}>
+            <View style={{ flex: 1, gap: 1 }}>
               <Text style={styles.headerfr}>{prescriptionModel.nameFr}</Text>
               <Text style={styles.colLeft}>
                 {prescriptionModel.specialtyFr}
@@ -246,7 +246,7 @@ const PrescriptionPDF = ({
                   <Text style={{ fontSize: 10 }}>
                     {med.medicineName}
 
-                    {med.form ? `${med.form}, ` : ""}
+                    {med.form ? ` ${med.form}, ` : ""}
                     {med.dosage ? `${med.dosage}, ` : ""}
                   </Text>
                   <Text style={{ fontSize: 10 }}>

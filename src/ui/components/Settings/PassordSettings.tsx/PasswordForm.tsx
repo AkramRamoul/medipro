@@ -60,14 +60,23 @@ export function PasswordForm() {
       if (status === "not-exists") {
         await window.electronAPI.createPassword(data.password);
         toast.success("Password created successfully");
+        form.reset({
+          password: "",
+          confirmPassword: "",
+        });
       } else {
         const success = await window.electronAPI.changePassword(
-          (data as UpdatePasswordFormValues).oldPassword, // Type assertion
+          (data as UpdatePasswordFormValues).oldPassword,
           data.password
         );
 
         if (success.success) {
           toast.success("Password updated successfully");
+          form.reset({
+            oldPassword: "",
+            password: "",
+            confirmPassword: "",
+          });
         } else {
           toast.error("Current password is incorrect");
         }
@@ -163,7 +172,7 @@ export function PasswordForm() {
                 <FormControl>
                   <div className="relative">
                     <Input
-                      type={showPassword ? "text" : "password"}
+                      type={showConsfirmPassword ? "text" : "password"}
                       placeholder="Repeat new password"
                       {...field}
                     />

