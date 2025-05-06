@@ -15,7 +15,7 @@ import { Button } from "../../ui/button";
 import { usePasswordStatus } from "../../../hooks/usePasswordStatus"; // adjust path as needed
 import { useState } from "react";
 import { toast } from "sonner"; // optional, if you're using toast
-
+import { Eye, EyeOff } from "lucide-react";
 const createSchema = z
   .object({
     password: z.string().min(6, "Password must be at least 6 characters."),
@@ -50,6 +50,9 @@ export function PasswordForm() {
   });
 
   const [submitting, setSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showOldPassword, setShowOldPassword] = useState(false);
+  const [showConsfirmPassword, setShowConfirmPassword] = useState(false);
 
   async function onSubmit(data: PasswordFormValues) {
     setSubmitting(true);
@@ -58,14 +61,12 @@ export function PasswordForm() {
         await window.electronAPI.createPassword(data.password);
         toast.success("Password created successfully");
       } else {
-        // TypeScript now knows that within this 'else' block,
-        // 'data' can potentially have 'oldPassword'
         const success = await window.electronAPI.changePassword(
           (data as UpdatePasswordFormValues).oldPassword, // Type assertion
           data.password
         );
 
-        if (success) {
+        if (success.success) {
           toast.success("Password updated successfully");
         } else {
           toast.error("Current password is incorrect");
@@ -100,11 +101,25 @@ export function PasswordForm() {
                 <FormItem className="space-y-2 text-left">
                   <FormLabel>Current Password</FormLabel>
                   <FormControl>
-                    <Input
-                      type="password"
-                      placeholder="Enter current password"
-                      {...field}
-                    />
+                    <div className="relative">
+                      <Input
+                        type={showOldPassword ? "text" : "password"}
+                        placeholder="Enter current password"
+                        {...field}
+                      />
+                      <button
+                        type="button"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                        onClick={() => setShowOldPassword((prev) => !prev)}
+                        tabIndex={-1}
+                      >
+                        {showOldPassword ? (
+                          <EyeOff size={18} />
+                        ) : (
+                          <Eye size={18} />
+                        )}
+                      </button>
+                    </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -118,13 +133,21 @@ export function PasswordForm() {
             render={({ field }) => (
               <FormItem className="space-y-2 text-left">
                 <FormLabel>New Password</FormLabel>
-                <FormControl>
+                <div className="relative">
                   <Input
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     placeholder="Enter new password"
                     {...field}
                   />
-                </FormControl>
+                  <button
+                    type="button"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    tabIndex={-1}
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
                 <FormDescription>Use at least 6 characters.</FormDescription>
                 <FormMessage />
               </FormItem>
@@ -138,11 +161,25 @@ export function PasswordForm() {
               <FormItem className="space-y-2 text-left">
                 <FormLabel>Confirm Password</FormLabel>
                 <FormControl>
-                  <Input
-                    type="password"
-                    placeholder="Repeat new password"
-                    {...field}
-                  />
+                  <div className="relative">
+                    <Input
+                      type={showPassword ? "text" : "password"}
+                      placeholder="Repeat new password"
+                      {...field}
+                    />
+                    <button
+                      type="button"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                      onClick={() => setShowConfirmPassword((prev) => !prev)}
+                      tabIndex={-1}
+                    >
+                      {showConsfirmPassword ? (
+                        <EyeOff size={18} />
+                      ) : (
+                        <Eye size={18} />
+                      )}
+                    </button>
+                  </div>
                 </FormControl>
                 <FormMessage />
               </FormItem>
