@@ -71,7 +71,7 @@ function Prescriptions() {
 
   return (
     <>
-      <div className="flex flex-col gap-6 p-8 border rounded-2xl bg-card text-card-foreground shadow-lg max-w-5xl mx-auto mt-10">
+      <div className="flex flex-col gap-6 p-8 border rounded-2xl bg-card text-foreground border-border shadow-lg max-w-5xl mx-auto mt-10">
         {/* Search Bar */}
         <div className="flex justify-center mb-8">
           <div className="relative w-full max-w-md">

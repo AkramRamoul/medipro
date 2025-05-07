@@ -38,8 +38,8 @@ export function RecentSales({
                 <p className="text-sm font-medium leading-none">{fullName}</p>
                 <p className="text-sm text-gray-600 dark:text-gray-400 font truncate flex items-center">
                   <strong className="text-gray-800 dark:text-gray-300">
-                    Raison de visite:
-                  </strong>{" "}
+                    Raison de visite:&nbsp;
+                  </strong>
                   <span className="truncate text-sm inline-block max-w-[150px]">
                     {patient.reason}
                   </span>

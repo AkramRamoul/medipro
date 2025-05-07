@@ -13,6 +13,7 @@ import {
 } from "../../ui/form";
 import { Input } from "../../ui/input";
 import { Button } from "../../ui/button";
+import { toast } from "sonner";
 
 const accountFormSchema = z.object({
   name: z
@@ -31,8 +32,15 @@ function SettingsForm() {
     },
   });
 
-  function onSubmit(data: AccountFormValues) {
-    console.log("Preferences updated:", data);
+  async function onSubmit(data: AccountFormValues) {
+    const success = await window.electronAPI.createName(data.name);
+
+    if (success.success) {
+      toast.success("Name updated successfully");
+      form.reset({
+        name: "",
+      });
+    }
   }
 
   return (

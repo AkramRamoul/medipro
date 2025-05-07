@@ -1,18 +1,19 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 
 export function usePasswordStatus() {
   const [status, setStatus] = useState<"loading" | "exists" | "not-exists">(
     "loading"
   );
 
-  useEffect(() => {
-    async function check() {
-      const exists = await window.electronAPI.checkPasswordExists();
-      setStatus(exists ? "exists" : "not-exists");
-    }
-
-    check();
+  const check = useCallback(async () => {
+    const exists = await window.electronAPI.checkPasswordExists();
+    setStatus(exists ? "exists" : "not-exists");
+    return exists ? "exists" : "not-exists";
   }, []);
 
-  return status;
+  useEffect(() => {
+    check();
+  }, [check]);
+
+  return { status, refetch: check };
 }

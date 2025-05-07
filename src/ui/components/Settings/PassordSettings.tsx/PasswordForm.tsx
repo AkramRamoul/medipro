@@ -39,7 +39,7 @@ const updateSchema = z
 
 export function PasswordForm() {
   const status = usePasswordStatus();
-  const schema = status === "exists" ? updateSchema : createSchema;
+  const schema = status.status === "exists" ? updateSchema : createSchema;
 
   type CreatePasswordFormValues = z.infer<typeof createSchema>;
   type UpdatePasswordFormValues = z.infer<typeof updateSchema>;
@@ -57,13 +57,14 @@ export function PasswordForm() {
   async function onSubmit(data: PasswordFormValues) {
     setSubmitting(true);
     try {
-      if (status === "not-exists") {
+      if (status.status === "not-exists") {
         await window.electronAPI.createPassword(data.password);
         toast.success("Password created successfully");
         form.reset({
           password: "",
           confirmPassword: "",
         });
+        await status.refetch();
       } else {
         const success = await window.electronAPI.changePassword(
           (data as UpdatePasswordFormValues).oldPassword,
@@ -89,7 +90,7 @@ export function PasswordForm() {
     }
   }
 
-  if (status === "loading") return null;
+  if (status.status === "loading") return null;
 
   return (
     <div className="flex justify-center min-h-screen bg-background px-4">
@@ -99,10 +100,12 @@ export function PasswordForm() {
           className="flex flex-col m-8 space-y-8 w-full max-w-xl"
         >
           <h2 className="text-xl font-bold text-center text-foreground">
-            {status === "not-exists" ? "Create a Password" : "Update Password"}
+            {status.status === "not-exists"
+              ? "Create a Password"
+              : "Update Password"}
           </h2>
 
-          {status === "exists" && (
+          {status.status === "exists" && (
             <FormField
               control={form.control}
               name="oldPassword"
@@ -197,7 +200,9 @@ export function PasswordForm() {
 
           <div className="pt-4">
             <Button type="submit" disabled={submitting}>
-              {status === "not-exists" ? "Create Password" : "Update Password"}
+              {status.status === "not-exists"
+                ? "Create Password"
+                : "Update Password"}
             </Button>
           </div>
         </form>

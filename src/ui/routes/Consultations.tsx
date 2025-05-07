@@ -82,7 +82,7 @@ function Page() {
       </div>
 
       {/* Table */}
-      <div className="overflow-x-auto px-6">
+      <div className="px-4 overflow-x-auto">
         {isLoading ? (
           <p className="text-center text-muted-foreground py-10">
             Loading consultations...

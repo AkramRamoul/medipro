@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { LucideIcon } from "lucide-react";
+import { Lock, LucideIcon } from "lucide-react";
 
 import {
   SidebarGroup,
@@ -12,6 +12,11 @@ import {
 } from "../components/ui/sidebar";
 import { NavLink } from "react-router-dom";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
+import { Button } from "./ui/button";
+import { useAuth } from "../context/auth-context";
+import { useNavigate } from "react-router-dom";
+import { usePasswordStatus } from "../hooks/usePasswordStatus";
+import { toast } from "sonner";
 
 export function NavSecondary({
   items,
@@ -23,15 +28,47 @@ export function NavSecondary({
     icon: LucideIcon;
   }[];
 } & React.ComponentPropsWithoutRef<typeof SidebarGroup>) {
+  const { setAuthed } = useAuth();
+  const navigate = useNavigate();
+
+  const { refetch } = usePasswordStatus();
+
+  async function handleLock() {
+    const updatedStatus = await refetch();
+    if (updatedStatus === "not-exists") {
+      toast.warning("No password has been set yet.");
+      return;
+    }
+
+    setAuthed(false);
+    localStorage.removeItem("isAuthed");
+    navigate("/enter-password");
+  }
+
   return (
     <SidebarGroup {...props}>
       <SidebarGroupContent>
         <SidebarMenu>
+          {/* Lock button FIRST */}
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild className="flex items-center">
+              <Button
+                variant="ghost"
+                className="flex items-center w-full justify-start"
+                onClick={handleLock}
+              >
+                <Lock className="w-4 h-4" />
+                <span className="ml-2 font-semibold">Logout</span>
+              </Button>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+
+          {/* Navigation items */}
           {items.map((item) => (
             <SidebarMenuItem key={item.title}>
               <SidebarMenuButton asChild>
                 <NavLink to={item.url}>
-                  <HelpCopmenent item={item} />
+                  <HelpComponent item={item} />
                 </NavLink>
               </SidebarMenuButton>
             </SidebarMenuItem>
@@ -42,7 +79,7 @@ export function NavSecondary({
   );
 }
 
-function HelpCopmenent({
+function HelpComponent({
   item,
 }: {
   item: { title: string; url: string; icon: LucideIcon };
@@ -52,7 +89,7 @@ function HelpCopmenent({
       <Popover>
         <PopoverTrigger className="flex items-center">
           <item.icon className="w-4 h-4" />
-          <span className="ml-2">{item.title}</span>
+          <span className="ml-4 font-semibold">{item.title}</span>
         </PopoverTrigger>
         <PopoverContent className="w-80 ml-2">
           <div className="flex flex-col space-y-2 p-2">

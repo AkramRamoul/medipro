@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 
 const AuthContext = createContext<{
   isAuthed: boolean;
@@ -9,7 +9,20 @@ const AuthContext = createContext<{
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [isAuthed, setAuthed] = useState(false);
+  const [isAuthed, setAuthedState] = useState(false);
+
+  // Sync with localStorage on mount
+  useEffect(() => {
+    const stored = localStorage.getItem("isAuthed");
+    setAuthedState(stored === "true");
+  }, []);
+
+  // Whenever isAuthed changes, sync it back to localStorage
+  const setAuthed = (authed: boolean) => {
+    localStorage.setItem("isAuthed", String(authed));
+    setAuthedState(authed);
+  };
+
   return (
     <AuthContext.Provider value={{ isAuthed, setAuthed }}>
       {children}

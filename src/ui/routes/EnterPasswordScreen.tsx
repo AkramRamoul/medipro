@@ -31,6 +31,7 @@ export function EnterPasswordScreen() {
   async function onSubmit(data: FormValues) {
     const result = await window.electronAPI.checkPassword(data.password);
     if (result) {
+      localStorage.setItem("isAuthed", "true");
       setAuthed(true);
       navigate("/"); // go to main layout
     } else {

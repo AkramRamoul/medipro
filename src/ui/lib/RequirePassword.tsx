@@ -10,11 +10,13 @@ export default function RequirePassword({
   const { isAuthed } = useAuth();
   const passwordStatus = usePasswordStatus();
 
-  if (passwordStatus === "loading") return null; // or a loading spinner
+  if (passwordStatus.status === "loading") return null;
+
+  return passwordStatus.status === "exists" && !isAuthed ? (
+    <Navigate to="/enter-password" replace />
+  ) : (
+    children
+  );
 
   // If no password is set, allow access without auth
-  if (passwordStatus === "not-exists") return children;
-
-  // If password exists but not authenticated
-  return isAuthed ? children : <Navigate to="/enter-password" replace />;
 }
