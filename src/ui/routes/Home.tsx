@@ -17,7 +17,7 @@ async function getData(): Promise<Patient[]> {
 export function Home() {
   const [data, setData] = useState<Patient[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-
+  const [name, setName] = useState("");
   // Fetch data on component mount
   useEffect(() => {
     const fetchData = async () => {
@@ -31,12 +31,22 @@ export function Home() {
     fetchData();
   }, []);
 
+  useEffect(() => {
+    const getName = async () => {
+      const result = await window.electronAPI.getName();
+      setName(result.name);
+    };
+    getName();
+  }, [data]);
+
   return (
     <>
       <div className="h-full flex-1 flex-col space-y-6 p-4 md:p-8 flex bg-background text-foreground transition-colors">
         <div className="flex items-center justify-between space-y-2">
           <div className="space-y-3 flex-col">
-            <h2 className="text-2xl font-bold tracking-tight">Welcome back!</h2>
+            <h2 className="text-2xl font-bold tracking-tight">
+              Welcome {name ? name : ""}
+            </h2>
             <p className="text-muted-foreground">
               Here&apos;s a list of your patients!
             </p>

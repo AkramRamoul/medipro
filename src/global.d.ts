@@ -58,6 +58,8 @@ export interface IElectronAPI {
     oldPassword: string,
     newPassword: string
   ) => Promise<{ success: boolean }>;
+  createName: (nameFr: string) => Promise<{ success: boolean }>;
+  getName: () => Promise<{ success: boolean; name: string }>;
 }
 
 declare global {

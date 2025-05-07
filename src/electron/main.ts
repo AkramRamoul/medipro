@@ -15,6 +15,7 @@ import {
   image,
   prescriptionModel,
   auth,
+  Name,
 } from "./schema.js";
 app.on("ready", () => {
   const win = new BrowserWindow({
@@ -712,6 +713,33 @@ app.on("ready", () => {
   ipcMain.handle("check-password-exists", async () => {
     const result = await db.select().from(auth).limit(1);
     return Boolean(result[0]?.passwordHash);
+  });
+  ipcMain.handle("create-or-replace-name", async (_event, nameFr: string) => {
+    try {
+      const existing = await db.select().from(Name).limit(1);
+
+      if (existing.length > 0) {
+        await db
+          .update(Name)
+          .set({ nameFr })
+          .where(eq(Name.id, existing[0].id));
+      } else {
+        await db.insert(Name).values({ nameFr });
+      }
+
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: (error as Error).message };
+    }
+  });
+
+  ipcMain.handle("get-name", async () => {
+    try {
+      const [record] = await db.select().from(Name).limit(1);
+      return { success: true, name: record?.nameFr ?? "" };
+    } catch (err) {
+      return { success: false, error: (err as Error).message };
+    }
   });
 
   win.webContents.setWindowOpenHandler(() => ({ action: "allow" }));

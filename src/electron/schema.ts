@@ -7,7 +7,7 @@ export const patients = sqliteTable("patients", {
   first_name: text("first_name").notNull(),
   last_name: text("last_name").notNull(),
   age: integer("age").notNull(),
-  gender: text("gender").notNull(), // Male, Female, Other
+  gender: text("gender").notNull(),
   contact: text("contact"),
   address: text("address"),
   weight: integer("weight"),
@@ -75,6 +75,11 @@ export const prescriptionModel = sqliteTable("prescription_model", {
 export const auth = sqliteTable("auth", {
   id: integer("id").primaryKey(),
   passwordHash: text("password_hash").notNull(),
+});
+
+export const Name = sqliteTable("name", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  nameFr: text("name").notNull(),
 });
 
 export type PrescriptionMed = typeof prescriptionMedications.$inferSelect;
