@@ -7,16 +7,14 @@ export default function RequirePassword({
 }: {
   children: React.JSX.Element;
 }) {
-  const { isAuthed } = useAuth();
+  const { isAuthed, loading } = useAuth();
   const passwordStatus = usePasswordStatus();
 
-  if (passwordStatus.status === "loading") return null;
+  if (loading || passwordStatus.status === "loading") return null;
 
   return passwordStatus.status === "exists" && !isAuthed ? (
     <Navigate to="/enter-password" replace />
   ) : (
     children
   );
-
-  // If no password is set, allow access without auth
 }

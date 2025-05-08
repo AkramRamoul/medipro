@@ -712,8 +712,9 @@ app.on("ready", () => {
 
   ipcMain.handle("check-password-exists", async () => {
     const result = await db.select().from(auth).limit(1);
-    return Boolean(result[0]?.passwordHash);
+    return result.length > 0 && Boolean(result[0].passwordHash);
   });
+
   ipcMain.handle("create-or-replace-name", async (_event, nameFr: string) => {
     try {
       const existing = await db.select().from(Name).limit(1);
