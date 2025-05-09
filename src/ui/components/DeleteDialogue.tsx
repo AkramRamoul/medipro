@@ -30,7 +30,9 @@ function DeleteDialogue({ consultationId, setData }: DeleteDialogueProps) {
     window.electronAPI
       .deleteCosultaion(consultationId) // ✅ Fixed typo
       .then(() => {
-        setData((prev) => prev.filter((item) => item.id !== consultationId)); // ✅ Update state
+        setData((prev) =>
+          prev.filter((item) => item.id !== Number(consultationId))
+        );
         toast.success("Consultation deleted successfully");
       })
       .catch((error) => {
@@ -45,10 +47,13 @@ function DeleteDialogue({ consultationId, setData }: DeleteDialogueProps) {
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <TrashIcon
-          className="size-4 mr-2 cursor-pointer hover:text-destructive hover:scale-110"
-          onClick={(e) => e.stopPropagation()} // ✅ Prevent opening modal
-        />
+        <button
+          onClick={(e) => e.stopPropagation()}
+          className="p-2 rounded-md hover:bg-muted transition-colors duration-200"
+          aria-label="Delete consultation"
+        >
+          <TrashIcon className="h-5 w-5 text-muted-foreground hover:text-destructive hover:scale-110 transition-transform" />
+        </button>
       </AlertDialogTrigger>
 
       <AlertDialogContent onClick={(e) => e.stopPropagation()}>

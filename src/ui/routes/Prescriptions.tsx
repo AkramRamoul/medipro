@@ -13,7 +13,8 @@ import { PrescriptionWithPatient } from "../type";
 import Modal from "../components/Modal";
 import SinglePrescription from "../components/Prescription/SinglePrescription";
 import Pagination from "../components/Pagination";
-import { Search } from "lucide-react";
+import { Loader2, Search } from "lucide-react";
+import DropDown from "./comps/DropDownPrescription";
 
 async function getData(): Promise<PrescriptionWithPatient[]> {
   try {
@@ -90,25 +91,23 @@ function Prescriptions() {
         {/* Table Section */}
         <div className="px-4 overflow-x-auto">
           {isLoading ? (
-            <p className="text-center text-muted-foreground py-10">
-              Loading prescriptions...
-            </p>
+            <Loader2 className="animate-spin text-muted-foreground w-6 h-6" />
           ) : (
             <Table>
               <TableCaption className="mt-6 text-muted-foreground">
-                A list of your recent prescriptions.
+                Une liste de toutes vos ordonnances.{" "}
               </TableCaption>
               <TableHeader>
                 <TableRow className="bg-muted">
+                  <TableHead className="text-muted-foreground">Nom</TableHead>
                   <TableHead className="text-muted-foreground">
-                    First Name
-                  </TableHead>
-                  <TableHead className="text-muted-foreground">
-                    Last Name
+                    Prénom
                   </TableHead>
                   <TableHead className="text-muted-foreground">Date</TableHead>
-                  <TableHead className="text-right text-muted-foreground">
-                    Time
+                  <TableHead className="text-muted-foreground w-[80px]">
+                    <div className="flex justify-center items-center">
+                      Supprimer
+                    </div>
                   </TableHead>
                 </TableRow>
               </TableHeader>
@@ -129,12 +128,15 @@ function Prescriptions() {
                       <TableCell>
                         {new Date(prescription.date).toLocaleDateString()}
                       </TableCell>
-                      <TableCell className="text-right">
-                        {new Date(prescription.date).toLocaleTimeString([], {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                          hour12: false,
-                        })}
+                      <TableCell>
+                        <div className="flex justify-center items-center h-full">
+                          <DropDown
+                            prescription={prescription}
+                            setData={setData}
+                            patient={prescription.patient!}
+                            medications={prescription.medications}
+                          />
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))
@@ -144,7 +146,7 @@ function Prescriptions() {
                       colSpan={4}
                       className="text-center text-muted-foreground py-6"
                     >
-                      No matching prescriptions found.
+                      Aucune ordonnance correspondante trouvée.
                     </TableCell>
                   </TableRow>
                 )}

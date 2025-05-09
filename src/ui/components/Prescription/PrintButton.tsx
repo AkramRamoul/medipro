@@ -1,7 +1,7 @@
 import { pdf } from "@react-pdf/renderer";
 import PrescriptionPDF from "../Patient/Pdf"; // Your PDF component
 import { useEffect, useState } from "react";
-import { Patient } from "../../type";
+import { smallPatient } from "../../type";
 import { Printer } from "lucide-react";
 import { DropdownMenuItem } from "../ui/dropdown-menu";
 import { PrescriptionMed } from "../../../electron/schema";
@@ -12,7 +12,7 @@ const PrintButton = ({
   window,
   prescription,
 }: {
-  patient: Patient;
+  patient: smallPatient;
   window: Window;
   prescription: PrescriptionMed[];
 }) => {

@@ -250,7 +250,7 @@ const PrescriptionPDF = ({
                     {med.dosage ? `${med.dosage}, ` : ""}
                   </Text>
                   <Text style={{ fontSize: 10 }}>
-                    {med.quantity ? `(${med.quantity})` : ""}
+                    {med.quantity ? `( ${med.quantity} )` : ""}
                     {med.duration ? `(${med.duration})` : ""}
                   </Text>
                 </View>

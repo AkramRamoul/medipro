@@ -13,7 +13,8 @@ import { Input } from "../components/ui/input";
 import Modal from "../components/Modal";
 import SingleConsultation from "../components/Consultation/SingleConsultation";
 import Pagination from "../components/Pagination";
-import { Search } from "lucide-react";
+import { Loader2, Search } from "lucide-react";
+import DeleteDialogue from "../components/DeleteDialogue";
 
 function Page() {
   const [data, setData] = useState<ConsultationWithPatient[]>([]);
@@ -84,25 +85,21 @@ function Page() {
       {/* Table */}
       <div className="px-4 overflow-x-auto">
         {isLoading ? (
-          <p className="text-center text-muted-foreground py-10">
-            Loading consultations...
-          </p>
+          <Loader2 className="animate-spin text-muted-foreground w-6 h-6" />
         ) : (
           <Table>
             <TableCaption className="mt-6 text-muted-foreground">
-              A list of your recent prescriptions.
+              Une liste de toutes vos consultations.{" "}
             </TableCaption>
             <TableHeader>
               <TableRow className="bg-muted">
-                <TableHead className="text-muted-foreground">
-                  First Name
-                </TableHead>
-                <TableHead className="text-muted-foreground">
-                  Last Name
-                </TableHead>
+                <TableHead className="text-muted-foreground">Nom</TableHead>
+                <TableHead className="text-muted-foreground">Prénom</TableHead>
                 <TableHead className="text-muted-foreground">Date</TableHead>
-                <TableHead className="text-right text-muted-foreground">
-                  Time
+                <TableHead className="text-muted-foreground w-[80px]">
+                  <div className="flex justify-center items-center">
+                    Supprimer
+                  </div>
                 </TableHead>
               </TableRow>
             </TableHeader>
@@ -125,13 +122,13 @@ function Page() {
                     <TableCell className="text-foreground">
                       {new Date(prescription.date).toLocaleDateString()}
                     </TableCell>
-                    <TableCell className="text-right text-foreground">
-                      {new Date(prescription.date).toLocaleTimeString("fr-FR", {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                        hour12: false,
-                        timeZone: "Africa/Algiers",
-                      })}
+                    <TableCell className="w-[80px]">
+                      <div className="flex justify-center items-center h-full">
+                        <DeleteDialogue
+                          consultationId={prescription.id.toString()}
+                          setData={setData}
+                        />
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))
@@ -141,7 +138,7 @@ function Page() {
                     colSpan={4}
                     className="text-center text-muted-foreground py-6"
                   >
-                    No matching prescriptions found.
+                    Aucune consultation correspondante trouvée.
                   </TableCell>
                 </TableRow>
               )}

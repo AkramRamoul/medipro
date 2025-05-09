@@ -42,6 +42,7 @@ export type DashboardStats = {
 };
 export interface Prescription {
   id: number;
+
   date: string | null;
   patientId: number;
   medications: PrescriptionMed[]; // Add medications property
@@ -50,6 +51,7 @@ export interface Prescription {
 export type PrescriptionWithPatient = {
   id: number;
   date: string;
+  patientId: number;
   medications: PrescriptionMed[]; // or Date, depending on how Drizzle returns it
   patient: {
     id: number;

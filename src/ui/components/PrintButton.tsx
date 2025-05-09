@@ -90,7 +90,7 @@ const PrintButton = ({
       }}
       className="  bg-primary px-4 py-2"
     >
-      Print
+      Imprimer
     </Button>
   );
 };
