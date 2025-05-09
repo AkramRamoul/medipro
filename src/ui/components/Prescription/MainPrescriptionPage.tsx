@@ -54,7 +54,7 @@ function MainPrescriptionPage({ id }: { id: string }) {
     <>
       <div className="p-4 bg-background rounded-xl max-w-[80%] mx-auto">
         <Button onClick={() => setIsOpen(true)} className="mb-4 w-full">
-          New Prescription
+          Nouvelle ordonnance
         </Button>
       </div>
 
@@ -73,10 +73,10 @@ function MainPrescriptionPage({ id }: { id: string }) {
             <TableRow>
               <TableHead className="w-[45%] text-foreground">Date</TableHead>
               <TableHead className="hidden md:table-cell text-foreground">
-                Time
+                Temps
               </TableHead>
               <TableHead className="text-right text-foreground">
-                Actions
+                Options{" "}
               </TableHead>
             </TableRow>
           </TableHeader>
@@ -88,7 +88,8 @@ function MainPrescriptionPage({ id }: { id: string }) {
                   colSpan={3}
                   className="h-24 text-center text-muted-foreground"
                 >
-                  No prescriptions found
+                  Aucune ordonnance pour le moment. Cliquez sur "Nouvelle
+                  ordonnance" pour en ajouter une.
                 </TableCell>
               </TableRow>
             </TableBody>

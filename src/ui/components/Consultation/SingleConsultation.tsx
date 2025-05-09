@@ -93,25 +93,25 @@ function SingleConsultation({
       {/* Consultation Details */}
       <div className="space-y-6">
         <div className="flex flex-col items-start space-y-1">
-          <Label className="mb-2">Reason for Visit</Label>
+          <Label className="mb-2">Raison de la visite</Label>
           <Input
-            placeholder="Short description"
+            placeholder="Brève description de la raison de la consultation"
             value={reason}
             onChange={(e) => setReason(e.target.value)}
           />
         </div>
         <div className="flex flex-col items-start space-y-1">
-          <Label>Symptoms</Label>
+          <Label>Symptômes</Label>
           <Textarea
-            placeholder="List symptoms here..."
+            placeholder="Entrez les symptômes ici..."
             value={symptoms}
             onChange={(e) => setSymptoms(e.target.value)}
           />
         </div>
         <div className="flex flex-col items-start space-y-1">
-          <Label>Diagnosis</Label>
+          <Label>Diagnostic</Label>
           <Textarea
-            placeholder="Doctor's diagnosis"
+            placeholder="Diagnostic du médecin"
             value={diagnosis}
             onChange={(e) => setDiagnosis(e.target.value)}
           />
@@ -119,7 +119,7 @@ function SingleConsultation({
         <div className="flex flex-col items-start space-y-1">
           <Label>Notes</Label>
           <Textarea
-            placeholder="How should the patient take the medication?"
+            placeholder="Notes supplementaires"
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
           />
@@ -135,7 +135,7 @@ function SingleConsultation({
             onClose();
           }}
         >
-          Cancel
+          Annuler
         </Button>
         <Button className="bg-primary" onClick={handleSave}>
           Modifier Consultation

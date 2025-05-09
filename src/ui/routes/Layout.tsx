@@ -12,7 +12,7 @@ const Layout = () => {
       <SidebarProvider defaultOpen={true}>
         <AppSidebar />
         <main className="flex-1 dark:bg-background">
-          <div className="flex items-center p-2">
+          <div className="sticky top-0 z-10 flex items-center p-2 bg-background">
             <SidebarTrigger />
             {!hideBackButton && <BackButton />}
           </div>

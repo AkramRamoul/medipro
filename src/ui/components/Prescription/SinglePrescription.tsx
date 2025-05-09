@@ -17,7 +17,7 @@ function SinglePrescription({
     <div>
       {meds.length > 0 && (
         <div className="mt-4 p-4">
-          <h3 className="font-semibold mb-2 text-foreground">Medications:</h3>
+          <h3 className="font-semibold mb-2 text-foreground">Médicaments:</h3>
           <ul className="space-y-2">
             {meds.map((med, index) => (
               <li
@@ -37,7 +37,7 @@ function SinglePrescription({
 
       <div className="flex justify-end mt-4 space-x-3 px-4">
         <Button variant="ghost" onClick={onClose}>
-          Close
+          Fermer
         </Button>
         <PrintButton prescription={meds} patient={patient} window={window} />
       </div>

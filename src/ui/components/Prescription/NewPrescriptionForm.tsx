@@ -201,7 +201,7 @@ const NewPrescriptionForm = ({
           value={inputValue}
           onKeyDown={handleKeyDown}
           onChange={handleInputChange}
-          placeholder="Type a medication name..."
+          placeholder="Tapez le nom d'un médicament..."
           className="w-[350px] bg-background text-foreground"
         />
 
@@ -225,9 +225,9 @@ const NewPrescriptionForm = ({
           className="w-[80px] bg-background text-foreground"
         />
 
-        <Select value={durationUnit} onValueChange={setDurationUnit}>
+        <Select value={durationValue || ""} onValueChange={setDurationUnit}>
           <SelectTrigger className="w-[120px] bg-background text-foreground">
-            <SelectValue placeholder="Unit" />
+            <SelectValue placeholder="durée" />{" "}
           </SelectTrigger>
           <SelectContent className="bg-popover text-popover-foreground">
             {["jours", "semaines", "mois"].map((unit, index) => (
@@ -242,7 +242,7 @@ const NewPrescriptionForm = ({
           type="text"
           value={note}
           onChange={(e) => setNote(e.target.value)}
-          placeholder="Add a note..."
+          placeholder="Ajouter une note..."
           className="w-[200px] bg-background text-foreground"
         />
 
@@ -250,7 +250,7 @@ const NewPrescriptionForm = ({
           onClick={handleAddMedication}
           disabled={inputValue.trim() === ""}
         >
-          Add
+          Ajouter
         </Button>
       </div>
 
@@ -276,7 +276,7 @@ const NewPrescriptionForm = ({
       {selectedMedications.length > 0 && (
         <div className="mt-4">
           <h3 className="font-semibold mb-2 text-foreground">
-            Selected Medications:
+            Médicaments sélectionnés:
           </h3>
           <ul className="space-y-2">
             {selectedMedications.map((med, index) => (
@@ -293,7 +293,7 @@ const NewPrescriptionForm = ({
                   variant="destructive"
                   onClick={() => handleRemoveMedication(index)}
                 >
-                  Remove
+                  Supprimer
                 </Button>
               </li>
             ))}
@@ -303,14 +303,14 @@ const NewPrescriptionForm = ({
 
       {/* Action Buttons */}
       <div className="flex justify-end space-x-3 mt-4 p-4 border-t border-border">
-        <Button onClick={handleSave}>Save</Button>
+        <Button onClick={handleSave}>Enregistrer</Button>
         <PrintButton
           prescription={selectedMedications}
           patient={patient}
           window={window}
         />
         <Button onClick={onClose} variant="outline">
-          Cancel
+          Annuler{" "}
         </Button>
       </div>
     </div>

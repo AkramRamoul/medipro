@@ -61,7 +61,8 @@ export function AddPatientForm({ onClose, onSave }: AddPatientFormProps) {
         <CardHeader>
           <CardTitle className="text-foreground">Add a new patient</CardTitle>
           <CardDescription className="text-muted-foreground">
-            Fill out the form below to add a new patient to the system.
+            Remplissez le formulaire ci-dessous pour ajouter un nouveau patient
+            au système.{" "}
           </CardDescription>
         </CardHeader>
 
@@ -70,12 +71,12 @@ export function AddPatientForm({ onClose, onSave }: AddPatientFormProps) {
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="grid gap-2">
               <Label htmlFor="firstName" className="text-foreground">
-                First Name
+                Nom
               </Label>
               <Input
                 {...register("first_name")}
                 id="firstName"
-                placeholder="Enter first name"
+                placeholder="Entrez le nom"
                 className="bg-background text-foreground"
               />
               {errors.first_name && (
@@ -87,12 +88,12 @@ export function AddPatientForm({ onClose, onSave }: AddPatientFormProps) {
 
             <div className="grid gap-2">
               <Label htmlFor="lastName" className="text-foreground">
-                Last Name
+                Prénom
               </Label>
               <Input
                 {...register("last_name")}
                 id="lastName"
-                placeholder="Enter last name"
+                placeholder="Entrez le prénom"
                 className="bg-background text-foreground"
               />
               {errors.last_name && (
@@ -107,7 +108,7 @@ export function AddPatientForm({ onClose, onSave }: AddPatientFormProps) {
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="grid gap-2">
               <Label htmlFor="gender" className="text-foreground">
-                Gender
+                Sexe
               </Label>
               <Controller
                 name="gender"
@@ -121,8 +122,8 @@ export function AddPatientForm({ onClose, onSave }: AddPatientFormProps) {
                       <SelectValue placeholder="Select gender" />
                     </SelectTrigger>
                     <SelectContent className="bg-background text-foreground">
-                      <SelectItem value="Male">Male</SelectItem>
-                      <SelectItem value="Female">Female</SelectItem>
+                      <SelectItem value="Male">Mâle</SelectItem>
+                      <SelectItem value="Female">Femmelle</SelectItem>
                     </SelectContent>
                   </Select>
                 )}
@@ -136,7 +137,7 @@ export function AddPatientForm({ onClose, onSave }: AddPatientFormProps) {
 
             <div className="grid gap-2">
               <Label htmlFor="age" className="text-foreground">
-                Age
+                Âge
               </Label>
               <Input
                 {...register("age")}
@@ -155,12 +156,12 @@ export function AddPatientForm({ onClose, onSave }: AddPatientFormProps) {
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="grid gap-2">
               <Label htmlFor="contact" className="text-foreground">
-                Contact
+                Num tel (Facultative)
               </Label>
               <Input
                 {...register("contact")}
                 id="contact"
-                placeholder="Enter contact number"
+                placeholder="Entrez le numéro de téléphone"
                 className="bg-background text-foreground"
               />
               {errors.contact && (
@@ -172,7 +173,7 @@ export function AddPatientForm({ onClose, onSave }: AddPatientFormProps) {
 
             <div className="grid gap-2">
               <Label htmlFor="weight" className="text-foreground">
-                Weight
+                Poids (Facultative)
               </Label>
               <Input
                 {...register("weight")}
@@ -192,12 +193,12 @@ export function AddPatientForm({ onClose, onSave }: AddPatientFormProps) {
           {/* Notes */}
           <div className="grid gap-2">
             <Label htmlFor="special-notes" className="text-foreground">
-              Special Notes (Optional)
+              notes supplémentaires (Facultative)
             </Label>
             <Textarea
               {...register("notes")}
               id="special-notes"
-              placeholder="Any additional notes for the patient."
+              placeholder="Des notes supplémentaires ."
               className="bg-background text-foreground"
             />
           </div>
@@ -206,17 +207,14 @@ export function AddPatientForm({ onClose, onSave }: AddPatientFormProps) {
         <CardFooter className="justify-between space-x-2">
           <Button
             variant="ghost"
-            size="sm"
             type="button"
             onClick={onClose}
             className="text-foreground"
           >
-            Cancel
+            Annuler
           </Button>
 
-          <Button size="sm" type="submit">
-            Save
-          </Button>
+          <Button type="submit">Enregistrer</Button>
         </CardFooter>
       </form>
     </Card>

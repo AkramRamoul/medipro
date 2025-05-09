@@ -31,7 +31,7 @@ function ConsultationForm({ id }: { id: string }) {
   return (
     <div className="p-4 bg-background dark:bg-background rounded-xl max-w-[80%] mx-auto">
       <Button onClick={() => setIsOpen(true)} className="mb-4 w-full">
-        New Consultation
+        Nouvelle consultation{" "}
       </Button>
 
       <Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>
@@ -44,7 +44,8 @@ function ConsultationForm({ id }: { id: string }) {
 
       {consultations.length === 0 ? (
         <div className="mt-4 p-4 text-center text-muted-foreground border border-border rounded-lg bg-muted">
-          No consultations yet. Click "New Consultation" to add one.
+          Aucune consultation pour le moment. Cliquez sur "Nouvelle
+          consultation" pour en ajouter une.{" "}
         </div>
       ) : (
         <div className="mt-6 space-y-4">

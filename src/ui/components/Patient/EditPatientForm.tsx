@@ -32,9 +32,9 @@ const patientSchema = z.object({
   last_name: z.string().min(2, "Last name must be at least 2 characters"),
   age: z.coerce.number().min(1, "Age must be at least 1"),
   gender: z.enum(["Male", "Female"]),
-  contact: z.string().min(5, "Contact must be valid"),
-  weight: z.coerce.number().min(1, "Weight must be a positive number"),
-  address: z.string().min(5, "Address must be valid"),
+  contact: z.string().optional(),
+  weight: z.coerce.number().optional(),
+  address: z.string().optional(),
   bloodType: z.string().optional(),
   medicalHistory: z.string().optional(),
   allergies: z.string().optional(),
@@ -118,19 +118,21 @@ export function EditPatientForm({ id }: { id: string }) {
     >
       <form onSubmit={handleSubmit(handleSave)}>
         <CardHeader>
-          <CardTitle>Edit Patient</CardTitle>
-          <CardDescription>Modify the patient details below.</CardDescription>
+          <CardTitle>Modifier le patient</CardTitle>
+          <CardDescription>
+            Modifiez les informations du patient ci-dessous.
+          </CardDescription>
         </CardHeader>
 
         <CardContent className="grid gap-6">
-          {/* First Name & Last Name */}
+          {/* Prénom & Nom */}
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="grid gap-2">
-              <Label htmlFor="firstName">First Name</Label>
+              <Label htmlFor="firstName">Nom</Label>
               <Input
                 {...register("first_name")}
                 id="firstName"
-                placeholder="Enter first name"
+                placeholder="Entrer le prénom"
               />
               {errors.first_name && (
                 <p className="text-destructive text-sm">
@@ -140,11 +142,11 @@ export function EditPatientForm({ id }: { id: string }) {
             </div>
 
             <div className="grid gap-2">
-              <Label htmlFor="lastName">Last Name</Label>
+              <Label htmlFor="lastName">Prénom</Label>
               <Input
                 {...register("last_name")}
                 id="lastName"
-                placeholder="Enter last name"
+                placeholder="Entrer le nom"
               />
               {errors.last_name && (
                 <p className="text-destructive text-sm">
@@ -154,15 +156,15 @@ export function EditPatientForm({ id }: { id: string }) {
             </div>
           </div>
 
-          {/* Age & Gender */}
+          {/* Âge & Sexe */}
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="grid gap-2">
-              <Label htmlFor="age">Age</Label>
+              <Label htmlFor="age">Âge</Label>
               <Input
                 {...register("age")}
                 id="age"
                 type="number"
-                placeholder="Enter age"
+                placeholder="Entrer l'âge"
               />
               {errors.age && (
                 <p className="text-destructive text-sm">{errors.age.message}</p>
@@ -170,18 +172,18 @@ export function EditPatientForm({ id }: { id: string }) {
             </div>
 
             <div className="grid gap-2">
-              <Label htmlFor="gender">Gender</Label>
+              <Label htmlFor="gender">Sexe</Label>
               <Controller
                 name="gender"
                 control={control}
                 render={({ field }) => (
                   <Select {...field} onValueChange={field.onChange}>
                     <SelectTrigger id="gender">
-                      <SelectValue placeholder="Select gender" />
+                      <SelectValue placeholder="Sélectionner le sexe" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Male">Male</SelectItem>
-                      <SelectItem value="Female">Female</SelectItem>
+                      <SelectItem value="Male">Homme</SelectItem>
+                      <SelectItem value="Female">Femme</SelectItem>
                     </SelectContent>
                   </Select>
                 )}
@@ -189,14 +191,14 @@ export function EditPatientForm({ id }: { id: string }) {
             </div>
           </div>
 
-          {/* Contact & Address */}
+          {/* Contact & Adresse */}
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="grid gap-2">
-              <Label htmlFor="contact">Contact</Label>
+              <Label htmlFor="contact">Contact (optionnel)</Label>
               <Input
                 {...register("contact")}
                 id="contact"
-                placeholder="Enter contact number"
+                placeholder="Entrer le numéro de contact"
               />
               {errors.contact && (
                 <p className="text-destructive text-sm">
@@ -206,26 +208,30 @@ export function EditPatientForm({ id }: { id: string }) {
             </div>
 
             <div className="grid gap-2">
-              <Label htmlFor="address">Address</Label>
+              <Label htmlFor="address">Adresse (optionnel)</Label>
               <Input
                 {...register("address")}
                 id="address"
-                placeholder="Enter address"
+                placeholder="Entrer l'adresse"
               />
             </div>
           </div>
 
-          {/* Blood Type & Weight */}
+          {/* Groupe sanguin & Poids */}
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="grid gap-2">
-              <Label htmlFor="bloodType">Blood Type</Label>
+              <Label htmlFor="bloodType">Groupe sanguin (optionnel)</Label>
               <Controller
                 name="bloodType"
                 control={control}
+                defaultValue=""
                 render={({ field }) => (
-                  <Select {...field} onValueChange={field.onChange}>
+                  <Select
+                    value={field.value || ""}
+                    onValueChange={field.onChange}
+                  >
                     <SelectTrigger id="bloodType">
-                      <SelectValue placeholder="Select blood type" />
+                      <SelectValue placeholder="Sélectionner le groupe sanguin" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="A+">A+</SelectItem>
@@ -243,12 +249,12 @@ export function EditPatientForm({ id }: { id: string }) {
             </div>
 
             <div className="grid gap-2">
-              <Label htmlFor="weight">Weight</Label>
+              <Label htmlFor="weight">Poids (kg) (optionnel)</Label>
               <Input
                 {...register("weight")}
                 id="weight"
                 type="number"
-                placeholder="Enter weight (kg)"
+                placeholder="Entrer le poids"
               />
               {errors.weight && (
                 <p className="text-destructive text-sm">
@@ -258,29 +264,31 @@ export function EditPatientForm({ id }: { id: string }) {
             </div>
           </div>
 
-          {/* Medical History, Allergies, Notes */}
+          {/* Antécédents médicaux, Allergies, Remarques */}
           <div className="grid gap-2">
-            <Label htmlFor="medicalHistory">Medical History</Label>
+            <Label htmlFor="medicalHistory">
+              Antécédents médicaux (optionnel)
+            </Label>
             <Textarea
               {...register("medicalHistory")}
               id="medicalHistory"
-              placeholder="Enter medical history"
+              placeholder="Entrer les antécédents médicaux"
             />
           </div>
 
-          <Label htmlFor="allergies">Allergies</Label>
-          <Textarea {...register("allergies")} placeholder="Enter allergies" />
-
-          <Label htmlFor="notes">Notes</Label>
+          <Label htmlFor="allergies">Allergies (optionnel)</Label>
           <Textarea
-            {...register("notes")}
-            placeholder="Any additional notes."
+            {...register("allergies")}
+            placeholder="Entrer les allergies"
           />
+
+          <Label htmlFor="notes">Remarques (optionnel)</Label>
+          <Textarea {...register("notes")} placeholder="Autres remarques" />
         </CardContent>
 
         <CardFooter className="justify-end">
           <Button size="lg" type="submit">
-            Save
+            Enregistrer
           </Button>
         </CardFooter>
       </form>

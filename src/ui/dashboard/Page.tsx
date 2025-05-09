@@ -47,7 +47,7 @@ export default function DashboardPage() {
         <div className="flex-1 space-y-4 p-8 pt-6">
           <div className="flex items-center justify-between space-y-2">
             <h2 className="text-3xl font-bold tracking-tight text-foreground">
-              Dashboard
+              Tableau de bord
             </h2>
           </div>
 
@@ -56,7 +56,7 @@ export default function DashboardPage() {
             <Card className="shadow-sm rounded-xl bg-card border border-border">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium text-foreground">
-                  Estimated Revenue
+                  Revenu estimé
                 </CardTitle>
                 <svg
                   className="h-4 w-4 text-muted-foreground"
@@ -82,7 +82,7 @@ export default function DashboardPage() {
             <Card className="shadow-sm rounded-xl bg-card border border-border">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium text-foreground">
-                  Active Patients
+                  Patients actifs{" "}
                 </CardTitle>
                 <svg
                   className="h-4 w-4 text-muted-foreground"
@@ -110,7 +110,7 @@ export default function DashboardPage() {
             <Card className="shadow-sm rounded-xl bg-card border border-border">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium text-foreground">
-                  Prescriptions This Month
+                  Ordonnances ce mois-ci{" "}
                 </CardTitle>
                 <svg
                   className="h-4 w-4 text-muted-foreground"
@@ -139,7 +139,7 @@ export default function DashboardPage() {
             <Card className="shadow-sm rounded-xl bg-card border border-border">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium text-foreground">
-                  Consultations Today
+                  Consultations aujourd'hui{" "}
                 </CardTitle>
                 <svg
                   className="h-4 w-4 text-muted-foreground"
@@ -167,9 +167,7 @@ export default function DashboardPage() {
             {/* Overview Card */}
             <Card className="col-span-4 shadow-sm rounded-xl bg-card border border-border">
               <CardHeader>
-                <CardTitle className="text-2xl text-primary">
-                  Overview
-                </CardTitle>
+                <CardTitle className="text-2xl text-primary">Aperçu </CardTitle>
               </CardHeader>
               <CardContent className="pl-2">
                 <Overview />
@@ -183,8 +181,8 @@ export default function DashboardPage() {
                   Recent Consultations
                 </CardTitle>
                 <CardDescription className="text-muted-foreground">
-                  You made {stats.consultationsThisMonth} consultations this
-                  month.
+                  Vous avez effectué {stats.consultationsThisMonth}{" "}
+                  consultations ce mois-ci.
                 </CardDescription>
               </CardHeader>
               <CardContent>

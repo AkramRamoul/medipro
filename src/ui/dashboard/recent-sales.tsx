@@ -53,7 +53,7 @@ export function RecentSales({
         })
       ) : (
         <p className="text-sm text-muted-foreground dark:text-gray-400">
-          No recent consultations.
+          Aucune consultation récente.
         </p>
       )}
     </div>

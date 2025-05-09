@@ -90,12 +90,12 @@ function PatientsTable({ patients }: { patients: Patient[] }) {
     <>
       <NewPatientModal isOpen={isOpen} onClose={() => setIsOpen(false)} />
 
-      <div className="flex flex-col gap-6 p-8 border rounded-2xl bg-card text-card-foreground shadow-lg mt-10 w-[800px] max-w-full mx-auto">
+      <div className="flex flex-col p-2 sm:p-4 border rounded-2xl bg-card text-card-foreground shadow-lg w-full max-w-[900px] mx-auto">
         {/* Search Bar */}
-        <div className="flex justify-center mb-8 space-x-2">
+        <div className="flex flex-col sm:flex-row justify-center mb-4 gap-2">
           <div className="relative w-full max-w-md ">
             <Input
-              placeholder="Filter by first or last name..."
+              placeholder="Filtrer par prénom ou nom..."
               className="pl-10 py-3 rounded-lg border border-input text-foreground focus:ring-2 focus:ring-primary focus:border-primary"
               value={query}
               onChange={handleQueryChange}
@@ -108,16 +108,16 @@ function PatientsTable({ patients }: { patients: Patient[] }) {
             onClick={() => setIsOpen(true)}
             className="w-fit flex items-center space-x-2 bg-primary text-primary-foreground hover:bg-primary/90"
           >
-            <span>Add New Patient</span>
+            <span>Ajouter un nouveau patient</span>
             <Plus className="w-4 h-4 font-bold" />
           </Button>
         </div>
 
         {/* Table Section */}
-        <div className="px-4 overflow-x-auto">
-          <Table>
+        <div className="w-full overflow-x-auto">
+          <Table className="min-w-[600px] w-full">
             <TableCaption className="mt-6 text-muted-foreground">
-              A list of all your patients
+              Une liste de tous vos patients
             </TableCaption>
             <TableHeader>
               <TableRow className="bg-muted rounded-lg">
@@ -126,8 +126,7 @@ function PatientsTable({ patients }: { patients: Patient[] }) {
                   onClick={() => handleSort("firstname")}
                 >
                   <span className="flex items-center">
-                    First Name
-                    <ArrowUpDown className="ml-2 h-4 w-4" />
+                    Nom <ArrowUpDown className="ml-2 h-4 w-4" />
                   </span>
                 </TableHead>
 
@@ -136,7 +135,7 @@ function PatientsTable({ patients }: { patients: Patient[] }) {
                   onClick={() => handleSort("lastname")}
                 >
                   <span className="flex items-center">
-                    Last Name
+                    Prénom
                     <ArrowUpDown className="ml-2 h-4 w-4" />
                   </span>
                 </TableHead>
@@ -144,11 +143,11 @@ function PatientsTable({ patients }: { patients: Patient[] }) {
                 <TableHead className="text-muted-foreground">Contact</TableHead>
 
                 <TableHead
-                  className="text-muted-foreground text-left cursor-pointer select-none"
+                  className="text-muted-foreground text-right cursor-pointer select-none w-[200px]"
                   onClick={() => handleSort("lastVisit")}
                 >
-                  <span className="flex items-center">
-                    Last Visit
+                  <span className="flex items-center justify-end">
+                    Dernière visite
                     <ArrowUpDown className="ml-2 h-4 w-4" />
                   </span>
                 </TableHead>
@@ -167,7 +166,7 @@ function PatientsTable({ patients }: { patients: Patient[] }) {
                     </TableCell>
                     <TableCell>{patient.lastname || "N/A"}</TableCell>
                     <TableCell>{patient.contact || "N/A"}</TableCell>
-                    <TableCell>
+                    <TableCell className="text-right w-[200px]">
                       {patient.lastVisit === null
                         ? "N/A"
                         : new Date(patient.lastVisit).toLocaleDateString()}
@@ -180,7 +179,7 @@ function PatientsTable({ patients }: { patients: Patient[] }) {
                     colSpan={4}
                     className="text-center text-muted-foreground py-6"
                   >
-                    No matching patients found.
+                    Aucun patient correspondant trouvé.
                   </TableCell>
                 </TableRow>
               )}

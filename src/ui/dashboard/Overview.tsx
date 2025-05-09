@@ -38,7 +38,7 @@ export function Overview() {
             tickLine={false}
             axisLine={false}
             label={{
-              value: "Month",
+              value: "Mois",
               position: "bottom",
               offset: 10, // pushes label down
               style: { fill: "#555", fontWeight: "bold" },
@@ -52,7 +52,7 @@ export function Overview() {
             axisLine={false}
             tickFormatter={(value) => `${value}`}
             label={{
-              value: "Number of Patients",
+              value: "Nombre de patients",
               angle: -90,
               position: "outsideLeft",
               offset: 20, // pushes label away from axis
@@ -69,7 +69,7 @@ export function Overview() {
         </BarChart>
       </ResponsiveContainer>
       <p className="text-sm text-muted-foreground text-center mt-2">
-        Monthly number of patients recorded in the clinic
+        Nombre mensuel de patients enregistrés à la clinique
       </p>
     </div>
   );

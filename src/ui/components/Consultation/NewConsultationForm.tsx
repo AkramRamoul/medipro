@@ -69,58 +69,34 @@ function NewConsultationForm({
     return (
       <div className="flex items-center justify-center py-10">
         <Loader2 className="animate-spin text-muted-foreground w-6 h-6" />
-        <span className="ml-2 text-muted-foreground">Loading...</span>
       </div>
     );
   }
 
   return (
     <Card className="p-6 space-y-4 max-w-2xl mx-auto bg-background">
-      <h2 className="text-2xl font-bold">New Consultation</h2>
-
-      {/* Patient Info */}
+      <h2 className="text-2xl font-bold">Nouvelle consultation</h2>
       <div className="space-y-4">
-        <div className="flex flex-col items-start space-y-1">
-          <Label>Nom</Label>
-          <Input value={patient?.last_name || ""} readOnly />
-        </div>
-        <div className="flex flex-col items-start space-y-1">
-          <Label>Prénom</Label>
-          <Input value={`${patient?.first_name || ""}`} readOnly />
-        </div>
-
-        <div className="flex flex-col items-start space-y-1">
-          <Label>Age & Gender</Label>
+        <div className="flex flex-col items-start space-y-3">
+          <Label>Raison de la visite</Label>
           <Input
-            className="font-semibold"
-            value={`${patient?.age || ""} • ${patient?.gender || ""}`}
-            readOnly
-          />
-        </div>
-      </div>
-
-      {/* Consultation Details */}
-      <div className="space-y-4">
-        <div className="flex flex-col items-start space-y-1">
-          <Label>Reason for Visit</Label>
-          <Input
-            placeholder="Short description"
+            placeholder="Raison de la visite"
             value={reason}
             onChange={(e) => setReason(e.target.value)}
           />
         </div>
         <div className="flex flex-col items-start space-y-1">
-          <Label>Symptoms</Label>
+          <Label>Symptômes</Label>
           <Textarea
-            placeholder="List symptoms here..."
+            placeholder="Entrez les symptômes ici..."
             value={symptoms}
             onChange={(e) => setSymptoms(e.target.value)}
           />
         </div>
         <div className="flex flex-col items-start space-y-1">
-          <Label>Diagnosis</Label>
+          <Label>Diagnostic</Label>
           <Textarea
-            placeholder="Doctor's diagnosis"
+            placeholder="Diagnostic du médecin"
             value={diagnosis}
             onChange={(e) => setDiagnosis(e.target.value)}
           />
@@ -128,7 +104,7 @@ function NewConsultationForm({
         <div className="flex flex-col items-start space-y-1">
           <Label>Notes</Label>
           <Textarea
-            placeholder="Notes Additional"
+            placeholder="Notes supplémentaires"
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
           />
@@ -138,10 +114,10 @@ function NewConsultationForm({
       {/* Buttons */}
       <div className="flex justify-between mt-4">
         <Button variant="ghost" onClick={onClose}>
-          Cancel
+          Annuler
         </Button>
         <Button className="bg-primary" onClick={handleSave}>
-          Save Consultation
+          Enregistrer la consultation
         </Button>
       </div>
     </Card>
