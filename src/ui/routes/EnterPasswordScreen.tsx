@@ -35,7 +35,7 @@ export function EnterPasswordScreen() {
       setAuthed(true);
       navigate("/"); // go to main layout
     } else {
-      form.setError("password", { message: "Incorrect password" });
+      form.setError("password", { message: "Mot de passe incorrect" });
     }
   }
 
@@ -51,7 +51,7 @@ export function EnterPasswordScreen() {
             name="password"
             render={({ field }) => (
               <FormItem className="text-left space-y-2">
-                <FormLabel>Enter Password</FormLabel>
+                <FormLabel>Entrez le mot de passe</FormLabel>
                 <FormControl>
                   <Input type="password" placeholder="••••••••" {...field} />
                 </FormControl>
@@ -60,7 +60,7 @@ export function EnterPasswordScreen() {
             )}
           />
           <Button type="submit" className="w-full">
-            Unlock
+            Ouvrir
           </Button>
         </form>
       </Form>

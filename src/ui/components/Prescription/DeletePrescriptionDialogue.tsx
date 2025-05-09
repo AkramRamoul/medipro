@@ -37,11 +37,11 @@ function DeleteDialogue({
         setData((prev) =>
           prev.filter((item) => item.id !== Number(priscriptionId))
         );
-        toast.success("Prescription deleted successfully");
+        toast.success("Ordonnance supprimée avec succès");
       })
       .catch((error) => {
         console.error(error);
-        toast.error("Failed to delete prescription");
+        toast.error("Échec de la suppression de la prescription");
       })
       .finally(() => {
         setIsDeleting(false);
@@ -54,15 +54,15 @@ function DeleteDialogue({
 
       <AlertDialogContent onClick={(e) => e.stopPropagation()}>
         <AlertDialogHeader>
-          <AlertDialogTitle>Delete Prescription</AlertDialogTitle>
+          <AlertDialogTitle>Supprimer l'ordonnance</AlertDialogTitle>
           <AlertDialogDescription>
-            Are you sure you want to delete this prescription? This action
-            cannot be undone.
+            Êtes-vous sûr de vouloir supprimer cette ordonnance ? Cette action
+            est irréversible.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel onClick={(e) => e.stopPropagation()}>
-            Cancel
+            Annuler
           </AlertDialogCancel>
           <AlertDialogAction
             disabled={isDeleting}
@@ -72,7 +72,7 @@ function DeleteDialogue({
               handleDelete();
             }}
           >
-            {isDeleting ? "Deleting..." : "Delete"}
+            {isDeleting ? "Suppression..." : "Supprimer"}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

@@ -36,7 +36,7 @@ function SettingsForm() {
     const success = await window.electronAPI.createName(data.name);
 
     if (success.success) {
-      toast.success("Name updated successfully");
+      toast.success("Nom mis à jour avec succès");
       form.reset({
         name: "",
       });
@@ -54,13 +54,12 @@ function SettingsForm() {
           name="name"
           render={({ field }) => (
             <FormItem className="space-y-2 text-left">
-              <FormLabel>Name</FormLabel>
+              <FormLabel>Nom</FormLabel>
               <FormControl>
-                <Input placeholder="Your name" {...field} className="w-full" />
+                <Input placeholder="Votre name" {...field} className="w-full" />
               </FormControl>
               <FormDescription>
-                This is the name that will be displayed on your profile and in
-                emails.
+                C'est le nom qui sera affiché sur l'écran d'accueil .
               </FormDescription>
               <FormMessage />
             </FormItem>
@@ -68,7 +67,7 @@ function SettingsForm() {
         />
         <div className="pt-4">
           <Button type="submit" className="px-6">
-            Update Preferences
+            Mettre à jour Votre nom
           </Button>
         </div>
       </form>

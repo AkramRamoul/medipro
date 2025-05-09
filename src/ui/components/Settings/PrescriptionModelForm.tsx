@@ -158,10 +158,10 @@ export function PrescriptionModelForm() {
       <form onSubmit={handleSubmit}>
         <CardHeader>
           <CardTitle className="text-center text-xl">
-            Design your prescription
+            Concevez votre ordonnance
           </CardTitle>
           <CardDescription className="text-center">
-            Fill out the form below to design your prescription.
+            Remplissez le formulaire ci-dessous pour concevoir votre ordonnance.
           </CardDescription>
         </CardHeader>
         <CardContent className="grid gap-6">
@@ -355,7 +355,7 @@ export function PrescriptionModelForm() {
       <FileDropzone
         setCurrentFile={fileUploaderProps.handleFileUpload}
         acceptedFileTypes={["image/*", "application/pdf"]}
-        dropText="Drag and drop a file here or click to upload"
+        dropText="Faites glisser et déposez un fichier ici ou cliquez pour télécharger"
       >
         <RoundedTool />
       </FileDropzone>

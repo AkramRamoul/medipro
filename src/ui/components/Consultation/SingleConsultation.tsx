@@ -61,7 +61,7 @@ function SingleConsultation({
 
       try {
         await window.electronAPI.editConsultation(updatedConsultation);
-        toast.success("Consultation updated successfully!");
+        toast.success("Consultation mise à jour avec succès !");
         const refreshedData = await window.electronAPI.getConsultation(id);
         setConsultation(refreshedData[0]);
         onClose();

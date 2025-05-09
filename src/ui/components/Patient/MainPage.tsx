@@ -13,7 +13,7 @@ function MainPage() {
             value="example"
             className="flex-1 text-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
           >
-            Patient Details
+            Détails du patient{" "}
           </TabsTrigger>
           <TabsTrigger
             value="account"
@@ -25,7 +25,7 @@ function MainPage() {
             value="password"
             className="flex-1 text-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
           >
-            Prescription
+            Ordonnance
           </TabsTrigger>
         </TabsList>
 

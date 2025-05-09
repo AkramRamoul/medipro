@@ -96,7 +96,7 @@ const NewPrescriptionForm = ({
   // Save prescription to the database
   const handleSave = async () => {
     if (selectedMedications.length === 0) {
-      toast.error("Please add at least one medication!");
+      toast.error("Veuillez ajouter au moins un médicament !");
       return;
     }
 
@@ -118,11 +118,11 @@ const NewPrescriptionForm = ({
       );
 
       if (response.success) {
-        toast.success("saved successfully!");
+        toast.success("enregistré avec succès !");
         refreshPrescriptions();
         onClose();
       } else {
-        toast.error("Failed to save prescription: ");
+        toast.error("Échec de l'enregistrement de l'ordonnance :");
       }
     } catch (error) {
       console.error("Failed to save prescription:", error);
@@ -135,7 +135,7 @@ const NewPrescriptionForm = ({
       : inputValue.trim();
 
     if (!medName) {
-      toast.error("Medication name cannot be empty.");
+      toast.error("Le nom du médicament ne peut pas être vide.");
       return;
     }
 

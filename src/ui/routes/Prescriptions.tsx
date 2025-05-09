@@ -77,7 +77,7 @@ function Prescriptions() {
         <div className="flex justify-center mb-8">
           <div className="relative w-full max-w-md">
             <Input
-              placeholder="Filter by first or last name..."
+              placeholder="Filtrer par Nom ou Prénom..."
               className="pl-10 py-3 rounded-lg border border-input text-foreground focus:ring-2 focus:ring-primary focus:border-primary"
               value={query}
               onChange={handleQueryChange}
@@ -106,7 +106,7 @@ function Prescriptions() {
                   <TableHead className="text-muted-foreground">Date</TableHead>
                   <TableHead className="text-muted-foreground w-[80px]">
                     <div className="flex justify-center items-center">
-                      Supprimer
+                      Options
                     </div>
                   </TableHead>
                 </TableRow>

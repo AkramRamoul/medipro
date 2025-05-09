@@ -33,11 +33,11 @@ function DeleteDialogue({ consultationId, setData }: DeleteDialogueProps) {
         setData((prev) =>
           prev.filter((item) => item.id !== Number(consultationId))
         );
-        toast.success("Consultation deleted successfully");
+        toast.success("Consultation supprimée avec succès");
       })
       .catch((error) => {
         console.error(error);
-        toast.error("Failed to delete consultation");
+        toast.error("Échec de la suppression de la consultation");
       })
       .finally(() => {
         setIsDeleting(false);

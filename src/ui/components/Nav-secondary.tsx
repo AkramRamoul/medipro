@@ -36,7 +36,7 @@ export function NavSecondary({
   async function handleLock() {
     const updatedStatus = await refetch();
     if (updatedStatus === "not-exists") {
-      toast.warning("No password has been set yet.");
+      toast.warning("Aucun mot de passe n'a encore été défini.");
       return;
     }
 
@@ -58,7 +58,7 @@ export function NavSecondary({
                 onClick={handleLock}
               >
                 <Lock className="w-4 h-4" />
-                <span className="ml-2 font-semibold">Logout</span>
+                <span className="ml-2 font-semibold">Déconnexion</span>
               </Button>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -93,16 +93,16 @@ function HelpComponent({
         </PopoverTrigger>
         <PopoverContent className="w-80 ml-2">
           <div className="flex flex-col space-y-2 p-2">
-            <h3 className="text-lg font-semibold">Contact Support</h3>
+            <h3 className="text-lg font-semibold">Contacter l'assistance</h3>
             <p className="text-sm text-muted-foreground">
-              If you need help, reach out to our support team:
+              Si vous avez besoin d'aide, contactez notre équipe d'assistance :
             </p>
             <div className="flex flex-col text-sm">
               <span>
-                <strong>Phone:</strong> +1 (123) 456-7890
+                <strong>Téléphone:</strong> +1 (123) 456-7890
               </span>
               <span>
-                <strong>Email:</strong> support@example.com
+                <strong>E-mail:</strong> support@example.com
               </span>
             </div>
           </div>

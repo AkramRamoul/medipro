@@ -74,7 +74,7 @@ function Page() {
             <Search className="w-5 h-5" />
           </span>
           <Input
-            placeholder="Search by first or last name..."
+            placeholder="Filtrer par Nom ou Prénom..."
             className="pl-10 py-3 rounded-lg border border-border bg-card text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-primary focus:border-primary"
             value={query}
             onChange={handleQueryChange}

@@ -96,10 +96,10 @@ export function EditPatientForm({ id }: { id: string }) {
 
       await window.electronAPI.editPatient(updatedData);
 
-      toast.success("Patient updated successfully!");
+      toast.success("Patient mis à jour avec succès !");
     } catch (error) {
       console.error("Error updating patient:", error);
-      toast.error("Failed to update patient. Please try again.");
+      toast.error("Échec de la mise à jour du patient. Veuillez réessayer.");
     }
   };
   if (loading) {

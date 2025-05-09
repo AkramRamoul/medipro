@@ -25,7 +25,7 @@ function NewPatientModal({ isOpen, onClose }: NewPatientModalProps) {
       // Await the returned ID from the backend
       const newPatientId = await window.electronAPI.addPatient(data);
       console.log("Patient saved with ID:", newPatientId);
-      toast.success("Patient saved successfully!");
+      toast.success("Patient enregistré avec succès !");
       onClose();
 
       // Navigate to /pat/:id after saving

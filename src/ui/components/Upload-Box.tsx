@@ -38,7 +38,7 @@ export function UploadBox({
             d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
           />
         </svg>
-        <p className="text-sm text-muted-foreground">Drag and Drop</p>
+        <p className="text-sm text-muted-foreground">Glisser-déposer</p>
         <p className="text-sm text-muted-foreground">or</p>
         <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-primary px-4 py-2 font-semibold text-primary-foreground shadow-md transition-colors duration-200 hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-75">
           <span>{description}</span>

@@ -6,9 +6,9 @@ function ThemeSelector() {
 
   return (
     <div className="space-y-4 text-left">
-      <h2 className="text-lg font-medium">Theme</h2>
+      <h2 className="text-lg font-medium">Thème</h2>
       <p className="text-sm text-muted-foreground">
-        Select the theme for the dashboard.
+        Sélectionnez le thème pour l'application.{" "}
       </p>
 
       <RadioGroup
@@ -32,7 +32,7 @@ function ThemeSelector() {
             </div>
           </div>
           <span className="block w-full p-2 text-center font-normal">
-            Light
+            Clair
           </span>
         </label>
 
@@ -51,7 +51,9 @@ function ThemeSelector() {
               </div>
             </div>
           </div>
-          <span className="block w-full p-2 text-center font-normal">Dark</span>
+          <span className="block w-full p-2 text-center font-normal">
+            Sombre
+          </span>
         </label>
       </RadioGroup>
     </div>

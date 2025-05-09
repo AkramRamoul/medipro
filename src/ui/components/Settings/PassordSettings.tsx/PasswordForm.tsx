@@ -18,11 +18,13 @@ import { toast } from "sonner"; // optional, if you're using toast
 import { Eye, EyeOff } from "lucide-react";
 const createSchema = z
   .object({
-    password: z.string().min(6, "Password must be at least 6 characters."),
+    password: z
+      .string()
+      .min(6, "Le mot de passe doit comporter au moins 6 caractères."),
     confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords do not match.",
+    message: "Les mots de passe ne correspondent pas.",
     path: ["confirmPassword"],
   });
 
@@ -59,7 +61,7 @@ export function PasswordForm() {
     try {
       if (status.status === "not-exists") {
         await window.electronAPI.createPassword(data.password);
-        toast.success("Password created successfully");
+        toast.success("Mot de passe créé avec succès");
         form.reset({
           password: "",
           confirmPassword: "",
@@ -72,19 +74,19 @@ export function PasswordForm() {
         );
 
         if (success.success) {
-          toast.success("Password updated successfully");
+          toast.success("Mot de passe mis à jour avec succès");
           form.reset({
             oldPassword: "",
             password: "",
             confirmPassword: "",
           });
         } else {
-          toast.error("Current password is incorrect");
+          toast.error("Le mot de passe actuel est incorrect");
         }
       }
     } catch (err) {
       console.log(err);
-      toast.error("Something went wrong");
+      toast.error("Quelque chose s'est mal passé");
     } finally {
       setSubmitting(false);
     }
@@ -101,8 +103,8 @@ export function PasswordForm() {
         >
           <h2 className="text-xl font-bold text-center text-foreground">
             {status.status === "not-exists"
-              ? "Create a Password"
-              : "Update Password"}
+              ? "Créer un mot de passe"
+              : "Mettre à jour le mot de passe"}
           </h2>
 
           {status.status === "exists" && (
@@ -111,12 +113,12 @@ export function PasswordForm() {
               name="oldPassword"
               render={({ field }) => (
                 <FormItem className="space-y-2 text-left">
-                  <FormLabel>Current Password</FormLabel>
+                  <FormLabel>Mot de passe actuel</FormLabel>
                   <FormControl>
                     <div className="relative">
                       <Input
                         type={showOldPassword ? "text" : "password"}
-                        placeholder="Enter current password"
+                        placeholder="Entrez le mot de passe actuel"
                         {...field}
                       />
                       <button
@@ -144,7 +146,7 @@ export function PasswordForm() {
             name="password"
             render={({ field }) => (
               <FormItem className="space-y-2 text-left">
-                <FormLabel>New Password</FormLabel>
+                <FormLabel>Nouveau mot de passe</FormLabel>
                 <div className="relative">
                   <Input
                     type={showPassword ? "text" : "password"}
@@ -160,7 +162,9 @@ export function PasswordForm() {
                     {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>
                 </div>
-                <FormDescription>Use at least 6 characters.</FormDescription>
+                <FormDescription>
+                  Utilisez au moins 6 caractères.
+                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -171,12 +175,12 @@ export function PasswordForm() {
             name="confirmPassword"
             render={({ field }) => (
               <FormItem className="space-y-2 text-left">
-                <FormLabel>Confirm Password</FormLabel>
+                <FormLabel>Confirmez le mot de passe</FormLabel>
                 <FormControl>
                   <div className="relative">
                     <Input
                       type={showConsfirmPassword ? "text" : "password"}
-                      placeholder="Repeat new password"
+                      placeholder="Répéter le nouveau mot de passe"
                       {...field}
                     />
                     <button
@@ -201,8 +205,8 @@ export function PasswordForm() {
           <div className="pt-4">
             <Button type="submit" disabled={submitting}>
               {status.status === "not-exists"
-                ? "Create Password"
-                : "Update Password"}
+                ? "Créer un mot de passe"
+                : "Mettre à jour le mot de passe"}
             </Button>
           </div>
         </form>

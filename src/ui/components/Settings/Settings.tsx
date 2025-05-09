@@ -13,7 +13,7 @@ function Settings() {
             value="example"
             className="flex-1 text-muted-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
           >
-            General Settings
+            Paramètres généraux
           </TabsTrigger>
           <TabsTrigger
             value="account"
@@ -25,7 +25,7 @@ function Settings() {
             value="password"
             className="flex-1 text-muted-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
           >
-            Password
+            Mot de passe
           </TabsTrigger>
         </TabsList>
 

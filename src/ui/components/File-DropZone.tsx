@@ -54,7 +54,7 @@ export function FileDropzone({
         const droppedFile = files[0];
 
         if (!droppedFile) {
-          toast.error("No files dropped.");
+          toast.error("Aucun fichier n'a été supprimé.");
         }
 
         if (
@@ -63,7 +63,9 @@ export function FileDropzone({
             droppedFile.name.toLowerCase().endsWith(type.replace("*", ""))
           )
         ) {
-          toast.error("Invalid file type.Upload a supported file type please.");
+          toast.error(
+            "Type de fichier non valide. Veuillez télécharger un type de fichier pris en charge."
+          );
         }
 
         setCurrentFile(droppedFile);

@@ -57,11 +57,12 @@ function NewConsultationForm({
     console.log("Saving consultation:", consultationData);
     try {
       await window.electronAPI.addConsultation(consultationData);
-      toast.success("Consultation saved successfully!");
+      toast.success("Consultation enregistrée avec succès !");
       refreshConsultations(); // ✅ Refresh consultations dynamically
       onClose();
     } catch (error) {
-      console.error("Failed to save consultation:", error);
+      console.error("Error saving consultation:", error);
+      toast.error("Échec de l'enregistrement de la consultation ");
     }
   };
 

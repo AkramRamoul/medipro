@@ -44,7 +44,7 @@ const PrintButton = ({
 
   const handlePrint = async () => {
     if (!prescriptionModel) {
-      toast("Prescription model not loaded yet.");
+      toast("Le modèle de prescription n'est pas encore chargé.");
       return;
     }
 
@@ -78,7 +78,7 @@ const PrintButton = ({
         };
       };
     } else {
-      toast.error("Popup blocked! Please allow popups for this site.");
+      toast.error("Popup bloqué ! Veuillez autoriser les popups.");
     }
   };
 

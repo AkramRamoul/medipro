@@ -40,24 +40,25 @@ function RoundedToolCore(props: { fileUploaderProps: FileUploaderResult }) {
       const result = await window.electronAPI.uploadImage(imageContent);
 
       if (result.success) {
-        console.log("✅ Logo uploaded:", result.path);
-        toast.success("Image uploaded successfully");
+        console.log("✅ Logo téléchargé :", result.path);
+        toast.success("Image téléchargée avec succès");
         setUploadSuccess(true); // ✅ show message
       } else {
         console.error("❌ Upload failed:", result.error);
-        toast.error("Upload failed: " + result.error);
+        toast.error("Échec du téléchargement : " + result.error);
       }
     } catch (err) {
-      console.error("❌ Unexpected error during upload:", err);
-      toast.error("Unexpected error during upload.");
+      console.error("❌ Erreur inattendue lors du téléchargement :", err);
+      toast.error("Erreur inattendue lors du téléchargement :");
     }
   };
 
   if (!imageMetadata) {
     return (
       <UploadBox
-        title="Add your logo to the prescription."
-        description="Upload Image"
+        title="Ajoutez votre logo à l'ordonnance."
+        description="Télécharger une image
+"
         accept="image/*"
         onChange={handleFileUploadEvent}
       />
@@ -74,7 +75,7 @@ function RoundedToolCore(props: { fileUploaderProps: FileUploaderResult }) {
 
         {uploadSuccess && (
           <p className="text-sm font-medium text-green-600 mt-2">
-            ✅ Image uploaded successfully
+            ✅ Image téléchargée avec succès
           </p>
         )}
       </div>
@@ -94,14 +95,14 @@ function RoundedToolCore(props: { fileUploaderProps: FileUploaderResult }) {
           }}
           className="rounded-lg bg-destructive px-4 py-2 text-sm font-medium text-destructive-foreground hover:bg-destructive/80"
         >
-          Cancel
+          Annuler
         </button>
         <button
           onClick={onUpload}
           disabled={uploadSuccess}
           className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
         >
-          Upload
+          Télécharger
         </button>
       </div>
     </div>

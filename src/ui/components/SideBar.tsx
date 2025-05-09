@@ -24,12 +24,12 @@ import { NavSecondary } from "./Nav-secondary";
 // Menu items.
 
 const items = [
-  { title: "Dashboard", url: "/", icon: ChartColumnIncreasing },
-  { title: "Patients", url: "/patients", icon: User },
+  { title: "Tableau de bord", url: "/", icon: ChartColumnIncreasing },
+  { title: "Patientes", url: "/patients", icon: User },
   { title: "Consultations", url: "/consultations", icon: Clipboard },
-  { title: "Prescriptions", url: "/prescriptions", icon: PillBottle },
+  { title: "Ordonnances", url: "/prescriptions", icon: PillBottle },
   {
-    title: "Settings",
+    title: "Paramètres",
     url: "/settings",
     icon: SettingsIcon,
   },
@@ -37,16 +37,11 @@ const items = [
 const data = {
   navSecondary: [
     {
-      title: "Get Help",
+      title: "Obtenir de l'aide",
       url: "#",
       icon: HelpCircleIcon,
     },
   ],
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatar.jpg",
-  },
 };
 
 export function AppSidebar() {
