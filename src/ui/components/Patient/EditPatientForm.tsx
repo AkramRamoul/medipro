@@ -287,7 +287,7 @@ export function EditPatientForm({ id }: { id: string }) {
         </CardContent>
 
         <CardFooter className="justify-end">
-          <Button size="lg" type="submit">
+          <Button size="lg" type="submit" className="text-white">
             Enregistrer
           </Button>
         </CardFooter>

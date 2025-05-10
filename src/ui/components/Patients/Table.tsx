@@ -106,7 +106,7 @@ function PatientsTable({ patients }: { patients: Patient[] }) {
           </div>
           <Button
             onClick={() => setIsOpen(true)}
-            className="w-fit flex items-center space-x-2 bg-primary text-primary-foreground hover:bg-primary/90"
+            className="w-fit flex items-center space-x-2 bg-primary text-white hover:bg-primary/90"
           >
             <span>Ajouter un nouveau patient</span>
             <Plus className="w-4 h-4 font-bold" />

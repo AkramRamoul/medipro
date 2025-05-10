@@ -117,7 +117,7 @@ function NewConsultationForm({
         <Button variant="ghost" onClick={onClose}>
           Annuler
         </Button>
-        <Button className="bg-primary" onClick={handleSave}>
+        <Button className="bg-primary text-white" onClick={handleSave}>
           Enregistrer la consultation
         </Button>
       </div>

@@ -22,13 +22,13 @@ function Pagination({
   onPageChange,
 }: PaginationProps) {
   const totalPages = Math.ceil(totalItems / itemsPerPage);
-
   if (totalPages <= 1) return null;
 
   const renderPageNumber = (pageNumber: number) => (
     <PaginationItem key={pageNumber}>
       <PaginationLink
         href="#"
+        aria-current={pageNumber === currentPage ? "page" : undefined}
         onClick={(e) => {
           e.preventDefault();
           onPageChange(pageNumber);
@@ -37,7 +37,7 @@ function Pagination({
         className={`px-3 py-1 rounded-md transition-colors ${
           pageNumber === currentPage
             ? "bg-accent text-accent-foreground font-bold"
-            : "text-muted-foreground hover:bg-muted"
+            : "text-muted-foreground hover:bg-muted dark:hover:bg-muted/40 dark:text-muted"
         }`}
       >
         {pageNumber}
@@ -50,7 +50,7 @@ function Pagination({
   // Always show first page
   pageItems.push(renderPageNumber(1));
 
-  // Show leading ellipsis if needed
+  // Leading ellipsis
   if (currentPage > 3) {
     pageItems.push(
       <PaginationItem key="start-ellipsis">
@@ -59,7 +59,7 @@ function Pagination({
     );
   }
 
-  // Show middle pages (currentPage - 1, currentPage, currentPage + 1)
+  // Middle pages
   for (
     let i = Math.max(2, currentPage - 1);
     i <= Math.min(totalPages - 1, currentPage + 1);
@@ -68,7 +68,7 @@ function Pagination({
     pageItems.push(renderPageNumber(i));
   }
 
-  // Show trailing ellipsis if needed
+  // Trailing ellipsis
   if (currentPage < totalPages - 2) {
     pageItems.push(
       <PaginationItem key="end-ellipsis">
@@ -77,7 +77,7 @@ function Pagination({
     );
   }
 
-  // Always show last page (if not already shown)
+  // Last page
   if (totalPages > 1) {
     pageItems.push(renderPageNumber(totalPages));
   }
@@ -88,7 +88,7 @@ function Pagination({
         <PaginationItem>
           <PaginationPrevious
             href="#"
-            className="text-muted-foreground hover:text-foreground"
+            className="text-muted-foreground hover:text-foreground dark:text-gray-300 dark:hover:text-white"
             onClick={(e) => {
               e.preventDefault();
               if (currentPage > 1) onPageChange(currentPage - 1);
@@ -101,7 +101,7 @@ function Pagination({
         <PaginationItem>
           <PaginationNext
             href="#"
-            className="text-muted-foreground hover:text-foreground"
+            className="text-muted-foreground hover:text-foreground dark:text-gray-300 dark:hover:text-white"
             onClick={(e) => {
               e.preventDefault();
               if (currentPage < totalPages) onPageChange(currentPage + 1);

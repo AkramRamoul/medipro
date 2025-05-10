@@ -53,7 +53,10 @@ function MainPrescriptionPage({ id }: { id: string }) {
   return (
     <>
       <div className="p-4 bg-background rounded-xl max-w-[80%] mx-auto">
-        <Button onClick={() => setIsOpen(true)} className="mb-4 w-full">
+        <Button
+          onClick={() => setIsOpen(true)}
+          className="mb-4 w-full text-white"
+        >
           Nouvelle ordonnance
         </Button>
       </div>

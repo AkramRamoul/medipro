@@ -3,9 +3,18 @@ import Modal from "../Modal";
 import NewConsultationForm from "./NewConsultationForm";
 import { Button } from "../ui/button";
 import { Consultation } from "../../type";
-import { formatDate } from "../../lib/utils";
 import DeleteDialogue from "../DeleteDialogue";
 import SingleConsultation from "./SingleConsultation";
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "../ui/table";
+import Pagination from "../Pagination";
 
 function ConsultationForm({ id }: { id: string }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -28,9 +37,22 @@ function ConsultationForm({ id }: { id: string }) {
     fetchConsultations();
   }, [fetchConsultations]);
 
+  const itemsPerPage = 8;
+  const totalItems = consultations.length;
+  const [currentPage, setCurrentPage] = useState(1);
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [currentPage]);
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [consultations]);
+
   return (
     <div className="p-4 bg-background dark:bg-background rounded-xl max-w-[80%] mx-auto">
-      <Button onClick={() => setIsOpen(true)} className="mb-4 w-full">
+      <Button
+        onClick={() => setIsOpen(true)}
+        className="mb-4 w-full text-white"
+      >
         Nouvelle consultation{" "}
       </Button>
 
@@ -49,56 +71,93 @@ function ConsultationForm({ id }: { id: string }) {
         </div>
       ) : (
         <div className="mt-6 space-y-4">
-          {consultations.map((consultation) => (
-            <div
-              key={consultation.id}
-              className={`p-5 border border-border rounded-2xl shadow-sm bg-muted hover:bg-accent transition-all cursor-pointer flex flex-col md:flex-row justify-between items-start md:items-center gap-4 ${
-                openConsultationId === consultation.id
-                  ? "ring-2 ring-accent"
-                  : ""
-              }`}
-            >
-              <div
-                className="flex-1 space-y-1"
-                onClick={() => setOpenConsultationId(consultation.id)}
-              >
-                <p className="text-sm text-muted-foreground font-medium">
-                  <span className="text-foreground font-semibold">Date:</span>{" "}
-                  {formatDate(consultation.date)}
-                </p>
-                <p className="text-sm text-muted-foreground font-medium">
-                  <span className="text-foreground font-semibold">Reason:</span>{" "}
-                  {consultation.reason}
-                </p>
-                <p className="text-sm text-muted-foreground font-medium">
-                  <span className="text-foreground font-semibold">
-                    Diagnosis:
-                  </span>{" "}
-                  {consultation.diagnosis}
-                </p>
-              </div>
-
-              <div className="flex-shrink-0">
-                <DeleteDialogue
-                  consultationId={consultation.id}
-                  setData={setConsultations}
-                />
-              </div>
-
-              {openConsultationId === consultation.id && (
-                <Modal isOpen onClose={() => setOpenConsultationId(null)}>
-                  <SingleConsultation
-                    id={consultation.id}
-                    onClose={() => {
-                      setOpenConsultationId(null);
-                      fetchConsultations();
-                    }}
-                  />
-                </Modal>
+          <Table>
+            <TableCaption className="mt-6 text-muted-foreground">
+              Une liste de toutes vos consultations.{" "}
+            </TableCaption>
+            <TableHeader>
+              <TableRow className="bg-muted">
+                <TableHead className="text-muted-foreground">Date</TableHead>
+                <TableHead className="text-muted-foreground">
+                  Reason de visite
+                </TableHead>
+                <TableHead className="text-muted-foreground">
+                  Diagnostic
+                </TableHead>
+                <TableHead className="text-muted-foreground w-[80px]">
+                  <div className="flex justify-center items-center">
+                    Supprimer
+                  </div>
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {consultations.length > 0 ? (
+                consultations
+                  .slice(
+                    (currentPage - 1) * itemsPerPage,
+                    currentPage * itemsPerPage
+                  )
+                  .map((cons) => (
+                    <TableRow
+                      key={cons.id}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setOpenConsultationId(cons.id.toString());
+                      }}
+                      className="hover:bg-muted transition-colors cursor-pointer"
+                    >
+                      <TableCell className="text-foreground">
+                        {new Date(cons.date).toLocaleDateString()}
+                      </TableCell>
+                      <TableCell className="text-foreground">
+                        {cons.reason || "N/A"}
+                      </TableCell>
+                      <TableCell className="text-foreground">
+                        {cons.diagnosis || "N/A"}
+                      </TableCell>
+                      <TableCell className="w-[80px]">
+                        <div className="flex justify-center items-center h-full">
+                          <DeleteDialogue
+                            consultationId={cons.id.toString()}
+                            setData={setConsultations}
+                          />
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={4}
+                    className="text-center text-muted-foreground py-6"
+                  >
+                    Aucune consultation trouvée.
+                  </TableCell>
+                </TableRow>
               )}
-            </div>
-          ))}
+            </TableBody>
+          </Table>
         </div>
+      )}
+      <div className="mt-6">
+        <Pagination
+          itemsPerPage={itemsPerPage}
+          totalItems={totalItems}
+          currentPage={currentPage}
+          onPageChange={setCurrentPage}
+        />
+      </div>
+      {openConsultationId && (
+        <Modal isOpen onClose={() => setOpenConsultationId(null)}>
+          <SingleConsultation
+            id={openConsultationId}
+            onClose={() => {
+              setOpenConsultationId(null);
+              fetchConsultations();
+            }}
+          />
+        </Modal>
       )}
     </div>
   );

@@ -247,6 +247,7 @@ const NewPrescriptionForm = ({
         />
 
         <Button
+          className="text-white"
           onClick={handleAddMedication}
           disabled={inputValue.trim() === ""}
         >
@@ -303,7 +304,9 @@ const NewPrescriptionForm = ({
 
       {/* Action Buttons */}
       <div className="flex justify-end space-x-3 mt-4 p-4 border-t border-border">
-        <Button onClick={handleSave}>Enregistrer</Button>
+        <Button onClick={handleSave} className="text-white">
+          Enregistrer
+        </Button>
         <PrintButton
           prescription={selectedMedications}
           patient={patient}
