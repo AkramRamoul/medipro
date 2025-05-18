@@ -134,4 +134,6 @@ contextBridge.exposeInMainWorld("electronAPI", {
   getName: async () => {
     return await ipcRenderer.invoke("get-name");
   },
+  getNextPsychotropicNumber: () =>
+    ipcRenderer.invoke("get-next-psychotropic-number"),
 });

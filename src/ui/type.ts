@@ -42,7 +42,9 @@ export type DashboardStats = {
 };
 export interface Prescription {
   id: number;
-
+  isPsychotropic?: boolean;
+  psychotropicNumber?: number;
+  patientAddress?: string;
   date: string | null;
   patientId: number;
   medications: PrescriptionMed[]; // Add medications property

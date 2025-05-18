@@ -300,7 +300,10 @@ app.on("ready", () => {
         .select({
           prescriptionId: prescriptions.id,
           date: prescriptions.date,
-          medications: prescriptionMedications, // Include medications
+          isPsychotropic: prescriptions.is_psychotropic,
+          psychotropicNumber: prescriptions.psychotropic_number,
+          patientAddress: prescriptions.patient_address,
+          medications: prescriptionMedications,
         })
         .from(prescriptions)
         .leftJoin(
@@ -318,6 +321,9 @@ app.on("ready", () => {
           prescriptionsMap.set(row.prescriptionId, {
             id: row.prescriptionId,
             date: row.date,
+            isPsychotropic: row.isPsychotropic,
+            psychotropicNumber: row.psychotropicNumber,
+            patientAddress: row.patientAddress,
             medications: [],
           });
         }
@@ -334,6 +340,7 @@ app.on("ready", () => {
       return [];
     }
   });
+
   ipcMain.handle("delete-prescription", async (__dirname, id) => {
     await db.delete(prescriptions).where(eq(prescriptions.id, id));
   });
@@ -786,7 +793,27 @@ app.on("ready", () => {
       return { success: false, error: (err as Error).message };
     }
   });
+  async function getNextPsychotropicNumber() {
+    try {
+      const result = await db
+        .select({
+          number: prescriptions.psychotropic_number,
+        })
+        .from(prescriptions)
+        .where(eq(prescriptions.is_psychotropic, true))
+        .orderBy(desc(prescriptions.psychotropic_number))
+        .limit(1);
 
+      const latestNumber = result[0]?.number || 0;
+      return latestNumber + 1;
+    } catch (error) {
+      console.error("Error fetching next psychotropic number:", error);
+      throw new Error("Failed to fetch next psychotropic number.");
+    }
+  }
+  ipcMain.handle("get-next-psychotropic-number", async () => {
+    return await getNextPsychotropicNumber();
+  });
   win.webContents.setWindowOpenHandler(() => ({ action: "allow" }));
   // win.webContents.session.webRequest.onHeadersReceived((details, callback) => {
   //   callback({

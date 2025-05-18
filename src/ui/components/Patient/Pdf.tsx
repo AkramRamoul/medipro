@@ -85,6 +85,9 @@ const PrescriptionPDF = ({
   prescriptionModel,
   image,
   medications,
+  isPsychotropic,
+  psychotropicNumber,
+  patientAddress,
 }: {
   patient: smallPatient;
   prescriptionModel: {
@@ -102,6 +105,9 @@ const PrescriptionPDF = ({
   };
   image: string | null;
   medications: PrescriptionMed[];
+  isPsychotropic?: boolean;
+  psychotropicNumber?: number | null;
+  patientAddress?: string | null;
 }) => {
   const chunkArray = <T,>(arr: T[], size: number): T[][] => {
     const result: T[][] = [];
@@ -193,6 +199,39 @@ const PrescriptionPDF = ({
               )}
             </View>
           </View>
+          {/* PSYCHOTROPIC INFO */}
+          {isPsychotropic && (
+            <View
+              style={{
+                marginVertical: 8,
+                padding: 6,
+                borderWidth: 1,
+                borderColor: "#000",
+              }}
+            >
+              <Text
+                style={{
+                  fontSize: 10,
+                  textAlign: "center",
+                  fontWeight: "bold",
+                }}
+              >
+                Ordonnance de médicaments psychotropes
+              </Text>
+
+              {psychotropicNumber && (
+                <Text style={{ fontSize: 10 }}>
+                  Numéro d'enregistrement : {psychotropicNumber}
+                </Text>
+              )}
+
+              {patientAddress && (
+                <Text style={{ fontSize: 10 }}>
+                  Adresse du patient : {patientAddress}
+                </Text>
+              )}
+            </View>
+          )}
 
           {/* Inscription number */}
           <Text style={styles.colCenter}>
@@ -212,9 +251,9 @@ const PrescriptionPDF = ({
           >
             <View style={{ flexDirection: "column", gap: 2 }}>
               <Text style={styles.infoPatient}>
-                Nom : {patient.first_name} {patient.last_name}
+                Nom : {patient?.first_name} {patient?.last_name}
               </Text>
-              <Text style={styles.infoPatient}>Âge : {patient.age} Ans</Text>
+              <Text style={styles.infoPatient}>Âge : {patient?.age} Ans</Text>
             </View>
 
             <View

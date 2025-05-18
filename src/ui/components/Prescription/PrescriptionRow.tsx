@@ -18,7 +18,7 @@ function PrescriptionRow({
 }: PrescriptionRowProps) {
   const [selectedPrescription, setSelectedPrescription] =
     useState<Prescription | null>(null);
-
+  console.log(selectedPrescription);
   return (
     <>
       <TableRow
@@ -59,6 +59,9 @@ function PrescriptionRow({
             meds={selectedPrescription.medications}
             onClose={() => setSelectedPrescription(null)}
             patient={patinet}
+            isPsychotropic={selectedPrescription.isPsychotropic}
+            psychotropicNumber={selectedPrescription.psychotropicNumber}
+            patientAddress={selectedPrescription.patientAddress}
           />
         )}
       </Modal>

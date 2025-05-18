@@ -113,7 +113,7 @@ const NewPrescriptionForm = ({
         note: med.note, // Include note in request
       })),
       isPsychotropic,
-      patient_address: patientAddress,
+      patientAddress,
     };
 
     try {
@@ -133,6 +133,16 @@ const NewPrescriptionForm = ({
       }
     } catch (error) {
       console.error("Failed to save prescription:", error);
+    }
+  };
+
+  const fetchPsychotropicNumber = async () => {
+    try {
+      const number = await window.electronAPI.getNextPsychotropicNumber();
+      setPsychotropicNumber(number.toString());
+    } catch (err) {
+      toast.error("Échec du chargement du numéro psychotrope");
+      console.error(err);
     }
   };
 
@@ -257,15 +267,16 @@ const NewPrescriptionForm = ({
             type="checkbox"
             id="psychotropic"
             checked={isPsychotropic}
-            onChange={(e) => {
-              setIsPsychotropic(e.target.checked);
-              if (e.target.checked) {
-                // Call backend to fetch next psychotropic number
-                // fetchPsychotropicNumber().then(setPsychotropicNumber);
-                // Set patient address if exists
+            onChange={async (e) => {
+              const checked = e.target.checked;
+              setIsPsychotropic(checked);
+              if (checked) {
+                await fetchPsychotropicNumber();
                 if (patient?.address) {
                   setPatientAddress(patient.address);
                 }
+              } else {
+                setPsychotropicNumber(""); // Clear if unchecked
               }
             }}
           />
@@ -359,6 +370,9 @@ const NewPrescriptionForm = ({
           prescription={selectedMedications}
           patient={patient}
           window={window}
+          isPsychotropic={isPsychotropic}
+          psychotropicNumber={Number(psychotropicNumber)}
+          patientAddress={patientAddress}
         />
         <Button onClick={onClose} variant="outline">
           Annuler{" "}

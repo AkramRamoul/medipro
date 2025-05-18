@@ -7,10 +7,16 @@ function SinglePrescription({
   onClose,
   meds,
   patient,
+  isPsychotropic,
+  psychotropicNumber,
+  patientAddress,
 }: {
   onClose: () => void;
   meds: PrescriptionMed[];
   patient: smallPatient;
+  isPsychotropic?: boolean;
+  psychotropicNumber?: number | null;
+  patientAddress?: string | null;
 }) {
   console.log(meds);
   return (
@@ -39,7 +45,14 @@ function SinglePrescription({
         <Button variant="ghost" onClick={onClose}>
           Fermer
         </Button>
-        <PrintButton prescription={meds} patient={patient} window={window} />
+        <PrintButton
+          prescription={meds}
+          patient={patient}
+          window={window}
+          isPsychotropic={isPsychotropic}
+          psychotropicNumber={psychotropicNumber}
+          patientAddress={patientAddress}
+        />
       </div>
     </div>
   );

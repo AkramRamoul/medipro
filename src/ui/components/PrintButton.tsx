@@ -10,7 +10,6 @@ const PrintButton = ({
   patient,
   window,
   prescription,
-  onClick,
   isPsychotropic,
   psychotropicNumber,
   patientAddress,
@@ -18,7 +17,6 @@ const PrintButton = ({
   patient: smallPatient;
   window: Window;
   prescription: PrescriptionMed[];
-  onClick?: () => void;
   isPsychotropic?: boolean;
   psychotropicNumber?: number | null;
   patientAddress?: string | null;
@@ -51,7 +49,6 @@ const PrintButton = ({
   }, [window.electronAPI]);
 
   const handlePrint = async () => {
-    onClick?.();
     if (!prescriptionModel) {
       toast("Le modèle de prescription n'est pas encore chargé.");
       return;
