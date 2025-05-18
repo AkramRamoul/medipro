@@ -6,6 +6,7 @@ import {
   SettingsIcon,
   HelpCircleIcon,
   User,
+  FilePen,
 } from "lucide-react";
 
 import {
@@ -32,6 +33,11 @@ const items = [
     title: "Paramètres",
     url: "/settings",
     icon: SettingsIcon,
+  },
+  {
+    title: "Modèle Ordonnance ",
+    url: "/Ordonnance",
+    icon: FilePen,
   },
 ];
 const data = {

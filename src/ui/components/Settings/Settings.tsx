@@ -1,7 +1,6 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import GeneralSettings from "./GeneralSettings/GeneralSettings";
 import { PasswordForm } from "./PassordSettings.tsx/PasswordForm";
-import { PrescriptionModelForm } from "./PrescriptionModelForm";
 
 function Settings() {
   return (
@@ -15,12 +14,7 @@ function Settings() {
           >
             Paramètres généraux
           </TabsTrigger>
-          <TabsTrigger
-            value="account"
-            className="flex-1 text-muted-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-          >
-            Paramètres d'Ordonnance
-          </TabsTrigger>
+
           <TabsTrigger
             value="password"
             className="flex-1 text-muted-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
@@ -36,12 +30,7 @@ function Settings() {
         >
           <GeneralSettings />
         </TabsContent>
-        <TabsContent
-          value="account"
-          className="text-center text-foreground mt-6"
-        >
-          <PrescriptionModelForm />
-        </TabsContent>
+
         <TabsContent
           value="password"
           className="text-center text-foreground mt-6"
