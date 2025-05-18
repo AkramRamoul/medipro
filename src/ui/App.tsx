@@ -11,6 +11,7 @@ import { EnterPasswordScreen } from "./routes/EnterPasswordScreen";
 import { AuthProvider } from "./context/auth-context";
 import RequirePassword from "./lib/RequirePassword";
 import { ThemeProvider } from "./components/theme-provider";
+import { PrescriptionModelForm } from "./Prescriptionsettings/PrescriptionSetting";
 
 function App() {
   return (
@@ -34,6 +35,7 @@ function App() {
               <Route path="/settings" element={<Settings />} />
               <Route path="/pat/:id" element={<MainPage />} />
               <Route path="/patients" element={<Home />} />
+              <Route path="/Ordonnance" element={<PrescriptionModelForm />} />
             </Route>
           </Routes>
           <Toaster />

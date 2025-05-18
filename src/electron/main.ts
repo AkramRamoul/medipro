@@ -16,6 +16,7 @@ import {
   prescriptionModel,
   auth,
   Name,
+  psychotropicCounters,
 } from "./schema.js";
 app.on("ready", () => {
   const win = new BrowserWindow({
@@ -343,7 +344,15 @@ app.on("ready", () => {
   });
   ipcMain.handle(
     "addFullPrescription",
-    async (_event, { patientId, medications }) => {
+    async (
+      _event,
+      {
+        patientId,
+        medications,
+        isPsychotropic, // ✅ receive from frontend
+        patientAddress: frontendAddress, // ✅ optional override
+      }
+    ) => {
       try {
         if (
           !patientId ||
@@ -353,17 +362,47 @@ app.on("ready", () => {
           throw new Error("Invalid prescription data");
         }
 
-        // 1️⃣ Insert a new prescription (returns the ID)
+        let psychotropicNumber: number | null = null;
+        let patientAddress: string | null = frontendAddress || null;
+
+        if (isPsychotropic) {
+          const [counter] = await db
+            .insert(psychotropicCounters)
+            .values({})
+            .returning({ id: psychotropicCounters.id });
+
+          psychotropicNumber = counter.id;
+
+          // If address wasn't passed from frontend, fetch it
+          if (!patientAddress) {
+            const [patient] = await db
+              .select({ address: patients.address })
+              .from(patients)
+              .where(eq(patients.id, patientId));
+
+            if (!patient) {
+              throw new Error("Patient not found.");
+            }
+
+            patientAddress = patient.address;
+          }
+        }
+
         const [newPrescription] = await db
           .insert(prescriptions)
-          .values({ patientId, date: new Date().toISOString() })
+          .values({
+            patientId,
+            date: new Date().toISOString(),
+            is_psychotropic: isPsychotropic,
+            psychotropic_number: psychotropicNumber,
+            patient_address: patientAddress,
+          })
           .returning({ id: prescriptions.id });
 
         if (!newPrescription) {
           throw new Error("Failed to create prescription record.");
         }
 
-        // 2️⃣ Insert related medications
         const medicationRecords = medications.map((med) => ({
           prescriptionId: newPrescription.id,
           medicineName: med.medicineName,
@@ -376,13 +415,18 @@ app.on("ready", () => {
 
         await db.insert(prescriptionMedications).values(medicationRecords);
 
-        return { success: true, message: "Prescription saved successfully!" };
+        return {
+          success: true,
+          message: "Prescription saved successfully!",
+          psychotropic_number: psychotropicNumber, // <-- include this
+        };
       } catch (error) {
         console.error("Error adding prescription:", error);
-        return { success: false };
+        return { success: false, message: error };
       }
     }
   );
+
   ipcMain.handle("edit-patient", async (_, data) => {
     try {
       const { id, ...rest } = data;

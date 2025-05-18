@@ -25,7 +25,11 @@ export interface IElectronAPI {
   deleteCosultaion(id: string): Promise<void>;
   getConsultation(id: string): Consultation | null;
   getPatientPrescriptions(id: string): Prescription[];
-  addFullPrescription: (data: unknown) => Promise<{ success: boolean }>;
+  addFullPrescription: (data: unknown) => Promise<{
+    success: boolean;
+    message: string;
+    psychotropic_number?: number;
+  }>;
   deletePrescription: (id: string) => Promise<void>;
   editConsultation: (data: unknown) => Promise<void>;
   editPatient: (data: unknown) => Promise<{ success: boolean }>;

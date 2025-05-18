@@ -33,10 +33,16 @@ export const consultations = sqliteTable("consultations", {
 
 export const prescriptions = sqliteTable("prescriptions", {
   id: integer("id").primaryKey({ autoIncrement: true }),
+
   patientId: integer("patient_id")
     .notNull()
     .references(() => patients.id, { onDelete: "cascade" }),
   date: text("date").default(sql`CURRENT_TIMESTAMP`),
+  is_psychotropic: integer("is_psychotropic", { mode: "boolean" }).default(
+    false
+  ),
+  psychotropic_number: integer("psychotropic_number"), // use integer for sorting/searching
+  patient_address: text("patient_address"), // snapshot of address at time of prescription
 });
 
 // New table for storing multiple medications per prescription
@@ -71,6 +77,10 @@ export const prescriptionModel = sqliteTable("prescription_model", {
   phoneNumber2: text("phone_number_2"),
   city: text("city").notNull(),
 });
+export const psychotropicCounters = sqliteTable("psychotropic_counters", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  created_at: text("created_at").default(sql`CURRENT_TIMESTAMP`),
+});
 
 export const auth = sqliteTable("auth", {
   id: integer("id").primaryKey(),
@@ -84,7 +94,6 @@ export const Name = sqliteTable("name", {
 
 export type PrescriptionMed = typeof prescriptionMedications.$inferSelect;
 export type NewPrescriptionMed = typeof prescriptionMedications.$inferInsert;
-
 export type prescriptionModel = typeof prescriptionModel.$inferSelect;
 
 export type Prescription = typeof prescriptions.$inferSelect;

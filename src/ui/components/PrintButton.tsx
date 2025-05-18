@@ -10,10 +10,18 @@ const PrintButton = ({
   patient,
   window,
   prescription,
+  onClick,
+  isPsychotropic,
+  psychotropicNumber,
+  patientAddress,
 }: {
   patient: smallPatient;
   window: Window;
   prescription: PrescriptionMed[];
+  onClick?: () => void;
+  isPsychotropic?: boolean;
+  psychotropicNumber?: number | null;
+  patientAddress?: string | null;
 }) => {
   const [prescriptionModel, setPrescriptionModel] = useState(null);
   const [image, setImage] = useState<string | null>(null);
@@ -43,6 +51,7 @@ const PrintButton = ({
   }, [window.electronAPI]);
 
   const handlePrint = async () => {
+    onClick?.();
     if (!prescriptionModel) {
       toast("Le modèle de prescription n'est pas encore chargé.");
       return;
@@ -55,6 +64,9 @@ const PrintButton = ({
         prescriptionModel={prescriptionModel}
         image={image}
         medications={prescription}
+        isPsychotropic={isPsychotropic}
+        psychotropicNumber={psychotropicNumber}
+        patientAddress={patientAddress}
       />
     ).toBlob();
 

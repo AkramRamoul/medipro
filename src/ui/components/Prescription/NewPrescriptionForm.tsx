@@ -92,7 +92,9 @@ const NewPrescriptionForm = ({
       });
     }
   };
-
+  const [isPsychotropic, setIsPsychotropic] = useState(false);
+  const [psychotropicNumber, setPsychotropicNumber] = useState("");
+  const [patientAddress, setPatientAddress] = useState(patient?.address || "");
   // Save prescription to the database
   const handleSave = async () => {
     if (selectedMedications.length === 0) {
@@ -110,6 +112,8 @@ const NewPrescriptionForm = ({
         form: med.form,
         note: med.note, // Include note in request
       })),
+      isPsychotropic,
+      patient_address: patientAddress,
     };
 
     try {
@@ -118,6 +122,9 @@ const NewPrescriptionForm = ({
       );
 
       if (response.success) {
+        if (response.psychotropic_number) {
+          setPsychotropicNumber(response.psychotropic_number.toString());
+        }
         toast.success("enregistré avec succès !");
         refreshPrescriptions();
         onClose();
@@ -245,6 +252,47 @@ const NewPrescriptionForm = ({
           placeholder="Ajouter une note..."
           className="w-[200px] bg-background text-foreground"
         />
+        <div className="flex items-center gap-2 mt-4 w-full">
+          <input
+            type="checkbox"
+            id="psychotropic"
+            checked={isPsychotropic}
+            onChange={(e) => {
+              setIsPsychotropic(e.target.checked);
+              if (e.target.checked) {
+                // Call backend to fetch next psychotropic number
+                // fetchPsychotropicNumber().then(setPsychotropicNumber);
+                // Set patient address if exists
+                if (patient?.address) {
+                  setPatientAddress(patient.address);
+                }
+              }
+            }}
+          />
+          <label htmlFor="psychotropic" className="text-foreground text-sm">
+            Ce traitement contient un psychotrope
+          </label>
+        </div>
+
+        {/* Conditional Psychotropic Fields */}
+        {isPsychotropic && (
+          <div className="flex flex-col gap-2 w-full mt-2">
+            <Input
+              type="text"
+              value={psychotropicNumber}
+              readOnly
+              placeholder="Numéro de prescription psychotrope"
+              className="bg-muted text-foreground"
+            />
+            <Input
+              type="text"
+              value={patientAddress}
+              onChange={(e) => setPatientAddress(e.target.value)}
+              placeholder="Adresse du patient"
+              className="bg-background text-foreground"
+            />
+          </div>
+        )}
 
         <Button
           className="text-white"
