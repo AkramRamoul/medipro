@@ -52,6 +52,9 @@ function DropDown({
           patient={patient}
           window={window}
           prescription={medications}
+          isPsychotropic={prescription.isPsychotropic}
+          psychotropicNumber={prescription.psychotropicNumber}
+          patientAddress={prescription.patientAddress}
         />
       </DropdownMenuContent>
     </DropdownMenu>

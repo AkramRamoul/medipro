@@ -9,7 +9,7 @@ interface BackButtonProps {
 }
 
 const BackButton = ({
-  label = "Back",
+  label = "Retour",
   className = "",
   onClickOverride,
 }: BackButtonProps) => {

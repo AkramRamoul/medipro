@@ -11,10 +11,16 @@ const PrintButton = ({
   patient,
   window,
   prescription,
+  isPsychotropic,
+  psychotropicNumber,
+  patientAddress,
 }: {
   patient: smallPatient;
   window: Window;
   prescription: PrescriptionMed[];
+  isPsychotropic?: boolean;
+  psychotropicNumber?: number | null;
+  patientAddress?: string | null;
 }) => {
   const [prescriptionModel, setPrescriptionModel] = useState(null);
   const [image, setImage] = useState<string | null>(null);
@@ -56,6 +62,9 @@ const PrintButton = ({
         prescriptionModel={prescriptionModel}
         image={image}
         medications={prescription}
+        isPsychotropic={isPsychotropic}
+        psychotropicNumber={psychotropicNumber}
+        patientAddress={patientAddress}
       />
     ).toBlob();
 

@@ -285,8 +285,8 @@ const PrescriptionPDF = ({
                   <Text style={{ fontSize: 10 }}>
                     {med.medicineName}
 
-                    {med.form ? ` ${med.form}, ` : ""}
-                    {med.dosage ? `${med.dosage}, ` : ""}
+                    {med.form ? ` ${med.form} ` : ""}
+                    {med.dosage ? `${med.dosage} ` : ""}
                   </Text>
                   <Text style={{ fontSize: 10 }}>
                     {med.quantity ? `( ${med.quantity} )` : ""}

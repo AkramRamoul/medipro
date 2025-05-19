@@ -70,6 +70,7 @@ function Prescriptions() {
     setCurrentPage(1); // ⬅️ reset page!
   };
 
+  console.log("📢 filteredData:", filteredData);
   return (
     <>
       <div className="flex flex-col gap-6 p-8 border rounded-2xl bg-card text-foreground border-border shadow-lg max-w-5xl mx-auto mt-10">
@@ -135,6 +136,9 @@ function Prescriptions() {
                             setData={setData}
                             patient={prescription.patient!}
                             medications={prescription.medications}
+                            isPsychotropic={prescription.isPsychotropic}
+                            psychotropicNumber={prescription.psychotropicNumber}
+                            patientAddress={prescription.patientAddress}
                           />
                         </div>
                       </TableCell>
@@ -176,6 +180,9 @@ function Prescriptions() {
             meds={selectedPrescription.medications}
             onClose={() => setSelectedPrescription(null)}
             patient={selectedPrescription.patient!}
+            isPsychotropic={selectedPrescription.isPsychotropic}
+            psychotropicNumber={selectedPrescription.psychotropicNumber}
+            patientAddress={selectedPrescription.patientAddress}
           />
         )}
       </Modal>

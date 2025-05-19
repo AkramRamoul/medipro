@@ -178,7 +178,7 @@ export default function DashboardPage() {
             <Card className="col-span-3 bg-card border border-border">
               <CardHeader>
                 <CardTitle className="text-2xl text-primary">
-                  Recent Consultations
+                  Consultations récentes{" "}
                 </CardTitle>
                 <CardDescription className="text-muted-foreground">
                   Vous avez effectué {stats.consultationsThisMonth}{" "}

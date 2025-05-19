@@ -92,6 +92,9 @@ app.on("ready", () => {
       .select({
         id: prescriptions.id,
         date: prescriptions.date,
+        isPsychotropic: prescriptions.is_psychotropic,
+        psychotropicNumber: prescriptions.psychotropic_number,
+        patientId: prescriptions.patientId,
         patient: {
           id: patients.id,
           first_name: patients.first_name,
@@ -121,10 +124,11 @@ app.on("ready", () => {
       let prescription = acc.find((p) => p.id === row.id);
 
       if (!prescription) {
-        // If prescription doesn't exist, create a new entry
         prescription = {
           id: row.id,
           date: row.date,
+          isPsychotropic: row.isPsychotropic,
+          psychotropicNumber: row.psychotropicNumber,
           patient: row.patient,
           medications: [],
         };

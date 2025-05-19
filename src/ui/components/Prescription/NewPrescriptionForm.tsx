@@ -242,7 +242,7 @@ const NewPrescriptionForm = ({
           className="w-[80px] bg-background text-foreground"
         />
 
-        <Select value={durationValue || ""} onValueChange={setDurationUnit}>
+        <Select value={durationUnit || ""} onValueChange={setDurationUnit}>
           <SelectTrigger className="w-[120px] bg-background text-foreground">
             <SelectValue placeholder="durée" />{" "}
           </SelectTrigger>
@@ -373,6 +373,7 @@ const NewPrescriptionForm = ({
           isPsychotropic={isPsychotropic}
           psychotropicNumber={Number(psychotropicNumber)}
           patientAddress={patientAddress}
+          disabled={selectedMedications.length === 0}
         />
         <Button onClick={onClose} variant="outline">
           Annuler{" "}

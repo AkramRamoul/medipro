@@ -20,6 +20,9 @@ interface DropDownProps {
   setData: React.Dispatch<React.SetStateAction<PrescriptionWithPatient[]>>;
   patient: smallPatient;
   medications: PrescriptionMed[];
+  isPsychotropic?: boolean;
+  psychotropicNumber?: number | null;
+  patientAddress?: string | null;
 }
 function DropDown({
   prescription,
@@ -56,6 +59,9 @@ function DropDown({
           patient={patient}
           window={window}
           prescription={medications}
+          isPsychotropic={prescription.isPsychotropic}
+          psychotropicNumber={prescription.psychotropicNumber}
+          patientAddress={prescription.patientAddress}
         />
       </DropdownMenuContent>
     </DropdownMenu>

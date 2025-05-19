@@ -13,6 +13,7 @@ const PrintButton = ({
   isPsychotropic,
   psychotropicNumber,
   patientAddress,
+  disabled,
 }: {
   patient: smallPatient;
   window: Window;
@@ -20,6 +21,7 @@ const PrintButton = ({
   isPsychotropic?: boolean;
   psychotropicNumber?: number | null;
   patientAddress?: string | null;
+  disabled?: boolean;
 }) => {
   const [prescriptionModel, setPrescriptionModel] = useState(null);
   const [image, setImage] = useState<string | null>(null);
@@ -49,6 +51,10 @@ const PrintButton = ({
   }, [window.electronAPI]);
 
   const handlePrint = async () => {
+    if (disabled) {
+      toast.error("Veuillez ajouter au moins un médicament !");
+      return;
+    }
     if (!prescriptionModel) {
       toast("Le modèle de prescription n'est pas encore chargé.");
       return;

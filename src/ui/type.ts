@@ -54,6 +54,9 @@ export type PrescriptionWithPatient = {
   id: number;
   date: string;
   patientId: number;
+  isPsychotropic?: boolean;
+  psychotropicNumber?: number;
+  patientAddress?: string;
   medications: PrescriptionMed[]; // or Date, depending on how Drizzle returns it
   patient: {
     id: number;
