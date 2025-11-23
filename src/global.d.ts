@@ -65,6 +65,10 @@ export interface IElectronAPI {
   createName: (nameFr: string) => Promise<{ success: boolean }>;
   getName: () => Promise<{ success: boolean; name: string }>;
   getNextPsychotropicNumber: () => Promise<number>;
+  createDocument: (data: unknown) => Promise<void>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  getPatientDocuments: (id: string) => Promise<any[]>;
+  deleteDocument: (id: string) => Promise<void>;
 }
 
 declare global {

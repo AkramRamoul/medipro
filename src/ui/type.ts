@@ -90,3 +90,11 @@ export type monthlyPatients = {
   name: string;
   total: number;
 };
+export type Document = {
+  id: number;
+  patientId: number;
+  type: "blood" | "certificate" | "report";
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  content: any;
+  createdAt: string | null;
+};

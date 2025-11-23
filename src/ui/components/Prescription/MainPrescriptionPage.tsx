@@ -1,9 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 import Modal from "../Modal";
-import { Button } from "../ui/button";
 import NewPrescriptionForm from "./NewPrescriptionForm";
 
-import { Patient, Prescription } from "../../type";
+import { Patient, Prescription, Document } from "../../type";
 import {
   Table,
   TableBody,
@@ -13,19 +12,31 @@ import {
   TableRow,
 } from "../ui/table";
 import PrescriptionRow from "./PrescriptionRow";
+import { DocumentTypeSelector } from "./NewDossier";
+import { MedicalCertificate } from "../Documents/MedicalCertificate";
+import { BloodWork } from "../Documents/BloodWork";
+import { MedicalReport } from "../Documents/MedicalReport";
+import DocumentRow from "../Documents/DocumentRow";
 
 function MainPrescriptionPage({ id }: { id: string }) {
   const [isOpen, setIsOpen] = useState(false);
+  const [docType, setDocType] = useState<
+    null | "PRESCRIPTION" | "BLOOD_WORK" | "CERTIFICATE" | "REPORT"
+  >(null);
+
   const [prescriptions, setPrescriptions] = useState<Prescription[]>([]);
+  const [documents, setDocuments] = useState<Document[]>([]);
 
   const [patient, setPatient] = useState<Patient | null>(null);
 
   const fetchPrescriptions = useCallback(async () => {
     try {
-      const data = await window.electronAPI.getPatientPrescriptions(id);
-      setPrescriptions(data);
+      const presData = await window.electronAPI.getPatientPrescriptions(id);
+      setPrescriptions(presData);
+      const docData = await window.electronAPI.getPatientDocuments(id);
+      setDocuments(docData);
     } catch (error) {
-      console.error("Error fetching prescriptions:", error);
+      console.error("Error fetching data:", error);
     }
   }, [id]);
 
@@ -53,38 +64,78 @@ function MainPrescriptionPage({ id }: { id: string }) {
   return (
     <>
       <div className="p-4 bg-background rounded-xl max-w-[80%] mx-auto">
-        <Button
-          onClick={() => setIsOpen(true)}
-          className="mb-4 w-full text-white"
-        >
-          Nouvelle ordonnance
-        </Button>
+        <DocumentTypeSelector
+          onSelect={(type) => {
+            setIsOpen(true);
+            if (
+              ["PRESCRIPTION", "BLOOD_WORK", "CERTIFICATE", "REPORT"].includes(
+                type
+              )
+            ) {
+              setDocType(
+                type as "PRESCRIPTION" | "BLOOD_WORK" | "CERTIFICATE" | "REPORT"
+              );
+              setIsOpen(true);
+            }
+          }}
+        />
       </div>
 
       <div className="p-4 bg-background rounded-xl shadow-lg max-w-[80%] mx-auto">
         <Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>
-          <NewPrescriptionForm
-            id={id}
-            onClose={() => setIsOpen(false)}
-            refreshPrescriptions={fetchPrescriptions}
-            patient={patient!}
-          />
+          {docType === "PRESCRIPTION" && (
+            <NewPrescriptionForm
+              id={id}
+              onClose={() => setIsOpen(false)}
+              refreshPrescriptions={fetchPrescriptions}
+              patient={patient!}
+            />
+          )}
+
+          {docType === "BLOOD_WORK" && (
+            <BloodWork
+              patient={patient!}
+              onClose={() => setIsOpen(false)}
+              refreshDocuments={fetchPrescriptions}
+            />
+          )}
+
+          {docType === "CERTIFICATE" && (
+            <MedicalCertificate
+              type={"CERTIFICATE"}
+              patientId={id}
+              onClose={() => setIsOpen(false)}
+              refreshDocuments={fetchPrescriptions}
+            />
+          )}
+
+          {docType === "REPORT" && (
+            <MedicalReport
+              patientId={id}
+              onClose={() => setIsOpen(false)}
+              type={"CERTIFICATE"}
+              refreshDocuments={fetchPrescriptions}
+            />
+          )}
         </Modal>
 
         <Table>
-          <TableHeader className="bg-muted">
+          <TableHeader className="bg-muted rounded-t-xl overflow-hidden">
             <TableRow>
-              <TableHead className="w-[45%] text-foreground">Date</TableHead>
+              <TableHead className="w-[30%] text-foreground rounded-tl-xl">
+                Date
+              </TableHead>
+              <TableHead className="text-foreground">Type</TableHead>
               <TableHead className="hidden md:table-cell text-foreground">
                 Temps
               </TableHead>
-              <TableHead className="text-right text-foreground">
+              <TableHead className="text-right text-foreground rounded-tr-xl">
                 Options{" "}
               </TableHead>
             </TableRow>
           </TableHeader>
 
-          {prescriptions.length === 0 ? (
+          {prescriptions.length === 0 && documents.length === 0 ? (
             <TableBody>
               <TableRow className="hover:bg-transparent border-none">
                 <TableCell
@@ -98,14 +149,39 @@ function MainPrescriptionPage({ id }: { id: string }) {
             </TableBody>
           ) : (
             <TableBody>
-              {prescriptions.map((prescription, index) => (
-                <PrescriptionRow
-                  key={index}
-                  prescription={prescription}
-                  setData={setPrescriptions}
-                  patinet={patient!} // typo here
-                />
-              ))}
+              {[
+                ...prescriptions.map((p) => ({
+                  ...p,
+                  kind: "prescription" as const,
+                })),
+                ...documents.map((d) => ({ ...d, kind: "document" as const })),
+              ]
+                .sort((a, b) => {
+                  const dateA = new Date(
+                    a.kind === "prescription" ? a.date || 0 : a.createdAt || 0
+                  ).getTime();
+                  const dateB = new Date(
+                    b.kind === "prescription" ? b.date || 0 : b.createdAt || 0
+                  ).getTime();
+                  return dateB - dateA;
+                })
+                .map((item, index) =>
+                  item.kind === "prescription" ? (
+                    <PrescriptionRow
+                      key={`pres-${index}`}
+                      prescription={item}
+                      setData={setPrescriptions}
+                      patinet={patient!}
+                    />
+                  ) : (
+                    <DocumentRow
+                      key={`doc-${index}`}
+                      document={item}
+                      setData={setDocuments}
+                      patinet={patient!}
+                    />
+                  )
+                )}
             </TableBody>
           )}
         </Table>

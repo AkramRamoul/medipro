@@ -75,16 +75,18 @@ function ConsultationForm({ id }: { id: string }) {
             <TableCaption className="mt-6 text-muted-foreground">
               Une liste de toutes vos consultations.{" "}
             </TableCaption>
-            <TableHeader>
+            <TableHeader className="rounded-t-xl overflow-hidden">
               <TableRow className="bg-muted">
-                <TableHead className="text-muted-foreground">Date</TableHead>
+                <TableHead className="text-muted-foreground rounded-tl-xl">
+                  Date
+                </TableHead>
                 <TableHead className="text-muted-foreground">
                   Reason de visite
                 </TableHead>
                 <TableHead className="text-muted-foreground">
                   Diagnostic
                 </TableHead>
-                <TableHead className="text-muted-foreground w-[80px]">
+                <TableHead className="text-muted-foreground w-[80px] rounded-tr-xl">
                   <div className="flex justify-center items-center">
                     Supprimer
                   </div>
@@ -108,7 +110,7 @@ function ConsultationForm({ id }: { id: string }) {
                       className="hover:bg-muted transition-colors cursor-pointer"
                     >
                       <TableCell className="text-foreground">
-                        {new Date(cons.date).toLocaleDateString()}
+                        {new Date(cons.date).toLocaleDateString("fr-FR")}
                       </TableCell>
                       <TableCell className="text-foreground">
                         {cons.reason || "N/A"}

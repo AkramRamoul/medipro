@@ -66,7 +66,7 @@ function DeleteDialogue({
           </AlertDialogCancel>
           <AlertDialogAction
             disabled={isDeleting}
-            className="bg-destructive hover:bg-destructive"
+            className="bg-destructive hover:bg-destructive dark:text-white"
             onClick={(e) => {
               e.stopPropagation();
               handleDelete();

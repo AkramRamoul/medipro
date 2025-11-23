@@ -52,7 +52,7 @@ function DropDown({
             }}
           >
             <TrashIcon className="size-4 mr-2" />
-            Remove
+            Supprimer
           </DropdownMenuItem>
         </DeletePrescriptionDialogue>
         <PrintButton

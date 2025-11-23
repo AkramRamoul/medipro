@@ -17,6 +17,7 @@ import {
   auth,
   Name,
   psychotropicCounters,
+  Document,
 } from "./schema.js";
 app.on("ready", () => {
   const win = new BrowserWindow({
@@ -347,6 +348,10 @@ app.on("ready", () => {
 
   ipcMain.handle("delete-prescription", async (__dirname, id) => {
     await db.delete(prescriptions).where(eq(prescriptions.id, id));
+  });
+
+  ipcMain.handle("delete-document", async (_, id) => {
+    await db.delete(Document).where(eq(Document.id, id));
   });
 
   ipcMain.handle("edit-consultation", async (_, data) => {
@@ -797,6 +802,38 @@ app.on("ready", () => {
       return { success: false, error: (err as Error).message };
     }
   });
+  ipcMain.handle("create-document", async (_, data) => {
+    try {
+      const { patientId, type, content } = data;
+      const [newDoc] = await db
+        .insert(Document)
+        .values({
+          patientId,
+          type,
+          content,
+        })
+        .returning({ id: Document.id });
+      return { success: true, id: newDoc.id };
+    } catch (error) {
+      console.error("Error creating document:", error);
+      return { success: false, error: (error as Error).message };
+    }
+  });
+
+  ipcMain.handle("get-patient-documents", async (_, patientId) => {
+    try {
+      const result = await db
+        .select()
+        .from(Document)
+        .where(eq(Document.patientId, patientId))
+        .orderBy(desc(Document.createdAt));
+      return result;
+    } catch (error) {
+      console.error("Error fetching documents:", error);
+      return [];
+    }
+  });
+
   async function getNextPsychotropicNumber() {
     try {
       const result = await db

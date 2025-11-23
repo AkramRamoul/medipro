@@ -30,7 +30,6 @@ function SettingsForm() {
     resolver: zodResolver(accountFormSchema),
   });
 
-  // 🔄 Fetch name on mount and populate form
   useEffect(() => {
     const getName = async () => {
       try {

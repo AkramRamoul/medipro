@@ -55,17 +55,13 @@ export function EditPatientForm({ id }: { id: string }) {
   } = useForm<PatientData>({
     resolver: zodResolver(patientSchema),
     defaultValues: {
-      first_name: "",
-      last_name: "",
-      age: 0,
-      gender: "Male",
-      contact: "",
-      weight: 0,
-      address: "",
-      bloodType: "",
-      medicalHistory: "",
-      allergies: "",
-      notes: "",
+      weight: undefined,
+      contact: undefined,
+      address: undefined,
+      bloodType: undefined,
+      medicalHistory: undefined,
+      allergies: undefined,
+      notes: undefined,
     },
   });
 

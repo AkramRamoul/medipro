@@ -136,4 +136,13 @@ contextBridge.exposeInMainWorld("electronAPI", {
   },
   getNextPsychotropicNumber: () =>
     ipcRenderer.invoke("get-next-psychotropic-number"),
+  createDocument: async (data: unknown) => {
+    return await ipcRenderer.invoke("create-document", data);
+  },
+  getPatientDocuments: async (patientId: number) => {
+    return await ipcRenderer.invoke("get-patient-documents", patientId);
+  },
+  deleteDocument: async (id: number) => {
+    return await ipcRenderer.invoke("delete-document", id);
+  },
 });

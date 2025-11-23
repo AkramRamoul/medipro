@@ -46,7 +46,9 @@ const NewPrescriptionForm = ({
   const [highlightedIndex, setHighlightedIndex] = useState<number>(-1);
   const [quantity, setQuantity] = useState<string>("");
   const [durationValue, setDurationValue] = useState<string>("");
-  const [durationUnit, setDurationUnit] = useState<string>("weeks");
+  const [durationUnit, setDurationUnit] = useState<string | undefined>(
+    undefined
+  );
   const [note, setNote] = useState<string>("");
 
   const containerRef = useRef<HTMLDivElement>(null);

@@ -27,3 +27,4 @@ database.db
 *.sln
 *.sw?
 todo.txt
+public.pem

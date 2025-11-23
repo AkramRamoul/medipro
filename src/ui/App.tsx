@@ -20,7 +20,6 @@ function App() {
         <Router>
           <Routes>
             <Route path="/enter-password" element={<EnterPasswordScreen />} />
-
             <Route
               path="/"
               element={

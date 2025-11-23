@@ -119,7 +119,7 @@ export function AddPatientForm({ onClose, onSave }: AddPatientFormProps) {
                       id="gender"
                       className="bg-background text-foreground"
                     >
-                      <SelectValue placeholder="Select gender" />
+                      <SelectValue placeholder="Sélectionner le sexe" />
                     </SelectTrigger>
                     <SelectContent className="bg-background text-foreground">
                       <SelectItem value="Male">Mâle</SelectItem>
@@ -167,24 +167,6 @@ export function AddPatientForm({ onClose, onSave }: AddPatientFormProps) {
               {errors.contact && (
                 <p className="text-destructive text-sm">
                   {errors.contact.message}
-                </p>
-              )}
-            </div>
-
-            <div className="grid gap-2">
-              <Label htmlFor="weight" className="text-foreground">
-                Poids (Facultative)
-              </Label>
-              <Input
-                {...register("weight")}
-                id="weight"
-                type="number"
-                placeholder="Enter weight (kg)"
-                className="bg-background text-foreground"
-              />
-              {errors.weight && (
-                <p className="text-destructive text-sm">
-                  {errors.weight.message}
                 </p>
               )}
             </div>

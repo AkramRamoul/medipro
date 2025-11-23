@@ -92,8 +92,23 @@ export const Name = sqliteTable("name", {
   nameFr: text("name").notNull(),
 });
 
+const docTypeEnums = ["blood", "certificate", "report"] as const;
+
+export const Document = sqliteTable("document", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  patientId: integer("patient_id")
+    .notNull()
+    .references(() => patients.id, { onDelete: "cascade" }),
+  type: text("type", { enum: docTypeEnums }).notNull(),
+  content: text("content", { mode: "json" })
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    .$type<any>()
+    .default(sql`'[]'`),
+  createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
+});
+
 export type PrescriptionMed = typeof prescriptionMedications.$inferSelect;
 export type NewPrescriptionMed = typeof prescriptionMedications.$inferInsert;
 export type prescriptionModel = typeof prescriptionModel.$inferSelect;
-
+export type document = typeof Document.$inferSelect;
 export type Prescription = typeof prescriptions.$inferSelect;

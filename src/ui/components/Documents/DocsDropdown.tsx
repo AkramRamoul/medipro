@@ -6,23 +6,17 @@ import {
 } from "../../components/ui/dropdown-menu";
 import { DropdownMenuTrigger } from "../../components/ui/dropdown-menu";
 import { MoreVertical, TrashIcon } from "lucide-react";
-import { Patient, Prescription } from "../../type";
-import DeletePrescriptionDialogue from "./DeletePrescriptionDialogue";
-import PrintButton from "./PrintButton";
-import { PrescriptionMed } from "../../../electron/schema";
+import { Document, Patient } from "../../type";
+
+import DeleteDocButton from "./DeleteDocButton";
+import DocPrint from "./DocPrint";
 
 interface DropDownProps {
-  prescription: Prescription;
-  setData: React.Dispatch<React.SetStateAction<Prescription[]>>;
-  patient: Patient;
-  medications: PrescriptionMed[];
+  document: Document;
+  setData: React.Dispatch<React.SetStateAction<Document[]>>;
+  patinet: Patient;
 }
-function DropDown({
-  prescription,
-  setData,
-  patient,
-  medications,
-}: DropDownProps) {
+function DocsDropDown({ document, setData, patinet }: DropDownProps) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -32,10 +26,7 @@ function DropDown({
       </DropdownMenuTrigger>
 
       <DropdownMenuContent className="">
-        <DeletePrescriptionDialogue
-          priscriptionId={prescription.id.toString()}
-          setData={setData}
-        >
+        <DeleteDocButton docId={document.id.toString()} setData={setData}>
           <DropdownMenuItem
             onSelect={(e) => {
               e.preventDefault();
@@ -47,18 +38,11 @@ function DropDown({
             <TrashIcon className="size-4 mr-2" />
             Supprimer
           </DropdownMenuItem>
-        </DeletePrescriptionDialogue>
-        <PrintButton
-          patient={patient}
-          window={window}
-          prescription={medications}
-          isPsychotropic={prescription.isPsychotropic}
-          psychotropicNumber={prescription.psychotropicNumber}
-          patientAddress={prescription.patientAddress}
-        />
+        </DeleteDocButton>
+        <DocPrint patient={patinet} window={window} document={document} />
       </DropdownMenuContent>
     </DropdownMenu>
   );
 }
 
-export default DropDown;
+export default DocsDropDown;

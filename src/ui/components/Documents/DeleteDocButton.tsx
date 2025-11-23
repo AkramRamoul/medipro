@@ -1,5 +1,5 @@
 "use client";
-import { TrashIcon } from "lucide-react";
+import { toast } from "sonner";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -10,34 +10,31 @@ import {
   AlertDialogTrigger,
   AlertDialogTitle,
   AlertDialogCancel,
-} from "../components/ui/alert-dialog";
+} from "../ui/alert-dialog";
 import { useState } from "react";
-import { toast } from "sonner";
 
 interface DeleteDialogueProps {
-  consultationId: string;
+  docId: string;
   /* eslint-disable  @typescript-eslint/no-explicit-any */
-
-  setData: React.Dispatch<React.SetStateAction<any[]>>; // Pass setData as a prop
+  children: React.ReactNode;
+  setData: React.Dispatch<React.SetStateAction<any[]>>;
 }
 
-function DeleteDialogue({ consultationId, setData }: DeleteDialogueProps) {
+function DeleteDocButton({ docId, children, setData }: DeleteDialogueProps) {
   const [isDeleting, setIsDeleting] = useState(false);
 
   const handleDelete = () => {
     setIsDeleting(true);
 
     window.electronAPI
-      .deleteCosultaion(consultationId) // ✅ Fixed typo
+      .deleteDocument(docId) // ✅ Fixed typo
       .then(() => {
-        setData((prev) =>
-          prev.filter((item) => item.id !== Number(consultationId))
-        );
-        toast.success("Consultation supprimée avec succès");
+        setData((prev) => prev.filter((item) => item.id !== Number(docId)));
+        toast.success("Document supprimée avec succès");
       })
       .catch((error) => {
         console.error(error);
-        toast.error("Échec de la suppression de la consultation");
+        toast.error("Échec de la suppression de la prescription");
       })
       .finally(() => {
         setIsDeleting(false);
@@ -46,22 +43,14 @@ function DeleteDialogue({ consultationId, setData }: DeleteDialogueProps) {
 
   return (
     <AlertDialog>
-      <AlertDialogTrigger asChild>
-        <button
-          onClick={(e) => e.stopPropagation()}
-          className="p-2 rounded-md hover:bg-muted transition-colors duration-200"
-          aria-label="Delete consultation"
-        >
-          <TrashIcon className="h-5 w-5 text-muted-foreground hover:text-destructive hover:scale-110 transition-transform" />
-        </button>
-      </AlertDialogTrigger>
+      <AlertDialogTrigger asChild>{children}</AlertDialogTrigger>
 
       <AlertDialogContent onClick={(e) => e.stopPropagation()}>
         <AlertDialogHeader>
-          <AlertDialogTitle>Supprimer la consultationn</AlertDialogTitle>
+          <AlertDialogTitle>Supprimer l'ordonnance</AlertDialogTitle>
           <AlertDialogDescription>
-            Êtes-vous sûr de vouloir supprimer cette consultation ? Cette action
-            est irréversible.
+            Êtes-vous sûr de vouloir supprimer cette document ? Cette action est
+            irréversible.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
@@ -84,4 +73,4 @@ function DeleteDialogue({ consultationId, setData }: DeleteDialogueProps) {
   );
 }
 
-export default DeleteDialogue;
+export default DeleteDocButton;

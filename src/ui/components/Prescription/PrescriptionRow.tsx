@@ -26,11 +26,13 @@ function PrescriptionRow({
         className="cursor-pointer"
       >
         {/* Date - Always visible */}
-        <TableCell className="w-[45%] font-medium text-left">
+        <TableCell className="w-[30%] font-medium text-left">
           {prescription.date
-            ? format(new Date(prescription.date), "MMM d, yyyy")
+            ? new Date(prescription.date).toLocaleDateString("fr-FR")
             : "Invalid Date"}
         </TableCell>
+
+        <TableCell className="text-left">Ordonnance</TableCell>
 
         {/* Time - Hidden on small screens, visible on md+ */}
         <TableCell className="hidden md:table-cell text-left text-muted-foreground">

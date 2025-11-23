@@ -25,7 +25,7 @@ function MainPage() {
             value="password"
             className="flex-1 text-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
           >
-            Ordonnance
+            Dossiers & Documents
           </TabsTrigger>
         </TabsList>
 
