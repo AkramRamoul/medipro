@@ -188,12 +188,20 @@ const NewPrescriptionForm = ({
       return;
     }
 
-    const filteredSuggestions = medications.filter((med) =>
-      med.name.toLowerCase().includes(value.toLowerCase())
-    );
-    setSuggestions(filteredSuggestions);
+    const lower = value.toLowerCase();
+
+    const filtered = medications
+      .filter((med) => med.name.toLowerCase().includes(lower))
+      .sort((a, b) => {
+        const aStarts = a.name.toLowerCase().startsWith(lower) ? 0 : 1;
+        const bStarts = b.name.toLowerCase().startsWith(lower) ? 0 : 1;
+        return aStarts - bStarts || a.name.localeCompare(b.name);
+      });
+
+    setSuggestions(filtered);
     setHighlightedIndex(-1);
   };
+
   const handleSuggestionClick = (medication: Medication) => {
     setSelectedMedication(medication);
     setInputValue(

@@ -23,9 +23,11 @@ import { Textarea } from "../ui/textarea";
 
 // Define Zod Schema for Validation
 const patientSchema = z.object({
-  first_name: z.string().min(2, "First name must be at least 2 characters"),
-  last_name: z.string().min(2, "Last name must be at least 2 characters"),
-  age: z.coerce.number().min(1, "Age must be at least 1"),
+  first_name: z
+    .string()
+    .min(2, "Le prénom doit comporter au moins 2 caractères."),
+  last_name: z.string().min(2, "Le nom doit comporter au moins 2 caractères."),
+  age: z.coerce.number().min(1, "L'âge doit être au moins de 1 an."),
   gender: z.enum(["Male", "Female"]),
   contact: z.string().optional(),
   weight: z.coerce.number().optional(),
@@ -122,7 +124,7 @@ export function AddPatientForm({ onClose, onSave }: AddPatientFormProps) {
                       <SelectValue placeholder="Sélectionner le sexe" />
                     </SelectTrigger>
                     <SelectContent className="bg-background text-foreground">
-                      <SelectItem value="Male">Mâle</SelectItem>
+                      <SelectItem value="Male">Homme</SelectItem>
                       <SelectItem value="Female">Femmelle</SelectItem>
                     </SelectContent>
                   </Select>

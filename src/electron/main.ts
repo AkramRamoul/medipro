@@ -261,12 +261,12 @@ app.on("ready", () => {
           const rawMedications = JSON.parse(data);
           /* eslint-disable  @typescript-eslint/no-explicit-any */
           const medications = rawMedications.map((med: any) => ({
-            name: med["NOM DE MARQUE"] || "",
-            form: med["FORME"] || "",
-            dosage: med["DOSAGE"] || "",
-            note: med["NOTE"] || "",
-            quantity: med["QUANTITE"] || "",
-            duration: med["DUREE"] || "",
+            name: (med["NOM DE MARQUE"] || "").trim(),
+            form: (med["FORME"] || "").trim(),
+            dosage: (med["DOSAGE"] || "").trim(),
+            note: (med["NOTE"] || "").trim(),
+            quantity: (med["QUANTITE"] || "").trim(),
+            duration: (med["DUREE"] || "").trim(),
           }));
 
           resolve(medications);

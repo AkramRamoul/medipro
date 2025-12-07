@@ -179,7 +179,7 @@ export function EditPatientForm({ id }: { id: string }) {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="Male">Homme</SelectItem>
-                      <SelectItem value="Female">Femme</SelectItem>
+                      <SelectItem value="Female">Femmelle</SelectItem>
                     </SelectContent>
                   </Select>
                 )}
