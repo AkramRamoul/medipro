@@ -23,6 +23,10 @@ export type Consultation = {
   symptoms: string; // Description of symptoms
   diagnosis: string; // Doctor's diagnosis
   notes?: string; // Optional additional notes
+  bloodPressure?: string;
+  heartRate?: string;
+  temperature?: string;
+  weight?: string;
   date: string; // Timestamp for when the consultation was created
 };
 
@@ -71,6 +75,10 @@ export type ConsultationWithPatient = {
   reason: string;
   diagnosis: string;
   notes: string;
+  bloodPressure?: string;
+  heartRate?: string;
+  temperature?: string;
+  weight?: string;
   patient: {
     id: number;
     first_name: string;

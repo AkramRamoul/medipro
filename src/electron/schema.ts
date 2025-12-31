@@ -29,6 +29,10 @@ export const consultations = sqliteTable("consultations", {
   diagnosis: text("diagnosis").notNull(),
   notes: text("notes"),
   symptoms: text("symptoms"),
+  bloodPressure: text("blood_pressure"),
+  heartRate: text("heart_rate"),
+  temperature: text("temperature"),
+  weight: text("weight"),
 });
 
 export const prescriptions = sqliteTable("prescriptions", {

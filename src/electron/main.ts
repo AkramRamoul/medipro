@@ -164,6 +164,10 @@ app.on("ready", () => {
         reason: consultations.reason,
         diagnosis: consultations.diagnosis,
         notes: consultations.notes,
+        bloodPressure: consultations.bloodPressure,
+        heartRate: consultations.heartRate,
+        temperature: consultations.temperature,
+        weight: consultations.weight,
         patient: {
           id: patients.id,
           first_name: patients.first_name,
@@ -279,10 +283,21 @@ app.on("ready", () => {
   });
 
   ipcMain.handle("add-consultation", async (_, data) => {
-    await db
-      .insert(consultations)
-      .values({ ...data, date: new Date().toISOString() });
+    const { vitals, ...rest } = data;
+
+    await db.insert(consultations).values({
+      ...rest,
+      bloodPressure:
+        vitals?.bpSystolic && vitals?.bpDiastolic
+          ? `${vitals.bpSystolic}/${vitals.bpDiastolic}`
+          : null,
+      heartRate: vitals?.heartRate,
+      temperature: vitals?.temperature,
+      weight: vitals?.weight,
+      date: new Date().toISOString(),
+    });
   });
+
   ipcMain.handle("get-consultation", async (_, id) => {
     const result = await db
       .select()
