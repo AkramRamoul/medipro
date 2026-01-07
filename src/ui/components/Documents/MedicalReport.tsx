@@ -21,24 +21,17 @@ import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
 
 const medicalReportSchema = z.object({
-  patientName: z.string().min(2, {
-    message: "Patient name must be at least 2 characters.",
+  date: z.string().refine((val) => !isNaN(Date.parse(val)), {
+    message: "Date invalide.",
   }),
-  reportDate: z.string().refine((val) => !isNaN(Date.parse(val)), {
-    message: "Please enter a valid date.",
+  examenClinique: z.string().min(1, {
+    message: "L’examen clinique est requis.",
   }),
-  chiefComplaint: z.string().min(1, {
-    message: "Chief complaint is required.",
+  diagnostic: z.string().min(1, {
+    message: "Le diagnostic est requis.",
   }),
-  historyOfPresentIllness: z.string().optional(),
-  examinationFindings: z.string().min(1, {
-    message: "Examination findings are required.",
-  }),
-  diagnosis: z.string().min(1, {
-    message: "Diagnosis is required.",
-  }),
-  treatmentPlan: z.string().min(1, {
-    message: "Treatment plan is required.",
+  traitement: z.string().min(1, {
+    message: "Le traitement est requis.",
   }),
 });
 
@@ -56,18 +49,14 @@ export function MedicalReport({
   const form = useForm<z.infer<typeof medicalReportSchema>>({
     resolver: zodResolver(medicalReportSchema),
     defaultValues: {
-      patientName: "",
-      reportDate: new Date().toISOString().split("T")[0],
-      chiefComplaint: "",
-      historyOfPresentIllness: "",
-      examinationFindings: "",
-      diagnosis: "",
-      treatmentPlan: "",
+      date: new Date().toISOString().split("T")[0],
+      examenClinique: "",
+      diagnostic: "",
+      traitement: "",
     },
   });
 
   async function onSubmit(values: z.infer<typeof medicalReportSchema>) {
-    console.log(values);
     try {
       await window.electronAPI.createDocument({
         patientId,
@@ -77,42 +66,27 @@ export function MedicalReport({
       refreshDocuments();
       onClose();
     } catch (error) {
-      console.error("Failed to create document:", error);
+      console.error("Erreur lors de la création du document :", error);
     }
   }
 
   return (
-    <Card className="w-full max-w-3xl mx-auto">
+    <Card className="w-full max-w-2xl mx-auto">
       <CardHeader>
-        <CardTitle>Medical Report</CardTitle>
-        <CardDescription>
-          Create a comprehensive medical report.
-        </CardDescription>
+        <CardTitle>Rapport Médical</CardTitle>
+        <CardDescription>Création rapide d’un rapport médical.</CardDescription>
       </CardHeader>
+
       <CardContent>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
-                name="patientName"
+                name="date"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Patient Name</FormLabel>
-                    <FormControl>
-                      <Input placeholder="John Doe" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="reportDate"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Report Date</FormLabel>
+                    <FormLabel>Date</FormLabel>
                     <FormControl>
                       <Input type="date" {...field} />
                     </FormControl>
@@ -124,28 +98,14 @@ export function MedicalReport({
 
             <FormField
               control={form.control}
-              name="chiefComplaint"
+              name="examenClinique"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Chief Complaint</FormLabel>
-                  <FormControl>
-                    <Input placeholder="e.g., Chest pain, Fever" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="historyOfPresentIllness"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>History of Present Illness</FormLabel>
+                  <FormLabel>Examen clinique</FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="Detailed history..."
-                      className="min-h-[100px]"
+                      placeholder="Constatations cliniques..."
+                      className="min-h-[90px]"
                       {...field}
                     />
                   </FormControl>
@@ -156,16 +116,12 @@ export function MedicalReport({
 
             <FormField
               control={form.control}
-              name="examinationFindings"
+              name="diagnostic"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Examination Findings</FormLabel>
+                  <FormLabel>Diagnostic</FormLabel>
                   <FormControl>
-                    <Textarea
-                      placeholder="Physical examination results..."
-                      className="min-h-[100px]"
-                      {...field}
-                    />
+                    <Input placeholder="Diagnostic médical" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -174,28 +130,14 @@ export function MedicalReport({
 
             <FormField
               control={form.control}
-              name="diagnosis"
+              name="traitement"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Diagnosis</FormLabel>
-                  <FormControl>
-                    <Input placeholder="e.g., Acute Bronchitis" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="treatmentPlan"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Treatment Plan</FormLabel>
+                  <FormLabel>Traitement</FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="Medications, lifestyle changes, follow-up..."
-                      className="min-h-[100px]"
+                      placeholder="Médicaments, recommandations..."
+                      className="min-h-[90px]"
                       {...field}
                     />
                   </FormControl>
@@ -205,7 +147,7 @@ export function MedicalReport({
             />
 
             <div className="flex justify-end">
-              <Button type="submit">Save Report</Button>
+              <Button type="submit">Enregistrer</Button>
             </div>
           </form>
         </Form>

@@ -23,6 +23,10 @@ function SingleConsultation({
   const [symptoms, setSymptoms] = useState("");
   const [diagnosis, setDiagnosis] = useState("");
   const [notes, setNotes] = useState("");
+  const [bpSystolic, setBpSystolic] = useState("");
+  const [bpDiastolic, setBpDiastolic] = useState("");
+  const [glucose, setGlucose] = useState("");
+  const [weight, setWeight] = useState("");
 
   // Fetch patient data based on ID
   useEffect(() => {
@@ -39,6 +43,18 @@ function SingleConsultation({
             setSymptoms(extractedConsultation.symptoms || "");
             setDiagnosis(extractedConsultation.diagnosis || "");
             setNotes(extractedConsultation.notes || "");
+            setGlucose(extractedConsultation.glucose || "");
+            setWeight(extractedConsultation.weight || "");
+            const bp = extractedConsultation.bloodPressure;
+
+            if (bp && bp.includes("/")) {
+              const [sys, dia] = bp.split("/");
+              setBpSystolic(sys);
+              setBpDiastolic(dia);
+            } else {
+              setBpSystolic("");
+              setBpDiastolic("");
+            }
           }
         })
         .catch((error: Error) =>
@@ -56,6 +72,10 @@ function SingleConsultation({
         reason, // ✅ Use updated state
         symptoms,
         diagnosis,
+        bloodPressure:
+          bpSystolic && bpDiastolic ? `${bpSystolic}/${bpDiastolic}` : null,
+        glucose,
+        weight,
         notes,
       };
 
@@ -82,9 +102,13 @@ function SingleConsultation({
   return (
     <Card className="p-6 space-y-4 max-w-2xl mx-auto">
       <h2 className="text-2xl font-bold">
-        Cosultation du :{" "}
+        Consultation du :{" "}
         {consultation?.date
-          ? new Date(consultation.date).toLocaleDateString()
+          ? new Date(consultation.date).toLocaleDateString("fr-FR", {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            })
           : "Date not available"}
       </h2>
 
@@ -106,6 +130,43 @@ function SingleConsultation({
             value={symptoms}
             onChange={(e) => setSymptoms(e.target.value)}
           />
+        </div>
+        <div>
+          <Label>Tension Artérielle</Label>
+          <div className="flex gap-2">
+            <Input
+              type="number"
+              placeholder="SYS"
+              value={bpSystolic}
+              onChange={(e) => setBpSystolic(e.target.value)}
+            />
+            <Input
+              type="number"
+              placeholder="DIA"
+              value={bpDiastolic}
+              onChange={(e) => setBpDiastolic(e.target.value)}
+            />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <Label>Glycémie sanguine</Label>
+            <Input
+              placeholder="mg/dL"
+              value={glucose}
+              onChange={(e) => setGlucose(e.target.value)}
+            />
+          </div>
+          <div>
+            <Label>Poids</Label>
+            <Input
+              type="number"
+              placeholder="kg"
+              value={weight}
+              onChange={(e) => setWeight(e.target.value)}
+            />
+          </div>
         </div>
         <div className="flex flex-col items-start space-y-1">
           <Label>Diagnostic</Label>

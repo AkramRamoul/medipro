@@ -4,7 +4,7 @@ import { Textarea } from "../ui/textarea";
 import { Button } from "../ui/button";
 import { Card } from "../ui/card";
 import { useEffect, useState } from "react";
-import { ChevronDown, Loader2 } from "lucide-react";
+import { ChevronsUpDown, Loader2 } from "lucide-react";
 import {
   Collapsible,
   CollapsibleContent,
@@ -33,8 +33,7 @@ function NewConsultationForm({
   // Vitals
   const [bpSystolic, setBpSystolic] = useState("");
   const [bpDiastolic, setBpDiastolic] = useState("");
-  const [heartRate, setHeartRate] = useState("");
-  const [temperature, setTemperature] = useState("");
+  const [glucose, setGlucose] = useState("");
   const [weight, setWeight] = useState("");
 
   const [isOpen, setIsOpen] = useState(false);
@@ -56,7 +55,7 @@ function NewConsultationForm({
     if (!patient) return;
 
     const consultationData = {
-      patientId: id,
+      patientId: Number(id),
       reason,
       symptoms,
       diagnosis,
@@ -64,11 +63,11 @@ function NewConsultationForm({
       vitals: {
         bpSystolic: bpSystolic ? bpSystolic : null,
         bpDiastolic: bpDiastolic ? bpDiastolic : null,
-        heartRate: heartRate ? heartRate : null,
-        temperature: temperature ? temperature : null,
+        glucose: glucose ? glucose : null,
         weight: weight ? weight : null,
       },
     };
+    console.log("📢 Sending consultation data:", consultationData);
 
     try {
       await window.electronAPI.addConsultation(consultationData);
@@ -124,13 +123,13 @@ function NewConsultationForm({
         <Collapsible
           open={isOpen}
           onOpenChange={setIsOpen}
-          className="border rounded-md p-4"
+          className="border rounded-md p-4 cursor-pointer"
         >
           <div className="flex justify-between items-center">
             <h4 className="text-sm font-semibold">Signes vitaux</h4>
             <CollapsibleTrigger asChild>
               <Button variant="ghost" size="sm">
-                <ChevronDown
+                <ChevronsUpDown
                   className={`h-4 w-4 transition-transform ${
                     isOpen ? "rotate-180" : ""
                   }`}
@@ -160,25 +159,14 @@ function NewConsultationForm({
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label>Fréquence cardiaque</Label>
+                <Label>Glycémie sanguine</Label>
                 <Input
                   type="number"
-                  placeholder="bpm"
-                  value={heartRate}
-                  onChange={(e) => setHeartRate(e.target.value)}
+                  placeholder="mg/dL"
+                  value={glucose}
+                  onChange={(e) => setGlucose(e.target.value)}
                 />
               </div>
-
-              <div>
-                <Label>Température</Label>
-                <Input
-                  type="number"
-                  placeholder="°C"
-                  value={temperature}
-                  onChange={(e) => setTemperature(e.target.value)}
-                />
-              </div>
-
               <div>
                 <Label>Poids</Label>
                 <Input

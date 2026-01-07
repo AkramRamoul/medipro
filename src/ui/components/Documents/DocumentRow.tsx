@@ -21,6 +21,11 @@ export default function DocumentRow({
   setData,
   patinet,
 }: DocumentRowProps) {
+  const labels = {
+    blood: "Demande Bilan",
+    certificate: "Certificat médical",
+    report: "Rapport médical",
+  } as const;
   return (
     <TableRow>
       <TableCell className="w-[35%] font-medium text-left">
@@ -29,7 +34,7 @@ export default function DocumentRow({
           : "Invalid Date"}
       </TableCell>
       <TableCell className="text-left capitalize w-[35%]">
-        {document.type}
+        {labels[document.type]}
       </TableCell>
       <TableCell className="hidden md:table-cell text-left text-muted-foreground">
         {document.createdAt

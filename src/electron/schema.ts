@@ -30,8 +30,7 @@ export const consultations = sqliteTable("consultations", {
   notes: text("notes"),
   symptoms: text("symptoms"),
   bloodPressure: text("blood_pressure"),
-  heartRate: text("heart_rate"),
-  temperature: text("temperature"),
+  glucose: text("glucose"),
   weight: text("weight"),
 });
 

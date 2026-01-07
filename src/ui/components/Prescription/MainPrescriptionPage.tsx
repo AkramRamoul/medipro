@@ -113,7 +113,7 @@ function MainPrescriptionPage({ id }: { id: string }) {
             <MedicalReport
               patientId={id}
               onClose={() => setIsOpen(false)}
-              type={"CERTIFICATE"}
+              type={"REPORT"}
               refreshDocuments={fetchPrescriptions}
             />
           )}

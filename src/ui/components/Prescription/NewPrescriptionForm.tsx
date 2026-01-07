@@ -222,7 +222,7 @@ const NewPrescriptionForm = ({
   return (
     <div className="relative mt-10">
       {/* Medication Form Row */}
-      <div ref={containerRef} className="flex flex-wrap items-center gap-3">
+      <div ref={containerRef} className="flex flex-row items-center gap-3">
         <Input
           type="text"
           value={inputValue}

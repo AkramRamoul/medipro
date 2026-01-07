@@ -75,8 +75,10 @@ export function BloodWork({
   return (
     <Card className="w-full max-w-2xl mx-auto">
       <CardHeader>
-        <CardTitle>Blood Work Request</CardTitle>
-        <CardDescription>Create a new blood work record.</CardDescription>
+        <CardTitle>Demande de bilan</CardTitle>
+        <CardDescription>
+          Remplissez les informations ci-dessous pour créer un nouveau bilan
+        </CardDescription>
       </CardHeader>
 
       <CardContent>

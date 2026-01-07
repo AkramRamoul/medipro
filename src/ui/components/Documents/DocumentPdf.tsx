@@ -229,18 +229,130 @@ const DocumentPdf = ({
           {documentType === "blood" ? (
             // BLOOD WORK LIST
             <View style={{ gap: 4 }}>
-              {documentContent?.results?.map((item, index) => (
-                <Text key={index} style={{ fontSize: 14 }}>
-                  • {item}
+              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+              {(documentContent as any)?.results?.map(
+                (item: string, index: number) => (
+                  <Text key={index} style={{ fontSize: 14 }}>
+                    • {item}
+                  </Text>
+                )
+              )}
+            </View>
+          ) : documentType === "certificate" ? (
+            // CERTIFICATE
+            <View style={{ marginTop: 20, gap: 10 }}>
+              <Text style={{ fontSize: 12, lineHeight: 1.5 }}>
+                Je soussigné(e), Dr {prescriptionModel.nameFr}, certifie avoir
+                examiné ce jour le patient
+                <Text style={{ fontWeight: "bold" }}>
+                  {" "}
+                  {first_name} {last_name}{" "}
                 </Text>
-              ))}
+                âgé de {patientAge} ans.
+              </Text>
+
+              <Text style={{ fontSize: 12, lineHeight: 1.5 }}>
+                Son état de santé nécessite un repos de maladie à partir du :{" "}
+                {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+                {(documentContent as any).restStartDate} au{" "}
+                {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+                {(documentContent as any).restEndDate} inclus.
+              </Text>
+
+              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+              {(documentContent as any).diagnosis && (
+                <Text style={{ fontSize: 12, marginTop: 10 }}>
+                  <Text
+                    style={{ fontWeight: "bold", textDecoration: "underline" }}
+                  >
+                    Diagnostic :
+                  </Text>{" "}
+                  {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+                  {(documentContent as any).diagnosis}
+                </Text>
+              )}
+
+              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+              {(documentContent as any).remarks && (
+                <Text style={{ fontSize: 12, marginTop: 5 }}>
+                  <Text
+                    style={{ fontWeight: "bold", textDecoration: "underline" }}
+                  >
+                    Remarques :
+                  </Text>{" "}
+                  {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+                  {(documentContent as any).remarks}
+                </Text>
+              )}
             </View>
           ) : (
-            // CERTIFICATE OR REPORT
-            <Text style={{ fontSize: 14, lineHeight: 20 }}>
-              Ceci est un texte par défaut pour ce type de document. Le contenu
-              final sera inséré ici plus tard.
-            </Text>
+            // REPORT
+            <View style={{ marginTop: 15, gap: 8 }}>
+              {/* Date */}
+
+              {/* Examen clinique */}
+              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+              {(documentContent as any).examenClinique && (
+                <View style={{ marginTop: 6 }}>
+                  <Text
+                    style={{
+                      fontWeight: "bold",
+                      fontSize: 12,
+                      marginBottom: 2,
+                      textDecoration: "underline",
+                    }}
+                  >
+                    Examen clinique :
+                  </Text>
+                  <Text style={{ fontSize: 12, lineHeight: 1.4 }}>
+                    {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+                    {(documentContent as any).examenClinique}
+                  </Text>
+                </View>
+              )}
+
+              {/* Diagnostic */}
+              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+              {(documentContent as any).diagnostic && (
+                <View style={{ marginTop: 6 }}>
+                  <Text
+                    style={{
+                      fontWeight: "bold",
+                      fontSize: 12,
+                      marginBottom: 2,
+                      textDecoration: "underline",
+                    }}
+                  >
+                    Diagnostic :
+                  </Text>
+                  <Text style={{ fontSize: 12, lineHeight: 1.4 }}>
+                    {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+                    {(documentContent as any).diagnostic}
+                  </Text>
+                </View>
+              )}
+
+              {/* Traitement */}
+              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+              {(documentContent as any).traitement && (
+                <View style={{ marginTop: 6 }}>
+                  <Text
+                    style={{
+                      fontWeight: "bold",
+                      fontSize: 12,
+                      marginBottom: 2,
+                      textDecoration: "underline",
+                    }}
+                  >
+                    Traitement :
+                  </Text>
+                  <Text style={{ fontSize: 12, lineHeight: 1.4 }}>
+                    {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+                    {(documentContent as any).traitement}
+                  </Text>
+                </View>
+              )}
+            </View>
           )}
         </View>
 

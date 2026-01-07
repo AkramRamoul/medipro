@@ -36,9 +36,7 @@ export function DocumentTypeSelector({
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button variant="outline" className="w-fit justify-between">
-          {selected
-            ? documentTypes.find((d) => d.value === selected)?.label
-            : "Sélectionner le type de document a créer"}
+          Sélectionner le type de document a créer
         </Button>
       </PopoverTrigger>
 

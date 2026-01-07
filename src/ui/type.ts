@@ -106,3 +106,25 @@ export type Document = {
   content: any;
   createdAt: string | null;
 };
+
+export type BloodContent = {
+  results: string[];
+};
+
+export type CertificateContent = {
+  patientName: string;
+  examinationDate: string;
+  diagnosis: string;
+  restStartDate: string;
+  restEndDate: string;
+  doctorName: string;
+  remarks?: string;
+};
+
+export type ReportContent = {
+  diagnosis: string;
+  findings: string;
+  conclusion?: string;
+};
+
+export type DocumentContent = BloodContent | CertificateContent | ReportContent;
