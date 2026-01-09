@@ -15,6 +15,10 @@ import SinglePrescription from "../components/Prescription/SinglePrescription";
 import Pagination from "../components/Pagination";
 import { Loader2, Search } from "lucide-react";
 import DropDown from "./comps/DropDownPrescription";
+import { Button } from "../components/ui/button";
+import GenericPrescriptionModal from "../components/Prescription/GenericPrescriptionModal";
+import { Plus } from "lucide-react";
+import ModalV2 from "../components/Modalsecond";
 
 async function getData(): Promise<PrescriptionWithPatient[]> {
   try {
@@ -32,15 +36,16 @@ function Prescriptions() {
   const [selectedPrescription, setSelectedPrescription] =
     useState<PrescriptionWithPatient | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [isNewPrescriptionOpen, setIsNewPrescriptionOpen] = useState(false);
+
+  const fetchData = async () => {
+    setIsLoading(true);
+    const prescriptions = await getData();
+    setData(prescriptions);
+    setIsLoading(false);
+  };
 
   useEffect(() => {
-    const fetchData = async () => {
-      setIsLoading(true);
-      const prescriptions = await getData();
-      setData(prescriptions);
-      setIsLoading(false);
-    };
-
     fetchData();
   }, []);
 
@@ -87,6 +92,12 @@ function Prescriptions() {
               <Search className="w-5 h-5" />
             </span>
           </div>
+          <Button
+            onClick={() => setIsNewPrescriptionOpen(true)}
+            className="ml-4 text-white"
+          >
+            <Plus className="mr-2 h-4 w-4" /> Nouvelle Ordonnance
+          </Button>
         </div>
 
         {/* Table Section */}
@@ -186,6 +197,19 @@ function Prescriptions() {
           />
         )}
       </Modal>
+
+      {/* New Prescription Modal */}
+      <ModalV2
+        isOpen={isNewPrescriptionOpen}
+        onClose={() => setIsNewPrescriptionOpen(false)}
+      >
+        <div className="p-6 ">
+          <GenericPrescriptionModal
+            onClose={() => setIsNewPrescriptionOpen(false)}
+            refreshPrescriptions={fetchData}
+          />
+        </div>
+      </ModalV2>
     </>
   );
 }

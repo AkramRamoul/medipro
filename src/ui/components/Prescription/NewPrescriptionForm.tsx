@@ -12,6 +12,16 @@ import { toast } from "sonner";
 import { Patient } from "../../type";
 import PrintButton from "../PrintButton";
 import { PrescriptionMed } from "../../../electron/schema";
+import { Switch } from "../ui/switch";
+import { Label } from "../ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../ui/card";
+import { Plus, Trash2, Pill, AlertTriangle } from "lucide-react";
 
 interface Medication {
   id?: number;
@@ -99,6 +109,11 @@ const NewPrescriptionForm = ({
   const [patientAddress, setPatientAddress] = useState(patient?.address || "");
   // Save prescription to the database
   const handleSave = async () => {
+    if (Number(id) === 0) {
+      toast.error("Impossible d'enregistrer pour un patient manuel.");
+      return;
+    }
+
     if (selectedMedications.length === 0) {
       toast.error("Veuillez ajouter au moins un médicament !");
       return;
@@ -127,7 +142,7 @@ const NewPrescriptionForm = ({
         if (response.psychotropic_number) {
           setPsychotropicNumber(response.psychotropic_number.toString());
         }
-        toast.success("enregistré avec succès !");
+        toast.success("enregistré avec succès !");
         refreshPrescriptions();
         onClose();
       } else {
@@ -220,161 +235,253 @@ const NewPrescriptionForm = ({
   }, []);
 
   return (
-    <div className="relative mt-10">
-      {/* Medication Form Row */}
-      <div ref={containerRef} className="flex flex-row items-center gap-3">
-        <Input
-          type="text"
-          value={inputValue}
-          onKeyDown={handleKeyDown}
-          onChange={handleInputChange}
-          placeholder="Tapez le nom d'un médicament..."
-          className="w-[350px] bg-background text-foreground"
-        />
-
-        <Input
-          type="number"
-          min={1}
-          value={quantity.replace(" bte", "")}
-          onChange={(e) => {
-            const val = e.target.value;
-            setQuantity(val ? `${val} bte` : "");
-          }}
-          placeholder="Qte"
-          className="w-[100px] bg-background text-foreground"
-        />
-        <span className="text-foreground text-sm ">Ou</span>
-        <Input
-          type="number"
-          value={durationValue}
-          onChange={(e) => setDurationValue(e.target.value)}
-          placeholder="Qsp"
-          className="w-[80px] bg-background text-foreground"
-        />
-
-        <Select value={durationUnit || ""} onValueChange={setDurationUnit}>
-          <SelectTrigger className="w-[120px] bg-background text-foreground">
-            <SelectValue placeholder="durée" />{" "}
-          </SelectTrigger>
-          <SelectContent className="bg-popover text-popover-foreground">
-            {["jours", "semaines", "mois"].map((unit, index) => (
-              <SelectItem key={index} value={unit}>
-                {unit}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
-        <Input
-          type="text"
-          value={note}
-          onChange={(e) => setNote(e.target.value)}
-          placeholder="Ajouter une note..."
-          className="w-[200px] bg-background text-foreground"
-        />
-        <div className="flex items-center gap-2 mt-4 w-full">
-          <input
-            type="checkbox"
-            id="psychotropic"
-            checked={isPsychotropic}
-            onChange={async (e) => {
-              const checked = e.target.checked;
-              setIsPsychotropic(checked);
-              if (checked) {
-                await fetchPsychotropicNumber();
-                if (patient?.address) {
-                  setPatientAddress(patient.address);
-                }
-              } else {
-                setPsychotropicNumber(""); // Clear if unchecked
-              }
-            }}
-          />
-          <label htmlFor="psychotropic" className="text-foreground text-sm">
-            Ce traitement contient un psychotrope
-          </label>
-        </div>
-
-        {/* Conditional Psychotropic Fields */}
-        {isPsychotropic && (
-          <div className="flex flex-col gap-2 w-full mt-2">
-            <Input
-              type="text"
-              value={psychotropicNumber}
-              readOnly
-              placeholder="Numéro de prescription psychotrope"
-              className="bg-muted text-foreground"
-            />
-            <Input
-              type="text"
-              value={patientAddress}
-              onChange={(e) => setPatientAddress(e.target.value)}
-              placeholder="Adresse du patient"
-              className="bg-background text-foreground"
-            />
-          </div>
-        )}
-
-        <Button
-          className="text-white"
-          onClick={handleAddMedication}
-          disabled={inputValue.trim() === ""}
-        >
-          Ajouter
-        </Button>
-      </div>
-
-      {/* Suggestions Dropdown */}
-      {suggestions.length > 0 && (
-        <div className="absolute z-10 w-full max-h-60 overflow-y-auto bg-popover border border-border rounded shadow-md mt-2">
-          {suggestions.map((med, index) => (
-            <div
-              key={index}
-              id={`suggestion-${index}`}
-              className={`p-2 cursor-pointer hover:bg-muted ${
-                index === highlightedIndex ? "bg-muted" : ""
-              }`}
-              onMouseDown={() => handleSuggestionClick(med)}
-            >
-              {med.name} - {med.form} ({med.dosage})
+    <div className="relative mt-8 max-w-5xl mx-auto space-y-6">
+      {/* 1. Medication Entry Card */}
+      <Card className="border-border shadow-sm">
+        <CardHeader className="pb-4">
+          <CardTitle className="text-lg flex items-center gap-2">
+            <Pill className="h-5 w-5 text-primary" />
+            Ajouter un médicament
+          </CardTitle>
+          <CardDescription>
+            Recherchez et ajoutez des médicaments à l'ordonnance.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div
+            ref={containerRef}
+            className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end"
+          >
+            {/* Medicine Suggestion Input (Span 5 to give it more space) */}
+            <div className="md:col-span-4 relative space-y-2">
+              <Label>Médicament</Label>
+              <Input
+                type="text"
+                value={inputValue}
+                onKeyDown={handleKeyDown}
+                onChange={handleInputChange}
+                placeholder="Nom du médicament..."
+                className="w-full"
+                autoFocus
+              />
+              {/* Suggestions Dropdown */}
+              {suggestions.length > 0 && (
+                <div className="absolute z-50 w-full max-h-60 overflow-y-auto bg-popover border border-border rounded-md shadow-lg mt-1">
+                  {suggestions.map((med, index) => (
+                    <div
+                      key={index}
+                      id={`suggestion-${index}`}
+                      className={`px-3 py-2 text-sm cursor-pointer hover:bg-accent hover:text-accent-foreground ${
+                        index === highlightedIndex
+                          ? "bg-accent text-accent-foreground"
+                          : ""
+                      }`}
+                      onMouseDown={() => handleSuggestionClick(med)}
+                    >
+                      <div className="font-medium">{med.name}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {med.form} • {med.dosage}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
-          ))}
-        </div>
-      )}
 
-      {/* Selected Medications */}
-      {selectedMedications.length > 0 && (
-        <div className="mt-4">
-          <h3 className="font-semibold mb-2 text-foreground">
-            Médicaments sélectionnés:
-          </h3>
-          <ul className="space-y-2">
-            {selectedMedications.map((med, index) => (
-              <li
-                key={index}
-                className="flex items-center justify-between bg-muted p-2 rounded"
-              >
-                <span>
-                  - {med.medicineName} {med.form ? `${med.form}` : ""}{" "}
-                  {med.dosage} {med.quantity ? `${med.quantity}` : ""}{" "}
-                  {med.duration ? `${med.duration}` : ""} {med.note}
-                </span>
-                <Button
-                  variant="destructive"
-                  onClick={() => handleRemoveMedication(index)}
+            {/* Quantity */}
+            <div className="md:col-span-2 space-y-2">
+              <Label>Quantité</Label>
+              <Input
+                type="number"
+                min={1}
+                value={quantity.replace(" bte", "")}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setQuantity(val ? `${val} bte` : "");
+                }}
+                placeholder="Qte"
+              />
+            </div>
+
+            {/* Duration */}
+            <div className="md:col-span-3 space-y-2">
+              <Label>Durée</Label>
+
+              <div className="flex gap-2">
+                <Input
+                  type="number"
+                  value={durationValue}
+                  onChange={(e) => setDurationValue(e.target.value)}
+                  placeholder="Ex: 5"
+                  className="flex-1"
+                />
+
+                <Select
+                  value={durationUnit || ""}
+                  onValueChange={setDurationUnit}
                 >
-                  Supprimer
+                  <SelectTrigger className="w-28">
+                    <SelectValue placeholder="Unité" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {["jours", "semaines", "mois"].map((unit) => (
+                      <SelectItem key={unit} value={unit}>
+                        {unit}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {/* Note */}
+            <div className="md:col-span-3 space-y-2">
+              <Label>Note</Label>
+              <div className="flex gap-2">
+                <Input
+                  type="text"
+                  value={note}
+                  onChange={(e) => setNote(e.target.value)}
+                  placeholder="Posologie/Note..."
+                  className="flex-1"
+                />
+                <Button
+                  onClick={handleAddMedication}
+                  disabled={inputValue.trim() === ""}
+                  size="icon"
+                  className="shrink-0"
+                >
+                  <Plus className="h-4 w-4" />
                 </Button>
-              </li>
-            ))}
-          </ul>
-        </div>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* 2. Psychotropic Switch */}
+      {Number(id) !== 0 && (
+        <Card
+          className={`border transition-colors ${
+            isPsychotropic ? "border-amber-400 bg-amber-50/10" : "border-border"
+          }`}
+        >
+          <CardContent className="pt-6 flex flex-col md:flex-row gap-6 items-start md:items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <div
+                className={`p-2 rounded-full ${
+                  isPsychotropic
+                    ? "bg-amber-100 text-amber-600"
+                    : "bg-muted text-muted-foreground"
+                }`}
+              >
+                <AlertTriangle className="h-6 w-6" />
+              </div>
+              <div className="space-y-0.5">
+                <Label
+                  htmlFor="psychotropic-switch"
+                  className="text-base font-medium"
+                >
+                  Traitement Psychotrope
+                </Label>
+                <p className="text-sm text-muted-foreground">
+                  Activez cette option si l'ordonnance contient des médicaments
+                  psychotropes contrôlés.
+                </p>
+              </div>
+            </div>
+            <Switch
+              id="psychotropic-switch"
+              checked={isPsychotropic}
+              onCheckedChange={async (checked) => {
+                setIsPsychotropic(checked);
+                if (checked) {
+                  await fetchPsychotropicNumber();
+                  if (patient?.address) {
+                    setPatientAddress(patient.address);
+                  }
+                } else {
+                  setPsychotropicNumber("");
+                }
+              }}
+            />
+          </CardContent>
+          {isPsychotropic && (
+            <CardContent className="pt-0 border-t border-border/50 mt-4 animate-in slide-in-from-top-2">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
+                <div className="space-y-2">
+                  <Label>Numéro de prescription</Label>
+                  <Input
+                    value={psychotropicNumber}
+                    readOnly
+                    className="font-mono bg-muted"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Adresse du patient</Label>
+                  <Input
+                    value={patientAddress}
+                    onChange={(e) => setPatientAddress(e.target.value)}
+                    placeholder="Adresse complète"
+                  />
+                </div>
+              </div>
+            </CardContent>
+          )}
+        </Card>
+      )}
+      {/* 3. Selected Medications List */}
+      {selectedMedications.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Médicaments Prescrits</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              {selectedMedications.map((med, index) => (
+                <div
+                  key={index}
+                  className="flex items-center justify-between p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors group"
+                >
+                  <div className="space-y-1">
+                    <div className="font-semibold flex items-center gap-2">
+                      {med.medicineName}
+                      {med.dosage && (
+                        <span className="text-xs font-normal px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
+                          {med.dosage}
+                        </span>
+                      )}
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      {med.form}
+                      {med.quantity && ` • ${med.quantity}`}
+                      {med.duration && ` • ${med.duration}`}
+                      {med.note && (
+                        <span className="text-foreground italic ml-2">
+                          — {med.note}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 opacity-0 group-hover:opacity-100 transition-opacity"
+                    onClick={() => handleRemoveMedication(index)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       )}
 
-      {/* Action Buttons */}
-      <div className="flex justify-end space-x-3 mt-4 p-4 border-t border-border">
-        <Button onClick={handleSave} className="text-white">
-          Enregistrer
+      {/* 4. Footer Actions */}
+      <div className="flex justify-end gap-3 pt-4 border-t">
+        <Button onClick={onClose} variant="outline">
+          Annuler
         </Button>
         <PrintButton
           prescription={selectedMedications}
@@ -385,9 +492,11 @@ const NewPrescriptionForm = ({
           patientAddress={patientAddress}
           disabled={selectedMedications.length === 0}
         />
-        <Button onClick={onClose} variant="outline">
-          Annuler{" "}
-        </Button>
+        {Number(id) !== 0 && (
+          <Button onClick={handleSave} className="min-w-[120px]">
+            Enregistrer
+          </Button>
+        )}
       </div>
     </div>
   );

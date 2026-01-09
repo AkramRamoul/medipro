@@ -15,6 +15,7 @@ import {
   TableRow,
 } from "../ui/table";
 import Pagination from "../Pagination";
+import ModalV2 from "../Modalsecond";
 
 function ConsultationForm({ id }: { id: string }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -56,13 +57,13 @@ function ConsultationForm({ id }: { id: string }) {
         Nouvelle consultation{" "}
       </Button>
 
-      <Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>
+      <ModalV2 isOpen={isOpen} onClose={() => setIsOpen(false)}>
         <NewConsultationForm
           id={id}
           onClose={() => setIsOpen(false)}
           refreshConsultations={fetchConsultations}
         />
-      </Modal>
+      </ModalV2>
 
       {consultations.length === 0 ? (
         <div className="mt-4 p-4 text-center text-muted-foreground border border-border rounded-lg bg-muted">
