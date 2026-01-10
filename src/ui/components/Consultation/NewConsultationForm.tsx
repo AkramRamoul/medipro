@@ -2,16 +2,24 @@ import { Label } from "../ui/label";
 import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
 import { Button } from "../ui/button";
-import { Card } from "../ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { useEffect, useState } from "react";
-import { ChevronsUpDown, Loader2 } from "lucide-react";
 import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "../ui/collapsible";
+  Activity,
+  Heart,
+  Loader2,
+  Stethoscope,
+  Weight,
+  Thermometer,
+  FileText,
+  AlertCircle,
+  ClipboardList,
+  Save,
+  X,
+} from "lucide-react";
 import { Patient } from "../../type";
 import { toast } from "sonner";
+import { Separator } from "../ui/separator";
 
 function NewConsultationForm({
   id,
@@ -35,8 +43,7 @@ function NewConsultationForm({
   const [bpDiastolic, setBpDiastolic] = useState("");
   const [glucose, setGlucose] = useState("");
   const [weight, setWeight] = useState("");
-
-  const [isOpen, setIsOpen] = useState(false);
+  const [temperature, setTemperature] = useState("");
 
   useEffect(() => {
     if (!id) return;
@@ -65,6 +72,7 @@ function NewConsultationForm({
         bpDiastolic: bpDiastolic ? bpDiastolic : null,
         glucose: glucose ? glucose : null,
         weight: weight ? weight : null,
+        temperature: temperature ? temperature : null,
       },
     };
     console.log("📢 Sending consultation data:", consultationData);
@@ -82,111 +90,170 @@ function NewConsultationForm({
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-10">
-        <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     );
   }
 
   return (
-    <Card className="p-6 space-y-4 max-w-2xl mx-auto bg-background">
-      <h2 className="text-2xl font-bold">Nouvelle consultation</h2>
+    <Card className="w-full max-w-4xl mx-auto border-none shadow-none">
+      <CardHeader className="pb-4 border-b mb-6">
+        <CardTitle className="flex items-center gap-3 text-2xl text-primary">
+          <Stethoscope className="w-8 h-8" />
+          Nouvelle Consultation
+        </CardTitle>
+        <p className="text-muted-foreground mt-1">
+          Remplissez les détails de la consultation pour {patient?.first_name} {patient?.last_name}
+        </p>
+      </CardHeader>
 
-      <div className="space-y-4">
-        <div>
-          <Label>Raison de la visite</Label>
-          <Input value={reason} onChange={(e) => setReason(e.target.value)} />
-        </div>
+      <CardContent className="space-y-8">
+        {/* Section 1: Clinical Info */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2 text-foreground font-medium">
+                <ClipboardList className="w-4 h-4 text-primary" />
+                Raison de la visite
+              </Label>
+              <Input
+                value={reason}
+                onChange={(e) => setReason(e.target.value)}
+                placeholder="Ex: Douleurs abdominales, Fièvre..."
+                className="bg-muted/30"
+              />
+            </div>
 
-        <div>
-          <Label>Symptômes</Label>
-          <Textarea
-            value={symptoms}
-            onChange={(e) => setSymptoms(e.target.value)}
-          />
-        </div>
-
-        <div>
-          <Label>Diagnostic</Label>
-          <Textarea
-            value={diagnosis}
-            onChange={(e) => setDiagnosis(e.target.value)}
-          />
-        </div>
-
-        <div>
-          <Label>Notes</Label>
-          <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} />
-        </div>
-
-        {/* Vitals */}
-        <Collapsible
-          open={isOpen}
-          onOpenChange={setIsOpen}
-          className="border rounded-md p-4 cursor-pointer"
-        >
-          <div className="flex justify-between items-center">
-            <h4 className="text-sm font-semibold">Signes vitaux</h4>
-            <CollapsibleTrigger asChild>
-              <Button variant="ghost" size="sm">
-                <ChevronsUpDown
-                  className={`h-4 w-4 transition-transform ${
-                    isOpen ? "rotate-180" : ""
-                  }`}
-                />
-              </Button>
-            </CollapsibleTrigger>
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2 text-foreground font-medium">
+                <AlertCircle className="w-4 h-4 text-orange-500" />
+                Symptômes
+              </Label>
+              <Textarea
+                value={symptoms}
+                onChange={(e) => setSymptoms(e.target.value)}
+                placeholder="Description détaillée des symptômes..."
+                className="min-h-[120px] bg-muted/30 resize-none"
+              />
+            </div>
           </div>
 
-          <CollapsibleContent className="mt-4 space-y-4">
-            <div>
-              <Label>Tension artérielle</Label>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2 text-foreground font-medium">
+                <Activity className="w-4 h-4 text-blue-500" />
+                Diagnostic
+              </Label>
+              <Textarea
+                value={diagnosis}
+                onChange={(e) => setDiagnosis(e.target.value)}
+                placeholder="Diagnostic médical..."
+                className="min-h-[80px] bg-muted/30 resize-none"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2 text-foreground font-medium">
+                <FileText className="w-4 h-4 text-gray-500" />
+                Notes additionnelles
+              </Label>
+              <Textarea
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                placeholder="Observations, remarques..."
+                className="min-h-[80px] bg-muted/30 resize-none"
+              />
+            </div>
+          </div>
+        </div>
+
+        <Separator />
+
+        {/* Section 2: Vitals */}
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold flex items-center gap-2 text-primary">
+            <Activity className="w-5 h-5" />
+            Signes Vitaux
+          </h3>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-muted/20 rounded-lg border border-border/50">
+            <div className="space-y-2">
+              <Label className="text-xs font-medium text-muted-foreground uppercase flex items-center gap-1">
+                <Heart className="w-3 h-3" /> Tension (SYS/DIA)
+              </Label>
               <div className="flex gap-2">
                 <Input
                   type="number"
-                  placeholder="SYS"
+                  placeholder="120"
                   value={bpSystolic}
                   onChange={(e) => setBpSystolic(e.target.value)}
+                  className="bg-background text-center"
                 />
+                <span className="text-xl text-muted-foreground font-light">/</span>
                 <Input
                   type="number"
-                  placeholder="DIA"
+                  placeholder="80"
                   value={bpDiastolic}
                   onChange={(e) => setBpDiastolic(e.target.value)}
+                  className="bg-background text-center"
                 />
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label>Glycémie sanguine</Label>
-                <Input
-                  type="number"
-                  placeholder="mg/dL"
-                  value={glucose}
-                  onChange={(e) => setGlucose(e.target.value)}
-                />
-              </div>
-              <div>
-                <Label>Poids</Label>
-                <Input
-                  type="number"
-                  placeholder="kg"
-                  value={weight}
-                  onChange={(e) => setWeight(e.target.value)}
-                />
-              </div>
+            <div className="space-y-2">
+              <Label className="text-xs font-medium text-muted-foreground uppercase flex items-center gap-1">
+                <Weight className="w-3 h-3" /> Poids (kg)
+              </Label>
+              <Input
+                type="number"
+                placeholder="70"
+                value={weight}
+                onChange={(e) => setWeight(e.target.value)}
+                className="bg-background"
+              />
             </div>
-          </CollapsibleContent>
-        </Collapsible>
-      </div>
 
-      <div className="flex justify-between mt-4">
-        <Button variant="ghost" onClick={onClose}>
-          Annuler
-        </Button>
-        <Button onClick={handleSave}>Enregistrer la consultation</Button>
-      </div>
+            <div className="space-y-2">
+              <Label className="text-xs font-medium text-muted-foreground uppercase flex items-center gap-1">
+                <Activity className="w-3 h-3" /> Glycémie (mg/dL)
+              </Label>
+              <Input
+                type="number"
+                placeholder="100"
+                value={glucose}
+                onChange={(e) => setGlucose(e.target.value)}
+                className="bg-background"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-xs font-medium text-muted-foreground uppercase flex items-center gap-1">
+                <Thermometer className="w-3 h-3" /> Température (°C)
+              </Label>
+              <Input
+                type="number"
+                placeholder="37.0"
+                value={temperature}
+                onChange={(e) => setTemperature(e.target.value)}
+                className="bg-background"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex justify-end gap-3 pt-4 border-t">
+          <Button variant="outline" onClick={onClose} size="lg" className="gap-2">
+            <X className="w-4 h-4" />
+            Annuler
+          </Button>
+          <Button onClick={handleSave} size="lg" className="gap-2 min-w-[150px]">
+            <Save className="w-4 h-4" />
+            Enregistrer
+          </Button>
+        </div>
+      </CardContent>
     </Card>
   );
 }

@@ -21,7 +21,7 @@ import {
   CardHeader,
   CardTitle,
 } from "../ui/card";
-import { Plus, Trash2, Pill, AlertTriangle } from "lucide-react";
+import { Plus, Trash2, Pill, AlertTriangle, Save, X } from "lucide-react";
 
 interface Medication {
   id?: number;
@@ -480,7 +480,8 @@ const NewPrescriptionForm = ({
 
       {/* 4. Footer Actions */}
       <div className="flex justify-end gap-3 pt-4 border-t">
-        <Button onClick={onClose} variant="outline">
+        <Button onClick={onClose} variant="outline" size="lg">
+          <X className="w-4 h-4" />
           Annuler
         </Button>
         <PrintButton
@@ -493,7 +494,12 @@ const NewPrescriptionForm = ({
           disabled={selectedMedications.length === 0}
         />
         {Number(id) !== 0 && (
-          <Button onClick={handleSave} className="min-w-[120px]">
+          <Button
+            onClick={handleSave}
+            size="lg"
+            className="gap-2 min-w-[150px]"
+          >
+            <Save className="w-4 h-4" />
             Enregistrer
           </Button>
         )}

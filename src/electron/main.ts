@@ -667,18 +667,18 @@ app.on("ready", () => {
   });
 
   const months = [
-    "Jan",
-    "Feb",
-    "Mar",
-    "Apr",
-    "May",
-    "Jun",
-    "Jul",
-    "Aug",
-    "Sep",
+    "Janv",
+    "Févr",
+    "Mars",
+    "Avr",
+    "Mai",
+    "Juin",
+    "Juil",
+    "Août",
+    "Sept",
     "Oct",
     "Nov",
-    "Dec",
+    "Déc",
   ];
 
   // simple in-memory cache

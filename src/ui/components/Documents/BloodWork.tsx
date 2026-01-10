@@ -4,13 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "../ui/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "../ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import {
   Form,
   FormField,
@@ -21,13 +15,22 @@ import {
 } from "../ui/form";
 import { Input } from "../ui/input";
 import { useState } from "react";
-import { PlusIcon } from "lucide-react";
+import {
+  Plus,
+  Trash2,
+  Save,
+  X,
+  Calendar,
+  User,
+  FlaskConical,
+} from "lucide-react";
 import { Patient } from "../../type";
+import { Separator } from "../ui/separator";
 
 const bloodWorkSchema = z.object({
   patientName: z.string().min(2),
   date: z.string(),
-  results: z.array(z.string().min(1)), // now ARRAY
+  results: z.array(z.string().min(1)),
 });
 
 export function BloodWork({
@@ -42,13 +45,12 @@ export function BloodWork({
   const form = useForm<z.infer<typeof bloodWorkSchema>>({
     resolver: zodResolver(bloodWorkSchema),
     defaultValues: {
-      patientName: `${patient.last_name} ${patient.first_name}`, // or patient.name depending on your type
+      patientName: `${patient.last_name} ${patient.first_name}`,
       date: new Date().toISOString().split("T")[0],
       results: [],
     },
   });
 
-  // local state for adding items
   const [currentItem, setCurrentItem] = useState("");
 
   function addItem() {
@@ -56,6 +58,12 @@ export function BloodWork({
     const updated = [...form.getValues("results"), currentItem.trim()];
     form.setValue("results", updated);
     setCurrentItem("");
+  }
+
+  function removeItem(index: number) {
+    const currentResults = form.getValues("results");
+    const updated = currentResults.filter((_, i) => i !== index);
+    form.setValue("results", updated);
   }
 
   async function onSubmit(values: z.infer<typeof bloodWorkSchema>) {
@@ -73,41 +81,48 @@ export function BloodWork({
   }
 
   return (
-    <Card className="w-full max-w-2xl mx-auto">
-      <CardHeader>
-        <CardTitle>Demande de bilan</CardTitle>
-        <CardDescription>
-          Remplissez les informations ci-dessous pour créer un nouveau bilan
-        </CardDescription>
+    <Card className="w-full max-w-2xl mx-auto border-none shadow-none">
+      <CardHeader className="pb-4 border-b mb-6">
+        <CardTitle className="flex items-center gap-3 text-xl text-primary">
+          <FlaskConical className="w-6 h-6" />
+          Demande de Bilan
+        </CardTitle>
+        <p className="text-muted-foreground mt-1">
+          Créez une nouvelle demande d'analyses pour {patient.first_name}{" "}
+          {patient.last_name}
+        </p>
       </CardHeader>
 
-      <CardContent>
+      <CardContent className="space-y-6">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            {/* Patient Name */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <FormField
                 control={form.control}
                 name="patientName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Patient Name</FormLabel>
+                    <FormLabel className="flex items-center gap-2">
+                      <User className="w-4 h-4 text-muted-foreground" />
+                      Patient
+                    </FormLabel>
                     <FormControl>
-                      <Input {...field} readOnly className="bg-muted" />
+                      <Input {...field} readOnly className="bg-muted/50" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
 
-              {/* Date + Type */}
-
               <FormField
                 control={form.control}
                 name="date"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Date</FormLabel>
+                    <FormLabel className="flex items-center gap-2">
+                      <Calendar className="w-4 h-4 text-muted-foreground" />
+                      Date
+                    </FormLabel>
                     <FormControl>
                       <Input type="date" {...field} />
                     </FormControl>
@@ -116,41 +131,80 @@ export function BloodWork({
               />
             </div>
 
-            {/* RESULTS LIST instead of textarea */}
-            <div className="space-y-3">
-              <label className="font-medium">Tests / Items</label>
+            <Separator />
 
-              {/* Input + add button */}
-              <div className="flex items-center gap-3">
+            <div className="space-y-4">
+              <FormLabel className="text-base font-medium flex items-center gap-2">
+                <FlaskConical className="w-4 h-4 text-primary" />
+                Liste des Analyses
+              </FormLabel>
+
+              <div className="flex gap-2">
                 <Input
-                  placeholder="Type here..."
+                  placeholder="Ex: FNS, Créatinine..."
                   value={currentItem}
                   onChange={(e) => setCurrentItem(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      addItem();
+                    }
+                  }}
+                  className="flex-1"
                 />
                 <Button
                   type="button"
                   onClick={addItem}
-                  className="w-10 h-10 p-0"
+                  className="gap-2 bg-primary/10 text-primary hover:bg-primary/20"
+                  variant="ghost"
                 >
-                  <PlusIcon className="text-xl font-bold" />
+                  <Plus className="w-4 h-4" />
+                  Ajouter
                 </Button>
               </div>
 
-              {/* Items box */}
-              <div className="border rounded-xl p-4 space-y-2">
+              <div className="bg-muted/20 rounded-lg border min-h-[150px] p-2 space-y-1">
                 {form.watch("results").length === 0 ? (
-                  <p className="text-muted-foreground">No items added yet.</p>
+                  <div className="h-full flex flex-col items-center justify-center text-muted-foreground py-8 opacity-50">
+                    <FlaskConical className="w-6 h-6 mb-2" />
+                    <p>Aucune analyse ajoutée pour le moment</p>
+                  </div>
                 ) : (
                   form.watch("results").map((item, index) => (
-                    <div key={index} className="text-lg">
-                      - {item}
+                    <div
+                      key={index}
+                      className="flex items-center justify-between p-3 bg-card rounded-md border shadow-sm group hover:border-primary/50 transition-colors"
+                    >
+                      <span className="font-medium text-sm">{item}</span>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => removeItem(index)}
+                        className="h-8 w-8 text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
                     </div>
                   ))
                 )}
               </div>
             </div>
-            <div className="flex justify-end">
-              <Button type="submit">Save Blood Work</Button>
+
+            <div className="flex justify-end gap-3 pt-6 border-t">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={onClose}
+                className="gap-2"
+              >
+                <X className="w-4 h-4" />
+                Annuler
+              </Button>
+              <Button type="submit" className="gap-2 min-w-[150px]">
+                <Save className="w-4 h-4" />
+                Enregistrer
+              </Button>
             </div>
           </form>
         </Form>

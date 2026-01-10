@@ -5,6 +5,7 @@ import { smallPatient } from "../type";
 import PrescriptionPDF from "./Patient/Pdf";
 import { Button } from "./ui/button";
 import { toast } from "sonner";
+import { Printer } from "lucide-react";
 
 const PrintButton = ({
   patient,
@@ -99,12 +100,14 @@ const PrintButton = ({
 
   return (
     <Button
+      size="lg"
       onClick={(e) => {
         e.stopPropagation();
         handlePrint();
       }}
       className="  bg-primary px-4 py-2 text-white"
     >
+      <Printer className="w-4 h-4" />
       Imprimer
     </Button>
   );

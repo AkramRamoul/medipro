@@ -2,13 +2,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "../ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "../ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import {
   Form,
   FormControl,
@@ -19,36 +13,47 @@ import {
 } from "../ui/form";
 import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
+import { Separator } from "../ui/separator";
+import {
+  FileCheck,
+  Activity,
+  Calendar,
+  User,
+  ReceiptText,
+  Save,
+  X,
+} from "lucide-react";
+import { Patient } from "../../type";
 
 const medicalCertificateSchema = z.object({
   patientName: z.string().min(2, {
-    message: "Patient name must be at least 2 characters.",
+    message: "Le nom du patient doit comporter au moins 2 caractères.",
   }),
   examinationDate: z.string().refine((val) => !isNaN(Date.parse(val)), {
-    message: "Please enter a valid date.",
+    message: "Veuillez entrer une date valide.",
   }),
   diagnosis: z.string().min(1, {
-    message: "Diagnosis is required.",
+    message: "Le diagnostic est requis.",
   }),
   restStartDate: z.string().refine((val) => !isNaN(Date.parse(val)), {
-    message: "Please enter a valid date.",
+    message: "Veuillez entrer une date valide.",
   }),
   restEndDate: z.string().refine((val) => !isNaN(Date.parse(val)), {
-    message: "Please enter a valid date.",
+    message: "Veuillez entrer une date valide.",
   }),
   doctorName: z.string().min(2, {
-    message: "Doctor's name is required.",
+    message: "Le nom du médecin est requis.",
   }),
   remarks: z.string().optional(),
 });
 
 export function MedicalCertificate({
-  patientId,
+  patient,
   onClose,
   type,
   refreshDocuments,
 }: {
-  patientId: string;
+  patient: Patient;
   onClose: () => void;
   type: "CERTIFICATE" | "REPORT";
   refreshDocuments: () => void;
@@ -56,7 +61,7 @@ export function MedicalCertificate({
   const form = useForm<z.infer<typeof medicalCertificateSchema>>({
     resolver: zodResolver(medicalCertificateSchema),
     defaultValues: {
-      patientName: "",
+      patientName: `${patient.last_name} ${patient.first_name}`,
       examinationDate: new Date().toISOString().split("T")[0],
       diagnosis: "",
       restStartDate: new Date().toISOString().split("T")[0],
@@ -70,7 +75,7 @@ export function MedicalCertificate({
     console.log(values);
     try {
       await window.electronAPI.createDocument({
-        patientId,
+        patientId: patient.id,
         type: type === "CERTIFICATE" ? "certificate" : "report",
         content: values,
       });
@@ -81,87 +86,51 @@ export function MedicalCertificate({
     }
   }
 
+  const isCertificate = type === "CERTIFICATE";
+  const title = isCertificate ? "Certificat Médical" : "Rapport Médical";
+
   return (
-    <Card className="w-full max-w-2xl mx-auto">
-      <CardHeader>
-        <CardTitle>
-          {type === "CERTIFICATE" ? "Medical Certificate" : "Medical Report"}
+    <Card className="w-full max-w-2xl mx-auto border-none shadow-none">
+      <CardHeader className="pb-4 border-b mb-6">
+        <CardTitle className="flex items-center gap-3 text-2xl text-primary">
+          <FileCheck className="w-8 h-8" />
+          {title}
         </CardTitle>
-        <CardDescription>
-          {type === "CERTIFICATE"
-            ? "Issue a medical certificate for a patient."
-            : "Create a medical report for a patient."}
-        </CardDescription>
+        <p className="text-muted-foreground mt-1">
+          {isCertificate
+            ? "Établir un certificat médical pour le patient."
+            : "Créer un rapport médical détaillé."}
+        </p>
       </CardHeader>
       <CardContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <FormField
-              control={form.control}
-              name="patientName"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Patient Name</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Jane Doe" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="examinationDate"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Examination Date</FormLabel>
-                  <FormControl>
-                    <Input type="date" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="diagnosis"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Diagnosis / Condition</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Describe the medical condition..."
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <FormField
                 control={form.control}
-                name="restStartDate"
+                name="patientName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Rest Start Date</FormLabel>
+                    <FormLabel className="flex items-center gap-2">
+                      <User className="w-4 h-4 text-muted-foreground" />
+                      Patient
+                    </FormLabel>
                     <FormControl>
-                      <Input type="date" {...field} />
+                      <Input {...field} readOnly className="bg-muted/50" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-
               <FormField
                 control={form.control}
-                name="restEndDate"
+                name="examinationDate"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Rest End Date</FormLabel>
+                    <FormLabel className="flex items-center gap-2">
+                      <Calendar className="w-4 h-4 text-muted-foreground" />{" "}
+                      Date d'examen
+                    </FormLabel>
                     <FormControl>
                       <Input type="date" {...field} />
                     </FormControl>
@@ -173,27 +142,17 @@ export function MedicalCertificate({
 
             <FormField
               control={form.control}
-              name="doctorName"
+              name="diagnosis"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Doctor's Name</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Dr. Smith" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="remarks"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Remarks (Optional)</FormLabel>
+                  <FormLabel className="flex items-center gap-2">
+                    <Activity className="w-4 h-4 text-blue-500" /> Diagnostic /
+                    Condition
+                  </FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="Any additional remarks..."
+                      placeholder="Décrivez la condition médicale..."
+                      className="min-h-[100px] resize-none"
                       {...field}
                     />
                   </FormControl>
@@ -202,11 +161,86 @@ export function MedicalCertificate({
               )}
             />
 
-            <div className="flex justify-end">
-              <Button type="submit">
-                {type === "CERTIFICATE"
-                  ? "Generate Certificate"
-                  : "Generate Report"}
+            <Separator />
+
+            <div className="rounded-lg border p-4 bg-muted/20">
+              <h4 className="text-sm font-medium mb-4 flex items-center gap-2 text-primary">
+                <Calendar className="w-4 h-4" /> Période de Repos
+              </h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="restStartDate"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Date de début</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="date"
+                          {...field}
+                          className="bg-background"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="restEndDate"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Date de fin</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="date"
+                          {...field}
+                          className="bg-background"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 gap-6">
+              <FormField
+                control={form.control}
+                name="remarks"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="flex items-center gap-2">
+                      <ReceiptText className="w-4 h-4 text-muted-foreground" />{" "}
+                      Remarques (Optionnel)
+                    </FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="Remarques supplémentaires..."
+                        className="resize-none"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className="flex justify-end gap-3 pt-6 border-t">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={onClose}
+                className="gap-2"
+              >
+                <X className="w-4 h-4" /> Annuler
+              </Button>
+              <Button type="submit" className="gap-2 min-w-[150px]">
+                <Save className="w-4 h-4" />
+                {isCertificate ? "Générer Certificat" : "Générer Rapport"}
               </Button>
             </div>
           </form>

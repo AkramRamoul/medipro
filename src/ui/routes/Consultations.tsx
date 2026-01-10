@@ -3,7 +3,6 @@ import { ConsultationWithPatient } from "../type";
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
@@ -13,8 +12,9 @@ import { Input } from "../components/ui/input";
 import Modal from "../components/Modal";
 import SingleConsultation from "../components/Consultation/SingleConsultation";
 import Pagination from "../components/Pagination";
-import { Loader2, Search } from "lucide-react";
+import { Loader2, Search, Stethoscope, User, Calendar } from "lucide-react";
 import DeleteDialogue from "../components/DeleteDialogue";
+import { Card, CardHeader, CardTitle } from "../components/ui/card";
 
 function Page() {
   const [data, setData] = useState<ConsultationWithPatient[]>([]);
@@ -66,94 +66,125 @@ function Page() {
   };
 
   return (
-    <div className="flex flex-col gap-6 p-8 border rounded-2xl bg-card text-foreground border-border shadow-lg max-w-5xl mx-auto mt-10">
-      {/* Search Bar */}
-      <div className="flex justify-center mb-8">
-        <div className="relative w-full max-w-md">
-          <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-muted-foreground">
-            <Search className="w-5 h-5" />
-          </span>
-          <Input
-            placeholder="Filtrer par Nom ou Prénom..."
-            className="pl-10 py-3 rounded-lg border border-border bg-card text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-primary focus:border-primary"
-            value={query}
-            onChange={handleQueryChange}
-          />
-        </div>
-      </div>
+    <div className="max-w-[80%] mx-auto space-y-6 mt-8">
+      <Card className="border-none shadow-sm bg-card">
+        <CardHeader className="flex flex-row items-center justify-between pb-2">
+          <div>
+            <CardTitle className="text-xl flex items-center gap-2 text-primary">
+              <Stethoscope className="w-5 h-5" />
+              Dossier de Consultations
+            </CardTitle>
+            <p className="text-sm text-muted-foreground mt-1">
+              Historique complet des consultations.
+            </p>
+          </div>
+        </CardHeader>
+      </Card>
 
-      {/* Table */}
-      <div className="px-4 overflow-x-auto">
-        {isLoading ? (
-          <Loader2 className="animate-spin text-muted-foreground w-6 h-6" />
-        ) : (
-          <Table>
-            <TableCaption className="mt-6 text-muted-foreground">
-              Une liste de toutes vos consultations.{" "}
-            </TableCaption>
-            <TableHeader>
-              <TableRow className="bg-muted">
-                <TableHead className="text-muted-foreground">Nom</TableHead>
-                <TableHead className="text-muted-foreground">Prénom</TableHead>
-                <TableHead className="text-muted-foreground">Date</TableHead>
-                <TableHead className="text-muted-foreground w-[80px]">
-                  <div className="flex justify-center items-center">
-                    Supprimer
-                  </div>
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {currentItems.length > 0 ? (
-                currentItems.map((prescription) => (
-                  <TableRow
-                    key={prescription.id}
-                    onClick={() => {
-                      setSelectedPrescriptionId(prescription.id.toString());
-                    }}
-                    className="hover:bg-muted transition-colors cursor-pointer"
-                  >
-                    <TableCell className="font-semibold text-foreground">
-                      {prescription.patient?.first_name || "N/A"}
-                    </TableCell>
-                    <TableCell className="text-foreground">
-                      {prescription.patient?.last_name || "N/A"}
-                    </TableCell>
-                    <TableCell className="text-foreground">
-                      {new Date(prescription.date).toLocaleDateString()}
-                    </TableCell>
-                    <TableCell className="w-[80px]">
-                      <div className="flex justify-center items-center h-full">
-                        <DeleteDialogue
-                          consultationId={prescription.id.toString()}
-                          setData={setData}
-                        />
+      <div className="border rounded-xl shadow-sm bg-card overflow-hidden">
+        {/* Search Bar */}
+        <div className="p-4 border-b flex justify-between items-center bg-muted/20">
+          <div className="relative w-full max-w-md">
+            <Input
+              placeholder="Filtrer par Nom ou Prénom..."
+              className="pl-10 h-10 rounded-lg border-input bg-background"
+              value={query}
+              onChange={handleQueryChange}
+            />
+            <span className="absolute inset-y-0 left-3 flex items-center text-muted-foreground">
+              <Search className="w-4 h-4" />
+            </span>
+          </div>
+        </div>
+
+        {/* Table */}
+        <div className="p-2">
+          {isLoading ? (
+            <div className="h-40 flex items-center justify-center">
+              <Loader2 className="animate-spin text-muted-foreground w-6 h-6" />
+            </div>
+          ) : (
+            <Table>
+              <TableHeader className="bg-muted/50">
+                <TableRow>
+                  <TableHead className="w-[30%]">
+                    <div className="flex items-center gap-2">
+                      <User className="w-3 h-3" /> Nom
+                    </div>
+                  </TableHead>
+                  <TableHead className="w-[30%]">
+                    <div className="flex items-center gap-2">
+                      <User className="w-3 h-3" /> Prénom
+                    </div>
+                  </TableHead>
+                  <TableHead>
+                    <div className="flex items-center gap-2">
+                      <Calendar className="w-3 h-3" /> Date
+                    </div>
+                  </TableHead>
+                  <TableHead className="text-center w-[80px]">
+                    Actions
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {currentItems.length > 0 ? (
+                  currentItems.map((prescription) => (
+                    <TableRow
+                      key={prescription.id}
+                      onClick={() => {
+                        setSelectedPrescriptionId(prescription.id.toString());
+                      }}
+                      className="hover:bg-muted/50 transition-colors cursor-pointer"
+                    >
+                      <TableCell className="font-semibold text-foreground">
+                        {prescription.patient?.first_name || "N/A"}
+                      </TableCell>
+                      <TableCell className="text-foreground">
+                        {prescription.patient?.last_name || "N/A"}
+                      </TableCell>
+                      <TableCell className="text-foreground">
+                        {new Date(prescription.date).toLocaleDateString()}
+                      </TableCell>
+                      <TableCell className="w-[80px]">
+                        <div
+                          className="flex justify-center items-center h-full"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <DeleteDialogue
+                            consultationId={prescription.id.toString()}
+                            setData={setData}
+                          />
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell
+                      colSpan={4}
+                      className="text-center text-muted-foreground py-12"
+                    >
+                      <div className="flex flex-col items-center gap-2">
+                        <Stethoscope className="w-8 h-8 opacity-20" />
+                        <p>Aucune consultation correspondante trouvée.</p>
                       </div>
                     </TableCell>
                   </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell
-                    colSpan={4}
-                    className="text-center text-muted-foreground py-6"
-                  >
-                    Aucune consultation correspondante trouvée.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        )}
+                )}
+              </TableBody>
+            </Table>
+          )}
 
-        {/* Pagination */}
-        <div className="mt-6">
-          <Pagination
-            itemsPerPage={itemsPerPage}
-            totalItems={filteredData.length}
-            currentPage={currentPage}
-            onPageChange={setCurrentPage}
-          />
+          {/* Pagination */}
+          <div className="p-4 border-t">
+            <Pagination
+              itemsPerPage={itemsPerPage}
+              totalItems={filteredData.length}
+              currentPage={currentPage}
+              onPageChange={setCurrentPage}
+            />
+          </div>
         </div>
       </div>
 

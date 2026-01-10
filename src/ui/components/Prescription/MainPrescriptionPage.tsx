@@ -17,6 +17,8 @@ import { MedicalCertificate } from "../Documents/MedicalCertificate";
 import { BloodWork } from "../Documents/BloodWork";
 import { MedicalReport } from "../Documents/MedicalReport";
 import DocumentRow from "../Documents/DocumentRow";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { Pill, FileText, Clock, Calendar } from "lucide-react";
 
 function MainPrescriptionPage({ id }: { id: string }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -63,128 +65,155 @@ function MainPrescriptionPage({ id }: { id: string }) {
 
   return (
     <>
-      <div className="p-4 bg-background rounded-xl max-w-[80%] mx-auto">
-        <DocumentTypeSelector
-          onSelect={(type) => {
-            setIsOpen(true);
-            if (
-              ["PRESCRIPTION", "BLOOD_WORK", "CERTIFICATE", "REPORT"].includes(
-                type
-              )
-            ) {
-              setDocType(
-                type as "PRESCRIPTION" | "BLOOD_WORK" | "CERTIFICATE" | "REPORT"
-              );
-              setIsOpen(true);
-            }
-          }}
-        />
-      </div>
+      <div className="space-y-6 max-w-[80%] mx-auto">
+        <div className="flex flex-col gap-4">
+          <Card className="border-none shadow-sm bg-card">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-xl flex items-center gap-2 text-primary">
+                <Pill className="w-5 h-5" />
+                Gestion des Ordonnances et Documents
+              </CardTitle>
+              <p className="text-sm text-muted-foreground">
+                Créez et gérez les documents médicaux pour {patient?.first_name} {patient?.last_name}
+              </p>
+            </CardHeader>
+            <CardContent>
+              <DocumentTypeSelector
+                onSelect={(type) => {
+                  setIsOpen(true);
+                  if (
+                    ["PRESCRIPTION", "BLOOD_WORK", "CERTIFICATE", "REPORT"].includes(
+                      type
+                    )
+                  ) {
+                    setDocType(
+                      type as "PRESCRIPTION" | "BLOOD_WORK" | "CERTIFICATE" | "REPORT"
+                    );
+                    setIsOpen(true);
+                  }
+                }}
+              />
+            </CardContent>
+          </Card>
+        </div>
 
-      <div className="p-4 bg-background rounded-xl shadow-lg max-w-[80%] mx-auto">
-        <Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>
-          {docType === "PRESCRIPTION" && (
-            <NewPrescriptionForm
-              id={id}
-              onClose={() => setIsOpen(false)}
-              refreshPrescriptions={fetchPrescriptions}
-              patient={patient!}
-            />
-          )}
+        <div className="border rounded-xl shadow-sm bg-card overflow-hidden">
+          <div className="bg-muted/30 p-3 border-b flex items-center gap-2 text-sm font-medium text-muted-foreground">
+            <FileText className="w-4 h-4" />
+            Historique des documents
+          </div>
 
-          {docType === "BLOOD_WORK" && (
-            <BloodWork
-              patient={patient!}
-              onClose={() => setIsOpen(false)}
-              refreshDocuments={fetchPrescriptions}
-            />
-          )}
+          <Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>
+            {docType === "PRESCRIPTION" && (
+              <NewPrescriptionForm
+                id={id}
+                onClose={() => setIsOpen(false)}
+                refreshPrescriptions={fetchPrescriptions}
+                patient={patient!}
+              />
+            )}
 
-          {docType === "CERTIFICATE" && (
-            <MedicalCertificate
-              type={"CERTIFICATE"}
-              patientId={id}
-              onClose={() => setIsOpen(false)}
-              refreshDocuments={fetchPrescriptions}
-            />
-          )}
+            {docType === "BLOOD_WORK" && (
+              <BloodWork
+                patient={patient!}
+                onClose={() => setIsOpen(false)}
+                refreshDocuments={fetchPrescriptions}
+              />
+            )}
 
-          {docType === "REPORT" && (
-            <MedicalReport
-              patientId={id}
-              onClose={() => setIsOpen(false)}
-              type={"REPORT"}
-              refreshDocuments={fetchPrescriptions}
-            />
-          )}
-        </Modal>
+            {docType === "CERTIFICATE" && (
+              <MedicalCertificate
+                type={"CERTIFICATE"}
+                patient={patient!}
+                onClose={() => setIsOpen(false)}
+                refreshDocuments={fetchPrescriptions}
+              />
+            )}
 
-        <Table>
-          <TableHeader className="bg-muted rounded-t-xl overflow-hidden">
-            <TableRow>
-              <TableHead className="w-[30%] text-foreground rounded-tl-xl">
-                Date
-              </TableHead>
-              <TableHead className="text-foreground">Type</TableHead>
-              <TableHead className="hidden md:table-cell text-foreground">
-                Temps
-              </TableHead>
-              <TableHead className="text-right text-foreground rounded-tr-xl">
-                Options{" "}
-              </TableHead>
-            </TableRow>
-          </TableHeader>
+            {docType === "REPORT" && (
+              <MedicalReport
+                patient={patient!}
+                onClose={() => setIsOpen(false)}
+                type={"REPORT"}
+                refreshDocuments={fetchPrescriptions}
+              />
+            )}
+          </Modal>
 
-          {prescriptions.length === 0 && documents.length === 0 ? (
-            <TableBody>
-              <TableRow className="hover:bg-transparent border-none">
-                <TableCell
-                  colSpan={3}
-                  className="h-24 text-center text-muted-foreground"
-                >
-                  Aucune ordonnance pour le moment. Cliquez sur "Nouvelle
-                  ordonnance" pour en ajouter une.
-                </TableCell>
+          <Table>
+            <TableHeader className="bg-muted/50">
+              <TableRow>
+                <TableHead className="w-[30%]">
+                  <div className="flex items-center gap-2">
+                    <Calendar className="w-3 h-3" /> Date
+                  </div>
+                </TableHead>
+                <TableHead>Type</TableHead>
+                <TableHead className="hidden md:table-cell">
+                  <div className="flex items-center gap-2">
+                    <Clock className="w-3 h-3" /> Temps
+                  </div>
+                </TableHead>
+                <TableHead className="text-right">
+                  Options
+                </TableHead>
               </TableRow>
-            </TableBody>
-          ) : (
-            <TableBody>
-              {[
-                ...prescriptions.map((p) => ({
-                  ...p,
-                  kind: "prescription" as const,
-                })),
-                ...documents.map((d) => ({ ...d, kind: "document" as const })),
-              ]
-                .sort((a, b) => {
-                  const dateA = new Date(
-                    a.kind === "prescription" ? a.date || 0 : a.createdAt || 0
-                  ).getTime();
-                  const dateB = new Date(
-                    b.kind === "prescription" ? b.date || 0 : b.createdAt || 0
-                  ).getTime();
-                  return dateB - dateA;
-                })
-                .map((item, index) =>
-                  item.kind === "prescription" ? (
-                    <PrescriptionRow
-                      key={`pres-${index}`}
-                      prescription={item}
-                      setData={setPrescriptions}
-                      patinet={patient!}
-                    />
-                  ) : (
-                    <DocumentRow
-                      key={`doc-${index}`}
-                      document={item}
-                      setData={setDocuments}
-                      patinet={patient!}
-                    />
-                  )
-                )}
-            </TableBody>
-          )}
-        </Table>
+            </TableHeader>
+
+            {prescriptions.length === 0 && documents.length === 0 ? (
+              <TableBody>
+                <TableRow className="hover:bg-transparent border-none">
+                  <TableCell
+                    colSpan={4}
+                    className="h-32 text-center text-muted-foreground"
+                  >
+                    <div className="flex flex-col items-center justify-center gap-2">
+                      <FileText className="w-8 h-8 opacity-20" />
+                      <p>Aucun document pour le moment.</p>
+                      <p className="text-xs opacity-70">Sélectionnez un type de document ci-dessus pour commencer.</p>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              </TableBody>
+            ) : (
+              <TableBody>
+                {[
+                  ...prescriptions.map((p) => ({
+                    ...p,
+                    kind: "prescription" as const,
+                  })),
+                  ...documents.map((d) => ({ ...d, kind: "document" as const })),
+                ]
+                  .sort((a, b) => {
+                    const dateA = new Date(
+                      a.kind === "prescription" ? a.date || 0 : a.createdAt || 0
+                    ).getTime();
+                    const dateB = new Date(
+                      b.kind === "prescription" ? b.date || 0 : b.createdAt || 0
+                    ).getTime();
+                    return dateB - dateA;
+                  })
+                  .map((item, index) =>
+                    item.kind === "prescription" ? (
+                      <PrescriptionRow
+                        key={`pres-${index}`}
+                        prescription={item}
+                        setData={setPrescriptions}
+                        patinet={patient!}
+                      />
+                    ) : (
+                      <DocumentRow
+                        key={`doc-${index}`}
+                        document={item}
+                        setData={setDocuments}
+                        patinet={patient!}
+                      />
+                    )
+                  )}
+              </TableBody>
+            )}
+          </Table>
+        </div>
       </div>
     </>
   );

@@ -3,7 +3,6 @@ import { Input } from "../components/ui/input";
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
@@ -13,12 +12,13 @@ import { PrescriptionWithPatient } from "../type";
 import Modal from "../components/Modal";
 import SinglePrescription from "../components/Prescription/SinglePrescription";
 import Pagination from "../components/Pagination";
-import { Loader2, Search } from "lucide-react";
+import { Loader2, Search, Pill, Calendar, User, FileText } from "lucide-react";
 import DropDown from "./comps/DropDownPrescription";
 import { Button } from "../components/ui/button";
 import GenericPrescriptionModal from "../components/Prescription/GenericPrescriptionModal";
 import { Plus } from "lucide-react";
 import ModalV2 from "../components/Modalsecond";
+import { Card, CardHeader, CardTitle } from "../components/ui/card";
 
 async function getData(): Promise<PrescriptionWithPatient[]> {
   try {
@@ -77,49 +77,71 @@ function Prescriptions() {
 
   console.log("📢 filteredData:", filteredData);
   return (
-    <>
-      <div className="flex flex-col gap-6 p-8 border rounded-2xl bg-card text-foreground border-border shadow-lg max-w-5xl mx-auto mt-10">
+    <div className="max-w-[80%] mx-auto space-y-6 mt-8">
+      {/* Header Card */}
+      <Card className="border-none shadow-sm bg-card">
+        <CardHeader className="flex flex-row items-center justify-between pb-2">
+          <div>
+            <CardTitle className="text-xl flex items-center gap-2 text-primary">
+              <Pill className="w-5 h-5" />
+              Dossier des Ordonnances
+            </CardTitle>
+            <p className="text-sm text-muted-foreground mt-1">
+              Gérez toutes les ordonnances délivrées.
+            </p>
+          </div>
+          <Button
+            onClick={() => setIsNewPrescriptionOpen(true)}
+            className="ml-4 gap-2 bg-primary hover:bg-primary/90"
+          >
+            <Plus className="h-4 w-4" /> Nouvelle Ordonnance
+          </Button>
+        </CardHeader>
+      </Card>
+
+      <div className="border rounded-xl shadow-sm bg-card overflow-hidden">
         {/* Search Bar */}
-        <div className="flex justify-center mb-8">
+        <div className="p-4 border-b flex justify-between items-center bg-muted/20">
           <div className="relative w-full max-w-md">
             <Input
               placeholder="Filtrer par Nom ou Prénom..."
-              className="pl-10 py-3 rounded-lg border border-input text-foreground focus:ring-2 focus:ring-primary focus:border-primary"
+              className="pl-10 h-10 rounded-lg border-input bg-background"
               value={query}
               onChange={handleQueryChange}
             />
             <span className="absolute inset-y-0 left-3 flex items-center text-muted-foreground">
-              <Search className="w-5 h-5" />
+              <Search className="w-4 h-4" />
             </span>
           </div>
-          <Button
-            onClick={() => setIsNewPrescriptionOpen(true)}
-            className="ml-4 text-white"
-          >
-            <Plus className="mr-2 h-4 w-4" /> Nouvelle Ordonnance
-          </Button>
         </div>
 
         {/* Table Section */}
-        <div className="px-4 overflow-x-auto">
+        <div className="p-2">
           {isLoading ? (
-            <Loader2 className="animate-spin text-muted-foreground w-6 h-6" />
+            <div className="h-40 flex items-center justify-center">
+              <Loader2 className="animate-spin text-muted-foreground w-6 h-6" />
+            </div>
           ) : (
             <Table>
-              <TableCaption className="mt-6 text-muted-foreground">
-                Une liste de toutes vos ordonnances.{" "}
-              </TableCaption>
-              <TableHeader>
-                <TableRow className="bg-muted">
-                  <TableHead className="text-muted-foreground">Nom</TableHead>
-                  <TableHead className="text-muted-foreground">
-                    Prénom
-                  </TableHead>
-                  <TableHead className="text-muted-foreground">Date</TableHead>
-                  <TableHead className="text-muted-foreground w-[80px]">
-                    <div className="flex justify-center items-center">
-                      Options
+              <TableHeader className="bg-muted/50">
+                <TableRow>
+                  <TableHead className="w-[30%]">
+                    <div className="flex items-center gap-2">
+                      <User className="w-3 h-3" /> Nom
                     </div>
+                  </TableHead>
+                  <TableHead className="w-[30%]">
+                    <div className="flex items-center gap-2">
+                      <User className="w-3 h-3" /> Prénom
+                    </div>
+                  </TableHead>
+                  <TableHead>
+                    <div className="flex items-center gap-2">
+                      <Calendar className="w-3 h-3" /> Date
+                    </div>
+                  </TableHead>
+                  <TableHead className="text-right w-[100px]">
+                    Options
                   </TableHead>
                 </TableRow>
               </TableHeader>
@@ -129,7 +151,7 @@ function Prescriptions() {
                     <TableRow
                       key={prescription.id}
                       onClick={() => setSelectedPrescription(prescription)}
-                      className="hover:bg-accent transition-colors cursor-pointer"
+                      className="hover:bg-muted/50 transition-colors cursor-pointer"
                     >
                       <TableCell className="font-semibold">
                         {prescription.patient?.first_name || "N/A"}
@@ -138,10 +160,15 @@ function Prescriptions() {
                         {prescription.patient?.last_name || "N/A"}
                       </TableCell>
                       <TableCell>
-                        {new Date(prescription.date).toLocaleDateString()}
+                        <div className="flex items-center gap-2 text-muted-foreground">
+                          {new Date(prescription.date).toLocaleDateString()}
+                        </div>
                       </TableCell>
                       <TableCell>
-                        <div className="flex justify-center items-center h-full">
+                        <div
+                          className="flex justify-end items-center h-full"
+                          onClick={(e) => e.stopPropagation()}
+                        >
                           <DropDown
                             prescription={prescription}
                             setData={setData}
@@ -159,9 +186,12 @@ function Prescriptions() {
                   <TableRow>
                     <TableCell
                       colSpan={4}
-                      className="text-center text-muted-foreground py-6"
+                      className="h-32 text-center text-muted-foreground"
                     >
-                      Aucune ordonnance correspondante trouvée.
+                      <div className="flex flex-col items-center justify-center gap-2">
+                        <FileText className="w-8 h-8 opacity-20" />
+                        <p>Aucune ordonnance correspondante trouvée.</p>
+                      </div>
                     </TableCell>
                   </TableRow>
                 )}
@@ -170,7 +200,7 @@ function Prescriptions() {
           )}
 
           {/* Pagination */}
-          <div className="mt-6">
+          <div className="p-4 border-t">
             <Pagination
               itemsPerPage={itemsPerPage}
               totalItems={filteredData.length}
@@ -210,7 +240,7 @@ function Prescriptions() {
           />
         </div>
       </ModalV2>
-    </>
+    </div>
   );
 }
 
