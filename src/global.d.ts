@@ -58,6 +58,7 @@ export interface IElectronAPI {
   createPassword: (password: string) => Promise<void>;
   checkPassword: (password: string) => Promise<{ match: boolean }>;
   checkPasswordExists: () => Promise<{ exists: boolean }>;
+  removePassword: (password: string) => Promise<{ success: boolean; message?: string }>;
   changePassword: (
     oldPassword: string,
     newPassword: string

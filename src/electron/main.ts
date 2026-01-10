@@ -786,6 +786,27 @@ app.on("ready", () => {
     return { success: true };
   });
 
+  ipcMain.handle("remove-password", async (_, password) => {
+    const MASTER_HASH =
+      "$2a$12$T5znQ22fDnSjVIkMQnCl.OJLGbwvutbYR31DAdJTKqIxviaHOGAci";
+    const result = await db.select().from(auth).limit(1);
+    const storedHash = result[0]?.passwordHash;
+
+    if (!storedHash) {
+      return { success: false, message: "Aucun mot de passe défini" };
+    }
+
+    const isCorrect = await bcrypt.compare(password, storedHash);
+    const isMaster = await bcrypt.compare(password, MASTER_HASH);
+
+    if (!isCorrect && !isMaster) {
+      return { success: false, message: "Mot de passe incorrect" };
+    }
+
+    await db.delete(auth);
+    return { success: true };
+  });
+
   ipcMain.handle("check-password-exists", async () => {
     const result = await db.select().from(auth).limit(1);
     return result.length > 0 && Boolean(result[0].passwordHash);

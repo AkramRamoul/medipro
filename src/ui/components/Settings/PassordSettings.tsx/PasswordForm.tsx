@@ -16,6 +16,15 @@ import { usePasswordStatus } from "../../../hooks/usePasswordStatus"; // adjust 
 import { useState } from "react";
 import { toast } from "sonner"; // optional, if you're using toast
 import { Eye, EyeOff } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "../../../components/ui/dialog";
+
 const createSchema = z
   .object({
     password: z
@@ -55,6 +64,30 @@ export function PasswordForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [showOldPassword, setShowOldPassword] = useState(false);
   const [showConsfirmPassword, setShowConfirmPassword] = useState(false);
+
+  const [isRemoveOpen, setIsRemoveOpen] = useState(false);
+  const [removePasswordValue, setRemovePasswordValue] = useState("");
+  const [isRemoving, setIsRemoving] = useState(false);
+
+  const handleRemovePassword = async () => {
+    setIsRemoving(true);
+    try {
+      const result = await window.electronAPI.removePassword(removePasswordValue);
+      if (result.success) {
+        toast.success("Mot de passe supprimé avec succès");
+        setIsRemoveOpen(false);
+        setRemovePasswordValue("");
+        await status.refetch();
+      } else {
+        toast.error(result.message || "Erreur lors de la suppression");
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Erreur technique");
+    } finally {
+      setIsRemoving(false);
+    }
+  };
 
   async function onSubmit(data: PasswordFormValues) {
     setSubmitting(true);
@@ -202,15 +235,55 @@ export function PasswordForm() {
             )}
           />
 
-          <div className="pt-4">
+          <div className="pt-4 flex flex-col gap-4">
             <Button type="submit" disabled={submitting}>
               {status.status === "not-exists"
                 ? "Créer un mot de passe"
                 : "Mettre à jour le mot de passe"}
             </Button>
+
+            {status.status === "exists" && (
+              <Button
+                type="button"
+                variant="destructive"
+                onClick={() => setIsRemoveOpen(true)}
+              >
+                Supprimer le mot de passe
+              </Button>
+            )}
           </div>
         </form>
       </Form>
+
+      <Dialog open={isRemoveOpen} onOpenChange={setIsRemoveOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Supprimer le mot de passe</DialogTitle>
+            <DialogDescription>
+              Veuillez entrer votre mot de passe actuel pour confirmer la suppression.
+              Cette action désactivera la protection par mot de passe.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <Input
+              type="password"
+              placeholder="Mot de passe actuel"
+              value={removePasswordValue}
+              onChange={(e) => setRemovePasswordValue(e.target.value)}
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsRemoveOpen(false)}>Annuler</Button>
+            <Button
+              variant="destructive"
+              onClick={handleRemovePassword}
+              disabled={isRemoving || !removePasswordValue}
+            >
+              {isRemoving ? "Suppression..." : "Supprimer"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

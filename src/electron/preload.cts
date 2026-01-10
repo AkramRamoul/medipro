@@ -128,6 +128,9 @@ contextBridge.exposeInMainWorld("electronAPI", {
       newPassword
     );
   },
+  removePassword: async (password: string) => {
+    return await ipcRenderer.invoke("remove-password", password);
+  },
   createName: async (nameFr: string) => {
     return await ipcRenderer.invoke("create-or-replace-name", nameFr);
   },
