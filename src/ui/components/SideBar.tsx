@@ -4,7 +4,6 @@ import {
   PillBottle,
   ChartColumnIncreasing,
   SettingsIcon,
-  HelpCircleIcon,
   User,
   FilePen,
 } from "lucide-react";
@@ -29,26 +28,9 @@ const items = [
   { title: "Patientes", url: "/patients", icon: User },
   { title: "Consultations", url: "/consultations", icon: Clipboard },
   { title: "Ordonnances", url: "/prescriptions", icon: PillBottle },
-  {
-    title: "Paramètres",
-    url: "/settings",
-    icon: SettingsIcon,
-  },
-  {
-    title: "Modèle Ordonnance ",
-    url: "/Ordonnance",
-    icon: FilePen,
-  },
+  { title: "Modèle Ordonnance ", url: "/Ordonnance", icon: FilePen },
+  { title: "Paramètres", url: "/settings", icon: SettingsIcon },
 ];
-const data = {
-  navSecondary: [
-    {
-      title: "Obtenir de l'aide",
-      url: "#",
-      icon: HelpCircleIcon,
-    },
-  ],
-};
 
 export function AppSidebar() {
   const location = useLocation();
@@ -100,10 +82,7 @@ export function AppSidebar() {
       </SidebarContent>
 
       <SidebarFooter>
-        <NavSecondary
-          items={data.navSecondary}
-          className="mt-auto text-gray-800 dark:text-gray-300"
-        />
+        <NavSecondary className="mt-auto text-gray-800 dark:text-gray-300" />
       </SidebarFooter>
     </Sidebar>
   );

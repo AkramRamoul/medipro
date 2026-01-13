@@ -21,7 +21,7 @@ if (!isDevelopment) {
     console.log("✅ Database copied to:", dbDestination);
   }
 
-  // 🔥 Explicitly set file permissions to make it writable
+  //  Explicitly set file permissions to make it writable
   try {
     fs.chmodSync(dbDestination, 0o666);
     console.log("✅ Database permissions updated");
@@ -35,7 +35,7 @@ const dbUrl = pathToFileURL(dbDestination).href;
 
 console.log("Using database URL:", dbUrl);
 
-// ✅ Initialize Drizzle
+//  Initialize Drizzle
 export const db = drizzle(
   createClient({
     url: dbUrl,

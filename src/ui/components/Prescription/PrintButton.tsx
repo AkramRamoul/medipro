@@ -94,7 +94,7 @@ const PrintButton = ({
       }}
     >
       <Printer className="mr-2 h-4 w-4" onClick={(e) => e.stopPropagation()} />
-      Print
+      Imprimer
     </DropdownMenuItem>
   );
 };

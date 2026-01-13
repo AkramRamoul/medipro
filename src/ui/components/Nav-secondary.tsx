@@ -1,7 +1,5 @@
-"use client";
-
 import * as React from "react";
-import { Lock, LucideIcon } from "lucide-react";
+import { HelpCircleIcon, Lock } from "lucide-react";
 
 import {
   SidebarGroup,
@@ -10,24 +8,16 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "../components/ui/sidebar";
-import { NavLink } from "react-router-dom";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { Button } from "./ui/button";
 import { useAuth } from "../context/auth-context";
-import { useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { usePasswordStatus } from "../hooks/usePasswordStatus";
 import { toast } from "sonner";
 
 export function NavSecondary({
-  items,
   ...props
-}: {
-  items: {
-    title: string;
-    url: string;
-    icon: LucideIcon;
-  }[];
-} & React.ComponentPropsWithoutRef<typeof SidebarGroup>) {
+}: {} & React.ComponentPropsWithoutRef<typeof SidebarGroup>) {
   const { setAuthed } = useAuth();
   const navigate = useNavigate();
 
@@ -63,33 +53,26 @@ export function NavSecondary({
             </SidebarMenuButton>
           </SidebarMenuItem>
 
-          {/* Navigation items */}
-          {items.map((item) => (
-            <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton asChild>
-                <NavLink to={item.url}>
-                  <HelpComponent item={item} />
-                </NavLink>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          ))}
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild>
+              <NavLink to={"#"}>
+                <HelpComponent />
+              </NavLink>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
         </SidebarMenu>
       </SidebarGroupContent>
     </SidebarGroup>
   );
 }
 
-function HelpComponent({
-  item,
-}: {
-  item: { title: string; url: string; icon: LucideIcon };
-}) {
+function HelpComponent() {
   return (
     <Popover>
       <Popover>
         <PopoverTrigger className="flex items-center">
-          <item.icon className="w-4 h-4" />
-          <span className="ml-4 font-semibold">{item.title}</span>
+          <HelpCircleIcon className="w-4 h-4" />
+          <span className="ml-4 font-semibold">Obtenir de l'aide</span>
         </PopoverTrigger>
         <PopoverContent className="w-80 ml-2">
           <div className="flex flex-col space-y-2 p-2">
