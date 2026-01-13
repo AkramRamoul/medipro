@@ -2,13 +2,30 @@ import { Label } from "../ui/label";
 import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
 import { Button } from "../ui/button";
-import { Card } from "../ui/card";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "../ui/card";
 import { useEffect, useState } from "react";
-import { Loader2 } from "lucide-react";
+import {
+  Loader2,
+  CalendarDays,
+  ClipboardCheck,
+  Stethoscope,
+  Activity,
+  Droplet,
+  Weight,
+  FileText,
+  Save,
+  HeartPulse,
+} from "lucide-react";
 import { Consultation } from "../../type";
 import { toast } from "sonner";
 
-function SingleConsultation({
+export default function SingleConsultation({
   id,
   onClose,
 }: {
@@ -87,6 +104,7 @@ function SingleConsultation({
         onClose();
       } catch (error) {
         console.error("Error saving consultation:", error);
+        toast.error("Erreur lors de la mise à jour.");
       }
     }
   };
@@ -100,109 +118,146 @@ function SingleConsultation({
   }
 
   return (
-    <Card className="p-6 space-y-4 max-w-2xl mx-auto">
-      <h2 className="text-2xl font-bold">
-        Consultation du :{" "}
-        {consultation?.date
-          ? new Date(consultation.date).toLocaleDateString("fr-FR", {
-              year: "numeric",
-              month: "long",
-              day: "numeric",
-            })
-          : "Date not available"}
-      </h2>
-
-      {/* Patient Info */}
-      {/* Consultation Details */}
-      <div className="space-y-6">
-        <div className="flex flex-col items-start space-y-1">
-          <Label className="mb-2">Raison de la visite</Label>
-          <Input
-            placeholder="Brève description de la raison de la consultation"
-            value={reason}
-            onChange={(e) => setReason(e.target.value)}
-          />
-        </div>
-        <div className="flex flex-col items-start space-y-1">
-          <Label>Symptômes</Label>
-          <Textarea
-            placeholder="Entrez les symptômes ici..."
-            value={symptoms}
-            onChange={(e) => setSymptoms(e.target.value)}
-          />
-        </div>
-        <div>
-          <Label>Tension Artérielle</Label>
-          <div className="flex gap-2">
+    <Card className="w-full max-w-3xl mx-auto border-none shadow-none">
+      <CardHeader>
+        <CardTitle className="text-2xl flex items-center gap-2">
+          <CalendarDays className="h-6 w-6 text-primary" />
+          Consultation du{" "}
+          {consultation?.date
+            ? new Date(consultation.date).toLocaleDateString("fr-FR", {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              })
+            : ""}
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        {/* Main Info */}
+        <div className="space-y-4">
+          <div className="grid gap-2">
+            <Label htmlFor="reason" className="flex items-center gap-2">
+              <ClipboardCheck className="h-4 w-4 text-muted-foreground" />
+              Raison de la visite
+            </Label>
             <Input
-              type="number"
-              placeholder="SYS"
-              value={bpSystolic}
-              onChange={(e) => setBpSystolic(e.target.value)}
+              id="reason"
+              placeholder="Motif de consultation..."
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              className="font-medium"
             />
-            <Input
-              type="number"
-              placeholder="DIA"
-              value={bpDiastolic}
-              onChange={(e) => setBpDiastolic(e.target.value)}
+          </div>
+
+          <div className="grid gap-2">
+            <Label htmlFor="symptoms" className="flex items-center gap-2">
+              <Stethoscope className="h-4 w-4 text-muted-foreground" />
+              Symptômes
+            </Label>
+            <Textarea
+              id="symptoms"
+              placeholder="Description des symptômes..."
+              value={symptoms}
+              onChange={(e) => setSymptoms(e.target.value)}
+              className="min-h-[80px]"
             />
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <Label>Glycémie sanguine</Label>
-            <Input
-              placeholder="mg/dL"
-              value={glucose}
-              onChange={(e) => setGlucose(e.target.value)}
-            />
-          </div>
-          <div>
-            <Label>Poids</Label>
-            <Input
-              type="number"
-              placeholder="kg"
-              value={weight}
-              onChange={(e) => setWeight(e.target.value)}
-            />
-          </div>
-        </div>
-        <div className="flex flex-col items-start space-y-1">
-          <Label>Diagnostic</Label>
-          <Textarea
-            placeholder="Diagnostic du médecin"
-            value={diagnosis}
-            onChange={(e) => setDiagnosis(e.target.value)}
-          />
-        </div>
-        <div className="flex flex-col items-start space-y-1">
-          <Label>Notes</Label>
-          <Textarea
-            placeholder="Notes supplementaires"
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-          />
-        </div>
-      </div>
+        {/* Vitals Section */}
+        <div className="rounded-lg border bg-card p-4">
+          <h3 className="font-semibold mb-3 flex items-center gap-2 text-sm text-muted-foreground uppercase tracking-wide">
+            <Activity className="h-4 w-4" />
+            Constantes Vitales
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="space-y-2">
+              <Label className="text-xs flex items-center gap-1">
+                <HeartPulse className="h-3 w-3" />
+                Tension Artérielle
+              </Label>
+              <div className="flex items-center gap-2">
+                <Input
+                  type="number"
+                  placeholder="SYS"
+                  value={bpSystolic}
+                  onChange={(e) => setBpSystolic(e.target.value)}
+                  className="h-9"
+                />
+                <span className="text-muted-foreground">/</span>
+                <Input
+                  type="number"
+                  placeholder="DIA"
+                  value={bpDiastolic}
+                  onChange={(e) => setBpDiastolic(e.target.value)}
+                  className="h-9"
+                />
+              </div>
+            </div>
 
-      {/* Buttons */}
-      <div className="flex justify-between mt-4">
-        <Button
-          variant="ghost"
-          onClick={(e) => {
-            e.stopPropagation();
-            onClose();
-          }}
-        >
-          Annuler
+            <div className="space-y-2">
+              <Label className="text-xs flex items-center gap-1">
+                <Droplet className="h-3 w-3" /> Glycémie (mg/dL)
+              </Label>
+              <Input
+                placeholder="Ex: 0.95"
+                value={glucose}
+                onChange={(e) => setGlucose(e.target.value)}
+                className="h-9"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-xs flex items-center gap-1">
+                <Weight className="h-3 w-3" /> Poids (kg)
+              </Label>
+              <Input
+                type="number"
+                placeholder="Ex: 75"
+                value={weight}
+                onChange={(e) => setWeight(e.target.value)}
+                className="h-9"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Assessment */}
+        <div className="grid gap-4">
+          <div className="grid gap-2">
+            <Label htmlFor="diagnosis" className="flex items-center gap-2">
+              <FileText className="h-4 w-4 text-muted-foreground" />
+              Diagnostic
+            </Label>
+            <Textarea
+              id="diagnosis"
+              placeholder="Conclusion médicale..."
+              value={diagnosis}
+              onChange={(e) => setDiagnosis(e.target.value)}
+              className="min-h-[80px] bg-muted/20"
+            />
+          </div>
+
+          <div className="grid gap-2">
+            <Label htmlFor="notes">Notes Complémentaires</Label>
+            <Textarea
+              id="notes"
+              placeholder="Autres observations..."
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+            />
+          </div>
+        </div>
+      </CardContent>
+      <CardFooter className="flex justify-between border-t pt-6">
+        <Button variant="ghost" onClick={onClose}>
+          Fermer
         </Button>
-        <Button className="bg-primary text-white" onClick={handleSave}>
-          Modifier Consultation
+        <Button onClick={handleSave} className="gap-2">
+          <Save className="h-4 w-4" />
+          Enregistrer les modifications
         </Button>
-      </div>
+      </CardFooter>
     </Card>
   );
 }
-
-export default SingleConsultation;

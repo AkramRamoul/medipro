@@ -2,6 +2,13 @@ import { PrescriptionMed } from "../../../electron/schema";
 import { smallPatient } from "../../type";
 import PrintButton from "../PrintButton";
 import { Button } from "../ui/button";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "../ui/card";
 
 function SinglePrescription({
   onClose,
@@ -18,31 +25,44 @@ function SinglePrescription({
   psychotropicNumber?: number | null;
   patientAddress?: string | null;
 }) {
-  console.log(meds);
   return (
-    <div>
-      {meds.length > 0 && (
-        <div className="mt-4 p-4">
-          <h3 className="font-semibold mb-2 text-foreground">Médicaments:</h3>
+    <Card className="w-full max-w-4xl mx-auto border-none shadow-none">
+      <CardHeader>
+        <CardTitle>Médicaments</CardTitle>
+      </CardHeader>
+      <CardContent>
+        {meds.length > 0 ? (
           <ul className="space-y-2">
             {meds.map((med, index) => (
               <li
                 key={index}
-                className="flex items-center justify-between bg-muted p-2 rounded"
+                className="flex items-center justify-between p-3 rounded-lg border bg-card text-card-foreground shadow-sm"
               >
-                <span className="text-sm dark:text-white">
-                  {med.medicineName} {med.form ? `${med.form}` : ""}{" "}
-                  {med.dosage} {med.quantity ? `${med.quantity}` : ""}{" "}
-                  {med.duration ? `${med.duration}` : ""} {med.note}
-                </span>
+                <div className="flex flex-col">
+                  <span className="font-medium">
+                    {med.medicineName} {med.form}
+                  </span>
+                  <span className="text-sm text-muted-foreground">
+                    {med.dosage} {med.quantity && `- ${med.quantity}`}{" "}
+                    {med.duration && `- ${med.duration}`}
+                  </span>
+                  {med.note && (
+                    <span className="text-xs text-muted-foreground italic mt-1">
+                      Note: {med.note}
+                    </span>
+                  )}
+                </div>
               </li>
             ))}
           </ul>
-        </div>
-      )}
-
-      <div className="flex justify-end mt-4 space-x-3 px-4">
-        <Button variant="ghost" onClick={onClose}>
+        ) : (
+          <div className="text-center py-8 text-muted-foreground">
+            Aucun médicament prescrit.
+          </div>
+        )}
+      </CardContent>
+      <CardFooter className="flex justify-end space-x-2">
+        <Button variant="outline" onClick={onClose}>
           Fermer
         </Button>
         <PrintButton
@@ -53,8 +73,8 @@ function SinglePrescription({
           psychotropicNumber={psychotropicNumber}
           patientAddress={patientAddress}
         />
-      </div>
-    </div>
+      </CardFooter>
+    </Card>
   );
 }
 

@@ -17,8 +17,10 @@ import { MedicalCertificate } from "../Documents/MedicalCertificate";
 import { BloodWork } from "../Documents/BloodWork";
 import { MedicalReport } from "../Documents/MedicalReport";
 import DocumentRow from "../Documents/DocumentRow";
+import { SingleDocument } from "../Documents/SingleDocument";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Pill, FileText, Clock, Calendar } from "lucide-react";
+import ModalV2 from "../Modalsecond";
 
 function MainPrescriptionPage({ id }: { id: string }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -28,6 +30,7 @@ function MainPrescriptionPage({ id }: { id: string }) {
 
   const [prescriptions, setPrescriptions] = useState<Prescription[]>([]);
   const [documents, setDocuments] = useState<Document[]>([]);
+  const [viewingDocument, setViewingDocument] = useState<Document | null>(null);
 
   const [patient, setPatient] = useState<Patient | null>(null);
 
@@ -74,7 +77,8 @@ function MainPrescriptionPage({ id }: { id: string }) {
                 Gestion des Ordonnances et Documents
               </CardTitle>
               <p className="text-sm text-muted-foreground">
-                Créez et gérez les documents médicaux pour {patient?.first_name} {patient?.last_name}
+                Créez et gérez les documents médicaux pour {patient?.first_name}{" "}
+                {patient?.last_name}
               </p>
             </CardHeader>
             <CardContent>
@@ -82,13 +86,21 @@ function MainPrescriptionPage({ id }: { id: string }) {
                 onSelect={(type) => {
                   setIsOpen(true);
                   if (
-                    ["PRESCRIPTION", "BLOOD_WORK", "CERTIFICATE", "REPORT"].includes(
-                      type
-                    )
+                    [
+                      "PRESCRIPTION",
+                      "BLOOD_WORK",
+                      "CERTIFICATE",
+                      "REPORT",
+                    ].includes(type)
                   ) {
                     setDocType(
-                      type as "PRESCRIPTION" | "BLOOD_WORK" | "CERTIFICATE" | "REPORT"
+                      type as
+                        | "PRESCRIPTION"
+                        | "BLOOD_WORK"
+                        | "CERTIFICATE"
+                        | "REPORT"
                     );
+                    setViewingDocument(null);
                     setIsOpen(true);
                   }
                 }}
@@ -103,42 +115,69 @@ function MainPrescriptionPage({ id }: { id: string }) {
             Historique des documents
           </div>
 
-          <Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>
-            {docType === "PRESCRIPTION" && (
+          {/* Old Modal for PRESCRIPTION */}
+          {docType === "PRESCRIPTION" && (
+            <Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>
               <NewPrescriptionForm
                 id={id}
                 onClose={() => setIsOpen(false)}
                 refreshPrescriptions={fetchPrescriptions}
                 patient={patient!}
               />
-            )}
+            </Modal>
+          )}
 
-            {docType === "BLOOD_WORK" && (
-              <BloodWork
-                patient={patient!}
-                onClose={() => setIsOpen(false)}
-                refreshDocuments={fetchPrescriptions}
-              />
-            )}
+          {/* New ModalV2 for documents */}
+          {docType !== "PRESCRIPTION" && (
+            <ModalV2
+              isOpen={isOpen}
+              onClose={() => setIsOpen(false)}
+              panelClassName="sm:max-w-4xl"
+            >
+              {viewingDocument && (
+                <div
+                  className={`transition-all duration-200 ${
+                    isOpen
+                      ? "opacity-100 translate-y-0"
+                      : "opacity-0 -translate-y-2"
+                  }`}
+                >
+                  <SingleDocument
+                    document={viewingDocument}
+                    onClose={() => {
+                      setIsOpen(false);
+                      setViewingDocument(null);
+                    }}
+                  />
+                </div>
+              )}
 
-            {docType === "CERTIFICATE" && (
-              <MedicalCertificate
-                type={"CERTIFICATE"}
-                patient={patient!}
-                onClose={() => setIsOpen(false)}
-                refreshDocuments={fetchPrescriptions}
-              />
-            )}
+              {docType === "BLOOD_WORK" && (
+                <BloodWork
+                  patient={patient!}
+                  onClose={() => setIsOpen(false)}
+                  refreshDocuments={fetchPrescriptions}
+                />
+              )}
 
-            {docType === "REPORT" && (
-              <MedicalReport
-                patient={patient!}
-                onClose={() => setIsOpen(false)}
-                type={"REPORT"}
-                refreshDocuments={fetchPrescriptions}
-              />
-            )}
-          </Modal>
+              {docType === "CERTIFICATE" && (
+                <MedicalCertificate
+                  patient={patient!}
+                  onClose={() => setIsOpen(false)}
+                  refreshDocuments={fetchPrescriptions}
+                />
+              )}
+
+              {docType === "REPORT" && (
+                <MedicalReport
+                  patient={patient!}
+                  onClose={() => setIsOpen(false)}
+                  type={"REPORT"}
+                  refreshDocuments={fetchPrescriptions}
+                />
+              )}
+            </ModalV2>
+          )}
 
           <Table>
             <TableHeader className="bg-muted/50">
@@ -154,9 +193,7 @@ function MainPrescriptionPage({ id }: { id: string }) {
                     <Clock className="w-3 h-3" /> Temps
                   </div>
                 </TableHead>
-                <TableHead className="text-right">
-                  Options
-                </TableHead>
+                <TableHead className="text-right">Options</TableHead>
               </TableRow>
             </TableHeader>
 
@@ -170,7 +207,10 @@ function MainPrescriptionPage({ id }: { id: string }) {
                     <div className="flex flex-col items-center justify-center gap-2">
                       <FileText className="w-8 h-8 opacity-20" />
                       <p>Aucun document pour le moment.</p>
-                      <p className="text-xs opacity-70">Sélectionnez un type de document ci-dessus pour commencer.</p>
+                      <p className="text-xs opacity-70">
+                        Sélectionnez un type de document ci-dessus pour
+                        commencer.
+                      </p>
                     </div>
                   </TableCell>
                 </TableRow>
@@ -182,7 +222,10 @@ function MainPrescriptionPage({ id }: { id: string }) {
                     ...p,
                     kind: "prescription" as const,
                   })),
-                  ...documents.map((d) => ({ ...d, kind: "document" as const })),
+                  ...documents.map((d) => ({
+                    ...d,
+                    kind: "document" as const,
+                  })),
                 ]
                   .sort((a, b) => {
                     const dateA = new Date(
@@ -207,6 +250,11 @@ function MainPrescriptionPage({ id }: { id: string }) {
                         document={item}
                         setData={setDocuments}
                         patinet={patient!}
+                        onView={(doc) => {
+                          setViewingDocument(doc);
+                          setDocType(null);
+                          setIsOpen(true);
+                        }}
                       />
                     )
                   )}

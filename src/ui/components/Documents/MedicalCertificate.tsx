@@ -41,21 +41,16 @@ const medicalCertificateSchema = z.object({
   restEndDate: z.string().refine((val) => !isNaN(Date.parse(val)), {
     message: "Veuillez entrer une date valide.",
   }),
-  doctorName: z.string().min(2, {
-    message: "Le nom du médecin est requis.",
-  }),
   remarks: z.string().optional(),
 });
 
 export function MedicalCertificate({
   patient,
   onClose,
-  type,
   refreshDocuments,
 }: {
   patient: Patient;
   onClose: () => void;
-  type: "CERTIFICATE" | "REPORT";
   refreshDocuments: () => void;
 }) {
   const form = useForm<z.infer<typeof medicalCertificateSchema>>({
@@ -66,40 +61,34 @@ export function MedicalCertificate({
       diagnosis: "",
       restStartDate: new Date().toISOString().split("T")[0],
       restEndDate: "",
-      doctorName: "",
       remarks: "",
     },
   });
 
   async function onSubmit(values: z.infer<typeof medicalCertificateSchema>) {
-    console.log(values);
     try {
       await window.electronAPI.createDocument({
         patientId: patient.id,
-        type: type === "CERTIFICATE" ? "certificate" : "report",
+        type: "certificate",
         content: values,
       });
+
       refreshDocuments();
       onClose();
     } catch (error) {
-      console.error("Failed to create document:", error);
+      console.error("Erreur lors de la création du document :", error);
     }
   }
-
-  const isCertificate = type === "CERTIFICATE";
-  const title = isCertificate ? "Certificat Médical" : "Rapport Médical";
 
   return (
     <Card className="w-full max-w-2xl mx-auto border-none shadow-none">
       <CardHeader className="pb-4 border-b mb-6">
         <CardTitle className="flex items-center gap-3 text-2xl text-primary">
           <FileCheck className="w-8 h-8" />
-          {title}
+          Certificat Médical
         </CardTitle>
         <p className="text-muted-foreground mt-1">
-          {isCertificate
-            ? "Établir un certificat médical pour le patient."
-            : "Créer un rapport médical détaillé."}
+          Établir un certificat médical pour le patient.
         </p>
       </CardHeader>
       <CardContent>
@@ -240,7 +229,7 @@ export function MedicalCertificate({
               </Button>
               <Button type="submit" className="gap-2 min-w-[150px]">
                 <Save className="w-4 h-4" />
-                {isCertificate ? "Générer Certificat" : "Générer Rapport"}
+                Générer Certificat
               </Button>
             </div>
           </form>

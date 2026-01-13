@@ -232,6 +232,7 @@ function Prescriptions() {
       <ModalV2
         isOpen={isNewPrescriptionOpen}
         onClose={() => setIsNewPrescriptionOpen(false)}
+        panelClassName="sm:max-w-content"
       >
         <div className="p-6 ">
           <GenericPrescriptionModal

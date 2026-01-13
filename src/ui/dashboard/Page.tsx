@@ -9,7 +9,13 @@ import {
 import { Overview } from "./Overview";
 import { RecentSales } from "./recent-sales";
 import { DashboardStats } from "../type";
-import { Activity, CreditCard, Users, Calendar, TrendingUp } from "lucide-react";
+import {
+  Activity,
+  CreditCard,
+  Users,
+  Calendar,
+  TrendingUp,
+} from "lucide-react";
 
 export default function DashboardPage() {
   const [stats, setStats] = useState<DashboardStats>({
@@ -18,6 +24,7 @@ export default function DashboardPage() {
     prescriptionsThisMonth: 0,
     activePatients: 0,
     recentConsultations: [],
+    consultationsLastMonth: 0,
   });
 
   const fetchDashboardStats = async () => {
@@ -31,6 +38,7 @@ export default function DashboardPage() {
             ...consultation,
           })
         ),
+        consultationsLastMonth: data.consultationsLastMonth,
       });
     } catch (error) {
       console.error("Error fetching dashboard stats:", error);
@@ -41,6 +49,16 @@ export default function DashboardPage() {
   }, []);
 
   const estimatedRevenue = stats.consultationsThisMonth * 1500;
+  const thisMonth = stats.consultationsThisMonth;
+  const lastMonth = stats.consultationsLastMonth;
+
+  const hasComparison = lastMonth > 0;
+
+  const percentChange = hasComparison
+    ? ((thisMonth - lastMonth) / lastMonth) * 100
+    : 0;
+
+  const isPositive = percentChange >= 0;
 
   return (
     <>
@@ -55,7 +73,6 @@ export default function DashboardPage() {
                 Vue d'ensemble de l'activité de la clinique.
               </p>
             </div>
-
           </div>
 
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
@@ -74,8 +91,22 @@ export default function DashboardPage() {
                   {estimatedRevenue.toLocaleString()} DA
                 </div>
                 <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
-                  <TrendingUp className="w-3 h-3 text-green-500" />
-                  +20.1% par rapport au mois dernier
+                  {hasComparison ? (
+                    <>
+                      <TrendingUp
+                        className={`w-3 h-3 ${
+                          isPositive ? "text-green-500" : "text-red-500"
+                        }`}
+                      />
+                      {isPositive ? "+" : ""}
+                      {percentChange.toFixed(1)}% par rapport au mois dernier
+                    </>
+                  ) : (
+                    <>
+                      <TrendingUp className="w-3 h-3 text-muted-foreground" />
+                      Aucune donnée pour le mois précédent
+                    </>
+                  )}
                 </p>
               </CardContent>
             </Card>
@@ -160,7 +191,9 @@ export default function DashboardPage() {
             {/* Overview Card */}
             <Card className="col-span-4 shadow-sm rounded-xl bg-card border-none ring-1 ring-border/50">
               <CardHeader>
-                <CardTitle className="text-xl text-foreground">Aperçu Annuel</CardTitle>
+                <CardTitle className="text-xl text-foreground">
+                  Aperçu Annuel
+                </CardTitle>
                 <CardDescription>
                   Fluctuation du nombre de patients par mois.
                 </CardDescription>
@@ -177,7 +210,10 @@ export default function DashboardPage() {
                   Consultations récentes
                 </CardTitle>
                 <CardDescription className="text-muted-foreground">
-                  Vous avez effectué <span className="font-semibold text-primary">{stats.consultationsThisMonth}</span>{" "}
+                  Vous avez effectué{" "}
+                  <span className="font-semibold text-primary">
+                    {stats.consultationsThisMonth}
+                  </span>{" "}
                   consultations ce mois-ci.
                 </CardDescription>
               </CardHeader>

@@ -15,8 +15,9 @@ interface DropDownProps {
   document: Document;
   setData: React.Dispatch<React.SetStateAction<Document[]>>;
   patinet: Patient;
+  onView?: (document: Document) => void;
 }
-function DocsDropDown({ document, setData, patinet }: DropDownProps) {
+function DocsDropdown({ document, setData, patinet }: DropDownProps) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -45,4 +46,4 @@ function DocsDropDown({ document, setData, patinet }: DropDownProps) {
   );
 }
 
-export default DocsDropDown;
+export default DocsDropdown;

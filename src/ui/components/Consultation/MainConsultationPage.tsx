@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState } from "react";
-import Modal from "../Modal";
 import NewConsultationForm from "./NewConsultationForm";
 import { Button } from "../ui/button";
 import { Consultation } from "../../type";
@@ -16,6 +15,7 @@ import {
 import Pagination from "../Pagination";
 import { Card, CardHeader, CardTitle } from "../ui/card";
 import { Stethoscope, Plus, Calendar, FileText, Activity } from "lucide-react";
+import ModalV2 from "../Modalsecond";
 
 function ConsultationForm({ id }: { id: string }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -71,13 +71,17 @@ function ConsultationForm({ id }: { id: string }) {
         </CardHeader>
       </Card>
 
-      <Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>
+      <ModalV2
+        isOpen={isOpen}
+        onClose={() => setIsOpen(false)}
+        panelClassName="sm:max-w-4xl"
+      >
         <NewConsultationForm
           id={id}
           onClose={() => setIsOpen(false)}
           refreshConsultations={fetchConsultations}
         />
-      </Modal>
+      </ModalV2>
 
       <div className="border rounded-xl shadow-sm bg-card overflow-hidden">
         {consultations.length === 0 ? (
@@ -182,7 +186,11 @@ function ConsultationForm({ id }: { id: string }) {
       </div>
 
       {openConsultationId && (
-        <Modal isOpen onClose={() => setOpenConsultationId(null)}>
+        <ModalV2
+          isOpen
+          onClose={() => setOpenConsultationId(null)}
+          panelClassName="sm:max-w-4xl"
+        >
           <SingleConsultation
             id={openConsultationId}
             onClose={() => {
@@ -190,7 +198,7 @@ function ConsultationForm({ id }: { id: string }) {
               fetchConsultations();
             }}
           />
-        </Modal>
+        </ModalV2>
       )}
     </div>
   );

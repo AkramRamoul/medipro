@@ -1,12 +1,13 @@
 import { TableRow, TableCell } from "../ui/table";
 import { format } from "date-fns";
 import { Document, Patient } from "../../type";
-import DocsDropDown from "./DocsDropdown";
+import DocsDropdown from "./DocsDropdown";
 
 interface DocumentRowProps {
   document: Document;
   setData: React.Dispatch<React.SetStateAction<Document[]>>;
   patinet: Patient;
+  onView?: (document: Document) => void;
 }
 
 // Helper function to convert UTC to UTC+1
@@ -20,6 +21,7 @@ export default function DocumentRow({
   document,
   setData,
   patinet,
+  onView,
 }: DocumentRowProps) {
   const labels = {
     blood: "Demande Bilan",
@@ -27,7 +29,10 @@ export default function DocumentRow({
     report: "Rapport médical",
   } as const;
   return (
-    <TableRow>
+    <TableRow
+      className="cursor-pointer hover:bg-muted/50"
+      onClick={() => onView?.(document)}
+    >
       <TableCell className="w-[35%] font-medium text-left">
         {document.createdAt
           ? new Date(document.createdAt).toLocaleDateString("fr-FR")
@@ -41,8 +46,8 @@ export default function DocumentRow({
           ? format(convertToUTCPlus1(document.createdAt), "hh:mm a")
           : "N/A"}
       </TableCell>
-      <TableCell className="text-right">
-        <DocsDropDown patinet={patinet} document={document} setData={setData} />
+      <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
+        <DocsDropdown patinet={patinet} document={document} setData={setData} />
       </TableCell>
     </TableRow>
   );

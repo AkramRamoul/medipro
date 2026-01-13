@@ -11,11 +11,7 @@ interface ModalProps {
 const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
   return (
     <Transition show={isOpen} as={Fragment}>
-      <Dialog
-        as="div"
-        className="relative z-50"
-        onClose={() => {}} // disables closing by outside click or Esc
-      >
+      <Dialog as="div" className="relative z-50" onClose={onClose}>
         <div className="fixed inset-0 bg-background/80 backdrop-blur-sm transition-opacity" />
 
         {/* Full-Screen Modal */}
@@ -35,15 +31,21 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
             {/* Close Button */}
             <div className="absolute top-4 right-4 z-10">
               <button
-                onClick={onClose}
+                type="button"
                 className="
-              p-2 rounded-md
-              bg-background text-foreground
-              hover:bg-muted
-              focus:outline-none focus:ring-2 focus:ring-ring
-            "
+                                    rounded-md 
+                                    bg-white 
+                                    text-gray-400 
+                                    hover:text-gray-500 
+                                    focus:outline-none 
+                                    focus:ring-2 
+                                    focus:ring-indigo-500 
+                                    focus:ring-offset-2
+                                  "
+                onClick={onClose}
               >
-                <IoClose className="h-6 w-6" />
+                <span className="sr-only">Close</span>
+                <IoClose className="h-6 w-6" aria-hidden="true" />
               </button>
             </div>
 
