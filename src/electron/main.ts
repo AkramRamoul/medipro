@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain } from "electron";
+import { app, BrowserWindow, dialog, ipcMain } from "electron";
 import path from "path";
 import { desc, eq, sql } from "drizzle-orm";
 import fs from "fs";
@@ -7,6 +7,9 @@ import { getfontPath, getMedsPath } from "./pathResolver.js";
 import { db } from "./index.js";
 import os from "os";
 import bcrypt from "bcrypt";
+import { openDB } from "./db.js";
+import { dbUrl } from "./database-path.js";
+
 import {
   patients,
   consultations,
@@ -19,6 +22,8 @@ import {
   psychotropicCounters,
   Document,
 } from "./schema.js";
+import { restoreDatabase } from "./restore.js";
+import { backupDatabase } from "./bdBackup.js";
 app.on("ready", () => {
   const win = new BrowserWindow({
     show: false,
@@ -27,6 +32,7 @@ app.on("ready", () => {
       preload: path.join(app.getAppPath(), "dist-electron", "preload.cjs"),
     },
   });
+  openDB(dbUrl);
 
   win.maximize();
   win.show();
@@ -620,6 +626,15 @@ app.on("ready", () => {
         .where(
           sql`strftime('%Y-%m', ${consultations.date}) = strftime('%Y-%m', CURRENT_TIMESTAMP)`
         );
+      const [consultationsLastMonth] = await db
+        .select({ count: sql<number>`count(*)` })
+        .from(consultations)
+        .where(
+          sql`
+      strftime('%Y-%m', ${consultations.date}) =
+      strftime('%Y-%m', date('now', '-1 month'))
+    `
+        );
 
       const [consultationsToday] = await db
         .select({ count: sql<number>`count(*)` })
@@ -659,6 +674,7 @@ app.on("ready", () => {
         prescriptionsThisMonth: prescriptionsThisMonth.count,
         activePatients: activePatients.count,
         recentConsultations,
+        consultationsLastMonth: consultationsLastMonth.count,
       };
     } catch (error) {
       console.error("Failed to load dashboard stats:", error);
@@ -844,11 +860,7 @@ app.on("ready", () => {
       const { patientId, type, content } = data;
       const [newDoc] = await db
         .insert(Document)
-        .values({
-          patientId,
-          type,
-          content,
-        })
+        .values({ patientId, type, content })
         .returning({ id: Document.id });
       return { success: true, id: newDoc.id };
     } catch (error) {
@@ -892,6 +904,37 @@ app.on("ready", () => {
   ipcMain.handle("get-next-psychotropic-number", async () => {
     return await getNextPsychotropicNumber();
   });
+
+  function registerBackupIpc() {
+    ipcMain.handle("db:backup", async () => {
+      const { canceled, filePath } = await dialog.showSaveDialog({
+        title: "Backup database",
+        defaultPath: `backup-${Date.now()}.db`,
+        filters: [{ name: "Database", extensions: ["db"] }],
+      });
+
+      if (canceled || !filePath) return false;
+
+      await backupDatabase(filePath);
+      return true;
+    });
+
+    ipcMain.handle("db:restore", async () => {
+      const { canceled, filePaths } = await dialog.showOpenDialog({
+        title: "Restore database",
+        filters: [{ name: "Database", extensions: ["db"] }],
+        properties: ["openFile"],
+      });
+
+      if (canceled || filePaths.length === 0) return false;
+
+      await restoreDatabase(filePaths[0]);
+      return true;
+    });
+  }
+
+  registerBackupIpc();
+
   win.webContents.setWindowOpenHandler(() => ({ action: "allow" }));
   // win.webContents.session.webRequest.onHeadersReceived((details, callback) => {
   //   callback({

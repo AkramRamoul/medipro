@@ -34,6 +34,8 @@ export type DashboardStats = {
   consultationsThisMonth: number;
   consultationsToday: number;
   prescriptionsThisMonth: number;
+  consultationsLastMonth: number;
+
   activePatients: number;
   recentConsultations: {
     id: number;

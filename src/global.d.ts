@@ -1,5 +1,6 @@
 export interface DashboardStats {
   consultationsThisMonth: number;
+  consultationsLastMonth: number;
   consultationsToday: number;
   prescriptionsThisMonth: number;
   activePatients: number;
@@ -58,7 +59,9 @@ export interface IElectronAPI {
   createPassword: (password: string) => Promise<void>;
   checkPassword: (password: string) => Promise<{ match: boolean }>;
   checkPasswordExists: () => Promise<{ exists: boolean }>;
-  removePassword: (password: string) => Promise<{ success: boolean; message?: string }>;
+  removePassword: (
+    password: string
+  ) => Promise<{ success: boolean; message?: string }>;
   changePassword: (
     oldPassword: string,
     newPassword: string
@@ -70,6 +73,8 @@ export interface IElectronAPI {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getPatientDocuments: (id: string) => Promise<any[]>;
   deleteDocument: (id: string) => Promise<void>;
+  backup: () => Promise<void>;
+  restore: () => Promise<void>;
 }
 
 declare global {

@@ -1,4 +1,5 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
+import DatabaseSettings from "./DataBaseSettings";
 import GeneralSettings from "./GeneralSettings/GeneralSettings";
 import { PasswordForm } from "./PassordSettings.tsx/PasswordForm";
 
@@ -21,6 +22,12 @@ function Settings() {
           >
             Mot de passe
           </TabsTrigger>
+          <TabsTrigger
+            value="backup"
+            className="flex-1 text-muted-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+          >
+            Base de donner
+          </TabsTrigger>
         </TabsList>
 
         {/* Tab Contents */}
@@ -36,6 +43,12 @@ function Settings() {
           className="text-center text-foreground mt-6"
         >
           <PasswordForm />
+        </TabsContent>
+        <TabsContent
+          value="backup"
+          className="text-center text-foreground mt-6"
+        >
+          <DatabaseSettings />
         </TabsContent>
       </Tabs>
     </div>

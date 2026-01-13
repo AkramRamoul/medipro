@@ -148,4 +148,6 @@ contextBridge.exposeInMainWorld("electronAPI", {
   deleteDocument: async (id: number) => {
     return await ipcRenderer.invoke("delete-document", id);
   },
+  backup: () => ipcRenderer.invoke("db:backup"),
+  restore: () => ipcRenderer.invoke("db:restore"),
 });
