@@ -243,21 +243,6 @@ export function EditPatientForm({ id }: { id: string }) {
                 )}
               />
             </div>
-
-            <div className="grid gap-2">
-              <Label htmlFor="weight">Poids (kg) (optionnel)</Label>
-              <Input
-                {...register("weight")}
-                id="weight"
-                type="number"
-                placeholder="Entrer le poids"
-              />
-              {errors.weight && (
-                <p className="text-destructive text-sm">
-                  {errors.weight.message}
-                </p>
-              )}
-            </div>
           </div>
 
           {/* Antécédents médicaux, Allergies, Remarques */}

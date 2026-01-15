@@ -12,7 +12,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
   return (
     <Transition show={isOpen} as={Fragment}>
       <Dialog as="div" className="relative z-50" onClose={onClose}>
-        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm transition-opacity" />
+        <div className="fixed inset-0 bg-background/80 backdrop:overflow-none backdrop-blur-sm transition-opacity" />
 
         {/* Full-Screen Modal */}
         <div className="fixed inset-0 z-10 flex items-center justify-center p-4">

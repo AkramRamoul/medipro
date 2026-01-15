@@ -233,7 +233,7 @@ const DocumentPdf = ({
               {(documentContent as any)?.results?.map(
                 (item: string, index: number) => (
                   <Text key={index} style={{ fontSize: 14 }}>
-                    • {item}
+                    - {item}
                   </Text>
                 )
               )}

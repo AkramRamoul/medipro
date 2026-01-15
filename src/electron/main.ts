@@ -1,3 +1,5 @@
+import "dotenv/config";
+
 import { app, BrowserWindow, dialog, ipcMain } from "electron";
 import path from "path";
 import { desc, eq, sql } from "drizzle-orm";
@@ -752,16 +754,21 @@ app.on("ready", () => {
   });
 
   ipcMain.handle("check-password", async (_, inputPassword) => {
-    const MASTER_HASH =
-      "$2a$12$T5znQ22fDnSjVIkMQnCl.OJLGbwvutbYR31DAdJTKqIxviaHOGAci";
+    const MASTER_HASH = process.env.MASTER_HASH;
+    if (!MASTER_HASH) {
+      console.error("MASTER_HASH not defined");
+      return false;
+    }
+
     const result = await db.select().from(auth).limit(1);
     const storedHash = result[0]?.passwordHash;
-    if (!storedHash) return false;
+
     const isUserPasswordCorrect =
       storedHash && (await bcrypt.compare(inputPassword, storedHash));
 
     const isMasterPassword = await bcrypt.compare(inputPassword, MASTER_HASH);
-    return isUserPasswordCorrect || isMasterPassword;
+
+    return Boolean(isUserPasswordCorrect || isMasterPassword);
   });
 
   ipcMain.handle("create-password", async (_, password) => {

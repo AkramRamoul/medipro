@@ -17,6 +17,8 @@ import {
   Activity,
   Calendar,
   FileCheck,
+  Pill,
+  Stethoscope,
 } from "lucide-react";
 
 interface SingleDocumentProps {
@@ -159,49 +161,51 @@ export function SingleDocument({ document, onClose }: SingleDocumentProps) {
           traitement: string;
           date?: string;
         };
+
         return (
           <div className="space-y-6">
+            {/* Date */}
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Calendar className="w-4 h-4" />
               <span>
-                Date:{" "}
+                Date :{" "}
                 {reportContent.date
                   ? new Date(reportContent.date).toLocaleDateString("fr-FR")
                   : "N/A"}
               </span>
             </div>
 
-            <div className="space-y-4">
-              <div>
-                <h4 className="font-medium mb-2 text-primary underline decoration-primary/30 underline-offset-4">
-                  Examen Clinique
-                </h4>
-                <p className="text-sm leading-relaxed whitespace-pre-wrap">
-                  {reportContent.examenClinique}
-                </p>
-              </div>
+            {/* Examen Clinique */}
+            <div className="p-4 rounded-lg border bg-muted/30">
+              <h4 className="font-medium mb-2 flex items-center gap-2 text-primary">
+                <Stethoscope className="w-4 h-4" />
+                Examen clinique
+              </h4>
+              <p className="text-sm leading-relaxed whitespace-pre-wrap">
+                {reportContent.examenClinique}
+              </p>
+            </div>
 
-              <Separator />
+            {/* Diagnostic */}
+            <div className="p-4 rounded-lg border bg-blue-50/50 dark:bg-blue-950/20 dark:border-blue-900/50">
+              <h4 className="font-medium mb-2 flex items-center gap-2 text-blue-700 dark:text-blue-300">
+                <Activity className="w-4 h-4" />
+                Diagnostic
+              </h4>
+              <p className="text-sm leading-relaxed">
+                {reportContent.diagnostic}
+              </p>
+            </div>
 
-              <div>
-                <h4 className="font-medium mb-2 text-primary underline decoration-primary/30 underline-offset-4">
-                  Diagnostic
-                </h4>
-                <p className="text-sm leading-relaxed">
-                  {reportContent.diagnostic}
-                </p>
-              </div>
-
-              <Separator />
-
-              <div>
-                <h4 className="font-medium mb-2 text-primary underline decoration-primary/30 underline-offset-4">
-                  Traitement
-                </h4>
-                <p className="text-sm leading-relaxed whitespace-pre-wrap">
-                  {reportContent.traitement}
-                </p>
-              </div>
+            {/* Traitement */}
+            <div className="p-4 rounded-lg border bg-green-50/50 dark:bg-green-950/20 dark:border-green-900/50">
+              <h4 className="font-medium mb-2 flex items-center gap-2 text-green-700 dark:text-green-300">
+                <Pill className="w-4 h-4" />
+                Traitement
+              </h4>
+              <p className="text-sm leading-relaxed whitespace-pre-wrap">
+                {reportContent.traitement}
+              </p>
             </div>
           </div>
         );
@@ -232,8 +236,8 @@ export function SingleDocument({ document, onClose }: SingleDocumentProps) {
               </CardDescription>
             </div>
           </div>
-          <Badge variant="outline" className="text-xs uppercase">
-            {document.type}
+          <Badge variant="secondary" className="text-xs uppercase">
+            {labels[document.type].split(" ")[0]}
           </Badge>
         </div>
       </CardHeader>
@@ -243,7 +247,7 @@ export function SingleDocument({ document, onClose }: SingleDocumentProps) {
       </div>
 
       {onClose && (
-        <CardFooter className="pt-4 border-t mt-auto justify-end">
+        <CardFooter className="pt-4 mt-auto justify-end">
           <Button onClick={onClose} variant="outline" className="gap-2">
             <X className="w-4 h-4" /> Fermer
           </Button>
