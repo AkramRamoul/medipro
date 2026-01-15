@@ -35,6 +35,7 @@ const ModalV2: React.FC<ModalProps> = ({
             className="
               fixed inset-0
               bg-gray-500/75
+              dark:bg-[#000000]
               transition-opacity
             "
           />

@@ -43,7 +43,7 @@ export default function DatabaseSettings() {
       <CardHeader>
         <CardTitle>Base de données</CardTitle>
         <CardDescription>
-          Gérez vos sauvegardes et restaurations de base de données.
+          Gérez vos sauvegardes et restaurations de votre base de données.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">

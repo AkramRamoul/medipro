@@ -26,7 +26,7 @@ function Settings() {
             value="backup"
             className="flex-1 text-muted-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
           >
-            Base de donner
+            Base de données
           </TabsTrigger>
         </TabsList>
 
