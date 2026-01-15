@@ -242,7 +242,7 @@ export function SingleDocument({ document, onClose }: SingleDocumentProps) {
         </div>
       </CardHeader>
 
-      <div className="flex-1 max-h-[60vh]">
+      <div className="flex-1 max-h-[60vh] overflow-y-auto">
         <CardContent className="pt-6">{renderContent()}</CardContent>
       </div>
 
