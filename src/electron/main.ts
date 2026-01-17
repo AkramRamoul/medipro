@@ -205,6 +205,7 @@ app.on("ready", () => {
         allergies: patients.allergies,
         notes: patients.notes,
         createdAt: patients.createdAt,
+        status: patients.status,
         lastVisit: sql`MAX(consultations.date)`.as("lastVisit"),
       })
       .from(patients)

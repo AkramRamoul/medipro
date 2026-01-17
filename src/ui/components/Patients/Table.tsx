@@ -3,59 +3,124 @@ import { Patient } from "../Home/colums";
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
 } from "../ui/table";
-import { ArrowUpDown, Plus, Search } from "lucide-react";
+import {
+  ArrowUpDown,
+  Plus,
+  Search,
+  MoreVertical,
+  Eye,
+  Pencil,
+  FileText,
+  Archive,
+  Trash,
+  Undo2,
+} from "lucide-react";
 import { Input } from "../ui/input";
 import Pagination from "../Pagination";
 import { Button } from "../ui/button";
 import NewPatientModal from "../NewPatient/NewPatientModal";
 import { useNavigate } from "react-router-dom";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { Badge } from "../ui/badge";
+import { Switch } from "../ui/switch";
+import { Label } from "../ui/label";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "../ui/alert-dialog";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "../ui/tooltip";
+import {
+  formatLastVisit,
+  getLastVisitBadgeClass,
+  initialsAvatar,
+} from "../../lib/utils";
 
-function PatientsTable({ patients }: { patients: Patient[] }) {
+function PatientsTable({
+  patients,
+  onPatientArchived,
+}: {
+  patients: Patient[];
+  onPatientArchived: (id: string, status: "active" | "archived") => void;
+}) {
   const [query, setQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [sortKey, setSortKey] = useState<
-    "firstname" | "lastname" | "lastVisit" | null
-  >(null);
+  const [sortKey, setSortKey] = useState<"name" | "lastVisit" | null>(null);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+  const [showArchived, setShowArchived] = useState(false);
+
+  // Track patient ID and action type ('archive' or 'unarchive')
+  const [confirmDialog, setConfirmDialog] = useState<{
+    id: string;
+    action: "archive" | "unarchive";
+  } | null>(null);
+
   const navigate = useNavigate();
 
   const itemsPerPage = 8;
   const filteredData = patients
     .filter((patient) => {
+      // 1. Filter by Archive Status
+      const isArchived = patient.status === "archived";
+      if (!showArchived && isArchived) return false;
+
+      // 2. Filter by Search Query
       const first = patient.firstname?.toLowerCase() || "";
       const last = patient.lastname?.toLowerCase() || "";
       const full1 = `${first} ${last}`;
       const full2 = `${last} ${first}`;
+      const contact = patient.contact?.toLowerCase() || "";
       const q = query.trim().toLowerCase();
 
       return (
         first.includes(q) ||
         last.includes(q) ||
         full1.includes(q) ||
-        full2.includes(q)
+        full2.includes(q) ||
+        contact.includes(q)
       );
     })
     .sort((a, b) => {
       if (!sortKey) return 0;
+
+      // Handle sort by combined Name
+      if (sortKey === "name") {
+        const aName = `${a.lastname || ""} ${a.firstname || ""}`.trim();
+        const bName = `${b.lastname || ""} ${b.firstname || ""}`.trim();
+        return sortOrder === "asc"
+          ? aName.localeCompare(bName)
+          : bName.localeCompare(aName);
+      }
+
       const aVal = a[sortKey];
       const bVal = b[sortKey];
 
       // Handle nulls
       if (aVal == null) return 1;
       if (bVal == null) return -1;
-
-      // Handle string comparison
-      if (typeof aVal === "string" && typeof bVal === "string") {
-        return sortOrder === "asc"
-          ? aVal.localeCompare(bVal)
-          : bVal.localeCompare(aVal);
-      }
 
       // Handle date comparison
       if (sortKey === "lastVisit") {
@@ -66,6 +131,7 @@ function PatientsTable({ patients }: { patients: Patient[] }) {
 
       return 0;
     });
+
   const handleSort = (key: typeof sortKey) => {
     if (sortKey === key) {
       setSortOrder(sortOrder === "asc" ? "desc" : "asc");
@@ -86,105 +152,306 @@ function PatientsTable({ patients }: { patients: Patient[] }) {
   };
   const [isOpen, setIsOpen] = useState(false);
 
+  const handleConfirmAction = async () => {
+    if (!confirmDialog) return;
+
+    try {
+      const newStatus =
+        confirmDialog.action === "archive" ? "archived" : "active";
+
+      await window.electronAPI.editPatient({
+        id: confirmDialog.id,
+        status: newStatus,
+      });
+
+      // Notify parent so it can update its state
+      onPatientArchived(confirmDialog.id, newStatus);
+
+      setConfirmDialog(null);
+    } catch (error) {
+      console.error(`Failed to ${confirmDialog.action} patient`, error);
+    }
+  };
+
   return (
     <>
       <NewPatientModal isOpen={isOpen} onClose={() => setIsOpen(false)} />
 
+      <AlertDialog
+        open={!!confirmDialog}
+        onOpenChange={(open) => !open && setConfirmDialog(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {confirmDialog?.action === "archive"
+                ? "Archiver ce patient ?"
+                : "Désarchiver ce patient ?"}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {confirmDialog?.action === "archive"
+                ? "Son dossier restera accessible en lecture seule."
+                : "Il apparaîtra de nouveau dans la liste principale et sera éditable."}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmAction}>
+              {confirmDialog?.action === "archive" ? "Archiver" : "Désarchiver"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       <div className="flex flex-col p-2 sm:p-4 border rounded-2xl bg-card text-card-foreground shadow-lg w-full max-w-[900px] mx-auto">
-        {/* Search Bar */}
-        <div className="flex flex-col sm:flex-row justify-center mb-4 gap-2">
-          <div className="relative w-full max-w-md ">
-            <Input
-              placeholder="Filtrer par prénom ou nom..."
-              className="pl-10 py-3 rounded-lg border border-input text-foreground focus:ring-2 focus:ring-primary focus:border-primary"
-              value={query}
-              onChange={handleQueryChange}
-            />
-            <span className="absolute inset-y-0 left-3 flex items-center text-muted-foreground">
-              <Search className="w-5 h-5" />
-            </span>
+        {/* Search Bar & Controls */}
+        <div className="flex flex-col gap-4 mb-4">
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+            {/* Use full width for search on mobile, adjust on larger screens */}
+            <div className="relative w-full max-w-md">
+              <Input
+                placeholder="Filtrer par prénom, nom ou téléphone..."
+                className="pl-10 py-3 rounded-lg border border-input text-foreground focus:ring-2 focus:ring-primary focus:border-primary"
+                value={query}
+                onChange={handleQueryChange}
+              />
+              <span className="absolute inset-y-0 left-3 flex items-center text-muted-foreground">
+                <Search className="w-5 h-5" />
+              </span>
+            </div>
+
+            <div className="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-end">
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="airplane-mode"
+                  checked={showArchived}
+                  onCheckedChange={setShowArchived}
+                />
+                <Label htmlFor="airplane-mode">Inclure archivés</Label>
+              </div>
+
+              <Button
+                onClick={() => setIsOpen(true)}
+                className="w-fit flex items-center space-x-2 bg-primary text-white hover:bg-primary/90"
+              >
+                <span>Ajouter un nouveau patient</span>
+                <Plus className="w-4 h-4 font-bold" />
+              </Button>
+            </div>
           </div>
-          <Button
-            onClick={() => setIsOpen(true)}
-            className="w-fit flex items-center space-x-2 bg-primary text-white hover:bg-primary/90"
-          >
-            <span>Ajouter un nouveau patient</span>
-            <Plus className="w-4 h-4 font-bold" />
-          </Button>
         </div>
 
         {/* Table Section */}
         <div className="w-full overflow-x-auto">
-          <Table className="min-w-[600px] w-full">
-            <TableCaption className="mt-6 text-muted-foreground">
-              Une liste de tous vos patients
-            </TableCaption>
-            <TableHeader>
-              <TableRow className="bg-muted rounded-lg">
-                <TableHead
-                  className="text-muted-foreground text-left cursor-pointer select-none"
-                  onClick={() => handleSort("firstname")}
-                >
-                  <span className="flex items-center">
-                    Nom <ArrowUpDown className="ml-2 h-4 w-4" />
-                  </span>
-                </TableHead>
-
-                <TableHead
-                  className="text-muted-foreground text-left cursor-pointer select-none"
-                  onClick={() => handleSort("lastname")}
-                >
-                  <span className="flex items-center">
-                    Prénom
-                    <ArrowUpDown className="ml-2 h-4 w-4" />
-                  </span>
-                </TableHead>
-
-                <TableHead className="text-muted-foreground">Contact</TableHead>
-
-                <TableHead
-                  className="text-muted-foreground text-right cursor-pointer select-none w-[200px]"
-                  onClick={() => handleSort("lastVisit")}
-                >
-                  <span className="flex items-center justify-end">
-                    Dernière visite
-                    <ArrowUpDown className="ml-2 h-4 w-4" />
-                  </span>
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {currentItems.length > 0 ? (
-                currentItems.map((patient) => (
-                  <TableRow
-                    key={patient.id}
-                    className="hover:bg-accent transition-colors cursor-pointer"
-                    onClick={() => navigate(`/pat/${patient.id}`)}
+          <TooltipProvider>
+            <Table className="min-w-[600px] w-full">
+              <TableHeader>
+                <TableRow className="bg-muted rounded-lg">
+                  <TableHead
+                    className="text-muted-foreground text-left cursor-pointer select-none"
+                    onClick={() => handleSort("name")}
                   >
-                    <TableCell className="font-semibold">
-                      {patient.firstname || "N/A"}
-                    </TableCell>
-                    <TableCell>{patient.lastname || "N/A"}</TableCell>
-                    <TableCell>{patient.contact || "N/A"}</TableCell>
-                    <TableCell className="text-right w-[200px]">
-                      {patient.lastVisit === null
-                        ? "N/A"
-                        : new Date(patient.lastVisit).toLocaleDateString()}
+                    <span className="flex items-center">
+                      Nom <ArrowUpDown className="ml-2 h-4 w-4" />
+                    </span>
+                  </TableHead>
+
+                  <TableHead className="text-muted-foreground">
+                    Contact
+                  </TableHead>
+
+                  <TableHead
+                    className="text-muted-foreground text-right cursor-pointer select-none w-[200px]"
+                    onClick={() => handleSort("lastVisit")}
+                  >
+                    <span className="flex items-center">
+                      Dernière visite
+                      <ArrowUpDown className="ml-2 h-4 w-4" />
+                    </span>
+                  </TableHead>
+
+                  <TableHead className="text-muted-foreground text-right w-[60px]">
+                    Actions
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {currentItems.length > 0 ? (
+                  currentItems.map((patient) => {
+                    const initials =
+                      `${patient.firstname?.[0] || ""}${patient.lastname?.[0] || ""}`.toUpperCase();
+                    const isArchived = patient.status === "archived";
+
+                    return (
+                      <TableRow
+                        key={patient.id}
+                        className={`transition-colors cursor-pointer ${
+                          isArchived
+                            ? "hover:bg-transparent opacity-60 bg-muted/20"
+                            : "hover:bg-accent"
+                        }`}
+                        onClick={() => {
+                          navigate(`/pat/${patient.id}`);
+                        }}
+                      >
+                        <TableCell>
+                          <div className="flex items-center gap-3">
+                            <Avatar className="h-9 w-9 border-2 border-background shadow-sm">
+                              <AvatarImage
+                                src={initialsAvatar(initials)}
+                                alt={initials}
+                              />
+                              <AvatarFallback className="bg-primary/10 text-primary font-medium text-xs">
+                                {initials}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className="flex flex-col">
+                              <span className="font-semibold text-foreground flex items-center gap-2">
+                                {(patient.lastname || "").toUpperCase()}
+                                {isArchived && (
+                                  <Badge
+                                    variant="outline"
+                                    className="h-5 px-1.5 text-[10px] bg-slate-100 text-slate-500 border-slate-200"
+                                  >
+                                    Archivé
+                                  </Badge>
+                                )}
+                              </span>
+                              <span className="text-xs text-muted-foreground">
+                                {patient.firstname || ""}
+                              </span>
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-sm">
+                          {patient.contact || (
+                            <span className="text-muted-foreground italic">
+                              Non renseigné
+                            </span>
+                          )}
+                        </TableCell>
+                        <TableCell className="">
+                          {patient.lastVisit ? (
+                            <Badge
+                              variant="secondary"
+                              className={`font-normal ${getLastVisitBadgeClass(patient.lastVisit)}`}
+                            >
+                              {formatLastVisit(patient.lastVisit)}
+                            </Badge>
+                          ) : (
+                            <Badge
+                              variant="outline"
+                              className="font-normal text-muted-foreground border-dashed"
+                            >
+                              Jamais consulté
+                            </Badge>
+                          )}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <DropdownMenu modal={false}>
+                            <DropdownMenuTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                className="h-8 w-8 p-0"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                <span className="sr-only">Open menu</span>
+                                <MoreVertical className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent
+                              align="end"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem
+                                onClick={() => navigate(`/pat/${patient.id}`)}
+                              >
+                                <Eye className="mr-2 h-4 w-4" />
+                                Voir le dossier
+                              </DropdownMenuItem>
+
+                              {isArchived ? (
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <div className="w-full">
+                                      <DropdownMenuItem disabled>
+                                        <Plus className="mr-2 h-4 w-4" />
+                                        Nouvelle consult.
+                                      </DropdownMenuItem>
+                                    </div>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p>Patient archivé - lecture seule</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              ) : (
+                                <DropdownMenuItem>
+                                  <Plus className="mr-2 h-4 w-4" />
+                                  Nouvelle consult.
+                                </DropdownMenuItem>
+                              )}
+
+                              <DropdownMenuItem>
+                                <Pencil className="mr-2 h-4 w-4" />
+                                Éditer infos
+                              </DropdownMenuItem>
+                              <DropdownMenuItem>
+                                <FileText className="mr-2 h-4 w-4" />
+                                Exporter (PDF)
+                              </DropdownMenuItem>
+
+                              {!isArchived ? (
+                                <DropdownMenuItem
+                                  onClick={() =>
+                                    setConfirmDialog({
+                                      id: patient.id,
+                                      action: "archive",
+                                    })
+                                  }
+                                >
+                                  <Archive className="mr-2 h-4 w-4" />
+                                  Archiver
+                                </DropdownMenuItem>
+                              ) : (
+                                <DropdownMenuItem
+                                  onClick={() =>
+                                    setConfirmDialog({
+                                      id: patient.id,
+                                      action: "unarchive",
+                                    })
+                                  }
+                                >
+                                  <Undo2 className="mr-2 h-4 w-4" />
+                                  Désarchiver
+                                </DropdownMenuItem>
+                              )}
+
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem className="text-destructive focus:text-destructive">
+                                <Trash className="mr-2 h-4 w-4" />
+                                Supprimer
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })
+                ) : (
+                  <TableRow>
+                    <TableCell
+                      colSpan={4}
+                      className="text-center text-muted-foreground py-6"
+                    >
+                      Aucun patient correspondant trouvé.
                     </TableCell>
                   </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell
-                    colSpan={4}
-                    className="text-center text-muted-foreground py-6"
-                  >
-                    Aucun patient correspondant trouvé.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
+                )}
+              </TableBody>
+            </Table>
+          </TooltipProvider>
 
           {/* Pagination */}
           <div className="mt-6">
