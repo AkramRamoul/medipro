@@ -39,6 +39,10 @@ export function Home() {
     getName();
   }, [data]);
 
+  const handlePatientArchived = (id: string, status: "active" | "archived") => {
+    setData((prev) => prev.map((p) => (p.id === id ? { ...p, status } : p)));
+  };
+
   return (
     <>
       <div className="h-full flex-1 flex-col space-y-4 p-4 md:p-6 flex bg-background text-foreground transition-colors">
@@ -58,7 +62,10 @@ export function Home() {
             <Loader2 className="animate-spin text-muted-foreground w-6 h-6" />
           </div>
         ) : (
-          <PatientsTable patients={data} />
+          <PatientsTable
+            patients={data}
+            onPatientArchived={handlePatientArchived}
+          />
         )}
       </div>
     </>

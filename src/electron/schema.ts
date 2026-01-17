@@ -15,6 +15,7 @@ export const patients = sqliteTable("patients", {
   medicalHistory: text("medical_history"),
   allergies: text("allergies"),
   notes: text("notes"),
+  status: text("status").notNull().default("active"),
   createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
 });
 
