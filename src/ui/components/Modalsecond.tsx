@@ -2,7 +2,6 @@
 
 import React, { Fragment } from "react";
 import { Dialog, Transition } from "@headlessui/react";
-import { IoClose } from "react-icons/io5";
 import { cn } from "../lib/utils";
 
 interface ModalProps {
@@ -53,15 +52,13 @@ const ModalV2: React.FC<ModalProps> = ({
             >
               <Dialog.Panel
                 className={cn(
-                  `
-                  relative w-full transform overflow-hidden rounded-lg
-                  bg-white dark:bg-[#222327]
+                  `relative w-full transform overflow-hidden rounded-lg
                   text-gray-900 dark:text-gray-100
                   px-4 pb-4 pt-5
-                  shadow-xl transition-all
+                 transition-all
                   sm:my-8 sm:max-w-lg sm:p-6
                   `,
-                  panelClassName
+                  panelClassName,
                 )}
               >
                 {/* Close button */}
@@ -81,7 +78,7 @@ const ModalV2: React.FC<ModalProps> = ({
                     "
                   >
                     <span className="sr-only">Close</span>
-                    <IoClose className="h-6 w-6" />
+                    {/* <IoClose className="h-6 w-6" /> */}
                   </button>
                 </div>
 

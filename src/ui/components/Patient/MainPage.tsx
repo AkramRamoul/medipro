@@ -6,7 +6,7 @@ import { EditPatientForm } from "./EditPatientForm";
 function MainPage() {
   const { id } = useParams<{ id: string }>();
   return (
-    <div className="p-4 flex justify-center bg-background">
+    <div className="p-4 flex justify-center">
       <Tabs defaultValue="example" className="w-full max-w-5xl">
         <TabsList className="w-full flex justify-center bg-muted rounded-lg">
           <TabsTrigger

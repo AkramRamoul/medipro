@@ -63,8 +63,8 @@ export function AppSidebar() {
                           (item.url !== "/" &&
                             item.url !== "/patients" &&
                             currentPath.startsWith(item.url))
-                            ? "bg-primary text-white pointer-events-none"
-                            : "text-black dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-800"
+                            ? "bg-primary text-primary-foreground pointer-events-none"
+                            : "text-black dark:text-gray-300 hover:bg-[#8b9467] dark:hover:bg-[#6495ed]"
                         }`}
                       >
                         <item.icon />

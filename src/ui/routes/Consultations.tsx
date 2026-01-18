@@ -74,7 +74,7 @@ function Page() {
               <Stethoscope className="w-5 h-5" />
               Dossier de Consultations
             </CardTitle>
-            <p className="text-sm text-muted-foreground mt-1">
+            <p className="text-sm text-muted-foreground mt-1 pb-2">
               Historique complet des consultations.
             </p>
           </div>

@@ -5,7 +5,7 @@ function ThemeSelector() {
   const { theme, setTheme } = useTheme();
 
   return (
-    <div className="max-w-xl space-y-8 rounded-lg bg-background p-8">
+    <div className="max-w-xl space-y-8 rounded-lg bg-card p-8">
       <div className="space-y-4 text-left">
         <h2 className="text-lg font-medium">Thème</h2>
         <p className="text-sm text-muted-foreground">

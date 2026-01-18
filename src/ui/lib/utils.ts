@@ -16,7 +16,7 @@ export function getLastVisitBadgeClass(lastVisit: string | Date) {
   const date = new Date(lastVisit);
   const now = new Date();
   const diffDays = Math.ceil(
-    Math.abs(now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24)
+    Math.abs(now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24),
   );
 
   if (diffDays < 30)
@@ -36,20 +36,19 @@ export function formatLastVisit(lastVisit: string | Date) {
 }
 
 export function initialsAvatar(initials: string) {
-  // Deterministic hash from initials
   let hash = 0;
   for (let i = 0; i < initials.length; i++) {
     hash = initials.charCodeAt(i) + ((hash << 5) - hash);
   }
 
-  // Generate a vibrant HSL color
+  // Generate color
   const hue = Math.abs(hash) % 360;
-  const saturation = 75; // strong color
-  const lightness = 55; // not too dark / not too light
+  const saturation = 75;
+  const lightness = 55;
 
   const bg = `hsl(${hue}, ${saturation}%, ${lightness}%)`;
 
-  // Pick readable foreground automatically
+  // Pick forground
   const fg = lightness > 60 ? "#1f2937" : "#ffffff";
 
   const svg = `

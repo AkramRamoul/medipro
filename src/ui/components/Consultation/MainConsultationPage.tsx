@@ -21,7 +21,7 @@ function ConsultationForm({ id }: { id: string }) {
   const [isOpen, setIsOpen] = useState(false);
   const [consultations, setConsultations] = useState<Consultation[]>([]);
   const [openConsultationId, setOpenConsultationId] = useState<string | null>(
-    null
+    null,
   );
 
   // ✅ Memoized fetch function
@@ -121,7 +121,7 @@ function ConsultationForm({ id }: { id: string }) {
                 {consultations
                   .slice(
                     (currentPage - 1) * itemsPerPage,
-                    currentPage * itemsPerPage
+                    currentPage * itemsPerPage,
                   )
                   .map((cons) => (
                     <TableRow

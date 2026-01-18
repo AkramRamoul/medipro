@@ -72,7 +72,8 @@ export function PasswordForm() {
   const handleRemovePassword = async () => {
     setIsRemoving(true);
     try {
-      const result = await window.electronAPI.removePassword(removePasswordValue);
+      const result =
+        await window.electronAPI.removePassword(removePasswordValue);
       if (result.success) {
         toast.success("Mot de passe supprimé avec succès");
         setIsRemoveOpen(false);
@@ -103,7 +104,7 @@ export function PasswordForm() {
       } else {
         const success = await window.electronAPI.changePassword(
           (data as UpdatePasswordFormValues).oldPassword,
-          data.password
+          data.password,
         );
 
         if (success.success) {
@@ -128,7 +129,7 @@ export function PasswordForm() {
   if (status.status === "loading") return null;
 
   return (
-    <div className="flex justify-center min-h-screen bg-background px-4">
+    <div className="space-y-6 m-8 p-6 bg-card text-foreground border border-border rounded-lg shadow-sm flex items-center justify-center">
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
@@ -260,8 +261,9 @@ export function PasswordForm() {
           <DialogHeader>
             <DialogTitle>Supprimer le mot de passe</DialogTitle>
             <DialogDescription>
-              Veuillez entrer votre mot de passe actuel pour confirmer la suppression.
-              Cette action désactivera la protection par mot de passe.
+              Veuillez entrer votre mot de passe actuel pour confirmer la
+              suppression. Cette action désactivera la protection par mot de
+              passe.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
@@ -273,7 +275,9 @@ export function PasswordForm() {
             />
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsRemoveOpen(false)}>Annuler</Button>
+            <Button variant="outline" onClick={() => setIsRemoveOpen(false)}>
+              Annuler
+            </Button>
             <Button
               variant="destructive"
               onClick={handleRemovePassword}

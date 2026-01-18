@@ -79,7 +79,7 @@ export function EditPatientForm({ id }: { id: string }) {
           }
         })
         .catch((error: Error) =>
-          console.error("Error fetching patient:", error)
+          console.error("Error fetching patient:", error),
         )
         .finally(() => setLoading(false));
     }
@@ -110,7 +110,7 @@ export function EditPatientForm({ id }: { id: string }) {
   return (
     <Card
       onClick={(e) => e.stopPropagation()}
-      className="w-full max-w-[90%] mx-auto mt-5 bg-card text-card-foreground"
+      className="w-full max-w-[90%] mx-auto mt-5 bg-card text-card-foreground border-border shadow-xl"
     >
       <form onSubmit={handleSubmit(handleSave)}>
         <CardHeader>

@@ -86,7 +86,7 @@ function Prescriptions() {
               <Pill className="w-5 h-5" />
               Dossier des Ordonnances
             </CardTitle>
-            <p className="text-sm text-muted-foreground mt-1">
+            <p className="text-sm text-muted-foreground mt-1 pb-2">
               Gérez toutes les ordonnances délivrées.
             </p>
           </div>
