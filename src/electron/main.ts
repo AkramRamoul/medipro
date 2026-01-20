@@ -45,26 +45,23 @@ app.on("ready", () => {
     win.loadFile(path.join(app.getAppPath(), "dist-react", "index.html"));
   }
   ipcMain.handle("addpatient", async (_, data) => {
-    console.log("📢 addpatient IPC received:", data);
     try {
       const [insertedPatient] = await db
         .insert(patients)
         .values(data)
         .returning({ id: patients.id });
 
-      console.log("📢 Patient added with ID:", insertedPatient.id);
       win.webContents.executeJavaScript("console.log('📢 Patient added!');");
       return insertedPatient.id;
     } catch (error) {
       win.webContents.executeJavaScript(
-        "console.error('📢 Failed to add patient:', error);"
+        "console.error('📢 Failed to add patient:', error);",
       );
       throw error;
     }
   });
   ipcMain.handle("load-fonts", async () => {
     const fontPath = getfontPath();
-    console.log("Font path resolved:", fontPath); // <- log this
 
     return fontPath;
   });
@@ -74,7 +71,7 @@ app.on("ready", () => {
     fs.writeFileSync(tempPath, buffer);
 
     const printWindow = new BrowserWindow({
-      show: false, // hide the window
+      show: false,
       webPreferences: {
         nodeIntegration: false,
       },
@@ -86,16 +83,16 @@ app.on("ready", () => {
       printWindow.webContents.print({
         silent: false,
         printBackground: true,
-        deviceName: "", // optional: specify printer
+        deviceName: "",
         margins: {
           marginType: "none",
         },
-        pageSize: "A5", // 👈 this actually works here!
+        pageSize: "A5",
       });
     });
   });
 
-  // Get all prescriptions with patient info
+  // Get ordonnance with patient info
   ipcMain.handle("get-all-prescriptions", async () => {
     const result = await db
       .select({
@@ -122,14 +119,12 @@ app.on("ready", () => {
       .leftJoin(patients, eq(prescriptions.patientId, patients.id))
       .leftJoin(
         prescriptionMedications,
-        eq(prescriptions.id, prescriptionMedications.prescriptionId)
+        eq(prescriptions.id, prescriptionMedications.prescriptionId),
       )
       .orderBy(desc(prescriptions.date));
 
-    // Group the medications by prescription ID
     /* eslint-disable  @typescript-eslint/no-explicit-any */
     const prescriptionsGrouped = result.reduce((acc: any[], row: any) => {
-      // Find the existing prescription in the accumulator
       let prescription = acc.find((p) => p.id === row.id);
 
       if (!prescription) {
@@ -143,8 +138,6 @@ app.on("ready", () => {
         };
         acc.push(prescription);
       }
-
-      // Push the medication to the medications array
       if (row.medication_id) {
         prescription.medications.push({
           medication_id: row.medication_id,
@@ -210,18 +203,32 @@ app.on("ready", () => {
       })
       .from(patients)
       .leftJoin(consultations, eq(patients.id, consultations.patientId))
-      .groupBy(patients.id); // Ensure we get one row per patient
+      .where(sql`${patients.status} != 'deleted'`)
+      .groupBy(patients.id);
 
     const formattedPatients = result.map((patient) => ({
       ...patient,
-      createdAt: new Date(patient.createdAt!).toISOString().split("T")[0], // Format created_at
+      createdAt: new Date(patient.createdAt!).toISOString().split("T")[0],
       lastVisit:
         patient.lastVisit && typeof patient.lastVisit === "string"
           ? new Date(patient.lastVisit).toISOString().split("T")[0]
-          : null, // Ensure lastVisit is null if no visits
+          : null,
     }));
 
     return formattedPatients;
+  });
+
+  ipcMain.handle("delete-patient", async (_, id) => {
+    try {
+      await db
+        .update(patients)
+        .set({ status: "deleted" })
+        .where(eq(patients.id, id));
+      return { success: true };
+    } catch (error) {
+      console.error("Failed to delete patient:", error);
+      return { success: false, error: (error as Error).message };
+    }
   });
 
   ipcMain.handle("delete-consultaion", async (_, id) => {
@@ -229,16 +236,14 @@ app.on("ready", () => {
       await db.delete(consultations).where(eq(consultations.id, id));
     } catch (error) {
       win.webContents.executeJavaScript(
-        "console.error('📢 Failed to add patient:', error);"
+        "console.error('Failed to delete consultation:', error);",
       );
       throw error;
     }
   });
 
   ipcMain.handle("getpatient", async (_, id) => {
-    console.log("📢 getpatient IPC received for ID:", id);
     try {
-      // Fetch patient by ID
       const patient = await db
         .select()
         .from(patients)
@@ -249,14 +254,13 @@ app.on("ready", () => {
       }
       const formattedPatient = {
         ...patient,
-        createdAt: new Date(patient[0].createdAt!).toISOString().split("T")[0], // Format date as "YYYY-MM-DD"
+        createdAt: new Date(patient[0].createdAt!).toISOString().split("T")[0], // "YYYY-MM-DD"
       };
 
-      console.log("📢 Patient data fetched:", formattedPatient);
       return formattedPatient;
     } catch (error) {
       console.error("📢 Failed to fetch patient:", error);
-      throw error; // Rethrow error to be caught in preload
+      throw error;
     }
   });
 
@@ -291,7 +295,6 @@ app.on("ready", () => {
   });
 
   ipcMain.handle("add-consultation", async (_, data) => {
-    console.log("📢 Received consultation data:", data);
     const { vitals, ...rest } = data;
 
     await db.insert(consultations).values({
@@ -338,12 +341,10 @@ app.on("ready", () => {
         .from(prescriptions)
         .leftJoin(
           prescriptionMedications,
-          eq(prescriptions.id, prescriptionMedications.prescriptionId)
+          eq(prescriptions.id, prescriptionMedications.prescriptionId),
         )
         .where(eq(prescriptions.patientId, patientId))
         .orderBy(desc(prescriptions.date));
-
-      // Group medications by prescription ID
       const prescriptionsMap = new Map();
 
       result.forEach((row) => {
@@ -390,9 +391,9 @@ app.on("ready", () => {
       {
         patientId,
         medications,
-        isPsychotropic, // ✅ receive from frontend
-        patientAddress: frontendAddress, // ✅ optional override
-      }
+        isPsychotropic,
+        patientAddress: frontendAddress,
+      },
     ) => {
       try {
         if (
@@ -414,7 +415,6 @@ app.on("ready", () => {
 
           psychotropicNumber = counter.id;
 
-          // If address wasn't passed from frontend, fetch it
           if (!patientAddress) {
             const [patient] = await db
               .select({ address: patients.address })
@@ -459,13 +459,13 @@ app.on("ready", () => {
         return {
           success: true,
           message: "Prescription saved successfully!",
-          psychotropic_number: psychotropicNumber, // <-- include this
+          psychotropic_number: psychotropicNumber,
         };
       } catch (error) {
         console.error("Error adding prescription:", error);
         return { success: false, message: error };
       }
-    }
+    },
   );
 
   ipcMain.handle("edit-patient", async (_, data) => {
@@ -483,20 +483,14 @@ app.on("ready", () => {
     try {
       const destDir = path.join(app.getPath("userData"), "images");
       fs.mkdirSync(destDir, { recursive: true });
-
-      // Get all previous images (assuming only one should exist)
       const existing = await db.select().from(image);
-
       for (const row of existing) {
         const oldPath = row.imagePath;
         if (oldPath && fs.existsSync(oldPath)) {
-          fs.unlinkSync(oldPath); // Delete file from disk
+          fs.unlinkSync(oldPath);
         }
       }
-
-      // Delete if exist
       await db.delete(image);
-
       // Decode base64
       const matches = imageDataUrl.match(/^data:(image\/\w+);base64,(.+)$/);
       if (!matches || matches.length !== 3) {
@@ -509,10 +503,8 @@ app.on("ready", () => {
       const uniqueName = `${Date.now()}.${fileExt}`;
       const destPath = path.join(destDir, uniqueName);
 
-      // Save the new image
       fs.writeFileSync(destPath, Buffer.from(base64Data, "base64"));
 
-      // Insert new image path into DB
       await db.insert(image).values({ imagePath: destPath });
 
       return { success: true, path: destPath };
@@ -524,7 +516,6 @@ app.on("ready", () => {
 
   ipcMain.handle("get-image", async () => {
     try {
-      // Fetch the most recent image record (assuming only one exists)
       const result = await db.select().from(image).limit(1);
 
       if (result.length === 0) {
@@ -537,7 +528,6 @@ app.on("ready", () => {
         return { success: false, error: "Image file not found on disk" };
       }
 
-      // Read image and convert to base64
       const imageBuffer = fs.readFileSync(imagePath);
       const base64Image = `data:image/${path
         .extname(imagePath)
@@ -568,49 +558,43 @@ app.on("ready", () => {
       const servicesFr = services.map((s: any) => s.fr);
       const servicesAr = services.map((s: any) => s.ar);
 
+      const modelToSave = {
+        nameFr,
+        nameAr,
+        specialtyFr,
+        specialtyAr,
+        inscriptionNumber,
+        servicesFr: JSON.stringify(servicesFr),
+        servicesAr: JSON.stringify(servicesAr),
+        address,
+        phoneNumber1,
+        phoneNumber2,
+        city,
+      };
+
       const existing = await db.select().from(prescriptionModel).limit(1);
 
       if (existing.length === 0) {
-        // First time creation
-        await db.insert(prescriptionModel).values({
-          nameFr,
-          nameAr,
-          specialtyFr,
-          specialtyAr,
-          inscriptionNumber,
-          servicesFr: JSON.stringify(servicesFr),
-          servicesAr: JSON.stringify(servicesAr),
-          address,
-          phoneNumber1,
-          phoneNumber2,
-          city,
-        });
+        await db.insert(prescriptionModel).values(modelToSave);
       } else {
-        // Update the existing row
         await db
           .update(prescriptionModel)
-          .set({
-            nameFr,
-            nameAr,
-            specialtyFr,
-            specialtyAr,
-            inscriptionNumber,
-            servicesFr: JSON.stringify(servicesFr),
-            servicesAr: JSON.stringify(servicesAr),
-            address,
-            phoneNumber1,
-            phoneNumber2,
-            city,
-          })
+          .set(modelToSave)
           .where(eq(prescriptionModel.id, existing[0].id));
       }
-
-      return { success: true };
+      return {
+        success: true,
+        model: {
+          ...modelToSave,
+          services,
+        },
+      };
     } catch (err) {
-      console.error("❌ Failed to save or update prescription model:", err);
+      console.error("Failed to save model", err);
       return { success: false, error: (err as Error).message };
     }
   });
+
   ipcMain.handle("get-prescription-model", async () => {
     try {
       const [model] = await db.select().from(prescriptionModel).limit(1);
@@ -622,12 +606,11 @@ app.on("ready", () => {
 
   ipcMain.handle("get-dashboard-stats", async () => {
     try {
-      // Get stats
       const [consultationsThisMonth] = await db
         .select({ count: sql<number>`count(*)` })
         .from(consultations)
         .where(
-          sql`strftime('%Y-%m', ${consultations.date}) = strftime('%Y-%m', CURRENT_TIMESTAMP)`
+          sql`strftime('%Y-%m', ${consultations.date}) = strftime('%Y-%m', CURRENT_TIMESTAMP)`,
         );
       const [consultationsLastMonth] = await db
         .select({ count: sql<number>`count(*)` })
@@ -636,7 +619,7 @@ app.on("ready", () => {
           sql`
       strftime('%Y-%m', ${consultations.date}) =
       strftime('%Y-%m', date('now', '-1 month'))
-    `
+    `,
         );
 
       const [consultationsToday] = await db
@@ -648,7 +631,7 @@ app.on("ready", () => {
         .select({ count: sql<number>`count(*)` })
         .from(prescriptions)
         .where(
-          sql`strftime('%Y-%m', ${prescriptions.date}) = strftime('%Y-%m', CURRENT_TIMESTAMP)`
+          sql`strftime('%Y-%m', ${prescriptions.date}) = strftime('%Y-%m', CURRENT_TIMESTAMP)`,
         );
 
       const [activePatients] = await db
@@ -700,14 +683,12 @@ app.on("ready", () => {
     "Déc",
   ];
 
-  // simple in-memory cache
   let cache: { data: any; timestamp: number } | null = null;
-  const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+  const CACHE_DURATION = 5 * 60 * 1000;
 
   async function getMonthlyPatients() {
     const now = Date.now();
 
-    // if cache exists and not expired, return cached data
     if (cache && now - cache.timestamp < CACHE_DURATION) {
       return cache.data;
     }
@@ -722,7 +703,7 @@ app.on("ready", () => {
   FROM ${patients}
   WHERE strftime('%Y', created_at) = ${String(currentYear)}
   GROUP BY month
-  `
+  `,
     );
 
     const monthMap: Record<string, number> = {};
@@ -737,8 +718,6 @@ app.on("ready", () => {
         total: monthMap[monthNumber] || 0,
       };
     });
-
-    // update cache
     cache = { data, timestamp: now };
 
     return data;
@@ -781,10 +760,8 @@ app.on("ready", () => {
     await db.insert(auth).values({ passwordHash: hashed });
   });
   ipcMain.handle("change-password", async (_, oldPassword, newPassword) => {
-    const MASTER_HASH =
-      "$2a$12$T5znQ22fDnSjVIkMQnCl.OJLGbwvutbYR31DAdJTKqIxviaHOGAci";
+    const MASTER_HASH = process.env.MASTER_HASH;
 
-    // Step 1: Get current stored hash
     const result = await db.select().from(auth).limit(1);
     const storedHash = result[0]?.passwordHash;
 
@@ -792,15 +769,12 @@ app.on("ready", () => {
       throw new Error("No password set");
     }
 
-    // Step 2: Check if either oldPassword or master password matches
     const isCorrect = await bcrypt.compare(oldPassword, storedHash);
-    const isMaster = await bcrypt.compare(oldPassword, MASTER_HASH);
+    const isMaster = await bcrypt.compare(oldPassword, MASTER_HASH!);
 
     if (!isCorrect && !isMaster) {
       return { success: false, message: "Incorrect old password" };
     }
-
-    // Step 3: Hash new password and update
     const newHashed = await bcrypt.hash(newPassword, 10);
     await db
       .update(auth)
@@ -811,8 +785,8 @@ app.on("ready", () => {
   });
 
   ipcMain.handle("remove-password", async (_, password) => {
-    const MASTER_HASH =
-      "$2a$12$T5znQ22fDnSjVIkMQnCl.OJLGbwvutbYR31DAdJTKqIxviaHOGAci";
+    const MASTER_HASH = process.env.MASTER_HASH;
+
     const result = await db.select().from(auth).limit(1);
     const storedHash = result[0]?.passwordHash;
 
@@ -821,7 +795,7 @@ app.on("ready", () => {
     }
 
     const isCorrect = await bcrypt.compare(password, storedHash);
-    const isMaster = await bcrypt.compare(password, MASTER_HASH);
+    const isMaster = await bcrypt.compare(password, MASTER_HASH!);
 
     if (!isCorrect && !isMaster) {
       return { success: false, message: "Mot de passe incorrect" };

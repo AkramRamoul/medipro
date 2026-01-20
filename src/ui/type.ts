@@ -17,17 +17,17 @@ export type Patient = {
 };
 
 export type Consultation = {
-  id: string; // Unique identifier for the consultation
-  patientId: string; // Foreign key to link to the patient
-  reason: string; // Reason for the visit
-  symptoms: string; // Description of symptoms
-  diagnosis: string; // Doctor's diagnosis
-  notes?: string; // Optional additional notes
+  id: string;
+  patientId: string;
+  reason: string;
+  symptoms: string;
+  diagnosis: string;
+  notes?: string;
   bloodPressure?: string;
   heartRate?: string;
   temperature?: string;
   weight?: string;
-  date: string; // Timestamp for when the consultation was created
+  date: string;
 };
 
 export type DashboardStats = {
@@ -53,7 +53,7 @@ export interface Prescription {
   patientAddress?: string;
   date: string | null;
   patientId: number;
-  medications: PrescriptionMed[]; // Add medications property
+  medications: PrescriptionMed[];
 }
 
 export type PrescriptionWithPatient = {
@@ -63,13 +63,13 @@ export type PrescriptionWithPatient = {
   isPsychotropic?: boolean;
   psychotropicNumber?: number;
   patientAddress?: string;
-  medications: PrescriptionMed[]; // or Date, depending on how Drizzle returns it
+  medications: PrescriptionMed[];
   patient: {
     id: number;
     first_name: string;
     last_name: string;
     age: number;
-  } | null; // because it's a left join, patient can be null
+  } | null;
 };
 export type ConsultationWithPatient = {
   id: number;
@@ -86,7 +86,7 @@ export type ConsultationWithPatient = {
     first_name: string;
     last_name: string;
     age: number;
-  } | null; // because it's a left join, patient can be null
+  } | null;
 };
 
 export type smallPatient = {

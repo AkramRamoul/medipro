@@ -3,7 +3,6 @@ import { useState, useEffect } from "react";
 import { Loader2 } from "lucide-react";
 import PatientsTable from "../components/Patients/Table";
 
-// Fetch data from the main process
 async function getData(): Promise<Patient[]> {
   try {
     const result = await window.electronAPI.getallpatients();
@@ -18,14 +17,12 @@ export function Home() {
   const [data, setData] = useState<Patient[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [name, setName] = useState("");
-  // Fetch data on component mount
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
       const patients = await getData();
       setData(patients);
       setIsLoading(false);
-      console.log("Fetched patients:", patients);
     };
 
     fetchData();
@@ -39,8 +36,15 @@ export function Home() {
     getName();
   }, [data]);
 
-  const handlePatientArchived = (id: string, status: "active" | "archived") => {
-    setData((prev) => prev.map((p) => (p.id === id ? { ...p, status } : p)));
+  const handlePatientArchived = (
+    id: string,
+    status: "active" | "archived" | "deleted",
+  ) => {
+    if (status === "deleted") {
+      setData((prev) => prev.filter((p) => p.id !== id));
+    } else {
+      setData((prev) => prev.map((p) => (p.id === id ? { ...p, status } : p)));
+    }
   };
 
   return (

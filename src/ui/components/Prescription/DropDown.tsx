@@ -24,9 +24,16 @@ function DropDown({
   medications,
 }: DropDownProps) {
   return (
-    <DropdownMenu>
+    <DropdownMenu modal={false}>
       <DropdownMenuTrigger asChild>
-        <Button variant={"ghost"} size={"icon"} className="rounded-full">
+        <Button
+          variant={"ghost"}
+          size={"icon"}
+          className="rounded-full"
+          onClick={(e) => {
+            e.stopPropagation();
+          }}
+        >
           <MoreVertical className="size-4" />
         </Button>
       </DropdownMenuTrigger>

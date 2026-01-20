@@ -64,7 +64,10 @@ function PatientsTable({
   onPatientArchived,
 }: {
   patients: Patient[];
-  onPatientArchived: (id: string, status: "active" | "archived") => void;
+  onPatientArchived: (
+    id: string,
+    status: "active" | "archived" | "deleted",
+  ) => void;
 }) {
   const [query, setQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -72,10 +75,9 @@ function PatientsTable({
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
   const [showArchived, setShowArchived] = useState(false);
 
-  // Track patient ID and action type ('archive' or 'unarchive')
   const [confirmDialog, setConfirmDialog] = useState<{
     id: string;
-    action: "archive" | "unarchive";
+    action: "archive" | "unarchive" | "delete";
   } | null>(null);
 
   const navigate = useNavigate();
@@ -83,11 +85,9 @@ function PatientsTable({
   const itemsPerPage = 8;
   const filteredData = patients
     .filter((patient) => {
-      // 1. Filter by Archive Status
       const isArchived = patient.status === "archived";
       if (!showArchived && isArchived) return false;
 
-      // 2. Filter by Search Query
       const first = patient.firstname?.toLowerCase() || "";
       const last = patient.lastname?.toLowerCase() || "";
       const full1 = `${first} ${last}`;
@@ -106,7 +106,6 @@ function PatientsTable({
     .sort((a, b) => {
       if (!sortKey) return 0;
 
-      // Handle sort by combined Name
       if (sortKey === "name") {
         const aName = `${a.lastname || ""} ${a.firstname || ""}`.trim();
         const bName = `${b.lastname || ""} ${b.firstname || ""}`.trim();
@@ -118,11 +117,9 @@ function PatientsTable({
       const aVal = a[sortKey];
       const bVal = b[sortKey];
 
-      // Handle nulls
       if (aVal == null) return 1;
       if (bVal == null) return -1;
 
-      // Handle date comparison
       if (sortKey === "lastVisit") {
         const aDate = new Date(aVal).getTime();
         const bDate = new Date(bVal).getTime();
@@ -145,10 +142,9 @@ function PatientsTable({
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = filteredData.slice(indexOfFirstItem, indexOfLastItem);
 
-  // Important: Reset to page 1 when query changes!
   const handleQueryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setQuery(e.target.value);
-    setCurrentPage(1); // ⬅️ reset page!
+    setCurrentPage(1);
   };
   const [isOpen, setIsOpen] = useState(false);
 
@@ -156,17 +152,20 @@ function PatientsTable({
     if (!confirmDialog) return;
 
     try {
-      const newStatus =
-        confirmDialog.action === "archive" ? "archived" : "active";
+      if (confirmDialog.action === "delete") {
+        await window.electronAPI.deletePatient(confirmDialog.id);
+        onPatientArchived(confirmDialog.id, "deleted");
+      } else {
+        const newStatus =
+          confirmDialog.action === "archive" ? "archived" : "active";
 
-      await window.electronAPI.editPatient({
-        id: confirmDialog.id,
-        status: newStatus,
-      });
+        await window.electronAPI.editPatient({
+          id: confirmDialog.id,
+          status: newStatus,
+        });
 
-      // Notify parent so it can update its state
-      onPatientArchived(confirmDialog.id, newStatus);
-
+        onPatientArchived(confirmDialog.id, newStatus);
+      }
       setConfirmDialog(null);
     } catch (error) {
       console.error(`Failed to ${confirmDialog.action} patient`, error);
@@ -186,18 +185,33 @@ function PatientsTable({
             <AlertDialogTitle>
               {confirmDialog?.action === "archive"
                 ? "Archiver ce patient ?"
-                : "Désarchiver ce patient ?"}
+                : confirmDialog?.action === "delete"
+                  ? "Supprimer ce patient ?"
+                  : "Désarchiver ce patient ?"}
             </AlertDialogTitle>
             <AlertDialogDescription>
               {confirmDialog?.action === "archive"
                 ? "Son dossier restera accessible en lecture seule."
-                : "Il apparaîtra de nouveau dans la liste principale et sera éditable."}
+                : confirmDialog?.action === "delete"
+                  ? "Cette action est irréversible (soft delete)."
+                  : "Il apparaîtra de nouveau dans la liste principale et sera éditable."}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Annuler</AlertDialogCancel>
-            <AlertDialogAction onClick={handleConfirmAction}>
-              {confirmDialog?.action === "archive" ? "Archiver" : "Désarchiver"}
+            <AlertDialogAction
+              onClick={handleConfirmAction}
+              className={
+                confirmDialog?.action === "delete"
+                  ? "bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  : ""
+              }
+            >
+              {confirmDialog?.action === "archive"
+                ? "Archiver"
+                : confirmDialog?.action === "delete"
+                  ? "Supprimer"
+                  : "Désarchiver"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -429,7 +443,15 @@ function PatientsTable({
                               )}
 
                               <DropdownMenuSeparator />
-                              <DropdownMenuItem className="text-destructive focus:text-destructive">
+                              <DropdownMenuItem
+                                className="text-destructive focus:text-destructive"
+                                onClick={() =>
+                                  setConfirmDialog({
+                                    id: patient.id,
+                                    action: "delete",
+                                  })
+                                }
+                              >
                                 <Trash className="mr-2 h-4 w-4" />
                                 Supprimer
                               </DropdownMenuItem>

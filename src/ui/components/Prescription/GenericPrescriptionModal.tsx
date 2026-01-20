@@ -17,21 +17,18 @@ export default function GenericPrescriptionModal({
   const [step, setStep] = useState<1 | 2>(1);
   const [patient, setPatient] = useState<Patient | null>(null);
 
-  // Manual Entry Form State
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [age, setAge] = useState("");
 
   const handleNext = () => {
-    // Basic validation
     if (!firstName || !lastName) {
-      // You might want to add a toast here
       return;
     }
 
     const gender = "Non spécifié";
     const tempPatient: Patient = {
-      id: 0, // 0 indicates temporary/manual patient
+      id: 0,
       first_name: firstName,
       last_name: lastName,
       age: Number(age) || 0,

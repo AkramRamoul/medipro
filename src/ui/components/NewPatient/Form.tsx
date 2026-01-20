@@ -21,7 +21,6 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Textarea } from "../ui/textarea";
 
-// Define Zod Schema for Validation
 const patientSchema = z.object({
   first_name: z
     .string()
@@ -52,7 +51,6 @@ export function AddPatientForm({ onClose, onSave }: AddPatientFormProps) {
   });
 
   const onSubmit = (data: PatientData) => {
-    console.log("Form submitted:", data); // Debugging log
     onSave(data);
     onClose();
   };

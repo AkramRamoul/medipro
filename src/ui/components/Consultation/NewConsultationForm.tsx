@@ -38,7 +38,6 @@ function NewConsultationForm({
   const [diagnosis, setDiagnosis] = useState("");
   const [notes, setNotes] = useState("");
 
-  // Vitals
   const [bpSystolic, setBpSystolic] = useState("");
   const [bpDiastolic, setBpDiastolic] = useState("");
   const [glucose, setGlucose] = useState("");
@@ -75,7 +74,6 @@ function NewConsultationForm({
         temperature: temperature ? temperature : null,
       },
     };
-    console.log("📢 Sending consultation data:", consultationData);
 
     try {
       await window.electronAPI.addConsultation(consultationData);
@@ -104,7 +102,8 @@ function NewConsultationForm({
           Nouvelle Consultation
         </CardTitle>
         <p className="text-muted-foreground mt-1">
-          Remplissez les détails de la consultation pour {patient?.first_name} {patient?.last_name}
+          Remplissez les détails de la consultation pour {patient?.first_name}{" "}
+          {patient?.last_name}
         </p>
       </CardHeader>
 
@@ -190,7 +189,9 @@ function NewConsultationForm({
                   onChange={(e) => setBpSystolic(e.target.value)}
                   className="bg-background text-center"
                 />
-                <span className="text-xl text-muted-foreground font-light">/</span>
+                <span className="text-xl text-muted-foreground font-light">
+                  /
+                </span>
                 <Input
                   type="number"
                   placeholder="80"
@@ -244,11 +245,20 @@ function NewConsultationForm({
 
         {/* Action Buttons */}
         <div className="flex justify-end gap-3 pt-4 border-t">
-          <Button variant="outline" onClick={onClose} size="lg" className="gap-2">
+          <Button
+            variant="outline"
+            onClick={onClose}
+            size="lg"
+            className="gap-2"
+          >
             <X className="w-4 h-4" />
             Annuler
           </Button>
-          <Button onClick={handleSave} size="lg" className="gap-2 min-w-[150px]">
+          <Button
+            onClick={handleSave}
+            size="lg"
+            className="gap-2 min-w-[150px]"
+          >
             <Save className="w-4 h-4" />
             Enregistrer
           </Button>

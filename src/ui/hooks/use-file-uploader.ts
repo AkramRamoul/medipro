@@ -7,7 +7,6 @@ const parseSvgFile = (content: string, fileName: string) => {
   const width = parseInt(svgElement.getAttribute("width") ?? "300");
   const height = parseInt(svgElement.getAttribute("height") ?? "150");
 
-  // Convert SVG content to a data URL
   const svgBlob = new Blob([content], { type: "image/svg+xml" });
   const svgUrl = URL.createObjectURL(svgBlob);
 
@@ -23,7 +22,7 @@ const parseSvgFile = (content: string, fileName: string) => {
 
 const parseImageFile = (
   content: string,
-  fileName: string
+  fileName: string,
 ): Promise<{
   content: string;
   metadata: { width: number; height: number; name: string };
@@ -88,14 +87,14 @@ export const useFileUploader = (): FileUploaderResult => {
       if (file.type === "image/svg+xml") {
         const { content: svgContent, metadata } = parseSvgFile(
           content,
-          file.name
+          file.name,
         );
         setImageContent(svgContent);
         setImageMetadata(metadata);
       } else {
         const { content: imgContent, metadata } = await parseImageFile(
           content,
-          file.name
+          file.name,
         );
         setImageContent(imgContent);
         setImageMetadata(metadata);

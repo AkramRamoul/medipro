@@ -21,6 +21,9 @@ import { SingleDocument } from "../Documents/SingleDocument";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Pill, FileText, Clock, Calendar } from "lucide-react";
 import ModalV2 from "../Modalsecond";
+import Pagination from "../Pagination";
+
+const ITEMS_PER_PAGE = 8;
 
 function MainPrescriptionPage({ id }: { id: string }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -31,6 +34,7 @@ function MainPrescriptionPage({ id }: { id: string }) {
   const [prescriptions, setPrescriptions] = useState<Prescription[]>([]);
   const [documents, setDocuments] = useState<Document[]>([]);
   const [viewingDocument, setViewingDocument] = useState<Document | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const [patient, setPatient] = useState<Patient | null>(null);
 
@@ -57,11 +61,10 @@ function MainPrescriptionPage({ id }: { id: string }) {
           const extractedPatient = data[0]
             ? { ...data[0], createdAt: data.createdAt }
             : null;
-          console.log("📢 djsf Patient Data:", extractedPatient);
           setPatient(extractedPatient);
         })
         .catch((error: Error) =>
-          console.error("Error fetching patient:", error)
+          console.error("Error fetching patient:", error),
         );
     }
   }, [id]);
@@ -98,7 +101,7 @@ function MainPrescriptionPage({ id }: { id: string }) {
                         | "PRESCRIPTION"
                         | "BLOOD_WORK"
                         | "CERTIFICATE"
-                        | "REPORT"
+                        | "REPORT",
                     );
                     setViewingDocument(null);
                     setIsOpen(true);
@@ -229,13 +232,21 @@ function MainPrescriptionPage({ id }: { id: string }) {
                 ]
                   .sort((a, b) => {
                     const dateA = new Date(
-                      a.kind === "prescription" ? a.date || 0 : a.createdAt || 0
+                      a.kind === "prescription"
+                        ? a.date || 0
+                        : a.createdAt || 0,
                     ).getTime();
                     const dateB = new Date(
-                      b.kind === "prescription" ? b.date || 0 : b.createdAt || 0
+                      b.kind === "prescription"
+                        ? b.date || 0
+                        : b.createdAt || 0,
                     ).getTime();
                     return dateB - dateA;
                   })
+                  .slice(
+                    (currentPage - 1) * ITEMS_PER_PAGE,
+                    currentPage * ITEMS_PER_PAGE,
+                  )
                   .map((item, index) =>
                     item.kind === "prescription" ? (
                       <PrescriptionRow
@@ -256,12 +267,18 @@ function MainPrescriptionPage({ id }: { id: string }) {
                           setIsOpen(true);
                         }}
                       />
-                    )
+                    ),
                   )}
               </TableBody>
             )}
           </Table>
         </div>
+        <Pagination
+          itemsPerPage={ITEMS_PER_PAGE}
+          totalItems={prescriptions.length + documents.length}
+          currentPage={currentPage}
+          onPageChange={setCurrentPage}
+        />
       </div>
     </>
   );

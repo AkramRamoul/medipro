@@ -33,7 +33,7 @@ export function EnterPasswordScreen() {
     if (result) {
       localStorage.setItem("isAuthed", "true");
       setAuthed(true);
-      navigate("/"); // go to main layout
+      navigate("/");
     } else {
       form.setError("password", { message: "Mot de passe incorrect" });
     }

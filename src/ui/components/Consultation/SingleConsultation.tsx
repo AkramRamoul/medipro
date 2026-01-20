@@ -35,7 +35,6 @@ export default function SingleConsultation({
   const [consultation, setConsultation] = useState<Consultation | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // New state variables for form fields
   const [reason, setReason] = useState("");
   const [symptoms, setSymptoms] = useState("");
   const [diagnosis, setDiagnosis] = useState("");
@@ -45,7 +44,6 @@ export default function SingleConsultation({
   const [glucose, setGlucose] = useState("");
   const [weight, setWeight] = useState("");
 
-  // Fetch patient data based on ID
   useEffect(() => {
     if (id) {
       window.electronAPI
@@ -75,18 +73,17 @@ export default function SingleConsultation({
           }
         })
         .catch((error: Error) =>
-          console.error("Error fetching consultation:", error)
+          console.error("Error fetching consultation:", error),
         )
         .finally(() => setLoading(false));
     }
   }, [id]);
 
-  // Handle save consultation
   const handleSave = async () => {
     if (consultation) {
       const updatedConsultation = {
         ...consultation,
-        reason, // ✅ Use updated state
+        reason,
         symptoms,
         diagnosis,
         bloodPressure:
@@ -108,7 +105,6 @@ export default function SingleConsultation({
       }
     }
   };
-  // Loading state
   if (loading) {
     return (
       <div className="flex items-center justify-center py-10">
@@ -133,7 +129,6 @@ export default function SingleConsultation({
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
-        {/* Main Info */}
         <div className="space-y-4">
           <div className="grid gap-2">
             <Label htmlFor="reason" className="flex items-center gap-2">
@@ -164,7 +159,6 @@ export default function SingleConsultation({
           </div>
         </div>
 
-        {/* Vitals Section */}
         <div className="rounded-lg border bg-card p-4">
           <h3 className="font-semibold mb-3 flex items-center gap-2 text-sm text-muted-foreground uppercase tracking-wide">
             <Activity className="h-4 w-4" />
@@ -222,7 +216,6 @@ export default function SingleConsultation({
           </div>
         </div>
 
-        {/* Assessment */}
         <div className="grid gap-4">
           <div className="grid gap-2">
             <Label htmlFor="diagnosis" className="flex items-center gap-2">
@@ -239,7 +232,12 @@ export default function SingleConsultation({
           </div>
 
           <div className="grid gap-2">
-            <Label htmlFor="notes">Notes Complémentaires</Label>
+            <Label
+              htmlFor="notes"
+              className="text-left flex items-center gap-2"
+            >
+              Notes Complémentaires
+            </Label>
             <Textarea
               id="notes"
               placeholder="Autres observations..."

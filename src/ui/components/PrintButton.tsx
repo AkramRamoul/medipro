@@ -38,7 +38,6 @@ const PrintButton = ({
     getImage();
   }, [window.electronAPI]);
 
-  // Fetch prescription model on mount
   useEffect(() => {
     const fetchModel = async () => {
       const data = await window.electronAPI.getPrescriptionModel();
@@ -61,7 +60,6 @@ const PrintButton = ({
       return;
     }
 
-    // Generate PDF as blob
     const blob = await pdf(
       <PrescriptionPDF
         patient={patient}
@@ -71,24 +69,21 @@ const PrintButton = ({
         isPsychotropic={isPsychotropic}
         psychotropicNumber={psychotropicNumber}
         patientAddress={patientAddress}
-      />
+      />,
     ).toBlob();
 
     const arrayBuffer = await blob.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    // Send to main
     await window.electronAPI.printPdf(buffer);
 
     const url = URL.createObjectURL(blob);
 
-    // Open in new tab and print
     const newTab = window.open(url);
 
     if (newTab) {
       newTab.onload = () => {
         newTab.print();
-        // Cannot use `webContents` in browser context
         newTab.onafterprint = () => {
           newTab.close();
         };

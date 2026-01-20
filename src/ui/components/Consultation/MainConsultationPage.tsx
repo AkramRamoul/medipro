@@ -24,7 +24,6 @@ function ConsultationForm({ id }: { id: string }) {
     null,
   );
 
-  // ✅ Memoized fetch function
   const fetchConsultations = useCallback(async () => {
     try {
       const data = await window.electronAPI.getConsultations(id);

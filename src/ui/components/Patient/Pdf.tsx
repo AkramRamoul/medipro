@@ -13,13 +13,11 @@ import AmiriBold from "/fonts/Amiri-Bold.ttf";
 import { smallPatient } from "../../type";
 import { PrescriptionMed } from "../../../electron/schema";
 
-// Register Amiri font
 Font.register({
   family: "Amiri",
   fonts: [{ src: AmiriRegular }, { src: AmiriBold, fontWeight: "bold" }],
 });
 
-// Date formatting helper
 const formatDate = (date: string | number | Date) => {
   const d = new Date(date);
   const day = String(d.getDate()).padStart(2, "0");
@@ -117,7 +115,7 @@ const PrescriptionPDF = ({
     return result;
   };
 
-  const medicationChunks = chunkArray(medications, 6); // 6 per page
+  const medicationChunks = chunkArray(medications, 6);
 
   return (
     <Document>
@@ -162,7 +160,7 @@ const PrescriptionPDF = ({
                   <Text key={idx} style={styles.colLeft}>
                     {srv}
                   </Text>
-                )
+                ),
               )}
             </View>
 
@@ -195,7 +193,7 @@ const PrescriptionPDF = ({
                   <Text key={idx} style={styles.colRight}>
                     {srv}
                   </Text>
-                )
+                ),
               )}
             </View>
           </View>

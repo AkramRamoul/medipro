@@ -12,9 +12,9 @@ import {
 } from "../../../components/ui/form";
 import { Input } from "../../ui/input";
 import { Button } from "../../ui/button";
-import { usePasswordStatus } from "../../../hooks/usePasswordStatus"; // adjust path as needed
+import { usePasswordStatus } from "../../../hooks/usePasswordStatus";
 import { useState } from "react";
-import { toast } from "sonner"; // optional, if you're using toast
+import { toast } from "sonner";
 import { Eye, EyeOff } from "lucide-react";
 import {
   Dialog,
@@ -39,12 +39,14 @@ const createSchema = z
 
 const updateSchema = z
   .object({
-    oldPassword: z.string().min(1, "Current password is required."),
-    password: z.string().min(6, "New password must be at least 6 characters."),
+    oldPassword: z.string().min(1, "Le mot de passe actuel est requis."),
+    password: z
+      .string()
+      .min(6, "Le nouveau mot de passe doit comporter au moins 6 caractères."),
     confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords do not match.",
+    message: "Les mots de passe ne correspondent pas.",
     path: ["confirmPassword"],
   });
 
@@ -119,8 +121,7 @@ export function PasswordForm() {
         }
       }
     } catch (err) {
-      console.log(err);
-      toast.error("Quelque chose s'est mal passé");
+      toast.error(` Erreur lors de la mise à jour du mot de passe: ${err}`);
     } finally {
       setSubmitting(false);
     }
@@ -256,7 +257,7 @@ export function PasswordForm() {
         </form>
       </Form>
 
-      <Dialog open={isRemoveOpen} onOpenChange={setIsRemoveOpen}>
+      <Dialog open={isRemoveOpen} onOpenChange={setIsRemoveOpen} modal={false}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Supprimer le mot de passe</DialogTitle>

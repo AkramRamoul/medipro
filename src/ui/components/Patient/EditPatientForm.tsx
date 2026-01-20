@@ -26,7 +26,6 @@ import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
-// Define Zod Schema for Validation
 const patientSchema = z.object({
   first_name: z.string().min(2, "First name must be at least 2 characters"),
   last_name: z.string().min(2, "Last name must be at least 2 characters"),
@@ -72,8 +71,6 @@ export function EditPatientForm({ id }: { id: string }) {
         /* eslint-disable  @typescript-eslint/no-explicit-any */
         .then((data: any) => {
           const patientData = data[0] ? { ...data[0] } : null;
-          console.log("📢 Extracted Patient Data:", patientData);
-
           if (patientData) {
             reset(patientData);
           }
@@ -88,7 +85,6 @@ export function EditPatientForm({ id }: { id: string }) {
   const handleSave = async (data: PatientData) => {
     try {
       const updatedData = { id, ...data };
-      console.log("Submitting Patient Data:", updatedData);
 
       await window.electronAPI.editPatient(updatedData);
 

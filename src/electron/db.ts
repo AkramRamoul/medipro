@@ -6,7 +6,7 @@ let client: Client | null = null;
 let db: any = null;
 
 export function openDB(dbUrl: string) {
-  if (client) return db; // already open
+  if (client) return db;
 
   client = createClient({
     url: dbUrl,

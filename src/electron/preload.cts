@@ -1,11 +1,7 @@
 const { contextBridge, ipcRenderer } = require("electron");
 
-console.log("✅ Preload script loaded!"); // Debugging log
-
-// Combine both methods into a single exposeInMainWorld call
 contextBridge.exposeInMainWorld("electronAPI", {
   addPatient: async (data: unknown) => {
-    console.log("📢 Sending data to main process:", data);
     return await ipcRenderer.invoke("addpatient", data);
   },
   getallpatients: async () => {
@@ -13,30 +9,27 @@ contextBridge.exposeInMainWorld("electronAPI", {
       return await ipcRenderer.invoke("getallpatients");
     } catch (error) {
       console.error("📢 Failed to fetch patients in renderer:", error);
-      return []; // Return an empty array if an error occurs
+      return [];
     }
   },
   getMedications: () => ipcRenderer.invoke("get-medications"),
   getpatient: async (id: number) => {
-    console.log("📢 Fetching patient with ID:", id);
     try {
       return await ipcRenderer.invoke("getpatient", id);
     } catch (error) {
       console.error("📢 Failed to fetch patient:", error);
-      return null; // Return null if an error occurs
+      return null;
     }
   },
   addConsultation: async (data: unknown) => {
-    console.log("📢 Sending data to main process:", data);
     return await ipcRenderer.invoke("add-consultation", data);
   },
   getConsultations: async (id: number) => {
-    console.log("📢 Fetching consultations for patient ID:", id);
     try {
       return await ipcRenderer.invoke("get-consultations", id);
     } catch (error) {
       console.error("📢 Failed to fetch consultations:", error);
-      return []; // Return an empty array if an error occurs
+      return [];
     }
   },
   deleteCosultaion: async (id: number) => {
@@ -47,21 +40,19 @@ contextBridge.exposeInMainWorld("electronAPI", {
     }
   },
   getConsultation: async (id: number) => {
-    console.log("📢 Fetching consultation with ID:", id);
     try {
       return await ipcRenderer.invoke("get-consultation", id);
     } catch (error) {
       console.error("📢 Failed to fetch consultation:", error);
-      return []; // Return empty array if an error occurs
+      return [];
     }
   },
   getPatientPrescriptions: async (id: number) => {
-    console.log("📢 Fetching prescriptions for patient ID:", id);
     try {
       return await ipcRenderer.invoke("get-patient-prescriptions", id);
     } catch (error) {
       console.error("📢 Failed to fetch prescriptions:", error);
-      return []; // Return an empty array if an error occurs
+      return [];
     }
   },
   addFullPrescription: (data: unknown) =>
@@ -74,7 +65,6 @@ contextBridge.exposeInMainWorld("electronAPI", {
     }
   },
   editConsultation: async (data: unknown) => {
-    console.log("Sending data to main process:", data);
     try {
       return await ipcRenderer.invoke("edit-consultation", data);
     } catch (error) {
@@ -83,6 +73,9 @@ contextBridge.exposeInMainWorld("electronAPI", {
   },
   editPatient: async (data: unknown) =>
     ipcRenderer.invoke("edit-patient", data),
+  deletePatient: async (id: number) => {
+    return await ipcRenderer.invoke("delete-patient", id);
+  },
   uploadImage: async (data: unknown) => {
     return await ipcRenderer.invoke("upload-image", data);
   },
@@ -125,7 +118,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
     return await ipcRenderer.invoke(
       "change-password",
       oldPassword,
-      newPassword
+      newPassword,
     );
   },
   removePassword: async (password: string) => {

@@ -2,13 +2,12 @@ import { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown } from "lucide-react";
 import { Button } from "../ui/button";
 
-// Define Patient type
 export type Patient = {
   id: string;
   firstname: string;
   lastname: string;
   contact: string;
-  lastVisit: string | null; // Ensure date is in a valid format like "YYYY-MM-DD"
+  lastVisit: string | null;
   status?: string;
 };
 
@@ -28,7 +27,7 @@ export const columns: ColumnDef<Patient>[] = [
     cell: ({ row }) => <span>{row.getValue("lastname")}</span>,
     sortingFn: (rowA, rowB) =>
       (rowA.getValue("lastname") as string).localeCompare(
-        rowB.getValue("lastname") as string
+        rowB.getValue("lastname") as string,
       ),
   },
   {
@@ -46,7 +45,7 @@ export const columns: ColumnDef<Patient>[] = [
     cell: ({ row }) => <span>{row.getValue("firstname")}</span>,
     sortingFn: (rowA, rowB) =>
       (rowA.getValue("firstname") as string).localeCompare(
-        rowB.getValue("firstname") as string
+        rowB.getValue("firstname") as string,
       ),
   },
   {
@@ -80,10 +79,10 @@ export const columns: ColumnDef<Patient>[] = [
       const formattedDate = isNaN(date.getTime())
         ? "Invalid Date"
         : date.toLocaleDateString("fr-FR", {
-          day: "2-digit",
-          month: "short",
-          year: "numeric",
-        });
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+          });
 
       return <div className="text-right font-medium pr-3">{formattedDate}</div>;
     },

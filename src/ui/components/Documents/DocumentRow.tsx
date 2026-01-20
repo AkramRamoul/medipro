@@ -10,10 +10,8 @@ interface DocumentRowProps {
   onView?: (document: Document) => void;
 }
 
-// Helper function to convert UTC to UTC+1
 const convertToUTCPlus1 = (utcDate: string): Date => {
   const date = new Date(utcDate);
-  // Add 1 hour (3600000 milliseconds) to convert UTC to UTC+1
   return new Date(date.getTime() + 3600000);
 };
 

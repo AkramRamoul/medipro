@@ -20,16 +20,17 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
             className="
           relative
           flex flex-col
-          w-full h-[90vh]
-          max-w-none sm:max-w-none
+          sm:max-w-6xl h-[90vh]
+          w-full
+          max-w-none 
           overflow-hidden
-          rounded-lg
+          rounded-sm
           bg-card text-card-foreground
           shadow-xl transition-all
         "
           >
             {/* Close Button */}
-            <div className="absolute top-4 right-4 z-10">
+            <div className="absolute top-4 right-5 z-10">
               <button
                 type="button"
                 className="

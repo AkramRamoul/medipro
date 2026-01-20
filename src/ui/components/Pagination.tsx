@@ -47,19 +47,16 @@ function Pagination({
 
   const pageItems: React.ReactNode[] = [];
 
-  // Always show first page
   pageItems.push(renderPageNumber(1));
 
-  // Leading ellipsis
   if (currentPage > 3) {
     pageItems.push(
       <PaginationItem key="start-ellipsis">
         <PaginationEllipsis />
-      </PaginationItem>
+      </PaginationItem>,
     );
   }
 
-  // Middle pages
   for (
     let i = Math.max(2, currentPage - 1);
     i <= Math.min(totalPages - 1, currentPage + 1);
@@ -68,16 +65,14 @@ function Pagination({
     pageItems.push(renderPageNumber(i));
   }
 
-  // Trailing ellipsis
   if (currentPage < totalPages - 2) {
     pageItems.push(
       <PaginationItem key="end-ellipsis">
         <PaginationEllipsis />
-      </PaginationItem>
+      </PaginationItem>,
     );
   }
 
-  // Last page
   if (totalPages > 1) {
     pageItems.push(renderPageNumber(totalPages));
   }

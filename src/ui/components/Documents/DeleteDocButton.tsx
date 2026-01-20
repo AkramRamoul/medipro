@@ -27,7 +27,7 @@ function DeleteDocButton({ docId, children, setData }: DeleteDialogueProps) {
     setIsDeleting(true);
 
     window.electronAPI
-      .deleteDocument(docId) // ✅ Fixed typo
+      .deleteDocument(docId)
       .then(() => {
         setData((prev) => prev.filter((item) => item.id !== Number(docId)));
         toast.success("Document supprimée avec succès");

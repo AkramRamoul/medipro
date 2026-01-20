@@ -19,7 +19,6 @@ export function Overview() {
     const fetchData = async () => {
       const monthlyPatients = await getData();
       setData(monthlyPatients);
-      console.log("Fetched data:", monthlyPatients);
     };
 
     fetchData();
@@ -40,7 +39,7 @@ export function Overview() {
             label={{
               value: "Mois",
               position: "bottom",
-              offset: 10, // pushes label down
+              offset: 10,
               style: { fill: "#555", fontWeight: "bold" },
             }}
           />
@@ -55,7 +54,7 @@ export function Overview() {
               value: "Nombre de patients",
               angle: -90,
               position: "outsideLeft",
-              offset: 20, // pushes label away from axis
+              offset: 20,
               style: { fill: "#555", fontWeight: "bold" },
             }}
           />

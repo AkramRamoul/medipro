@@ -29,13 +29,12 @@ export default function DatabaseSettings() {
 
   async function handleRestore() {
     const confirmed = confirm(
-      "Restoring a backup will replace current data. Continue?"
+      "Restoring a backup will replace current data. Continue?",
     );
     if (!confirmed) return;
 
     setLoading(true);
     await window.electronAPI.restore();
-    // app will restart automatically
   }
 
   return (

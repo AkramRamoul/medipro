@@ -69,13 +69,11 @@ function Prescriptions() {
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = filteredData.slice(indexOfFirstItem, indexOfLastItem);
 
-  // Important: Reset to page 1 when query changes!
   const handleQueryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setQuery(e.target.value);
-    setCurrentPage(1); // ⬅️ reset page!
+    setCurrentPage(1);
   };
 
-  console.log("📢 filteredData:", filteredData);
   return (
     <div className="max-w-[80%] mx-auto space-y-6 mt-8">
       {/* Header Card */}
@@ -161,7 +159,9 @@ function Prescriptions() {
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2 text-muted-foreground">
-                          {new Date(prescription.date).toLocaleDateString()}
+                          {new Date(prescription.date).toLocaleDateString(
+                            "fr-FR",
+                          )}
                         </div>
                       </TableCell>
                       <TableCell>

@@ -11,7 +11,7 @@ export function getPreloadPath() {
 export function getMedsPath() {
   return isDevelopment()
     ? "public/meds.json"
-    : path.join(process.resourcesPath, "meds.json"); // ✅ Correct path
+    : path.join(process.resourcesPath, "meds.json");
 }
 
 export function getfontPath() {

@@ -21,8 +21,6 @@ import {
 } from "../components/ui/sidebar";
 import { NavSecondary } from "./Nav-secondary";
 
-// Menu items.
-
 const items = [
   { title: "Tableau de bord", url: "/", icon: ChartColumnIncreasing },
   { title: "Patientes", url: "/patients", icon: User },
@@ -63,8 +61,8 @@ export function AppSidebar() {
                           (item.url !== "/" &&
                             item.url !== "/patients" &&
                             currentPath.startsWith(item.url))
-                            ? "bg-primary text-primary-foreground pointer-events-none"
-                            : "text-black dark:text-gray-300 hover:bg-[#8b9467] dark:hover:bg-[#6495ed]"
+                            ? "bg-primary text-white pointer-events-none"
+                            : "text-black dark:text-gray-300 hover:bg-[#e0f2fe] dark:hover:bg-[#1e3a8a]"
                         }`}
                       >
                         <item.icon />

@@ -20,15 +20,11 @@ function NewPatientModal({ isOpen, onClose }: NewPatientModalProps) {
   const navigate = useNavigate();
 
   const handleSave = async (data: Patient) => {
-    console.log("Saving patient:", data);
     try {
-      // Await the returned ID from the backend
       const newPatientId = await window.electronAPI.addPatient(data);
-      console.log("Patient saved with ID:", newPatientId);
       toast.success("Patient enregistré avec succès !");
       onClose();
 
-      // Navigate to /pat/:id after saving
       navigate(`/pat/${newPatientId}`);
     } catch (error) {
       console.error("Failed to save patient:", error);

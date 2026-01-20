@@ -18,12 +18,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const init = async () => {
       const exists = await window.electronAPI.checkPasswordExists();
 
-      // If a password exists, user must log in each time
       if (exists) {
         localStorage.removeItem("isAuthed");
         setAuthedState(false);
       } else {
-        // No password set → skip auth
         setAuthedState(true);
       }
 

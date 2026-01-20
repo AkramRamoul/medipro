@@ -18,7 +18,7 @@ interface DeleteDialogueProps {
   consultationId: string;
   /* eslint-disable  @typescript-eslint/no-explicit-any */
 
-  setData: React.Dispatch<React.SetStateAction<any[]>>; // Pass setData as a prop
+  setData: React.Dispatch<React.SetStateAction<any[]>>;
 }
 
 function DeleteDialogue({ consultationId, setData }: DeleteDialogueProps) {
@@ -28,10 +28,10 @@ function DeleteDialogue({ consultationId, setData }: DeleteDialogueProps) {
     setIsDeleting(true);
 
     window.electronAPI
-      .deleteCosultaion(consultationId) // ✅ Fixed typo
+      .deleteCosultaion(consultationId)
       .then(() => {
         setData((prev) =>
-          prev.filter((item) => item.id !== Number(consultationId))
+          prev.filter((item) => item.id !== Number(consultationId)),
         );
         toast.success("Consultation supprimée avec succès");
       })

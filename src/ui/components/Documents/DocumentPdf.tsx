@@ -12,13 +12,11 @@ import AmiriRegular from "/fonts/Amiri-Regular.ttf";
 import AmiriBold from "/fonts/Amiri-Bold.ttf";
 import { document } from "../../../electron/schema";
 
-// Register Amiri font
 Font.register({
   family: "Amiri",
   fonts: [{ src: AmiriRegular }, { src: AmiriBold, fontWeight: "bold" }],
 });
 
-// Date formatting helper
 const formatDate = (date: string | number | Date) => {
   const d = new Date(date);
   const day = String(d.getDate()).padStart(2, "0");
@@ -150,7 +148,7 @@ const DocumentPdf = ({
                 <Text key={idx} style={styles.colLeft}>
                   {srv}
                 </Text>
-              )
+              ),
             )}
           </View>
 
@@ -181,7 +179,7 @@ const DocumentPdf = ({
                 <Text key={idx} style={styles.colRight}>
                   {srv}
                 </Text>
-              )
+              ),
             )}
           </View>
         </View>
@@ -221,13 +219,10 @@ const DocumentPdf = ({
           </View>
         </View>
 
-        {/* TITLE */}
         <Text style={styles.title}>{labels[documentType]}</Text>
 
-        {/* PRESCRIPTION CONTENT */}
         <View style={{ marginTop: 8, gap: 6 }}>
           {documentType === "blood" ? (
-            // BLOOD WORK LIST
             <View style={{ gap: 4 }}>
               {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
               {(documentContent as any)?.results?.map(
@@ -235,11 +230,10 @@ const DocumentPdf = ({
                   <Text key={index} style={{ fontSize: 14 }}>
                     - {item}
                   </Text>
-                )
+                ),
               )}
             </View>
           ) : documentType === "certificate" ? (
-            // CERTIFICATE
             <View style={{ marginTop: 20, gap: 10 }}>
               <Text style={{ fontSize: 12, lineHeight: 1.5 }}>
                 Je soussigné(e), Dr {prescriptionModel.nameFr}, certifie avoir
@@ -286,11 +280,7 @@ const DocumentPdf = ({
               )}
             </View>
           ) : (
-            // REPORT
             <View style={{ marginTop: 15, gap: 8 }}>
-              {/* Date */}
-
-              {/* Examen clinique */}
               {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
               {(documentContent as any).examenClinique && (
                 <View style={{ marginTop: 6 }}>
@@ -311,7 +301,6 @@ const DocumentPdf = ({
                 </View>
               )}
 
-              {/* Diagnostic */}
               {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
               {(documentContent as any).diagnostic && (
                 <View style={{ marginTop: 6 }}>
@@ -332,7 +321,6 @@ const DocumentPdf = ({
                 </View>
               )}
 
-              {/* Traitement */}
               {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
               {(documentContent as any).traitement && (
                 <View style={{ marginTop: 6 }}>

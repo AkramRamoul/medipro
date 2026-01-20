@@ -5,7 +5,6 @@ import { useFileUploader } from "../hooks/use-file-uploader";
 import { toast } from "sonner";
 import { Button } from "../components/ui/button";
 import { FileDropzone } from "../components/File-DropZone";
-// import PrintButton from "../components/PrintButton";
 import { RoundedTool } from "../components/Rounded-tool";
 import {
   Card,
@@ -26,50 +25,50 @@ export function PrescriptionModelForm() {
     servicesAr: "",
     inscriptionNumber: "",
     address: "",
-    phoneNumber1: "", // New field
-    phoneNumber2: "", // New field
-    city: "", // New field
+    phoneNumber1: "",
+    phoneNumber2: "",
+    city: "",
   });
 
+  const [logoImage, setLogoImage] = useState<string | null>(null);
+
   const [services, setServices] = useState([{ fr: "", ar: "" }]);
+  const fetchModel = async () => {
+    const result = await window.electronAPI.getPrescriptionModel();
+    if (result.success && result.model) {
+      const model = result.model;
 
-  useEffect(() => {
-    const fetchModel = async () => {
-      const result = await window.electronAPI.getPrescriptionModel();
-      if (result.success && result.model) {
-        const model = result.model;
+      setForm({
+        nameFr: model.nameFr || "",
+        nameAr: model.nameAr || "",
+        specialtyFr: model.specialtyFr || "",
+        specialtyAr: model.specialtyAr || "",
+        servicesFr: model.servicesFr || "",
+        servicesAr: model.servicesAr || "",
+        inscriptionNumber: model.inscriptionNumber || "",
+        address: model.address || "",
+        phoneNumber1: model.phoneNumber1 || "",
+        phoneNumber2: model.phoneNumber2 || "",
+        city: model.city || "",
+      });
 
-        setForm({
-          nameFr: model.nameFr || "",
-          nameAr: model.nameAr || "",
-          specialtyFr: model.specialtyFr || "",
-          specialtyAr: model.specialtyAr || "",
-          servicesFr: model.servicesFr || "",
-          servicesAr: model.servicesAr || "",
-          inscriptionNumber: model.inscriptionNumber || "",
-          address: model.address || "",
-          phoneNumber1: model.phoneNumber1 || "",
-          phoneNumber2: model.phoneNumber2 || "",
-          city: model.city || "",
-        });
+      try {
+        const fr = JSON.parse(model.servicesFr || "[]");
+        const ar = JSON.parse(model.servicesAr || "[]");
+        const parsed = fr.map((frService: string, idx: number) => ({
+          fr: frService,
+          ar: ar[idx] || "",
+        }));
 
-        try {
-          const fr = JSON.parse(model.servicesFr || "[]");
-          const ar = JSON.parse(model.servicesAr || "[]");
-          const parsed = fr.map((frService: string, idx: number) => ({
-            fr: frService,
-            ar: ar[idx] || "",
-          }));
-
-          if (parsed.length > 0) {
-            setServices(parsed);
-          }
-        } catch (err) {
-          console.warn("Couldn't parse services:", err);
+        if (parsed.length > 0) {
+          setServices(parsed);
         }
+      } catch (err) {
+        console.warn("Couldn't parse services:", err);
       }
-    };
-
+    }
+  };
+  useEffect(() => {
     fetchModel();
   }, []);
 
@@ -88,7 +87,7 @@ export function PrescriptionModelForm() {
   }
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const { name, value } = e.target;
 
@@ -122,7 +121,7 @@ export function PrescriptionModelForm() {
   const handleServiceChange = (
     index: number,
     lang: "fr" | "ar",
-    value: string
+    value: string,
   ) => {
     const updated = [...services];
     if (lang === "ar") {
@@ -138,17 +137,18 @@ export function PrescriptionModelForm() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const payload = {
-      ...form,
-      services,
-    };
+    const payload = { ...form, services };
 
     const result = await window.electronAPI.savePrescriptionModel(payload);
-
     if (result.success) {
       toast.success("Modèle enregistré avec succès !");
-    } else {
-      toast.error("Erreur lors de l'enregistrement : " + result.error);
+
+      setForm((prev) => ({
+        ...prev,
+        ...result.model,
+      }));
+
+      setServices(result.model.services);
     }
   };
 
@@ -356,10 +356,10 @@ export function PrescriptionModelForm() {
           acceptedFileTypes={["image/*", "application/pdf"]}
           dropText="Faites glisser et déposez un fichier ici ou cliquez pour télécharger"
         >
-          <RoundedTool />
+          <RoundedTool onImageUploaded={setLogoImage} />
         </FileDropzone>
       </Card>
-      {form && <PrintButton window={window} />}
+      {form && <PrintButton model={form} image={logoImage} />}
     </div>
   );
 }

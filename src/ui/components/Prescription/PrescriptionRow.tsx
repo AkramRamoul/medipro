@@ -1,6 +1,5 @@
 import { TableRow, TableCell } from "../../components/ui/table";
 import { format } from "date-fns";
-// import DropDown from "./DropDown";
 import { Patient, Prescription } from "../../type";
 import { useState } from "react";
 import Modal from "../Modal";
@@ -18,7 +17,6 @@ function PrescriptionRow({
 }: PrescriptionRowProps) {
   const [selectedPrescription, setSelectedPrescription] =
     useState<Prescription | null>(null);
-  console.log(selectedPrescription);
   return (
     <>
       <TableRow

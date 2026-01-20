@@ -41,7 +41,6 @@ const icons = {
 export function SingleDocument({ document, onClose }: SingleDocumentProps) {
   const Icon = icons[document.type] || FileText;
 
-  // Renderers for different document types
   const renderContent = () => {
     const { content } = document;
 
@@ -102,7 +101,7 @@ export function SingleDocument({ document, onClose }: SingleDocumentProps) {
                 Date d'examen:{" "}
                 {certContent.examinationDate
                   ? new Date(certContent.examinationDate).toLocaleDateString(
-                      "fr-FR"
+                      "fr-FR",
                     )
                   : "N/A"}
               </span>
@@ -123,7 +122,7 @@ export function SingleDocument({ document, onClose }: SingleDocumentProps) {
                 <span className="font-medium">
                   {certContent.restStartDate
                     ? new Date(certContent.restStartDate).toLocaleDateString(
-                        "fr-FR"
+                        "fr-FR",
                       )
                     : "N/A"}
                 </span>
@@ -135,7 +134,7 @@ export function SingleDocument({ document, onClose }: SingleDocumentProps) {
                 <span className="font-medium">
                   {certContent.restEndDate
                     ? new Date(certContent.restEndDate).toLocaleDateString(
-                        "fr-FR"
+                        "fr-FR",
                       )
                     : "N/A"}
                 </span>

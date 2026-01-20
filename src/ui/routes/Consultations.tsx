@@ -144,7 +144,9 @@ function Page() {
                         {prescription.patient?.last_name || "N/A"}
                       </TableCell>
                       <TableCell className="text-foreground">
-                        {new Date(prescription.date).toLocaleDateString()}
+                        {new Date(prescription.date).toLocaleDateString(
+                          "fr-FR",
+                        )}
                       </TableCell>
                       <TableCell className="w-[80px]">
                         <div

@@ -34,9 +34,9 @@ export default function DashboardPage() {
         ...data,
         recentConsultations: data.recentConsultations.map(
           (consultation, index) => ({
-            id: index + 1, // Assign a unique ID
+            id: index + 1,
             ...consultation,
-          })
+          }),
         ),
         consultationsLastMonth: data.consultationsLastMonth,
       });

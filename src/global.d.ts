@@ -34,14 +34,15 @@ export interface IElectronAPI {
   deletePrescription: (id: string) => Promise<void>;
   editConsultation: (data: unknown) => Promise<void>;
   editPatient: (data: unknown) => Promise<{ success: boolean }>;
+  deletePatient: (id: string) => Promise<{ success: boolean; error?: string }>;
   uploadImage: (filePath: string) => {
     success: boolean;
     path: string;
     error?: string;
   };
   savePrescriptionModel: (
-    data: unknown
-  ) => Promise<{ success: boolean; error?: string }>;
+    data: unknown,
+  ) => Promise<{ success: boolean; error?: string; model: PrescriptionModel }>;
   getPrescriptionModel: () => Promise<{
     success: boolean;
     model: PrescriptionModel;
@@ -60,11 +61,11 @@ export interface IElectronAPI {
   checkPassword: (password: string) => Promise<{ match: boolean }>;
   checkPasswordExists: () => Promise<{ exists: boolean }>;
   removePassword: (
-    password: string
+    password: string,
   ) => Promise<{ success: boolean; message?: string }>;
   changePassword: (
     oldPassword: string,
-    newPassword: string
+    newPassword: string,
   ) => Promise<{ success: boolean }>;
   createName: (nameFr: string) => Promise<{ success: boolean }>;
   getName: () => Promise<{ success: boolean; name: string }>;

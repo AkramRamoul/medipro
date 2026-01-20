@@ -30,7 +30,7 @@ interface Medication {
   dosage: string;
   quantity?: string;
   duration?: string;
-  note?: string; // Add note field
+  note?: string;
 }
 
 const NewPrescriptionForm = ({
@@ -57,7 +57,7 @@ const NewPrescriptionForm = ({
   const [quantity, setQuantity] = useState<string>("");
   const [durationValue, setDurationValue] = useState<string>("");
   const [durationUnit, setDurationUnit] = useState<string | undefined>(
-    undefined
+    undefined,
   );
   const [note, setNote] = useState<string>("");
 
@@ -94,7 +94,6 @@ const NewPrescriptionForm = ({
     }
   };
 
-  // Function to scroll the highlighted suggestion into view
   const scrollToHighlighted = (index: number) => {
     const suggestionElement = document.getElementById(`suggestion-${index}`);
     if (suggestionElement) {
@@ -107,7 +106,6 @@ const NewPrescriptionForm = ({
   const [isPsychotropic, setIsPsychotropic] = useState(false);
   const [psychotropicNumber, setPsychotropicNumber] = useState("");
   const [patientAddress, setPatientAddress] = useState(patient?.address || "");
-  // Save prescription to the database
   const handleSave = async () => {
     if (Number(id) === 0) {
       toast.error("Impossible d'enregistrer pour un patient manuel.");
@@ -127,16 +125,15 @@ const NewPrescriptionForm = ({
         duration: med.duration,
         quantity: med.quantity,
         form: med.form,
-        note: med.note, // Include note in request
+        note: med.note,
       })),
       isPsychotropic,
       patientAddress,
     };
 
     try {
-      const response = await window.electronAPI.addFullPrescription(
-        prescriptionData
-      );
+      const response =
+        await window.electronAPI.addFullPrescription(prescriptionData);
 
       if (response.success) {
         if (response.psychotropic_number) {
@@ -220,13 +217,13 @@ const NewPrescriptionForm = ({
   const handleSuggestionClick = (medication: Medication) => {
     setSelectedMedication(medication);
     setInputValue(
-      `${medication.name} - ${medication.form} (${medication.dosage} - ${medication.quantity}) ${medication.duration} ${medication.note}`
+      `${medication.name} - ${medication.form} (${medication.dosage} - ${medication.quantity}) ${medication.duration} ${medication.note}`,
     );
     setSuggestions([]);
   };
   const handleRemoveMedication = (index: number) => {
     setSelectedMedications((prev) =>
-      prev.filter((_, medIndex) => medIndex !== index)
+      prev.filter((_, medIndex) => medIndex !== index),
     );
   };
 
@@ -236,7 +233,6 @@ const NewPrescriptionForm = ({
 
   return (
     <div className="relative mt-8 max-w-5xl mx-auto space-y-6">
-      {/* 1. Medication Entry Card */}
       <Card className="border-border shadow-sm">
         <CardHeader className="pb-4">
           <CardTitle className="text-lg flex items-center gap-2">
@@ -252,7 +248,6 @@ const NewPrescriptionForm = ({
             ref={containerRef}
             className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end"
           >
-            {/* Medicine Suggestion Input (Span 5 to give it more space) */}
             <div className="md:col-span-4 relative space-y-2">
               <Label>Médicament</Label>
               <Input
@@ -359,7 +354,6 @@ const NewPrescriptionForm = ({
         </CardContent>
       </Card>
 
-      {/* 2. Psychotropic Switch */}
       {Number(id) !== 0 && (
         <Card
           className={`border transition-colors ${

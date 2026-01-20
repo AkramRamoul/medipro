@@ -29,27 +29,30 @@ const ImageRenderer = ({ imageContent }: ImageRendererProps) => {
   );
 };
 
-function RoundedToolCore(props: { fileUploaderProps: FileUploaderResult }) {
+function RoundedToolCore(props: {
+  fileUploaderProps: FileUploaderResult;
+  onImageUploaded: (image: string) => void;
+}) {
   const { imageContent, imageMetadata, handleFileUploadEvent, cancel } =
     props.fileUploaderProps;
+  const { onImageUploaded } = props;
 
-  const [uploadSuccess, setUploadSuccess] = useState(false); // ✅ new state
+  const [uploadSuccess, setUploadSuccess] = useState(false);
 
   const onUpload = async () => {
     try {
       const result = await window.electronAPI.uploadImage(imageContent);
 
       if (result.success) {
-        console.log("✅ Logo téléchargé :", result.path);
+        setUploadSuccess(true);
+        onImageUploaded(imageContent);
         toast.success("Image téléchargée avec succès");
-        setUploadSuccess(true); // ✅ show message
       } else {
-        console.error("❌ Upload failed:", result.error);
         toast.error("Échec du téléchargement : " + result.error);
       }
     } catch (err) {
-      console.error("❌ Erreur inattendue lors du téléchargement :", err);
-      toast.error("Erreur inattendue lors du téléchargement :");
+      console.error("❌ Erreur inattendue lors du téléchargement :", err);
+      toast.error("Erreur inattendue lors du téléchargement");
     }
   };
 
@@ -57,8 +60,7 @@ function RoundedToolCore(props: { fileUploaderProps: FileUploaderResult }) {
     return (
       <UploadBox
         title="Ajoutez votre logo à l'ordonnance."
-        description="Télécharger une image
-"
+        description="Télécharger une image"
         accept="image/*"
         onChange={handleFileUploadEvent}
       />
@@ -81,7 +83,7 @@ function RoundedToolCore(props: { fileUploaderProps: FileUploaderResult }) {
       </div>
 
       <div className="flex flex-col items-center rounded-lg bg-accent/50 px-4 py-2">
-        <span className="text-sm text-muted-foreground">Original Size</span>
+        <span className="text-sm text-muted-foreground">Taille originale</span>
         <span className="font-medium text-foreground">
           {imageMetadata.width} × {imageMetadata.height}
         </span>
@@ -109,7 +111,11 @@ function RoundedToolCore(props: { fileUploaderProps: FileUploaderResult }) {
   );
 }
 
-export function RoundedTool() {
+export function RoundedTool({
+  onImageUploaded,
+}: {
+  onImageUploaded: (image: string) => void;
+}) {
   const fileUploaderProps = useFileUploader();
 
   return (
@@ -118,7 +124,10 @@ export function RoundedTool() {
       acceptedFileTypes={["image/*", ".jpg", ".jpeg", ".png", ".webp", ".svg"]}
       dropText="Drop image file"
     >
-      <RoundedToolCore fileUploaderProps={fileUploaderProps} />
+      <RoundedToolCore
+        fileUploaderProps={fileUploaderProps}
+        onImageUploaded={onImageUploaded}
+      />
     </FileDropzone>
   );
 }

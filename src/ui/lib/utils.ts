@@ -41,14 +41,12 @@ export function initialsAvatar(initials: string) {
     hash = initials.charCodeAt(i) + ((hash << 5) - hash);
   }
 
-  // Generate color
   const hue = Math.abs(hash) % 360;
   const saturation = 75;
   const lightness = 55;
 
   const bg = `hsl(${hue}, ${saturation}%, ${lightness}%)`;
 
-  // Pick forground
   const fg = lightness > 60 ? "#1f2937" : "#ffffff";
 
   const svg = `

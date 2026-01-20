@@ -26,10 +26,9 @@ import { useState } from "react";
 import NewPatientModal from "../NewPatient/NewPatientModal";
 import { Plus, Search } from "lucide-react";
 
-// Update TData type to match the new schema
 interface DataTableProps<
   TData extends { id: string; first_name: string; last_name: string },
-  TValue
+  TValue,
 > {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
@@ -37,10 +36,10 @@ interface DataTableProps<
 
 export function DataTable<
   TData extends { id: string; first_name: string; last_name: string },
-  TValue
+  TValue,
 >({ columns, data }: DataTableProps<TData, TValue>) {
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
+    [],
   );
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const navigate = useNavigate();
@@ -107,7 +106,7 @@ export function DataTable<
                         ? null
                         : flexRender(
                             header.column.columnDef.header,
-                            header.getContext()
+                            header.getContext(),
                           )}
                     </TableHead>
                   ))}
@@ -127,7 +126,7 @@ export function DataTable<
                       <TableCell key={cell.id} className="text-foreground">
                         {flexRender(
                           cell.column.columnDef.cell,
-                          cell.getContext()
+                          cell.getContext(),
                         )}
                       </TableCell>
                     ))}
