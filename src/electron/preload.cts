@@ -98,6 +98,9 @@ contextBridge.exposeInMainWorld("electronAPI", {
   printPdf: (buffer: any) => {
     return ipcRenderer.invoke("print-pdf", buffer);
   },
+  savePdf: (buffer: any, filename: string) => {
+    return ipcRenderer.invoke("save-pdf", { buffer, filename });
+  },
   getAllPrescriptions: async () => {
     return await ipcRenderer.invoke("get-all-prescriptions");
   },

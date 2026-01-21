@@ -92,6 +92,24 @@ app.on("ready", () => {
     });
   });
 
+  ipcMain.handle("save-pdf", async (_, { buffer, filename }) => {
+    try {
+      const { filePath } = await dialog.showSaveDialog({
+        defaultPath: filename || "document.pdf",
+        filters: [{ name: "PDF Files", extensions: ["pdf"] }],
+      });
+
+      if (filePath) {
+        fs.writeFileSync(filePath, Buffer.from(buffer));
+        return { success: true, filePath };
+      }
+      return { success: false, error: "Cancelled" };
+    } catch (error) {
+      console.error("Failed to save PDF:", error);
+      return { success: false, error: (error as Error).message };
+    }
+  });
+
   // Get ordonnance with patient info
   ipcMain.handle("get-all-prescriptions", async () => {
     const result = await db

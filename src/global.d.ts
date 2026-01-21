@@ -51,6 +51,10 @@ export interface IElectronAPI {
   getImage: () => Promise<{ success: boolean; image: string; error?: string }>;
   getDashboardStats: () => Promise<DashboardStats>; // ✅ FIX HERE
   printPdf: (data: Buffer) => Promise<void>;
+  savePdf: (
+    buffer: ArrayBuffer,
+    filename: string,
+  ) => Promise<{ success: boolean; filePath?: string; error?: string }>;
   getAllPrescriptions: () => Promise<Prescription[]>;
   getAllConsultations: () => Promise<Consultation[]>;
   getMonthlyPatients: () => Promise<{

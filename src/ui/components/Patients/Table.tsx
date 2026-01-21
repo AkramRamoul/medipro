@@ -24,6 +24,8 @@ import Pagination from "../Pagination";
 import { Button } from "../ui/button";
 import NewPatientModal from "../NewPatient/NewPatientModal";
 import { useNavigate } from "react-router-dom";
+import { pdf } from "@react-pdf/renderer";
+import PatientRecordPdf from "./PatientRecordPdf";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -163,6 +165,39 @@ function PatientsTable({
       setConfirmDialog(null);
     } catch (error) {
       console.error(`Failed to ${confirmDialog.action} patient`, error);
+    }
+  };
+
+  const handleExportPdf = async (patientId: string) => {
+    try {
+      const patientArray = await window.electronAPI.getpatient(patientId); // this returns an array
+      const patient = patientArray[0]; // <-- grab the first patient
+
+      const consultations =
+        await window.electronAPI.getConsultations(patientId);
+      const prescriptions =
+        await window.electronAPI.getPatientPrescriptions(patientId);
+      const timeline = await window.electronAPI.getPatientTimeline(patientId);
+
+      const blob = await pdf(
+        <PatientRecordPdf
+          patient={patient}
+          consultations={consultations}
+          prescriptions={prescriptions}
+          timeline={timeline}
+        />,
+      ).toBlob();
+
+      const buffer = await blob.arrayBuffer();
+      const filename = `Dossier_${patient.first_name}_${patient.last_name}.pdf`;
+
+      const result = await window.electronAPI.savePdf(buffer, filename);
+
+      if (result.success) {
+        console.log("PDF saved to:", result.filePath);
+      }
+    } catch (error) {
+      console.error("Failed to export PDF:", error);
     }
   };
 
@@ -388,7 +423,9 @@ function PatientsTable({
                                 </Tooltip>
                               )}
 
-                              <DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => handleExportPdf(patient.id)}
+                              >
                                 <FileText className="mr-2 h-4 w-4" />
                                 Exporter (PDF)
                               </DropdownMenuItem>
