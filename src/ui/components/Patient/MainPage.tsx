@@ -4,10 +4,28 @@ import { useParams } from "react-router-dom";
 import MainPrescriptionPage from "../Prescription/MainPrescriptionPage";
 import { EditPatientForm } from "./EditPatientForm";
 import TimeLine from "../Timeline/TimeLine";
+import { Button } from "../ui/button";
+import { FileText, Loader2 } from "lucide-react";
+import { usePatientPdfExport } from "../../hooks/usePatientPdfExport";
 function MainPage() {
   const { id } = useParams<{ id: string }>();
+  const { exportPdf, isExporting } = usePatientPdfExport();
   return (
-    <div className="p-4 flex justify-center">
+    <div className="p-4 flex flex-col items-center">
+      <div className="w-full max-w-5xl flex justify-end mb-4">
+        <Button
+          onClick={() => id && exportPdf(id)}
+          disabled={isExporting}
+          className="flex items-center gap-2"
+        >
+          {isExporting ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <FileText className="h-4 w-4" />
+          )}
+          {isExporting ? "Exportation..." : "Exporter le dossier (PDF)"}
+        </Button>
+      </div>
       <Tabs defaultValue="example" className="w-full max-w-5xl">
         <TabsList className="w-full flex justify-center bg-muted rounded-lg">
           <TabsTrigger
