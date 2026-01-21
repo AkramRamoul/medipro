@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import {
@@ -47,6 +47,7 @@ const NewPrescriptionForm = ({
   const [medications, setMedications] = useState<Medication[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [suggestions, setSuggestions] = useState<Medication[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
 
   const [selectedMedications, setSelectedMedications] = useState<
     PrescriptionMed[]
@@ -62,6 +63,10 @@ const NewPrescriptionForm = ({
   const [note, setNote] = useState<string>("");
 
   const containerRef = useRef<HTMLDivElement>(null);
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Maximum number of suggestions to show
+  const MAX_SUGGESTIONS = 50;
 
   const fetchMedications = async () => {
     try {
@@ -192,28 +197,82 @@ const NewPrescriptionForm = ({
     setNote("");
   };
 
+  // Optimized search function with better scoring
+  const searchMedications = useCallback((query: string) => {
+    if (query.trim() === "") {
+      setSuggestions([]);
+      setIsSearching(false);
+      return;
+    }
+
+    const lower = query.toLowerCase();
+    const words = lower.split(/\s+/);
+
+    // Score each medication based on match quality
+    const scored = medications
+      .map((med) => {
+        const nameLower = med.name.toLowerCase();
+        let score = 0;
+
+        // Exact match (highest priority)
+        if (nameLower === lower) {
+          score = 1000;
+        }
+        // Starts with query
+        else if (nameLower.startsWith(lower)) {
+          score = 500;
+        }
+        // Contains all words at word boundaries
+        else if (words.every(word => {
+          const regex = new RegExp(`\\b${word}`, 'i');
+          return regex.test(nameLower);
+        })) {
+          score = 300;
+        }
+        // Contains query as substring
+        else if (nameLower.includes(lower)) {
+          score = 200;
+        }
+        // Contains all individual words
+        else if (words.every(word => nameLower.includes(word))) {
+          score = 100;
+        }
+        // No match
+        else {
+          return null;
+        }
+
+        // Bonus for shorter names (more specific)
+        score += Math.max(0, 50 - med.name.length);
+
+        return { med, score };
+      })
+      .filter((item): item is { med: Medication; score: number } => item !== null)
+      .sort((a, b) => b.score - a.score)
+      .slice(0, MAX_SUGGESTIONS)
+      .map(item => item.med);
+
+    setSuggestions(scored);
+    setHighlightedIndex(-1);
+    setIsSearching(false);
+  }, [medications]);
+
+  // Debounced input handler
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
     setInputValue(value);
     setSelectedMedication(null);
+    setIsSearching(true);
 
-    if (value.trim() === "") {
-      setSuggestions([]);
-      return;
+    // Clear existing timeout
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
     }
 
-    const lower = value.toLowerCase();
-
-    const filtered = medications
-      .filter((med) => med.name.toLowerCase().includes(lower))
-      .sort((a, b) => {
-        const aStarts = a.name.toLowerCase().startsWith(lower) ? 0 : 1;
-        const bStarts = b.name.toLowerCase().startsWith(lower) ? 0 : 1;
-        return aStarts - bStarts || a.name.localeCompare(b.name);
-      });
-
-    setSuggestions(filtered);
-    setHighlightedIndex(-1);
+    // Set new timeout for debounced search
+    searchTimeoutRef.current = setTimeout(() => {
+      searchMedications(value);
+    }, 300); // 300ms debounce delay
   };
 
   const handleSuggestionClick = (medication: Medication) => {
@@ -231,6 +290,13 @@ const NewPrescriptionForm = ({
 
   useEffect(() => {
     fetchMedications();
+
+    // Cleanup timeout on unmount
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+    };
   }, []);
 
   return (
@@ -262,25 +328,37 @@ const NewPrescriptionForm = ({
                 autoFocus
               />
               {/* Suggestions Dropdown */}
-              {suggestions.length > 0 && (
+              {(suggestions.length > 0 || isSearching) && (
                 <div className="absolute z-50 w-full max-h-60 overflow-y-auto bg-popover border border-border rounded-md shadow-lg mt-1">
-                  {suggestions.map((med, index) => (
-                    <div
-                      key={index}
-                      id={`suggestion-${index}`}
-                      className={`px-3 py-2 text-sm cursor-pointer hover:bg-accent hover:text-accent-foreground ${
-                        index === highlightedIndex
-                          ? "bg-accent text-accent-foreground"
-                          : ""
-                      }`}
-                      onMouseDown={() => handleSuggestionClick(med)}
-                    >
-                      <div className="font-medium">{med.name}</div>
-                      <div className="text-xs text-muted-foreground">
-                        {med.form} • {med.dosage}
-                      </div>
+                  {isSearching ? (
+                    <div className="px-3 py-4 text-sm text-center text-muted-foreground">
+                      Recherche...
                     </div>
-                  ))}
+                  ) : suggestions.length > 0 ? (
+                    <>
+                      {suggestions.map((med, index) => (
+                        <div
+                          key={`${med.name}-${index}`}
+                          id={`suggestion-${index}`}
+                          className={`px-3 py-2 text-sm cursor-pointer hover:bg-accent hover:text-accent-foreground transition-colors ${index === highlightedIndex
+                            ? "bg-accent text-accent-foreground"
+                            : ""
+                            }`}
+                          onMouseDown={() => handleSuggestionClick(med)}
+                        >
+                          <div className="font-medium">{med.name}</div>
+                          <div className="text-xs text-muted-foreground">
+                            {med.form} • {med.dosage}
+                          </div>
+                        </div>
+                      ))}
+                      {suggestions.length === MAX_SUGGESTIONS && (
+                        <div className="px-3 py-2 text-xs text-center text-muted-foreground border-t">
+                          Affichage des {MAX_SUGGESTIONS} premiers résultats. Affinez votre recherche.
+                        </div>
+                      )}
+                    </>
+                  ) : null}
                 </div>
               )}
             </div>
@@ -358,18 +436,16 @@ const NewPrescriptionForm = ({
 
       {Number(id) !== 0 && (
         <Card
-          className={`border transition-colors ${
-            isPsychotropic ? "border-amber-400 bg-amber-50/10" : "border-border"
-          }`}
+          className={`border transition-colors ${isPsychotropic ? "border-amber-400 bg-amber-50/10" : "border-border"
+            }`}
         >
           <CardContent className="pt-6 flex flex-col md:flex-row gap-6 items-start md:items-center justify-between">
             <div className="flex items-center space-x-4">
               <div
-                className={`p-2 rounded-full ${
-                  isPsychotropic
-                    ? "bg-amber-100 text-amber-600"
-                    : "bg-muted text-muted-foreground"
-                }`}
+                className={`p-2 rounded-full ${isPsychotropic
+                  ? "bg-amber-100 text-amber-600"
+                  : "bg-muted text-muted-foreground"
+                  }`}
               >
                 <AlertTriangle className="h-6 w-6" />
               </div>

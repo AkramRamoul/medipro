@@ -57,7 +57,7 @@ function TimeLine({ id }: { id: string }) {
   const getIcon = (type: string, subType?: string) => {
     if (type === "Consultation")
       return <FileText className="w-4 h-4 text-blue-500" />;
-    if (type === "Prescription")
+    if (type === "Ordonnance")
       return <Pill className="w-4 h-4 text-green-500" />;
     if (type === "Administrative") {
       if (subType === "Patient created")
