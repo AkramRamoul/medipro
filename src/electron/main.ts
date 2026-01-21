@@ -372,6 +372,113 @@ app.on("ready", () => {
     }
   });
 
+  ipcMain.handle("get-patient-timeline", async (_, patientId) => {
+    try {
+      // 1. Fetch Patient for creation date
+      const [patient] = await db
+        .select({ createdAt: patients.createdAt })
+        .from(patients)
+        .where(eq(patients.id, patientId));
+
+      if (!patient) throw new Error("Patient not found");
+
+      // 2. Fetch Consultations
+      const patientConsultations = await db
+        .select({
+          date: consultations.date,
+          reason: consultations.reason,
+          diagnosis: consultations.diagnosis,
+          notes: consultations.notes,
+        })
+        .from(consultations)
+        .where(eq(consultations.patientId, patientId));
+
+      // 3. Fetch Prescriptions with Medications
+      const patientPrescriptions = await db
+        .select({
+          id: prescriptions.id,
+          date: prescriptions.date,
+          medications: prescriptionMedications,
+        })
+        .from(prescriptions)
+        .leftJoin(
+          prescriptionMedications,
+          eq(prescriptions.id, prescriptionMedications.prescriptionId),
+        )
+        .where(eq(prescriptions.patientId, patientId));
+
+      // Group medications
+      const prescriptionsMap = new Map();
+      patientPrescriptions.forEach((row) => {
+        if (!prescriptionsMap.has(row.id)) {
+          prescriptionsMap.set(row.id, {
+            date: row.date,
+            medications: [],
+          });
+        }
+        if (row.medications) {
+          prescriptionsMap.get(row.id).medications.push(row.medications);
+        }
+      });
+      const groupedPrescriptions = Array.from(prescriptionsMap.values());
+
+      // 4. Combine into events
+      /* eslint-disable  @typescript-eslint/no-explicit-any */
+      const events: any[] = [];
+
+      // Patient Created
+      if (patient.createdAt) {
+        events.push({
+          date: patient.createdAt,
+          type: "Administrative",
+          subType: "Patient créé",
+          summary: "Profil patient créé",
+          details: null,
+        });
+      }
+
+      // Consultations
+      patientConsultations.forEach((c) => {
+        let details = `Diagnostic: ${c.diagnosis}`;
+        if (c.notes) {
+          details += `\nNote: ${c.notes.slice(0, 50)}${c.notes.length > 50 ? "..." : ""}`; // precise summary
+        }
+        events.push({
+          date: c.date,
+          type: "Consultation",
+          summary: `Motif de consultation: ${c.reason}`,
+          details: details,
+        });
+      });
+
+      // Prescriptions
+      groupedPrescriptions.forEach((p: any) => {
+        const medsList = p.medications
+          .map(
+            (m: any) =>
+              `${m.medicineName} ${m.dosage}${m.duration ? ` – ${m.duration}` : ""}`,
+          )
+          .join("\n");
+        events.push({
+          date: p.date,
+          type: "Ordonnance",
+          summary: "Ordonnance",
+          details: medsList || "Aucun médicament prescrit",
+        });
+      });
+
+      // Sort by date desc
+      events.sort(
+        (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+      );
+
+      return events;
+    } catch (error) {
+      console.error("Failed to get timeline:", error);
+      return [];
+    }
+  });
+
   ipcMain.handle("delete-prescription", async (__dirname, id) => {
     await db.delete(prescriptions).where(eq(prescriptions.id, id));
   });

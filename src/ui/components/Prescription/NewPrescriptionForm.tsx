@@ -177,7 +177,9 @@ const NewPrescriptionForm = ({
       dosage: selectedMedication?.dosage || "",
       quantity: quantity || null,
       form: selectedMedication?.form || "",
-      duration: durationValue ? `${durationValue} ${durationUnit}` : null,
+      duration: durationValue
+        ? `${durationValue} ${durationUnit || "jours"}`
+        : null,
       note: note || null,
     };
 

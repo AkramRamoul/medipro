@@ -3,6 +3,7 @@ import ConsultationForm from "../Consultation/MainConsultationPage";
 import { useParams } from "react-router-dom";
 import MainPrescriptionPage from "../Prescription/MainPrescriptionPage";
 import { EditPatientForm } from "./EditPatientForm";
+import TimeLine from "../Timeline/TimeLine";
 function MainPage() {
   const { id } = useParams<{ id: string }>();
   return (
@@ -27,6 +28,12 @@ function MainPage() {
           >
             Ordonnance & Documents
           </TabsTrigger>
+          <TabsTrigger
+            value="timeline"
+            className="flex-1 text-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+          >
+            Historique
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent
@@ -46,6 +53,12 @@ function MainPage() {
           className="bg-card text-card-foreground p-4 rounded-lg"
         >
           <MainPrescriptionPage id={id!} />
+        </TabsContent>
+        <TabsContent
+          value="timeline"
+          className="bg-card text-card-foreground p-4 rounded-lg"
+        >
+          <TimeLine id={id!} />
         </TabsContent>
       </Tabs>
     </div>

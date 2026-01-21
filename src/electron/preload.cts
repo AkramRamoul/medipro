@@ -143,4 +143,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
   },
   backup: () => ipcRenderer.invoke("db:backup"),
   restore: () => ipcRenderer.invoke("db:restore"),
+  getPatientTimeline: async (patientId: number) => {
+    return await ipcRenderer.invoke("get-patient-timeline", patientId);
+  },
 });

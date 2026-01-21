@@ -14,7 +14,6 @@ import {
   Search,
   MoreVertical,
   Eye,
-  Pencil,
   FileText,
   Archive,
   Trash,
@@ -47,12 +46,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "../ui/alert-dialog";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "../ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider } from "../ui/tooltip";
 import {
   formatLastVisit,
   getLastVisitBadgeClass,
@@ -386,31 +380,14 @@ function PatientsTable({
                                 Voir le dossier
                               </DropdownMenuItem>
 
-                              {isArchived ? (
+                              {isArchived && (
                                 <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <div className="w-full">
-                                      <DropdownMenuItem disabled>
-                                        <Plus className="mr-2 h-4 w-4" />
-                                        Nouvelle consult.
-                                      </DropdownMenuItem>
-                                    </div>
-                                  </TooltipTrigger>
                                   <TooltipContent>
                                     <p>Patient archivé - lecture seule</p>
                                   </TooltipContent>
                                 </Tooltip>
-                              ) : (
-                                <DropdownMenuItem>
-                                  <Plus className="mr-2 h-4 w-4" />
-                                  Nouvelle consult.
-                                </DropdownMenuItem>
                               )}
 
-                              <DropdownMenuItem>
-                                <Pencil className="mr-2 h-4 w-4" />
-                                Éditer infos
-                              </DropdownMenuItem>
                               <DropdownMenuItem>
                                 <FileText className="mr-2 h-4 w-4" />
                                 Exporter (PDF)

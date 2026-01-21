@@ -76,6 +76,8 @@ export interface IElectronAPI {
   deleteDocument: (id: string) => Promise<void>;
   backup: () => Promise<void>;
   restore: () => Promise<void>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  getPatientTimeline: (id: string) => Promise<any[]>;
 }
 
 declare global {
