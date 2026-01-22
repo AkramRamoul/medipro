@@ -52,12 +52,13 @@ const ModalV2: React.FC<ModalProps> = ({
             >
               <Dialog.Panel
                 className={cn(
-                  `relative w-full transform overflow-hidden rounded-lg
-                  text-gray-900 dark:text-gray-100
-                  px-4 pb-4 pt-5
-                 transition-all
-                  sm:my-8 sm:max-w-lg sm:p-6
-                  `,
+                  `relative w-full transform rounded-lg
+                    max-h-[90vh] overflow-y-auto
+                    text-gray-900 dark:text-gray-100
+                    px-4 pb-4 pt-5
+                    transition-all
+                    bg-card
+                    sm:my-8 sm:max-w-lg sm:p-6`,
                   panelClassName,
                 )}
               >

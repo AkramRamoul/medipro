@@ -12,7 +12,7 @@ import { Input } from "../components/ui/input";
 import Modal from "../components/Modal";
 import SingleConsultation from "../components/Consultation/SingleConsultation";
 import Pagination from "../components/Pagination";
-import { Loader2, Search, Stethoscope, User, Calendar } from "lucide-react";
+import { Loader2, Search, Stethoscope, User, Calendar, FileText, Activity } from "lucide-react";
 import DeleteDialogue from "../components/DeleteDialogue";
 import { Card, CardHeader, CardTitle } from "../components/ui/card";
 
@@ -107,46 +107,71 @@ function Page() {
             <Table>
               <TableHeader className="bg-muted/50">
                 <TableRow>
-                  <TableHead className="w-[30%]">
+                  <TableHead className="w-[180px]">
                     <div className="flex items-center gap-2">
-                      <User className="w-3 h-3" /> Nom
+                      <User className="w-3 h-3" /> Patient
                     </div>
                   </TableHead>
-                  <TableHead className="w-[30%]">
-                    <div className="flex items-center gap-2">
-                      <User className="w-3 h-3" /> Prénom
-                    </div>
-                  </TableHead>
-                  <TableHead>
+                  <TableHead className="w-[130px]">
                     <div className="flex items-center gap-2">
                       <Calendar className="w-3 h-3" /> Date
                     </div>
                   </TableHead>
-                  <TableHead className="text-center w-[80px]">
+                  <TableHead>
+                    <div className="flex items-center gap-2">
+                      <FileText className="w-3 h-3" /> Motif de consultation
+                    </div>
+                  </TableHead>
+                  <TableHead className="w-[200px]">
+                    <div className="flex items-center gap-2">
+                      <Activity className="w-3 h-3" /> Diagnostic
+                    </div>
+                  </TableHead>
+                  <TableHead className="w-[80px] text-center">
                     Actions
                   </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {currentItems.length > 0 ? (
-                  currentItems.map((prescription) => (
+                  currentItems.map((consultation) => (
                     <TableRow
-                      key={prescription.id}
+                      key={consultation.id}
                       onClick={() => {
-                        setSelectedPrescriptionId(prescription.id.toString());
+                        setSelectedPrescriptionId(consultation.id.toString());
                       }}
                       className="hover:bg-muted/50 transition-colors cursor-pointer"
                     >
-                      <TableCell className="font-semibold text-foreground">
-                        {prescription.patient?.first_name || "N/A"}
+                      <TableCell className="font-semibold">
+                        {consultation.patient?.first_name || "N/A"}{" "}
+                        {consultation.patient?.last_name || ""}
                       </TableCell>
-                      <TableCell className="text-foreground">
-                        {prescription.patient?.last_name || "N/A"}
-                      </TableCell>
-                      <TableCell className="text-foreground">
-                        {new Date(prescription.date).toLocaleDateString(
+                      <TableCell className="font-medium text-muted-foreground">
+                        {new Date(consultation.date).toLocaleDateString(
                           "fr-FR",
                         )}
+                      </TableCell>
+                      <TableCell>
+                        <div className="line-clamp-2">
+                          {consultation.reason || (
+                            <span className="text-muted-foreground italic text-sm">
+                              Non spécifié
+                            </span>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="line-clamp-1">
+                          {consultation.diagnosis ? (
+                            <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200">
+                              {consultation.diagnosis}
+                            </span>
+                          ) : (
+                            <span className="text-muted-foreground italic text-sm">
+                              Non spécifié
+                            </span>
+                          )}
+                        </div>
                       </TableCell>
                       <TableCell className="w-[80px]">
                         <div
@@ -154,7 +179,7 @@ function Page() {
                           onClick={(e) => e.stopPropagation()}
                         >
                           <DeleteDialogue
-                            consultationId={prescription.id.toString()}
+                            consultationId={consultation.id.toString()}
                             setData={setData}
                           />
                         </div>
@@ -164,7 +189,7 @@ function Page() {
                 ) : (
                   <TableRow>
                     <TableCell
-                      colSpan={4}
+                      colSpan={5}
                       className="text-center text-muted-foreground py-12"
                     >
                       <div className="flex flex-col items-center gap-2">

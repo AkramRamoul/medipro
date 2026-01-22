@@ -23,7 +23,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen = false, onClose, children }) => {
   }, [isOpen, onClose]);
   return (
     <Transition show={isOpen} as={Fragment}>
-      <Dialog as="div" static className="relative z-50" onClose={() => {}}>
+      <Dialog as="div" static className="relative z-50" onClose={() => { }}>
         <div
           className="fixed inset-0 bg-background/80 backdrop-blur-sm"
           onMouseDown={onClose}

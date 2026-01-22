@@ -392,7 +392,6 @@ app.on("ready", () => {
 
   ipcMain.handle("get-patient-timeline", async (_, patientId) => {
     try {
-      // 1. Fetch Patient for creation date
       const [patient] = await db
         .select({ createdAt: patients.createdAt })
         .from(patients)
@@ -400,7 +399,6 @@ app.on("ready", () => {
 
       if (!patient) throw new Error("Patient not found");
 
-      // 2. Fetch Consultations
       const patientConsultations = await db
         .select({
           date: consultations.date,
@@ -411,7 +409,6 @@ app.on("ready", () => {
         .from(consultations)
         .where(eq(consultations.patientId, patientId));
 
-      // 3. Fetch Prescriptions with Medications
       const patientPrescriptions = await db
         .select({
           id: prescriptions.id,
@@ -425,7 +422,6 @@ app.on("ready", () => {
         )
         .where(eq(prescriptions.patientId, patientId));
 
-      // Group medications
       const prescriptionsMap = new Map();
       patientPrescriptions.forEach((row) => {
         if (!prescriptionsMap.has(row.id)) {
@@ -440,11 +436,9 @@ app.on("ready", () => {
       });
       const groupedPrescriptions = Array.from(prescriptionsMap.values());
 
-      // 4. Combine into events
       /* eslint-disable  @typescript-eslint/no-explicit-any */
       const events: any[] = [];
 
-      // Patient Created
       if (patient.createdAt) {
         events.push({
           date: patient.createdAt,
@@ -455,7 +449,6 @@ app.on("ready", () => {
         });
       }
 
-      // Consultations
       patientConsultations.forEach((c) => {
         let details = `Diagnostic: ${c.diagnosis}`;
         if (c.notes) {
@@ -469,7 +462,6 @@ app.on("ready", () => {
         });
       });
 
-      // Prescriptions
       groupedPrescriptions.forEach((p: any) => {
         const medsList = p.medications
           .map(
@@ -484,12 +476,9 @@ app.on("ready", () => {
           details: medsList || "Aucun médicament prescrit",
         });
       });
-
-      // Sort by date desc
       events.sort(
         (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
       );
-
       return events;
     } catch (error) {
       console.error("Failed to get timeline:", error);

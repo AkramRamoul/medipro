@@ -114,7 +114,7 @@ export default function SingleConsultation({
   }
 
   return (
-    <Card className="w-full max-w-3xl mx-auto border-none shadow-none">
+    <Card className="w-full max-w-3xl mx-auto border-none shadow-none overflow-auto">
       <CardHeader>
         <CardTitle className="text-2xl flex items-center gap-2">
           <CalendarDays className="h-6 w-6 text-primary" />
@@ -133,7 +133,7 @@ export default function SingleConsultation({
           <div className="grid gap-2">
             <Label htmlFor="reason" className="flex items-center gap-2">
               <ClipboardCheck className="h-4 w-4 text-muted-foreground" />
-              Raison de la visite
+              Motif de Consultation
             </Label>
             <Input
               id="reason"

@@ -114,7 +114,7 @@ function NewConsultationForm({
             <div className="space-y-2">
               <Label className="flex items-center gap-2 text-foreground font-medium">
                 <ClipboardList className="w-4 h-4 text-primary" />
-                Raison de la visite
+                Motif de Consultation
               </Label>
               <Input
                 value={reason}

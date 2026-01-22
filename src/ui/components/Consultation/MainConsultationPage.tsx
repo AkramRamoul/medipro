@@ -101,9 +101,9 @@ function ConsultationForm({ id }: { id: string }) {
                       <Calendar className="w-3 h-3" /> Date
                     </div>
                   </TableHead>
-                  <TableHead>
+                  <TableHead className="w-[250px]">
                     <div className="flex items-center gap-2">
-                      <FileText className="w-3 h-3" /> Raison de visite
+                      <FileText className="w-3 h-3" /> Motif de consultation
                     </div>
                   </TableHead>
                   <TableHead>
