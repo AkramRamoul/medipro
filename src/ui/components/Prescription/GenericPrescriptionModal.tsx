@@ -8,11 +8,13 @@ import NewPrescriptionForm from "./NewPrescriptionForm";
 interface GenericPrescriptionModalProps {
   onClose: () => void;
   refreshPrescriptions: () => void;
+  onStepChange?: (step: 1 | 2) => void;
 }
 
 export default function GenericPrescriptionModal({
   onClose,
   refreshPrescriptions,
+  onStepChange,
 }: GenericPrescriptionModalProps) {
   const [step, setStep] = useState<1 | 2>(1);
   const [patient, setPatient] = useState<Patient | null>(null);
@@ -39,12 +41,13 @@ export default function GenericPrescriptionModal({
 
     setPatient(tempPatient);
     setStep(2);
+    onStepChange?.(2);
   };
 
   return (
     <div className="h-full">
       {step === 1 ? (
-        <div className="space-y-4 max-w-md mx-auto mt-10 p-6 border rounded-lg bg-card shadow-sm">
+        <div className="space-y-6 max-w-md mx-auto py-8">
           <h2 className="text-xl font-semibold mb-4 text-center">
             Détails du Patient
           </h2>

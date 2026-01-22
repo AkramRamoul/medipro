@@ -289,6 +289,23 @@ const NewPrescriptionForm = ({
   };
 
   useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(event.target as Node)
+      ) {
+        setSuggestions([]);
+        setHighlightedIndex(-1);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  useEffect(() => {
     fetchMedications();
 
     // Cleanup timeout on unmount
@@ -300,7 +317,7 @@ const NewPrescriptionForm = ({
   }, []);
 
   return (
-    <div className="relative mt-8 max-w-5xl mx-auto space-y-6">
+    <div className="relative max-w-5xl mx-auto space-y-6">
       <Card className="border-border shadow-sm">
         <CardHeader className="pb-4">
           <CardTitle className="text-lg flex items-center gap-2">
@@ -313,10 +330,9 @@ const NewPrescriptionForm = ({
         </CardHeader>
         <CardContent>
           <div
-            ref={containerRef}
             className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end"
           >
-            <div className="md:col-span-4 relative space-y-2">
+            <div ref={containerRef} className="md:col-span-4 relative space-y-2">
               <Label>Médicament</Label>
               <Input
                 type="text"

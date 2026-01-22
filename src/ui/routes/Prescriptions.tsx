@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { cn } from "../lib/utils";
 import { Input } from "../components/ui/input";
 import {
   Table,
@@ -17,8 +18,13 @@ import DropDown from "./comps/DropDownPrescription";
 import { Button } from "../components/ui/button";
 import GenericPrescriptionModal from "../components/Prescription/GenericPrescriptionModal";
 import { Plus } from "lucide-react";
-import ModalV2 from "../components/Modalsecond";
 import { Card, CardHeader, CardTitle } from "../components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "../components/ui/dialog";
 
 async function getData(): Promise<PrescriptionWithPatient[]> {
   try {
@@ -37,6 +43,7 @@ function Prescriptions() {
     useState<PrescriptionWithPatient | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [isNewPrescriptionOpen, setIsNewPrescriptionOpen] = useState(false);
+  const [newPrescriptionStep, setNewPrescriptionStep] = useState<1 | 2>(1);
 
   const fetchData = async () => {
     setIsLoading(true);
@@ -77,7 +84,7 @@ function Prescriptions() {
   return (
     <div className="max-w-[80%] mx-auto space-y-6 mt-8">
       {/* Header Card */}
-      <Card className="border-none shadow-sm bg-card">
+      <Card className="border border-white/5 shadow-lg bg-gradient-to-br from-card to-card/80 backdrop-blur">
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <div>
             <CardTitle className="text-xl flex items-center gap-2 text-primary">
@@ -90,7 +97,7 @@ function Prescriptions() {
           </div>
           <Button
             onClick={() => setIsNewPrescriptionOpen(true)}
-            className="ml-4 gap-2 bg-primary hover:bg-primary/90"
+            className="ml-4 gap-2 bg-gradient-to-r from-primary to-violet-600 hover:shadow-lg hover:shadow-primary/20 transition"
           >
             <Plus className="h-4 w-4" /> Nouvelle Ordonnance
           </Button>
@@ -103,7 +110,7 @@ function Prescriptions() {
           <div className="relative w-full max-w-md">
             <Input
               placeholder="Filtrer par Nom ou Prénom..."
-              className="pl-10 h-10 rounded-lg border-input bg-background"
+              className="pl-10 h-11 text-base rounded-xl border-input bg-background focus:ring-2 focus:ring-primary/30"
               value={query}
               onChange={handleQueryChange}
             />
@@ -121,7 +128,7 @@ function Prescriptions() {
             </div>
           ) : (
             <Table>
-              <TableHeader className="bg-muted/50">
+              <TableHeader className="bg-muted/60 border-b border-white/10 backdrop-blur">
                 <TableRow>
                   <TableHead className="w-[30%]">
                     <div className="flex items-center gap-2">
@@ -149,7 +156,7 @@ function Prescriptions() {
                     <TableRow
                       key={prescription.id}
                       onClick={() => setSelectedPrescription(prescription)}
-                      className="hover:bg-muted/50 transition-colors cursor-pointer"
+                      className=" hover:bg-white/[0.04] odd:bg-white/[0.02] transition-colors cursor-pointer"
                     >
                       <TableCell className="font-semibold">
                         {prescription.patient?.first_name || "N/A"}
@@ -158,7 +165,7 @@ function Prescriptions() {
                         {prescription.patient?.last_name || "N/A"}
                       </TableCell>
                       <TableCell>
-                        <div className="flex items-center gap-2 text-muted-foreground">
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
                           {new Date(prescription.date).toLocaleDateString(
                             "fr-FR",
                           )}
@@ -166,7 +173,7 @@ function Prescriptions() {
                       </TableCell>
                       <TableCell>
                         <div
-                          className="flex justify-end items-center h-full"
+                          className="flex justify-end items-center h-full opacity-60 hover:opacity-100 transition"
                           onClick={(e) => e.stopPropagation()}
                         >
                           <DropDown
@@ -200,7 +207,7 @@ function Prescriptions() {
           )}
 
           {/* Pagination */}
-          <div className="p-4 border-t">
+          <div className="p-4 border-t bg-muted/20">
             <Pagination
               itemsPerPage={itemsPerPage}
               totalItems={filteredData.length}
@@ -211,7 +218,6 @@ function Prescriptions() {
         </div>
       </div>
 
-      {/* Modal */}
       <Modal
         isOpen={!!selectedPrescription}
         onClose={() => setSelectedPrescription(null)}
@@ -230,18 +236,32 @@ function Prescriptions() {
       </Modal>
 
       {/* New Prescription Modal */}
-      <ModalV2
-        isOpen={isNewPrescriptionOpen}
-        onClose={() => setIsNewPrescriptionOpen(false)}
-        panelClassName="sm:max-w-content"
+      <Dialog
+        open={isNewPrescriptionOpen}
+        onOpenChange={(open) => {
+          setIsNewPrescriptionOpen(open);
+          if (!open) setNewPrescriptionStep(1);
+        }}
       >
-        <div className="p-6 ">
-          <GenericPrescriptionModal
-            onClose={() => setIsNewPrescriptionOpen(false)}
-            refreshPrescriptions={fetchData}
-          />
-        </div>
-      </ModalV2>
+        <DialogContent
+          className={cn(
+            "p-0 transition-all duration-300",
+            newPrescriptionStep === 1 ? "sm:max-w-xl" : "sm:max-w-6xl",
+          )}
+        >
+          <DialogHeader className="p-6 pb-0">
+            <DialogTitle>Nouvelle Ordonnance</DialogTitle>
+          </DialogHeader>
+
+          <div className="p-6 pt-4">
+            <GenericPrescriptionModal
+              onClose={() => setIsNewPrescriptionOpen(false)}
+              refreshPrescriptions={fetchData}
+              onStepChange={setNewPrescriptionStep}
+            />
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

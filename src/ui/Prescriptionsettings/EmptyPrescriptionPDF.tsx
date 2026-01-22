@@ -24,38 +24,40 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   headerfr: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: "bold",
     textAlign: "left",
-    marginBottom: 5,
+    marginBottom: 4,
   },
   headerar: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: "bold",
     textAlign: "right",
-    marginBottom: 5,
+    marginBottom: 4,
   },
   colLeft: {
     textAlign: "left",
-    fontSize: 8,
+    fontSize: 7.5,
+    lineHeight: 1.2,
   },
   colRight: {
     textAlign: "right",
-    fontSize: 8,
+    fontSize: 7.5,
+    lineHeight: 1.2,
   },
   colCenter: {
     textAlign: "center",
     fontSize: 8,
   },
   infoPatient: {
-    fontSize: 10,
-    marginVertical: 2,
+    fontSize: 9,
+    marginVertical: 1,
     textAlign: "left",
   },
   line: {
-    borderBottomWidth: 1,
-    borderBottomColor: "black",
-    marginVertical: 5,
+    borderBottomWidth: 0.5,
+    borderBottomColor: "#666",
+    marginVertical: 8,
     width: "100%",
     alignSelf: "center",
   },
@@ -109,11 +111,12 @@ const EmptyPrescriptionPDF = ({
           style={{
             flexDirection: "row",
             justifyContent: "space-between",
-            alignItems: "flex-start",
-            marginBottom: 5,
+            alignItems: "stretch",
+            marginBottom: 10,
+            minHeight: 80,
           }}
         >
-          <View style={{ flex: 1, gap: 1 }}>
+          <View style={{ flex: 1.2, gap: 1 }}>
             <Text style={styles.headerfr}>{prescriptionModel.nameFr}</Text>
             <Text style={styles.colLeft}>{prescriptionModel.specialtyFr}</Text>
             {(JSON.parse(prescriptionModel.servicesFr) as string[]).map(
@@ -128,21 +131,21 @@ const EmptyPrescriptionPDF = ({
           {image && (
             <View
               style={{
-                width: 70,
-                height: 70,
-                marginHorizontal: 6,
+                width: 55,
+                marginHorizontal: 10,
                 justifyContent: "center",
                 alignItems: "center",
+                flexShrink: 0,
               }}
             >
               <Image
                 src={image}
-                style={{ width: 60, height: 60, objectFit: "contain" }}
+                style={{ width: 50, height: 50, objectFit: "contain" }}
               />
             </View>
           )}
 
-          <View style={{ flex: 1, gap: 2 }}>
+          <View style={{ flex: 1.2, gap: 2 }}>
             <Text style={styles.headerar}>{prescriptionModel.nameAr}</Text>
             <Text style={styles.colRight}>{prescriptionModel.specialtyAr}</Text>
             {(JSON.parse(prescriptionModel.servicesAr) as string[]).map(

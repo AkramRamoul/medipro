@@ -12,7 +12,15 @@ import { Input } from "../components/ui/input";
 import Modal from "../components/Modal";
 import SingleConsultation from "../components/Consultation/SingleConsultation";
 import Pagination from "../components/Pagination";
-import { Loader2, Search, Stethoscope, User, Calendar, FileText, Activity } from "lucide-react";
+import {
+  Loader2,
+  Search,
+  Stethoscope,
+  User,
+  Calendar,
+  FileText,
+  Activity,
+} from "lucide-react";
 import DeleteDialogue from "../components/DeleteDialogue";
 import { Card, CardHeader, CardTitle } from "../components/ui/card";
 
@@ -140,7 +148,7 @@ function Page() {
                       onClick={() => {
                         setSelectedPrescriptionId(consultation.id.toString());
                       }}
-                      className="hover:bg-muted/50 transition-colors cursor-pointer"
+                      className=" hover:bg-white/[0.04] odd:bg-white/[0.02] transition-colors cursor-pointer"
                     >
                       <TableCell className="font-semibold">
                         {consultation.patient?.first_name || "N/A"}{" "}
@@ -163,7 +171,7 @@ function Page() {
                       <TableCell>
                         <div className="line-clamp-1">
                           {consultation.diagnosis ? (
-                            <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200">
+                            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
                               {consultation.diagnosis}
                             </span>
                           ) : (
@@ -204,7 +212,7 @@ function Page() {
           )}
 
           {/* Pagination */}
-          <div className="p-4 border-t">
+          <div className="p-4 border-t bg-muted/20">
             <Pagination
               itemsPerPage={itemsPerPage}
               totalItems={filteredData.length}

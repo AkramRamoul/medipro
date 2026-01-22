@@ -33,6 +33,16 @@ export function PrescriptionModelForm() {
   const [logoImage, setLogoImage] = useState<string | null>(null);
 
   const [services, setServices] = useState([{ fr: "", ar: "" }]);
+
+  const fetchImage = async () => {
+    const result = await window.electronAPI.getImage();
+    if (result.success && result.image) {
+      setLogoImage(result.image);
+    }
+  };
+  useEffect(() => {
+    fetchImage();
+  }, []);
   const fetchModel = async () => {
     const result = await window.electronAPI.getPrescriptionModel();
     if (result.success && result.model) {
@@ -190,6 +200,7 @@ export function PrescriptionModelForm() {
                 </label>
                 <input
                   type="text"
+                  maxLength={50}
                   name="nameAr"
                   placeholder="الدكتور(ة) اسم الطبيب / اسم العيادة"
                   value={form.nameAr}
@@ -204,6 +215,7 @@ export function PrescriptionModelForm() {
                   Spécialité (Français)
                 </label>
                 <input
+                  maxLength={50}
                   type="text"
                   placeholder="Exemple: Docteur Spécialiste en Dermatologie"
                   name="specialtyFr"
@@ -351,14 +363,36 @@ export function PrescriptionModelForm() {
             </div>
           </CardContent>
         </form>
-        <FileDropzone
-          setCurrentFile={fileUploaderProps.handleFileUpload}
-          acceptedFileTypes={["image/*", "application/pdf"]}
-          dropText="Faites glisser et déposez un fichier ici ou cliquez pour télécharger"
-        >
-          <RoundedTool onImageUploaded={setLogoImage} />
-        </FileDropzone>
+        <div className="mt-4">
+          <FileDropzone
+            setCurrentFile={fileUploaderProps.handleFileUpload}
+            acceptedFileTypes={["image/*", "application/pdf"]}
+            dropText="Faites glisser et déposez un fichier ici ou cliquez pour télécharger"
+          >
+            <RoundedTool onImageUploaded={setLogoImage} />
+          </FileDropzone>
+          <p className="text-xs text-muted-foreground text-center mt-2 flex items-center justify-center gap-1">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="text-primary"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <line x1="12" y1="16" x2="12" y2="12" />
+              <line x1="12" y1="8" x2="12.01" y2="8" />
+            </svg>
+            Utilisez une image avec un fond blanc ou transparent pour un meilleur rendu.
+          </p>
+        </div>
       </Card>
+
       {form && <PrintButton model={form} image={logoImage} />}
     </div>
   );

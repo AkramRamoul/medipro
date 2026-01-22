@@ -1,5 +1,6 @@
-import { Avatar, AvatarFallback } from "../components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/avatar";
 import { useNavigate } from "react-router-dom";
+import { initialsAvatar } from "../lib/utils";
 
 export function RecentSales({
   patients,
@@ -20,17 +21,18 @@ export function RecentSales({
       {patients.length > 0 ? (
         patients.map((patient, index) => {
           const fullName = `${patient.firstName} ${patient.lastName}`;
-
+          const initials =
+            `${patient.firstName?.[0] || ""}${patient.lastName?.[0] || ""}`.toUpperCase();
           return (
             <div
               className="flex items-center hover:bg-gray-100 dark:hover:bg-gray-800 p-4 rounded-md cursor-pointer group transition-colors"
               key={index}
               onClick={() => navigate(`/pat/${patient.id}`)}
             >
-              <Avatar>
-                <AvatarFallback className="group-hover:bg-gray-300 dark:group-hover:bg-gray-700">
-                  {patient.firstName[0]}
-                  {patient.lastName[0]}
+              <Avatar className="h-9 w-9 border-2 border-background shadow-sm">
+                <AvatarImage src={initialsAvatar(initials)} alt={initials} />
+                <AvatarFallback className="bg-primary/10 text-primary font-medium text-xs">
+                  {initials}
                 </AvatarFallback>
               </Avatar>
 
@@ -38,10 +40,10 @@ export function RecentSales({
                 <p className="text-sm font-medium leading-none">{fullName}</p>
                 <p className="text-sm text-gray-600 dark:text-gray-400 font truncate flex items-center">
                   <strong className="text-gray-800 dark:text-gray-300">
-                    Motif de consultation:&nbsp;
+                    Diagnostic:&nbsp;
                   </strong>
-                  <span className="truncate text-sm inline-block max-w-[150px]">
-                    {patient.reason}
+                  <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                    {patient.diagnosis}
                   </span>
                 </p>
                 <div className="ml-auto text-xs text-muted-foreground dark:text-gray-500">

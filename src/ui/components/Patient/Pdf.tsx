@@ -34,38 +34,40 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   headerfr: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: "bold",
     textAlign: "left",
-    marginBottom: 5,
+    marginBottom: 4,
   },
   headerar: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: "bold",
     textAlign: "right",
-    marginBottom: 5,
+    marginBottom: 4,
   },
   colLeft: {
     textAlign: "left",
-    fontSize: 8,
+    fontSize: 7.5,
+    lineHeight: 1.2,
   },
   colRight: {
     textAlign: "right",
-    fontSize: 8,
+    fontSize: 7.5,
+    lineHeight: 1.2,
   },
   colCenter: {
     textAlign: "center",
     fontSize: 8,
   },
   infoPatient: {
-    fontSize: 10,
-    marginVertical: 2,
+    fontSize: 9,
+    marginVertical: 1,
     textAlign: "left",
   },
   line: {
-    borderBottomWidth: 1,
-    borderBottomColor: "black",
-    marginVertical: 5,
+    borderBottomWidth: 0.5,
+    borderBottomColor: "#666",
+    marginVertical: 8,
     width: "100%",
     alignSelf: "center",
   },
@@ -145,12 +147,13 @@ const PrescriptionPDF = ({
             style={{
               flexDirection: "row",
               justifyContent: "space-between",
-              alignItems: "flex-start",
-              marginBottom: 5,
+              alignItems: "stretch", // Changed from flex-start to stretch for better alignment
+              marginBottom: 10,
+              minHeight: 80,
             }}
           >
             {/* Left side: French */}
-            <View style={{ flex: 1, gap: 1 }}>
+            <View style={{ flex: 1.2, gap: 1 }}> {/* Increased flex to give more room */}
               <Text style={styles.headerfr}>{prescriptionModel.nameFr}</Text>
               <Text style={styles.colLeft}>
                 {prescriptionModel.specialtyFr}
@@ -164,26 +167,26 @@ const PrescriptionPDF = ({
               )}
             </View>
 
-            {/* Center image */}
+            {/* Center image - Optimized width */}
             {image && (
               <View
                 style={{
-                  width: 70,
-                  height: 70,
-                  marginHorizontal: 6,
+                  width: 55, // Reduced from 70
+                  marginHorizontal: 8,
                   justifyContent: "center",
                   alignItems: "center",
+                  flexShrink: 0, // Ensure it doesn't shrink
                 }}
               >
                 <Image
                   src={image}
-                  style={{ width: 60, height: 60, objectFit: "contain" }}
+                  style={{ width: 50, height: 50, objectFit: "contain" }}
                 />
               </View>
             )}
 
             {/* Right side: Arabic */}
-            <View style={{ flex: 1, gap: 2 }}>
+            <View style={{ flex: 1.2, gap: 2 }}> {/* Increased flex to give more room */}
               <Text style={styles.headerar}>{prescriptionModel.nameAr}</Text>
               <Text style={styles.colRight}>
                 {prescriptionModel.specialtyAr}
@@ -201,33 +204,40 @@ const PrescriptionPDF = ({
           {isPsychotropic && (
             <View
               style={{
-                marginVertical: 8,
-                padding: 6,
+                marginVertical: 10,
+                padding: 8,
                 borderWidth: 1,
-                borderColor: "#000",
+                borderColor: "#333",
+                backgroundColor: "#f9f9f9",
+                borderRadius: 2,
               }}
             >
-              <Text
-                style={{
-                  fontSize: 10,
-                  textAlign: "center",
-                  fontWeight: "bold",
-                }}
-              >
-                Ordonnance de médicaments psychotropes
-              </Text>
-
-              {psychotropicNumber && (
-                <Text style={{ fontSize: 10 }}>
-                  Numéro d'enregistrement : {psychotropicNumber}
+              <View style={{ borderBottomWidth: 0.5, borderColor: "#000", paddingBottom: 4, marginBottom: 4 }}>
+                <Text
+                  style={{
+                    fontSize: 10,
+                    textAlign: "center",
+                    fontWeight: "bold",
+                    color: "#000",
+                  }}
+                >
+                  Ordonnance de médicaments psychotropes
                 </Text>
-              )}
+              </View>
 
-              {patientAddress && (
-                <Text style={{ fontSize: 10 }}>
-                  Adresse du patient : {patientAddress}
-                </Text>
-              )}
+              <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+                {psychotropicNumber && (
+                  <Text style={{ fontSize: 9 }}>
+                    Numéro d'enregistrement : {psychotropicNumber}
+                  </Text>
+                )}
+
+                {patientAddress && (
+                  <Text style={{ fontSize: 9, flex: 1, textAlign: "right" }}>
+                    Adresse : {patientAddress}
+                  </Text>
+                )}
+              </View>
             </View>
           )}
 

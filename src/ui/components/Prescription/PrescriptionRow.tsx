@@ -62,6 +62,7 @@ function PrescriptionRow({
             isPsychotropic={selectedPrescription.isPsychotropic}
             psychotropicNumber={selectedPrescription.psychotropicNumber}
             patientAddress={selectedPrescription.patientAddress}
+            prescriptionDate={selectedPrescription.date}
           />
         )}
       </Modal>
