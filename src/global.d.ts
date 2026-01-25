@@ -3,8 +3,11 @@ export interface DashboardStats {
   consultationsLastMonth: number;
   consultationsToday: number;
   prescriptionsThisMonth: number;
-  activePatients: number;
+  totalPatients: number;
+  patientsThisMonth: number;
+  patientsLastMonth: number;
   recentConsultations: {
+    id: number;
     firstName: string;
     lastName: string;
     reason: string;

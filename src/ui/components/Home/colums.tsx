@@ -8,6 +8,7 @@ export type Patient = {
   lastname: string;
   contact: string;
   lastVisit: string | null;
+  createdAt?: string;
   status?: string;
 };
 
@@ -79,10 +80,10 @@ export const columns: ColumnDef<Patient>[] = [
       const formattedDate = isNaN(date.getTime())
         ? "Invalid Date"
         : date.toLocaleDateString("fr-FR", {
-            day: "2-digit",
-            month: "short",
-            year: "numeric",
-          });
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+        });
 
       return <div className="text-right font-medium pr-3">{formattedDate}</div>;
     },

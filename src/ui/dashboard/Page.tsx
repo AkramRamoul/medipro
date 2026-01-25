@@ -9,22 +9,18 @@ import {
 import { Overview } from "./Overview";
 import { RecentSales } from "./recent-sales";
 import { DashboardStats } from "../type";
-import {
-  Activity,
-  CreditCard,
-  Users,
-  Calendar,
-  TrendingUp,
-} from "lucide-react";
+import { Activity, Users, Calendar, TrendingUp } from "lucide-react";
 
 export default function DashboardPage() {
   const [stats, setStats] = useState<DashboardStats>({
     consultationsThisMonth: 0,
     consultationsToday: 0,
     prescriptionsThisMonth: 0,
-    activePatients: 0,
+    totalPatients: 0,
     recentConsultations: [],
     consultationsLastMonth: 0,
+    patientsThisMonth: 0,
+    patientsLastMonth: 0,
   });
 
   const fetchDashboardStats = async () => {
@@ -32,13 +28,9 @@ export default function DashboardPage() {
       const data = await window.electronAPI.getDashboardStats();
       setStats({
         ...data,
-        recentConsultations: data.recentConsultations.map(
-          (consultation, index) => ({
-            id: index + 1,
-            ...consultation,
-          }),
-        ),
-        consultationsLastMonth: data.consultationsLastMonth,
+        recentConsultations: data.recentConsultations.map((consultation) => ({
+          ...consultation,
+        })),
       });
     } catch (error) {
       console.error("Error fetching dashboard stats:", error);
@@ -48,14 +40,13 @@ export default function DashboardPage() {
     fetchDashboardStats();
   }, []);
 
-  const estimatedRevenue = stats.consultationsThisMonth * 1500;
-  const thisMonth = stats.consultationsThisMonth;
-  const lastMonth = stats.consultationsLastMonth;
+  const thisMonthPatients = stats.patientsThisMonth;
+  const lastMonthPatients = stats.patientsLastMonth;
 
-  const hasComparison = lastMonth > 0;
+  const hasComparison = lastMonthPatients > 0;
 
   const percentChange = hasComparison
-    ? ((thisMonth - lastMonth) / lastMonth) * 100
+    ? ((thisMonthPatients - lastMonthPatients) / lastMonthPatients) * 100
     : 0;
 
   const isPositive = percentChange >= 0;
@@ -76,19 +67,19 @@ export default function DashboardPage() {
           </div>
 
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-            {/* Estimated Revenue Card */}
+            {/* Patients This Month Card */}
             <Card className="shadow-sm rounded-xl bg-card border-none ring-1 ring-border/50">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium text-muted-foreground">
-                  Revenu estimé
+                  Nouveaux Patients (Mois)
                 </CardTitle>
                 <div className="bg-green-100 p-2 rounded-full dark:bg-green-900/30">
-                  <CreditCard className="h-4 w-4 text-green-600 dark:text-green-400" />
+                  <Users className="h-4 w-4 text-green-600 dark:text-green-400" />
                 </div>
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold text-foreground">
-                  {estimatedRevenue.toLocaleString()} DA
+                  {stats.patientsThisMonth}
                 </div>
                 <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
                   {hasComparison ? (
@@ -111,11 +102,11 @@ export default function DashboardPage() {
               </CardContent>
             </Card>
 
-            {/* Active Patients Card */}
+            {/* Total Patients Card */}
             <Card className="shadow-sm rounded-xl bg-card border-none ring-1 ring-border/50">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium text-muted-foreground">
-                  Patients actifs
+                  Total Patients
                 </CardTitle>
                 <div className="bg-blue-100 p-2 rounded-full dark:bg-blue-900/30">
                   <Users className="h-4 w-4 text-blue-600 dark:text-blue-400" />
@@ -123,7 +114,7 @@ export default function DashboardPage() {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold text-foreground">
-                  {stats.activePatients}
+                  {stats.totalPatients}
                 </div>
                 <p className="text-xs text-muted-foreground mt-1">
                   Enregistrés dans la base de données
@@ -180,7 +171,7 @@ export default function DashboardPage() {
                   {stats.consultationsToday}
                 </div>
                 <p className="text-xs text-muted-foreground mt-1">
-                  Planifiées pour aujourd'hui
+                  Effectuées aujourd'hui
                 </p>
               </CardContent>
             </Card>

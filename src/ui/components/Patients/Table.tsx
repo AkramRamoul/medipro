@@ -65,8 +65,10 @@ function PatientsTable({
 }) {
   const [query, setQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [sortKey, setSortKey] = useState<"name" | "lastVisit" | null>(null);
-  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+  const [sortKey, setSortKey] = useState<
+    "name" | "lastVisit" | "createdAt" | null
+  >("createdAt");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [showArchived, setShowArchived] = useState(false);
 
   const [confirmDialog, setConfirmDialog] = useState<{
@@ -75,6 +77,7 @@ function PatientsTable({
   } | null>(null);
 
   const navigate = useNavigate();
+  console.log(patients);
 
   const itemsPerPage = 8;
   const filteredData = patients
@@ -114,7 +117,7 @@ function PatientsTable({
       if (aVal == null) return 1;
       if (bVal == null) return -1;
 
-      if (sortKey === "lastVisit") {
+      if (sortKey === "lastVisit" || sortKey === "createdAt") {
         const aDate = new Date(aVal).getTime();
         const bDate = new Date(bVal).getTime();
         return sortOrder === "asc" ? aDate - bDate : bDate - aDate;
@@ -187,7 +190,7 @@ function PatientsTable({
               {confirmDialog?.action === "archive"
                 ? "Son dossier restera accessible en lecture seule."
                 : confirmDialog?.action === "delete"
-                  ? "Cette action est irréversible (soft delete)."
+                  ? "Cette action est irréversible ."
                   : "Il apparaîtra de nouveau dans la liste principale et sera éditable."}
             </AlertDialogDescription>
           </AlertDialogHeader>
@@ -315,7 +318,7 @@ function PatientsTable({
                             </Avatar>
                             <div className="flex flex-col">
                               <span className="font-semibold text-foreground flex items-center gap-2">
-                                {(patient.lastname || "").toUpperCase()}
+                                {(patient.firstname || "").toUpperCase()}
                                 {isArchived && (
                                   <Badge
                                     variant="outline"
@@ -326,7 +329,7 @@ function PatientsTable({
                                 )}
                               </span>
                               <span className="text-xs text-muted-foreground">
-                                {patient.firstname || ""}
+                                {patient.lastname || ""}
                               </span>
                             </div>
                           </div>

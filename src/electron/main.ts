@@ -226,10 +226,10 @@ app.on("ready", () => {
 
     const formattedPatients = result.map((patient) => ({
       ...patient,
-      createdAt: new Date(patient.createdAt!).toISOString().split("T")[0],
+      createdAt: new Date(patient.createdAt!).toISOString(),
       lastVisit:
         patient.lastVisit && typeof patient.lastVisit === "string"
-          ? new Date(patient.lastVisit).toISOString().split("T")[0]
+          ? new Date(patient.lastVisit).toISOString()
           : null,
     }));
 
@@ -748,11 +748,10 @@ app.on("ready", () => {
           sql`strftime('%Y-%m', ${prescriptions.date}) = strftime('%Y-%m', CURRENT_TIMESTAMP)`,
         );
 
-      const [activePatients] = await db
-        .select({
-          count: sql<number>`count(distinct ${consultations.patientId})`,
-        })
-        .from(consultations);
+      const [totalPatients] = await db
+        .select({ count: sql<number>`count(*)` })
+        .from(patients)
+        .where(sql`${patients.status} != 'deleted'`);
 
       const recentConsultations = await db
         .select({
@@ -768,13 +767,33 @@ app.on("ready", () => {
         .orderBy(sql`date(${consultations.date}) DESC`)
         .limit(5);
 
+      const [patientsThisMonth] = await db
+        .select({
+          count: sql<number>`count(*)`,
+        })
+        .from(patients)
+        .where(
+          sql`strftime('%Y-%m', ${patients.createdAt}) = strftime('%Y-%m', CURRENT_TIMESTAMP) AND ${patients.status} != 'deleted'`,
+        );
+
+      const [patientsLastMonth] = await db
+        .select({
+          count: sql<number>`count(*)`,
+        })
+        .from(patients)
+        .where(
+          sql`strftime('%Y-%m', ${patients.createdAt}) = strftime('%Y-%m', date('now', '-1 month')) AND ${patients.status} != 'deleted'`,
+        );
+
       return {
         consultationsThisMonth: consultationsThisMonth.count,
         consultationsToday: consultationsToday.count,
         prescriptionsThisMonth: prescriptionsThisMonth.count,
-        activePatients: activePatients.count,
+        totalPatients: totalPatients.count,
         recentConsultations,
         consultationsLastMonth: consultationsLastMonth.count,
+        patientsThisMonth: patientsThisMonth.count,
+        patientsLastMonth: patientsLastMonth.count,
       };
     } catch (error) {
       console.error("Failed to load dashboard stats:", error);

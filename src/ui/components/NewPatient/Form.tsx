@@ -27,7 +27,9 @@ const patientSchema = z.object({
     .min(2, "Le prénom doit comporter au moins 2 caractères."),
   last_name: z.string().min(2, "Le nom doit comporter au moins 2 caractères."),
   age: z.coerce.number().min(1, "L'âge doit être au moins de 1 an."),
-  gender: z.enum(["Male", "Female"]),
+  gender: z.enum(["Male", "Female"], {
+    errorMap: () => ({ message: "Le sexe est requis." }),
+  }),
   contact: z.string().optional(),
   weight: z.coerce.number().optional(),
   notes: z.string().optional(),
