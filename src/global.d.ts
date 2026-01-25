@@ -84,7 +84,12 @@ export interface IElectronAPI {
   backup: () => Promise<void>;
   restore: () => Promise<void>;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getPatientTimeline: (id: string) => Promise<any[]>;
+  addAppointment: (data: unknown) => Promise<{ success: boolean; error?: string }>;
+  getAppointments: (patientId: string) => Promise<Appointment[]>;
+  getAllAppointments: () => Promise<(Appointment & { patientFirstName: string; patientLastName: string })[]>;
+  deleteAppointment: (id: number) => Promise<{ success: boolean; error?: string }>;
 }
 
 declare global {

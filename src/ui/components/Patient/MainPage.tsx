@@ -7,6 +7,7 @@ import TimeLine from "../Timeline/TimeLine";
 import { Button } from "../ui/button";
 import { Download, Loader2 } from "lucide-react";
 import { usePatientPdfExport } from "../../hooks/usePatientPdfExport";
+import { AppointmentTab } from "../Appointment/AppointmentTab";
 
 function MainPage() {
   const { id } = useParams<{ id: string }>();
@@ -40,6 +41,12 @@ function MainPage() {
               className="flex-1 text-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
             >
               Historique
+            </TabsTrigger>
+            <TabsTrigger
+              value="rendezyous"
+              className="flex-1 text-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+            >
+              Rendez-vous
             </TabsTrigger>
           </TabsList>
 
@@ -82,6 +89,13 @@ function MainPage() {
           className="bg-card text-card-foreground p-4 rounded-lg"
         >
           <TimeLine id={id!} />
+        </TabsContent>
+
+        <TabsContent
+          value="rendezyous"
+          className="bg-card text-card-foreground p-4 rounded-lg"
+        >
+          <AppointmentTab patientId={id!} />
         </TabsContent>
       </Tabs>
     </div>

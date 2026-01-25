@@ -6,6 +6,7 @@ import {
   SettingsIcon,
   User,
   FilePen,
+  Calendar,
 } from "lucide-react";
 
 import {
@@ -24,6 +25,7 @@ import { NavSecondary } from "./Nav-secondary";
 const items = [
   { title: "Tableau de bord", url: "/", icon: ChartColumnIncreasing },
   { title: "Patientes", url: "/patients", icon: User },
+  { title: "Rendez-vous", url: "/appointments", icon: Calendar },
   { title: "Consultations", url: "/consultations", icon: Clipboard },
   { title: "Ordonnances", url: "/prescriptions", icon: PillBottle },
   { title: "Modèle Ordonnance ", url: "/Ordonnance", icon: FilePen },
@@ -53,17 +55,16 @@ export function AppSidebar() {
                       <NavLink
                         to={item.url}
                         className={`flex items-center gap-2 px-2 py-2 rounded-md transition-colors font-semibold text-lg
-                        ${
-                          (item.url === "/" && currentPath === "/") ||
-                          (item.url === "/patients" &&
-                            (currentPath.startsWith("/patients") ||
-                              currentPath.startsWith("/pat/"))) ||
-                          (item.url !== "/" &&
-                            item.url !== "/patients" &&
-                            currentPath.startsWith(item.url))
+                        ${(item.url === "/" && currentPath === "/") ||
+                            (item.url === "/patients" &&
+                              (currentPath.startsWith("/patients") ||
+                                currentPath.startsWith("/pat/"))) ||
+                            (item.url !== "/" &&
+                              item.url !== "/patients" &&
+                              currentPath.startsWith(item.url))
                             ? "bg-primary text-white pointer-events-none"
                             : "text-black dark:text-gray-300 hover:bg-[#e0f2fe] dark:hover:bg-[#1e3a8a]"
-                        }`}
+                          }`}
                       >
                         <item.icon />
                         <span>{item.title}</span>

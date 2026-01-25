@@ -108,8 +108,20 @@ export const Document = sqliteTable("document", {
   createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
 });
 
+export const appointments = sqliteTable("appointments", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  patientId: integer("patient_id")
+    .notNull()
+    .references(() => patients.id, { onDelete: "cascade" }),
+  date: text("date").notNull(),
+  title: text("title").notNull(),
+  notes: text("notes"),
+  status: text("status").notNull().default("scheduled"),
+});
+
 export type PrescriptionMed = typeof prescriptionMedications.$inferSelect;
 export type NewPrescriptionMed = typeof prescriptionMedications.$inferInsert;
 export type prescriptionModel = typeof prescriptionModel.$inferSelect;
 export type document = typeof Document.$inferSelect;
 export type Prescription = typeof prescriptions.$inferSelect;
+export type Appointment = typeof appointments.$inferSelect;

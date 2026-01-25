@@ -23,6 +23,7 @@ import {
   Name,
   psychotropicCounters,
   Document,
+  appointments,
 } from "./schema.js";
 import { restoreDatabase } from "./restore.js";
 import { backupDatabase } from "./bdBackup.js";
@@ -863,6 +864,63 @@ app.on("ready", () => {
     } catch (err) {
       console.error(err);
       return { success: false, error: "Failed to fetch monthly patients." };
+    }
+  });
+
+  ipcMain.handle("add-appointment", async (_, data) => {
+    try {
+      await db.insert(appointments).values(data);
+      return { success: true };
+    } catch (error) {
+      console.error("Failed to add appointment:", error);
+      return { success: false, error: (error as Error).message };
+    }
+  });
+
+  ipcMain.handle("get-appointments", async (_, patientId) => {
+    try {
+      const result = await db
+        .select()
+        .from(appointments)
+        .where(eq(appointments.patientId, patientId))
+        .orderBy(desc(appointments.date));
+      return result;
+    } catch (error) {
+      console.error("Failed to get appointments:", error);
+      return [];
+    }
+  });
+
+  ipcMain.handle("get-all-appointments", async () => {
+    try {
+      const result = await db
+        .select({
+          id: appointments.id,
+          date: appointments.date,
+          title: appointments.title,
+          notes: appointments.notes,
+          status: appointments.status,
+          patientId: appointments.patientId,
+          patientFirstName: patients.first_name,
+          patientLastName: patients.last_name,
+        })
+        .from(appointments)
+        .leftJoin(patients, eq(appointments.patientId, patients.id))
+        .orderBy(desc(appointments.date));
+      return result;
+    } catch (error) {
+      console.error("Failed to get all appointments:", error);
+      return [];
+    }
+  });
+
+  ipcMain.handle("delete-appointment", async (_, id) => {
+    try {
+      await db.delete(appointments).where(eq(appointments.id, id));
+      return { success: true };
+    } catch (error) {
+      console.error("Failed to delete appointment:", error);
+      return { success: false, error: (error as Error).message };
     }
   });
 

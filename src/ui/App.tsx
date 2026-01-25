@@ -12,6 +12,7 @@ import { AuthProvider } from "./context/auth-context";
 import RequirePassword from "./lib/RequirePassword";
 import { ThemeProvider } from "./components/theme-provider";
 import { PrescriptionModelForm } from "./Prescriptionsettings/PrescriptionSetting";
+import MainAppointmentPage from "./components/Appointment/MainAppointmentPage";
 
 function App() {
   return (
@@ -34,7 +35,9 @@ function App() {
               <Route path="/settings" element={<Settings />} />
               <Route path="/pat/:id" element={<MainPage />} />
               <Route path="/patients" element={<Home />} />
+              <Route path="/patients" element={<Home />} />
               <Route path="/Ordonnance" element={<PrescriptionModelForm />} />
+              <Route path="/appointments" element={<MainAppointmentPage />} />
             </Route>
           </Routes>
           <Toaster />

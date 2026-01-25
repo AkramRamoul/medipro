@@ -149,4 +149,16 @@ contextBridge.exposeInMainWorld("electronAPI", {
   getPatientTimeline: async (patientId: number) => {
     return await ipcRenderer.invoke("get-patient-timeline", patientId);
   },
+  addAppointment: async (data: unknown) => {
+    return await ipcRenderer.invoke("add-appointment", data);
+  },
+  getAppointments: async (patientId: number) => {
+    return await ipcRenderer.invoke("get-appointments", patientId);
+  },
+  getAllAppointments: async () => {
+    return await ipcRenderer.invoke("get-all-appointments");
+  },
+  deleteAppointment: async (id: number) => {
+    return await ipcRenderer.invoke("delete-appointment", id);
+  },
 });
