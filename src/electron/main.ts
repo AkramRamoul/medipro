@@ -27,6 +27,11 @@ import {
 } from "./schema.js";
 import { restoreDatabase } from "./restore.js";
 import { backupDatabase } from "./bdBackup.js";
+import pkg from "node-machine-id";
+import { validateLicenseKey } from "./validate-license.js";
+import { getLicense, saveLicense } from "./LicenseStore.js";
+const { machineIdSync } = pkg;
+
 app.on("ready", () => {
   const win = new BrowserWindow({
     show: false,
@@ -1105,6 +1110,42 @@ app.on("ready", () => {
       return true;
     });
   }
+
+  function getMachineId(original = false): string {
+    try {
+      const id = machineIdSync(original); // original = true gives full hardware ID
+      return id;
+    } catch (err) {
+      console.error("Failed to get machine ID:", err);
+      return "UNKNOWN";
+    }
+  }
+  ipcMain.handle("get-machine-id", async () => {
+    return getMachineId();
+  });
+
+
+  ipcMain.handle("validate-license", async (_, key, payload) => {
+    const isValid = validateLicenseKey(key, payload);
+    if (isValid) saveLicense(key, payload);
+    return isValid;
+  });
+
+  ipcMain.handle("get-license", async () => {
+    return getLicense();
+  });
+
+  ipcMain.handle("get-app-init-data", async () => {
+    const license = getLicense();
+    const result = await db.select().from(auth).limit(1);
+    const passwordExists = result.length > 0 && Boolean(result[0].passwordHash);
+    
+    return {
+      isLicensed: !!license,
+      passwordExists,
+      machineId: getMachineId()
+    };
+  });
 
   registerBackupIpc();
 

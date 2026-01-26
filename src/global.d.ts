@@ -90,6 +90,15 @@ export interface IElectronAPI {
   getAppointments: (patientId: string) => Promise<Appointment[]>;
   getAllAppointments: () => Promise<(Appointment & { patientFirstName: string; patientLastName: string })[]>;
   deleteAppointment: (id: number) => Promise<{ success: boolean; error?: string }>;
+
+  getStoredLicense: () => Promise<LicensePayload | undefined>;
+  submitLicense: (key: string, payload: LicensePayload) => Promise<boolean>;
+  getMachineId: () => string;
+  getAppInitData: () => Promise<{
+    isLicensed: boolean;
+    passwordExists: boolean;
+    machineId: string;
+  }>;
 }
 
 declare global {

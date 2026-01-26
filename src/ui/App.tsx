@@ -13,9 +13,28 @@ import RequirePassword from "./lib/RequirePassword";
 import { ThemeProvider } from "./components/theme-provider";
 import { PrescriptionModelForm } from "./Prescriptionsettings/PrescriptionSetting";
 import MainAppointmentPage from "./components/Appointment/MainAppointmentPage";
+import { useEffect, useState } from "react";
+import LicenseScreen from "./components/License/LicenseScreen";
+import { Loader2 } from "lucide-react";
 
 function App() {
-  return (
+  const [licensed, setLicensed] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    window.electronAPI.getAppInitData().then((data) => {
+      if (data.isLicensed) setLicensed(true);
+      setIsLoading(false);
+    });
+  }, []);
+
+  if (isLoading)
+    return (
+      <div className="flex items-center justify-center py-10 w-full h-screen">
+        <Loader2 className="animate-spin text-muted-foreground w-6 h-6" />
+      </div>
+    );
+  return licensed ? (
     <AuthProvider>
       <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
         <Router>
@@ -44,6 +63,8 @@ function App() {
         </Router>
       </ThemeProvider>
     </AuthProvider>
+  ) : (
+    <LicenseScreen onSuccess={() => setLicensed(true)} />
   );
 }
 

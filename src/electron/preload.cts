@@ -161,4 +161,9 @@ contextBridge.exposeInMainWorld("electronAPI", {
   deleteAppointment: async (id: number) => {
     return await ipcRenderer.invoke("delete-appointment", id);
   },
+  submitLicense: (key: string, payload: object) =>
+    ipcRenderer.invoke("validate-license", key, payload),
+  getStoredLicense: () => ipcRenderer.invoke("get-license"),
+  getMachineId: () => ipcRenderer.invoke("get-machine-id"),
+  getAppInitData: () => ipcRenderer.invoke("get-app-init-data"),
 });
