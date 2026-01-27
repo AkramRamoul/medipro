@@ -166,4 +166,6 @@ contextBridge.exposeInMainWorld("electronAPI", {
   getStoredLicense: () => ipcRenderer.invoke("get-license"),
   getMachineId: () => ipcRenderer.invoke("get-machine-id"),
   getAppInitData: () => ipcRenderer.invoke("get-app-init-data"),
+  resetLicense: () => ipcRenderer.invoke("reset-license"),
+
 });

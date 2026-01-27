@@ -29,7 +29,7 @@ import { restoreDatabase } from "./restore.js";
 import { backupDatabase } from "./bdBackup.js";
 import pkg from "node-machine-id";
 import { validateLicenseKey } from "./validate-license.js";
-import { getLicense, saveLicense } from "./LicenseStore.js";
+import { getLicense, resetLicense, saveLicense } from "./LicenseStore.js";
 const { machineIdSync } = pkg;
 
 app.on("ready", () => {
@@ -1139,12 +1139,15 @@ app.on("ready", () => {
     const license = getLicense();
     const result = await db.select().from(auth).limit(1);
     const passwordExists = result.length > 0 && Boolean(result[0].passwordHash);
-    
+
     return {
       isLicensed: !!license,
       passwordExists,
       machineId: getMachineId()
     };
+  });
+  ipcMain.handle("reset-license", async () => {
+    resetLicense();
   });
 
   registerBackupIpc();

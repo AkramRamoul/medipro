@@ -99,6 +99,8 @@ export interface IElectronAPI {
     passwordExists: boolean;
     machineId: string;
   }>;
+  resetLicense: () => void;
+
 }
 
 declare global {
