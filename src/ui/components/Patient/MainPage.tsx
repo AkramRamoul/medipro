@@ -15,9 +15,29 @@ function MainPage() {
 
   return (
     <div className="p-4 flex flex-col items-center">
+      <div className="w-full max-w-5xl mb-6 flex items-center justify-between">
+        <h1 className="text-3xl font-bold tracking-tight text-foreground">
+          Dossier Patient
+        </h1>
+        <Button
+          onClick={() => id && exportPdf(id)}
+          disabled={isExporting}
+          variant="default"
+          size="default"
+          className="flex items-center gap-2 transition-all shadow-md hover:shadow-lg"
+        >
+          {isExporting ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Download className="h-4 w-4" />
+          )}
+          {isExporting ? "Export..." : "Exporter PDF"}
+        </Button>
+      </div>
+
       <Tabs defaultValue="example" className="w-full max-w-5xl">
-        <div className="flex items-center justify-between mb-3 gap-4">
-          <TabsList className="flex-1 flex justify-center bg-muted rounded-lg">
+        <div className="mb-3">
+          <TabsList className="w-full flex justify-center bg-muted rounded-lg h-auto p-1">
             <TabsTrigger
               value="example"
               className="flex-1 text-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
@@ -49,21 +69,6 @@ function MainPage() {
               Rendez-vous
             </TabsTrigger>
           </TabsList>
-
-          <Button
-            onClick={() => id && exportPdf(id)}
-            disabled={isExporting}
-            variant="outline"
-            size="default"
-            className="flex items-center gap-2 border-2 hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all shadow-sm font-semibold whitespace-nowrap"
-          >
-            {isExporting ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <Download className="h-4 w-4" />
-            )}
-            {isExporting ? "Export..." : "Exporter PDF"}
-          </Button>
         </div>
 
         <TabsContent

@@ -31,12 +31,13 @@ export function AddAppointmentModal({
 
     try {
       const timePart = time ? time : "00:00";
-      const dateTime = new Date(`${date}T${timePart}`);
+      // We store the date exactly as entered (local time) to avoid UTC shifts
+      const dateString = `${date}T${timePart}`;
 
       await window.electronAPI.addAppointment({
         patientId: Number(patientId),
         title,
-        date: dateTime.toISOString(),
+        date: dateString,
         notes,
         status: "scheduled",
       });
