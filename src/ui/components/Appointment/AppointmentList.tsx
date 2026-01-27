@@ -28,7 +28,9 @@ export function AppointmentList({
   patientId,
   refreshTrigger,
 }: AppointmentListProps) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [upcoming, setUpcoming] = useState<any[]>([]);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [past, setPast] = useState<any[]>([]);
   const [deleteId, setDeleteId] = useState<number | null>(null);
 
@@ -38,7 +40,6 @@ export function AppointmentList({
       const now = new Date();
       const today = startOfDay(now);
 
-      // Category logic: Upcoming includes everything from today onwards
       const upcomingList = all.filter((a) => new Date(a.date) >= today);
       const pastList = all.filter((a) => new Date(a.date) < today);
 
@@ -65,9 +66,6 @@ export function AppointmentList({
   };
 
   const formatDateDisplay = (dateStr: string) => {
-    // We treat the date as local time.
-    // If it has a 'Z', it's UTC and will shift.
-    // If we saved it as 'YYYY-MM-DDTHH:mm', it stays local.
     const date = new Date(dateStr);
 
     const hasTime = date.getHours() !== 0 || date.getMinutes() !== 0;
