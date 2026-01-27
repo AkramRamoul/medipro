@@ -369,7 +369,10 @@ export function PrescriptionModelForm() {
             acceptedFileTypes={["image/*", "application/pdf"]}
             dropText="Faites glisser et déposez un fichier ici ou cliquez pour télécharger"
           >
-            <RoundedTool onImageUploaded={setLogoImage} />
+            <RoundedTool
+              onImageUploaded={setLogoImage}
+              existingImage={logoImage}
+            />
           </FileDropzone>
           <p className="text-xs text-muted-foreground text-center mt-2 flex items-center justify-center gap-1">
             <svg
