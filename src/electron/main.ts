@@ -432,6 +432,7 @@ app.on("ready", () => {
         .select({
           id: Document.id,
           type: Document.type,
+          content: Document.content,
           createdAt: Document.createdAt,
         })
         .from(Document)
@@ -492,19 +493,37 @@ app.on("ready", () => {
         });
       });
 
-      patientDocuments.forEach((doc) => {
-        let summary = "Document";
-        if (doc.type === "blood") summary = "Analyse de sang";
-        if (doc.type === "certificate") summary = "Certificat médical";
-        if (doc.type === "report") summary = "Compte rendu";
+      // Filter to only include certificates and blood tests
+      patientDocuments
+        .filter((doc) => doc.type === "certificate" || doc.type === "blood")
+        .forEach((doc) => {
+          let summary = "Document";
+          let details = null;
 
-        events.push({
-          date: doc.createdAt || "",
-          type: "Document",
-          summary: summary,
-          details: null,
+          if (doc.type === "blood") {
+            summary = "Analyse de sang";
+            if (doc.content?.results && Array.isArray(doc.content.results)) {
+              details = doc.content.results.join(", ");
+            }
+          } else if (doc.type === "certificate") {
+            summary = "Certificat médical";
+            if (doc.content?.diagnosis) {
+              details = `Diagnostic: ${doc.content.diagnosis}`;
+              if (doc.content.restStartDate && doc.content.restEndDate) {
+                const startDate = new Date(doc.content.restStartDate).toLocaleDateString("fr-FR");
+                const endDate = new Date(doc.content.restEndDate).toLocaleDateString("fr-FR");
+                details += `\nRepos: ${startDate} - ${endDate}`;
+              }
+            }
+          }
+
+          events.push({
+            date: doc.createdAt || "",
+            type: "Document",
+            summary: summary,
+            details: details,
+          });
         });
-      });
 
       events.sort(
         (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),

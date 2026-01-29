@@ -62,14 +62,27 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: "#e0e0e0",
     padding: 4,
+    minHeight: 20,
   },
   tableHeader: {
     backgroundColor: "#f5f5f5",
     fontWeight: "bold",
   },
-  colDate: { width: "15%" },
-  colType: { width: "20%" },
-  colContent: { flex: 1 },
+  colDate: {
+    width: "15%",
+    paddingRight: 4,
+  },
+  colType: {
+    width: "20%",
+    paddingRight: 4,
+  },
+  colContent: {
+    flex: 1,
+  },
+  cellText: {
+    fontSize: 10,
+    lineHeight: 1.4,
+  },
 });
 
 interface PatientRecordProps {
@@ -125,19 +138,31 @@ const PatientRecordPdf = ({
         </Text>
         <View style={styles.table}>
           <View style={[styles.tableRow, styles.tableHeader]}>
-            <Text style={styles.colDate}>Date</Text>
-            <Text style={styles.colType}>Motif</Text>
-            <Text style={styles.colContent}>Diagnostic & Notes</Text>
+            <View style={styles.colDate}>
+              <Text>Date</Text>
+            </View>
+            <View style={styles.colType}>
+              <Text>Motif</Text>
+            </View>
+            <View style={styles.colContent}>
+              <Text>Diagnostic & Notes</Text>
+            </View>
           </View>
           {consultations.map((c, i) => (
             <View key={i} style={styles.tableRow}>
-              <Text style={styles.colDate}>
-                {new Date(c.date).toLocaleDateString("fr-FR")}
-              </Text>
-              <Text style={styles.colType}>{c.reason}</Text>
-              <Text style={styles.colContent}>
-                {c.diagnosis} {c.notes ? `\nNote: ${c.notes}` : ""}
-              </Text>
+              <View style={styles.colDate}>
+                <Text>
+                  {new Date(c.date).toLocaleDateString("fr-FR")}
+                </Text>
+              </View>
+              <View style={styles.colType}>
+                <Text>{c.reason}</Text>
+              </View>
+              <View style={styles.colContent}>
+                <Text>
+                  {c.diagnosis} {c.notes ? `\nNote: ${c.notes}` : ""}
+                </Text>
+              </View>
             </View>
           ))}
           {consultations.length === 0 && (
@@ -155,22 +180,30 @@ const PatientRecordPdf = ({
         </Text>
         <View style={styles.table}>
           <View style={[styles.tableRow, styles.tableHeader]}>
-            <Text style={styles.colDate}>Date</Text>
-            <Text style={styles.colContent}>Médicaments</Text>
+            <View style={styles.colDate}>
+              <Text>Date</Text>
+            </View>
+            <View style={styles.colContent}>
+              <Text>Médicaments</Text>
+            </View>
           </View>
           {prescriptions.map((p, i) => (
             <View key={i} style={styles.tableRow}>
-              <Text style={styles.colDate}>
-                {new Date(p.date).toLocaleDateString("fr-FR")}
-              </Text>
-              <Text style={styles.colContent}>
-                {p.medications
-                  ?.map(
-                    (m: any) =>
-                      `- ${m.medicineName} ${m.dosage} (${m.duration || ""})`,
-                  )
-                  .join("\n")}
-              </Text>
+              <View style={styles.colDate}>
+                <Text>
+                  {new Date(p.date).toLocaleDateString("fr-FR")}
+                </Text>
+              </View>
+              <View style={styles.colContent}>
+                <Text>
+                  {p.medications
+                    ?.map(
+                      (m: any) =>
+                        `- ${m.medicineName} ${m.dosage} (${m.duration || ""})`,
+                    )
+                    .join("\n")}
+                </Text>
+              </View>
             </View>
           ))}
           {prescriptions.length === 0 && (
@@ -183,77 +216,104 @@ const PatientRecordPdf = ({
         </View>
 
         {/* Documents */}
-        <Text style={styles.sectionTitle}>Documents ({documents.length})</Text>
-        <View style={styles.table}>
-          <View style={[styles.tableRow, styles.tableHeader]}>
-            <Text style={styles.colDate}>Date</Text>
-            <Text style={styles.colType}>Type</Text>
-            <Text style={styles.colContent}>Détails</Text>
-          </View>
-          {documents.map((d, i) => {
-            let typeLabel = "Document";
-            let details = "Détails non disponibles";
+        {(() => {
+          // Filter to only include certificates and bilans (blood tests)
+          const filteredDocuments = documents.filter(
+            (d) => d.type === "certificate" || d.type === "blood"
+          );
 
-            if (d.type === "blood") {
-              typeLabel = "Analyse de sang";
-              if (d.content?.results && Array.isArray(d.content.results)) {
-                details = d.content.results.join(", ");
-              }
-            } else if (d.type === "certificate") {
-              typeLabel = "Certificat médical";
-              if (d.content?.diagnosis) {
-                details = `Diagnostic: ${d.content.diagnosis}`;
-                if (d.content.restStartDate && d.content.restEndDate) {
-                  details += `\nRepos: ${new Date(d.content.restStartDate).toLocaleDateString("fr-FR")} - ${new Date(d.content.restEndDate).toLocaleDateString("fr-FR")}`;
-                }
-              }
-            } else if (d.type === "report") {
-              typeLabel = "Compte rendu";
-              if (d.content?.diagnostic) {
-                details = `Diagnostic: ${d.content.diagnostic}`;
-                if (d.content.traitement) {
-                  details += `\nTraitement: ${d.content.traitement}`;
-                }
-              }
-            }
+          return (
+            <>
+              <Text style={styles.sectionTitle}>Documents ({filteredDocuments.length})</Text>
+              <View style={styles.table}>
+                <View style={[styles.tableRow, styles.tableHeader]}>
+                  <View style={styles.colDate}>
+                    <Text>Date</Text>
+                  </View>
+                  <View style={styles.colType}>
+                    <Text>Type</Text>
+                  </View>
+                  <View style={styles.colContent}>
+                    <Text>Détails</Text>
+                  </View>
+                </View>
+                {filteredDocuments.map((d, i) => {
+                  let typeLabel = "Document";
+                  let details = "Détails non disponibles";
 
-            return (
-              <View key={i} style={styles.tableRow}>
-                <Text style={styles.colDate}>
-                  {new Date(d.createdAt).toLocaleDateString("fr-FR")}
-                </Text>
-                <Text style={styles.colType}>{typeLabel}</Text>
-                <Text style={styles.colContent}>{details}</Text>
+                  if (d.type === "blood") {
+                    typeLabel = "Analyse de sang";
+                    if (d.content?.results && Array.isArray(d.content.results)) {
+                      details = d.content.results.join(", ");
+                    }
+                  } else if (d.type === "certificate") {
+                    typeLabel = "Certificat médical";
+                    if (d.content?.diagnosis) {
+                      details = `Diagnostic: ${d.content.diagnosis}`;
+                      if (d.content.restStartDate && d.content.restEndDate) {
+                        details += `\nRepos: ${new Date(d.content.restStartDate).toLocaleDateString("fr-FR")} - ${new Date(d.content.restEndDate).toLocaleDateString("fr-FR")}`;
+                      }
+                    }
+                  }
+
+                  return (
+                    <View key={i} style={styles.tableRow}>
+                      <View style={styles.colDate}>
+                        <Text>
+                          {new Date(d.createdAt).toLocaleDateString("fr-FR")}
+                        </Text>
+                      </View>
+                      <View style={styles.colType}>
+                        <Text>{typeLabel}</Text>
+                      </View>
+                      <View style={styles.colContent}>
+                        <Text>{details}</Text>
+                      </View>
+                    </View>
+                  );
+                })}
+                {filteredDocuments.length === 0 && (
+                  <View style={styles.tableRow}>
+                    <Text style={{ textAlign: "center", flex: 1, padding: 10 }}>
+                      Aucun document enregistré
+                    </Text>
+                  </View>
+                )}
               </View>
-            );
-          })}
-          {documents.length === 0 && (
-            <View style={styles.tableRow}>
-              <Text style={{ textAlign: "center", flex: 1, padding: 10 }}>
-                Aucun document enregistré
-              </Text>
-            </View>
-          )}
-        </View>
+            </>
+          );
+        })()}
 
         {/* Timeline */}
         <Text style={styles.sectionTitle}>Chronologie Complète</Text>
         <View style={styles.table}>
           <View style={[styles.tableRow, styles.tableHeader]}>
-            <Text style={styles.colDate}>Date</Text>
-            <Text style={styles.colType}>Type</Text>
-            <Text style={styles.colContent}>Détails</Text>
+            <View style={styles.colDate}>
+              <Text>Date</Text>
+            </View>
+            <View style={styles.colType}>
+              <Text>Type</Text>
+            </View>
+            <View style={styles.colContent}>
+              <Text>Détails</Text>
+            </View>
           </View>
           {timeline.map((e, i) => (
             <View key={i} style={styles.tableRow}>
-              <Text style={styles.colDate}>
-                {new Date(e.date).toLocaleDateString("fr-FR")}
-              </Text>
-              <Text style={styles.colType}>{e.type}</Text>
-              <Text style={styles.colContent}>
-                {e.summary}
-                {e.details ? `\n${e.details}` : ""}
-              </Text>
+              <View style={styles.colDate}>
+                <Text>
+                  {new Date(e.date).toLocaleDateString("fr-FR")}
+                </Text>
+              </View>
+              <View style={styles.colType}>
+                <Text>{e.type}</Text>
+              </View>
+              <View style={styles.colContent}>
+                <Text>
+                  {e.summary}
+                  {e.details ? `\n${e.details}` : ""}
+                </Text>
+              </View>
             </View>
           ))}
         </View>
