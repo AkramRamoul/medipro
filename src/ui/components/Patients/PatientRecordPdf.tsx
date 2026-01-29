@@ -77,6 +77,7 @@ interface PatientRecordProps {
   consultations: any[];
   prescriptions: any[];
   timeline: any[];
+  documents?: any[];
 }
 
 const PatientRecordPdf = ({
@@ -84,6 +85,7 @@ const PatientRecordPdf = ({
   consultations,
   prescriptions,
   timeline,
+  documents = [],
 }: PatientRecordProps) => {
   return (
     <Document>
@@ -175,6 +177,60 @@ const PatientRecordPdf = ({
             <View style={styles.tableRow}>
               <Text style={{ textAlign: "center", flex: 1, padding: 10 }}>
                 Aucune ordonnance enregistrée
+              </Text>
+            </View>
+          )}
+        </View>
+
+        {/* Documents */}
+        <Text style={styles.sectionTitle}>Documents ({documents.length})</Text>
+        <View style={styles.table}>
+          <View style={[styles.tableRow, styles.tableHeader]}>
+            <Text style={styles.colDate}>Date</Text>
+            <Text style={styles.colType}>Type</Text>
+            <Text style={styles.colContent}>Détails</Text>
+          </View>
+          {documents.map((d, i) => {
+            let typeLabel = "Document";
+            let details = "Détails non disponibles";
+
+            if (d.type === "blood") {
+              typeLabel = "Analyse de sang";
+              if (d.content?.results && Array.isArray(d.content.results)) {
+                details = d.content.results.join(", ");
+              }
+            } else if (d.type === "certificate") {
+              typeLabel = "Certificat médical";
+              if (d.content?.diagnosis) {
+                details = `Diagnostic: ${d.content.diagnosis}`;
+                if (d.content.restStartDate && d.content.restEndDate) {
+                  details += `\nRepos: ${new Date(d.content.restStartDate).toLocaleDateString("fr-FR")} - ${new Date(d.content.restEndDate).toLocaleDateString("fr-FR")}`;
+                }
+              }
+            } else if (d.type === "report") {
+              typeLabel = "Compte rendu";
+              if (d.content?.diagnostic) {
+                details = `Diagnostic: ${d.content.diagnostic}`;
+                if (d.content.traitement) {
+                  details += `\nTraitement: ${d.content.traitement}`;
+                }
+              }
+            }
+
+            return (
+              <View key={i} style={styles.tableRow}>
+                <Text style={styles.colDate}>
+                  {new Date(d.createdAt).toLocaleDateString("fr-FR")}
+                </Text>
+                <Text style={styles.colType}>{typeLabel}</Text>
+                <Text style={styles.colContent}>{details}</Text>
+              </View>
+            );
+          })}
+          {documents.length === 0 && (
+            <View style={styles.tableRow}>
+              <Text style={{ textAlign: "center", flex: 1, padding: 10 }}>
+                Aucun document enregistré
               </Text>
             </View>
           )}

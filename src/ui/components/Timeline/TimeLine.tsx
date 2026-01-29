@@ -12,7 +12,7 @@ import {
 
 interface TimelineEvent {
   date: string;
-  type: "Administrative" | "Consultation" | "Prescription";
+  type: "Administrative" | "Consultation" | "Ordonnance" | "Document";
   subType?: string;
   summary: string;
   details: string | null;
@@ -68,6 +68,8 @@ function TimeLine({ id }: { id: string }) {
         return <RefreshCcw className="w-4 h-4 text-orange-500" />;
       return <User className="w-4 h-4 text-gray-400" />;
     }
+    if (type === "Document")
+      return <FileText className="w-4 h-4 text-orange-500" />;
     return <Activity className="w-4 h-4 text-gray-400" />;
   };
 

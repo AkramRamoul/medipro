@@ -44,13 +44,11 @@ export default function LicenseScreen({ onSuccess }: LicenseScreenProps) {
 
   async function handleSubmit() {
     setStatus("checking");
-    // Simulate a small delay for better UX if the check is instant
-    await new Promise((resolve) => setTimeout(resolve, 600));
-
+    await new Promise((resolve) => setTimeout(resolve, 200));
     const isValid = await window.electronAPI.submitLicense(key, payload);
     setStatus(isValid ? "valid" : "invalid");
     if (isValid) {
-      setTimeout(() => onSuccess(), 1000); // Give user time to see success
+      setTimeout(() => onSuccess(), 500);
     }
   }
 
@@ -143,11 +141,12 @@ export default function LicenseScreen({ onSuccess }: LicenseScreenProps) {
               onClick={handleSubmit}
               disabled={!key || status === "checking"}
               className={`w-full h-12 text-sm font-semibold rounded-xl transition-all shadow-md hover:shadow-lg disabled:opacity-70 disabled:shadow-none
-                ${status === "valid"
-                  ? "bg-green-600 hover:bg-green-700 ring-green-500"
-                  : status === "invalid"
-                    ? "bg-red-600 hover:bg-red-700 ring-red-500"
-                    : "bg-blue-600 hover:bg-blue-700 ring-blue-500"
+                ${
+                  status === "valid"
+                    ? "bg-green-600 hover:bg-green-700 ring-green-500"
+                    : status === "invalid"
+                      ? "bg-red-600 hover:bg-red-700 ring-red-500"
+                      : "bg-blue-600 hover:bg-blue-700 ring-blue-500"
                 }`}
             >
               {status === "checking" ? (

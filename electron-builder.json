@@ -1,21 +1,39 @@
 {
   "appId": "com.akram.doc-right",
-  "files": ["dist-electron", "dist-react"],
+
+  "asar": true,
+  "compression": "maximum",
+
+  "files": [
+    "dist-electron/**",
+    "dist-react/**",
+    "!**/*.map",
+    "!**/*.md",
+    "!**/test/**",
+    "!**/__tests__/**"
+  ],
+
   "extraResources": [
     {
       "from": "public/meds.json",
       "to": "meds.json"
     },
     {
-      "from": "database.db",
-      "to": "database.db"
-    },
-    {
       "from": "public/fonts",
       "to": "public/fonts"
+    },
+    {
+      "from": "public/public.pem",
+      "to": "public.pem"
+    },
+    {
+      "from": "database.db",
+      "to": "database.db"
     }
   ],
+
   "icon": "./icon.png",
+
   "mac": { "target": "dmg" },
   "linux": { "target": "AppImage", "category": "Utility" },
   "win": { "target": ["portable", "msi"] }

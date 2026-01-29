@@ -67,7 +67,7 @@ export function ClinicAppointmentList() {
     return {
       dateObj: date,
       timeStr: hasTime ? format(date, "HH:mm") : null,
-      dayStr: format(date, "EEEE d", { locale: fr }),
+      dayStr: format(date, "EEEE d MMMM", { locale: fr }),
     };
   };
 
@@ -152,7 +152,7 @@ export function ClinicAppointmentList() {
                   className="flex items-center justify-between p-4 border border-border rounded-xl bg-card hover:bg-accent/5 transition-all cursor-pointer"
                 >
                   <div className="flex items-center gap-4">
-                    <div className="min-w-[120px] font-medium text-muted-foreground capitalize border-r pr-4">
+                    <div className="min-w-[160px] font-medium text-muted-foreground capitalize border-r pr-4">
                       {dayStr}
                     </div>
                     <div>

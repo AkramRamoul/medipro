@@ -21,13 +21,15 @@ export function usePatientPdfExport() {
             const prescriptions =
                 await window.electronAPI.getPatientPrescriptions(patientId);
             const timeline = await window.electronAPI.getPatientTimeline(patientId);
+            const documents = await window.electronAPI.getPatientDocuments(patientId);
 
             const blob = await pdf(
                 <PatientRecordPdf
-          patient={ patient }
-          consultations = { consultations }
-          prescriptions = { prescriptions }
-          timeline = { timeline }
+                    patient={patient}
+                    consultations={consultations}
+                    prescriptions={prescriptions}
+                    timeline={timeline}
+                    documents={documents}
                 />,
             ).toBlob();
 

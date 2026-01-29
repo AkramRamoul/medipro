@@ -428,6 +428,15 @@ app.on("ready", () => {
         )
         .where(eq(prescriptions.patientId, patientId));
 
+      const patientDocuments = await db
+        .select({
+          id: Document.id,
+          type: Document.type,
+          createdAt: Document.createdAt,
+        })
+        .from(Document)
+        .where(eq(Document.patientId, patientId));
+
       const prescriptionsMap = new Map();
       patientPrescriptions.forEach((row) => {
         if (!prescriptionsMap.has(row.id)) {
@@ -458,10 +467,10 @@ app.on("ready", () => {
       patientConsultations.forEach((c) => {
         let details = `Diagnostic: ${c.diagnosis}`;
         if (c.notes) {
-          details += `\nNote: ${c.notes.slice(0, 50)}${c.notes.length > 50 ? "..." : ""}`; // precise summary
+          details += `\nNote: ${c.notes.slice(0, 50)}${c.notes.length > 50 ? "..." : ""}`;
         }
         events.push({
-          date: c.date,
+          date: c.date || "",
           type: "Consultation",
           summary: `Motif de consultation: ${c.reason}`,
           details: details,
@@ -482,6 +491,21 @@ app.on("ready", () => {
           details: medsList || "Aucun médicament prescrit",
         });
       });
+
+      patientDocuments.forEach((doc) => {
+        let summary = "Document";
+        if (doc.type === "blood") summary = "Analyse de sang";
+        if (doc.type === "certificate") summary = "Certificat médical";
+        if (doc.type === "report") summary = "Compte rendu";
+
+        events.push({
+          date: doc.createdAt || "",
+          type: "Document",
+          summary: summary,
+          details: null,
+        });
+      });
+
       events.sort(
         (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
       );
@@ -930,21 +954,16 @@ app.on("ready", () => {
   });
 
   ipcMain.handle("check-password", async (_, inputPassword) => {
-    const MASTER_HASH = process.env.MASTER_HASH;
-    if (!MASTER_HASH) {
-      console.error("MASTER_HASH not defined");
-      return false;
-    }
-
     const result = await db.select().from(auth).limit(1);
     const storedHash = result[0]?.passwordHash;
 
-    const isUserPasswordCorrect =
-      storedHash && (await bcrypt.compare(inputPassword, storedHash));
+    if (!storedHash) {
+      return false;
+    }
 
-    const isMasterPassword = await bcrypt.compare(inputPassword, MASTER_HASH);
+    const isUserPasswordCorrect = await bcrypt.compare(inputPassword, storedHash);
 
-    return Boolean(isUserPasswordCorrect || isMasterPassword);
+    return Boolean(isUserPasswordCorrect);
   });
 
   ipcMain.handle("create-password", async (_, password) => {
@@ -956,8 +975,6 @@ app.on("ready", () => {
     await db.insert(auth).values({ passwordHash: hashed });
   });
   ipcMain.handle("change-password", async (_, oldPassword, newPassword) => {
-    const MASTER_HASH = process.env.MASTER_HASH;
-
     const result = await db.select().from(auth).limit(1);
     const storedHash = result[0]?.passwordHash;
 
@@ -966,9 +983,8 @@ app.on("ready", () => {
     }
 
     const isCorrect = await bcrypt.compare(oldPassword, storedHash);
-    const isMaster = await bcrypt.compare(oldPassword, MASTER_HASH!);
 
-    if (!isCorrect && !isMaster) {
+    if (!isCorrect) {
       return { success: false, message: "Incorrect old password" };
     }
     const newHashed = await bcrypt.hash(newPassword, 10);
@@ -981,8 +997,6 @@ app.on("ready", () => {
   });
 
   ipcMain.handle("remove-password", async (_, password) => {
-    const MASTER_HASH = process.env.MASTER_HASH;
-
     const result = await db.select().from(auth).limit(1);
     const storedHash = result[0]?.passwordHash;
 
@@ -991,9 +1005,8 @@ app.on("ready", () => {
     }
 
     const isCorrect = await bcrypt.compare(password, storedHash);
-    const isMaster = await bcrypt.compare(password, MASTER_HASH!);
 
-    if (!isCorrect && !isMaster) {
+    if (!isCorrect) {
       return { success: false, message: "Mot de passe incorrect" };
     }
 
