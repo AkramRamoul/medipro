@@ -29,7 +29,8 @@ const styles = StyleSheet.create({
   page: {
     fontFamily: "Amiri",
     direction: "rtl",
-    paddingVertical: 10,
+    paddingTop: 15,
+    paddingBottom: 65,
     paddingHorizontal: 20,
   },
   headerfr: {
@@ -117,6 +118,7 @@ const DocumentPdf = ({
       <Page size={{ width: 419.53, height: 595.28 }} style={styles.page}>
         {image && (
           <Image
+            fixed
             src={image}
             style={{
               position: "absolute",
@@ -132,6 +134,7 @@ const DocumentPdf = ({
 
         {/* HEADER SECTION */}
         <View
+          fixed
           style={{
             flexDirection: "row",
             justifyContent: "space-between",
@@ -184,15 +187,16 @@ const DocumentPdf = ({
           </View>
         </View>
         {/* Inscription number */}
-        <Text style={styles.colCenter}>
+        <Text fixed style={styles.colCenter}>
           N° Inscription : {prescriptionModel.inscriptionNumber}
         </Text>
 
         {/* Divider */}
-        <View style={styles.line} />
+        <View fixed style={styles.line} />
 
         {/* PATIENT INFO */}
         <View
+          fixed
           style={{
             flexDirection: "row",
             justifyContent: "space-between",
@@ -345,6 +349,7 @@ const DocumentPdf = ({
         </View>
 
         <View
+          fixed
           style={{
             position: "absolute",
             bottom: 20,

@@ -21,7 +21,7 @@ const documentTypes = [
   { value: "PRESCRIPTION", label: "Ordonnance", icon: FileText },
   { value: "BLOOD_WORK", label: "Analyse / Bilan sanguin", icon: FlaskConical },
   { value: "CERTIFICATE", label: "Certificat médical", icon: FileBadge },
-  { value: "REPORT", label: "Compte rendu", icon: ClipboardList },
+  { value: "REPORT", label: "Rapport médical", icon: ClipboardList },
 ];
 
 export function DocumentTypeSelector({
@@ -66,7 +66,7 @@ export function DocumentTypeSelector({
                   <Check
                     className={cn(
                       "ml-auto h-4 w-4",
-                      selected === doc.value ? "opacity-100" : "opacity-0"
+                      selected === doc.value ? "opacity-100" : "opacity-0",
                     )}
                   />
                 </CommandItem>
