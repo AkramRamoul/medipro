@@ -25,6 +25,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "../components/ui/dialog";
+import { useLocation } from "react-router-dom";
 
 async function getData(): Promise<PrescriptionWithPatient[]> {
   try {
@@ -80,6 +81,16 @@ function Prescriptions() {
     setQuery(e.target.value);
     setCurrentPage(1);
   };
+
+  const location = useLocation();
+  useEffect(() => {
+    const state = location.state as { openNewPrescription?: boolean } | null;
+
+    if (state?.openNewPrescription) {
+      setIsNewPrescriptionOpen(true);
+      setNewPrescriptionStep(1);
+    }
+  }, [location.state]);
 
   return (
     <div className="max-w-[80%] mx-auto space-y-6 mt-8">
@@ -240,7 +251,10 @@ function Prescriptions() {
         open={isNewPrescriptionOpen}
         onOpenChange={(open) => {
           setIsNewPrescriptionOpen(open);
-          if (!open) setNewPrescriptionStep(1);
+
+          if (!open) {
+            setNewPrescriptionStep(1);
+          }
         }}
       >
         <DialogContent

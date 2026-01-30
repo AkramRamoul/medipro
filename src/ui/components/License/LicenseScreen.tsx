@@ -38,17 +38,17 @@ export default function LicenseScreen({ onSuccess }: LicenseScreenProps) {
   }, []);
 
   const payload: LicensePayload = {
-    expiry: "2026-12-31",
+    expiry: "2126-12-31",
     machineId: data,
   };
 
   async function handleSubmit() {
     setStatus("checking");
-    await new Promise((resolve) => setTimeout(resolve, 200));
+    await new Promise((resolve) => setTimeout(resolve, 0));
     const isValid = await window.electronAPI.submitLicense(key, payload);
     setStatus(isValid ? "valid" : "invalid");
     if (isValid) {
-      setTimeout(() => onSuccess(), 500);
+      setTimeout(() => onSuccess(), 0);
     }
   }
 

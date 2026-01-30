@@ -1,13 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../ui/select";
+
 import { toast } from "sonner";
 import { Patient } from "../../type";
 import PrintButton from "../PrintButton";
@@ -56,10 +50,7 @@ const NewPrescriptionForm = ({
     useState<Medication | null>(null);
   const [highlightedIndex, setHighlightedIndex] = useState<number>(-1);
   const [quantity, setQuantity] = useState<string>("");
-  const [durationValue, setDurationValue] = useState<string>("");
-  const [durationUnit, setDurationUnit] = useState<string | undefined>(
-    undefined,
-  );
+  const [duration, setDuration] = useState<string>("");
   const [note, setNote] = useState<string>("");
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -182,9 +173,7 @@ const NewPrescriptionForm = ({
       dosage: selectedMedication?.dosage || "",
       quantity: quantity || null,
       form: selectedMedication?.form || "",
-      duration: durationValue
-        ? `${durationValue} ${durationUnit || "jours"}`
-        : null,
+      duration: duration || null,
       note: note || null,
     };
 
@@ -192,8 +181,7 @@ const NewPrescriptionForm = ({
     setSelectedMedication(null);
     setInputValue("");
     setQuantity("");
-    setDurationValue("");
-    setDurationUnit("weeks");
+    setDuration("");
     setNote("");
   };
 
@@ -397,32 +385,13 @@ const NewPrescriptionForm = ({
             {/* Duration */}
             <div className="md:col-span-3 space-y-2">
               <Label>Durée</Label>
-
-              <div className="flex gap-2">
-                <Input
-                  type="number"
-                  value={durationValue}
-                  onChange={(e) => setDurationValue(e.target.value)}
-                  placeholder="Ex: 5"
-                  className="flex-1"
-                />
-
-                <Select
-                  value={durationUnit || ""}
-                  onValueChange={setDurationUnit}
-                >
-                  <SelectTrigger className="w-28">
-                    <SelectValue placeholder="Unité" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {["jours", "semaines", "mois"].map((unit) => (
-                      <SelectItem key={unit} value={unit}>
-                        {unit}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+              <Input
+                type="text"
+                value={duration}
+                onChange={(e) => setDuration(e.target.value)}
+                placeholder="Ex: 5 jours, 1 mois..."
+                className="w-full"
+              />
             </div>
 
             {/* Note */}

@@ -153,7 +153,9 @@ const PrescriptionPDF = ({
             }}
           >
             {/* Left side: French */}
-            <View style={{ flex: 1.2, gap: 1 }}> {/* Increased flex to give more room */}
+            <View style={{ flex: 1.2, gap: 1 }}>
+              {" "}
+              {/* Increased flex to give more room */}
               <Text style={styles.headerfr}>{prescriptionModel.nameFr}</Text>
               <Text style={styles.colLeft}>
                 {prescriptionModel.specialtyFr}
@@ -186,7 +188,9 @@ const PrescriptionPDF = ({
             )}
 
             {/* Right side: Arabic */}
-            <View style={{ flex: 1.2, gap: 2 }}> {/* Increased flex to give more room */}
+            <View style={{ flex: 1.2, gap: 2 }}>
+              {" "}
+              {/* Increased flex to give more room */}
               <Text style={styles.headerar}>{prescriptionModel.nameAr}</Text>
               <Text style={styles.colRight}>
                 {prescriptionModel.specialtyAr}
@@ -200,50 +204,9 @@ const PrescriptionPDF = ({
               )}
             </View>
           </View>
-          {/* PSYCHOTROPIC INFO */}
-          {isPsychotropic && (
-            <View
-              style={{
-                marginVertical: 10,
-                padding: 8,
-                borderWidth: 1,
-                borderColor: "#333",
-                backgroundColor: "#f9f9f9",
-                borderRadius: 2,
-              }}
-            >
-              <View style={{ borderBottomWidth: 0.5, borderColor: "#000", paddingBottom: 4, marginBottom: 4 }}>
-                <Text
-                  style={{
-                    fontSize: 10,
-                    textAlign: "center",
-                    fontWeight: "bold",
-                    color: "#000",
-                  }}
-                >
-                  Ordonnance de médicaments psychotropes
-                </Text>
-              </View>
-
-              <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
-                {psychotropicNumber && (
-                  <Text style={{ fontSize: 9 }}>
-                    Numéro d'enregistrement : {psychotropicNumber}
-                  </Text>
-                )}
-
-                {patientAddress && (
-                  <Text style={{ fontSize: 9, flex: 1, textAlign: "right" }}>
-                    Adresse : {patientAddress}
-                  </Text>
-                )}
-              </View>
-            </View>
-          )}
-
           {/* Inscription number */}
           <Text style={styles.colCenter}>
-            N° Inscription : {prescriptionModel.inscriptionNumber}
+            N° Order : {prescriptionModel.inscriptionNumber}
           </Text>
 
           {/* Divider */}
@@ -262,6 +225,11 @@ const PrescriptionPDF = ({
                 Nom : {patient?.first_name} {patient?.last_name}
               </Text>
               <Text style={styles.infoPatient}>Âge : {patient?.age} Ans</Text>
+              {isPsychotropic && patientAddress && (
+                <Text style={styles.infoPatient}>
+                  Adresse : {patientAddress}
+                </Text>
+              )}
             </View>
 
             <View
@@ -274,6 +242,11 @@ const PrescriptionPDF = ({
               <Text style={styles.infoPatient}>
                 {prescriptionModel.city}, le : {formatDate(new Date())}
               </Text>
+              {isPsychotropic && psychotropicNumber && (
+                <Text style={styles.infoPatient}>
+                  Numero d'serie : {psychotropicNumber}
+                </Text>
+              )}
             </View>
           </View>
 
@@ -284,22 +257,20 @@ const PrescriptionPDF = ({
           <View style={{ marginTop: 8, gap: 6 }}>
             {chunk.map((med, index) => (
               <View key={index} style={{ flexDirection: "column" }}>
-                <View
-                  style={{
-                    flexDirection: "row",
-                    justifyContent: "space-between",
-                  }}
-                >
-                  <Text style={{ fontSize: 10 }}>
-                    {med.medicineName}
-
-                    {med.form ? ` ${med.form} ` : ""}
-                    {med.dosage ? `${med.dosage} ` : ""}
-                  </Text>
-                  <Text style={{ fontSize: 10 }}>
-                    {med.quantity ? `( ${med.quantity} )` : ""}
-                    {med.duration ? `(${med.duration})` : ""}
-                  </Text>
+                <View style={{ flexDirection: "row", gap: 10 }}>
+                  <View style={{ flex: 1 }}>
+                    <Text style={{ fontSize: 10 }}>
+                      {med.medicineName}
+                      {med.form ? ` ${med.form} ` : ""}
+                      {med.dosage ? ` ${med.dosage} ` : ""}
+                    </Text>
+                  </View>
+                  <View style={{ flexShrink: 0 }}>
+                    <Text style={{ fontSize: 10 }}>
+                      {med.quantity ? `( ${med.quantity} )` : ""}
+                      {med.duration ? ` ( ${med.duration} )` : ""}
+                    </Text>
+                  </View>
                 </View>
                 <Text style={{ fontSize: 10, marginLeft: 12 }}>{med.note}</Text>
               </View>

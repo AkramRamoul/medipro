@@ -1097,14 +1097,13 @@ app.on("ready", () => {
     try {
       const result = await db
         .select({
-          number: prescriptions.psychotropic_number,
+          id: psychotropicCounters.id,
         })
-        .from(prescriptions)
-        .where(eq(prescriptions.is_psychotropic, true))
-        .orderBy(desc(prescriptions.psychotropic_number))
+        .from(psychotropicCounters)
+        .orderBy(desc(psychotropicCounters.id))
         .limit(1);
 
-      const latestNumber = result[0]?.number || 0;
+      const latestNumber = result[0]?.id || 0;
       return latestNumber + 1;
     } catch (error) {
       console.error("Error fetching next psychotropic number:", error);

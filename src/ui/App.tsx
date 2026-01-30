@@ -16,6 +16,7 @@ import MainAppointmentPage from "./components/Appointment/MainAppointmentPage";
 import { useEffect, useState } from "react";
 import LicenseScreen from "./components/License/LicenseScreen";
 import { Loader2 } from "lucide-react";
+import GlobalShortcuts from "./hooks/use-navigate";
 
 function App() {
   const [licensed, setLicensed] = useState(false);
@@ -59,6 +60,7 @@ function App() {
               <Route path="/appointments" element={<MainAppointmentPage />} />
             </Route>
           </Routes>
+          <GlobalShortcuts />
           <Toaster />
         </Router>
       </ThemeProvider>

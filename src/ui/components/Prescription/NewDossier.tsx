@@ -18,7 +18,7 @@ import { cn } from "../../lib/utils";
 import { Button } from "../ui/button";
 
 const documentTypes = [
-  { value: "PRESCRIPTION", label: "Prescription", icon: FileText },
+  { value: "PRESCRIPTION", label: "Ordonnance", icon: FileText },
   { value: "BLOOD_WORK", label: "Analyse / Bilan sanguin", icon: FlaskConical },
   { value: "CERTIFICATE", label: "Certificat médical", icon: FileBadge },
   { value: "REPORT", label: "Compte rendu", icon: ClipboardList },
