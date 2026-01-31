@@ -31,6 +31,18 @@ export const consultations = sqliteTable("consultations", {
   bloodPressure: text("blood_pressure"),
   glucose: text("glucose"),
   weight: text("weight"),
+  customFields: text("custom_fields", { mode: "json" })
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    .$type<Record<string, any>>()
+    .default(sql`'{}'`),
+});
+
+export const customFields = sqliteTable("custom_fields", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  name: text("name").notNull(),
+  type: text("type").notNull(), // text, number, date
+  label: text("label").notNull(),
+  isActive: integer("is_active", { mode: "boolean" }).default(true),
 });
 
 export const prescriptions = sqliteTable("prescriptions", {
@@ -118,6 +130,27 @@ export const appointments = sqliteTable("appointments", {
   notes: text("notes"),
   status: text("status").notNull().default("scheduled"),
 });
+
+export const prescriptionTemplates = sqliteTable("prescription_templates", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  name: text("name").notNull(),
+});
+
+export const prescriptionTemplateMedications = sqliteTable(
+  "prescription_template_medications",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    templateId: integer("template_id")
+      .notNull()
+      .references(() => prescriptionTemplates.id, { onDelete: "cascade" }),
+    medicineName: text("medicine_name").notNull(),
+    dosage: text("dosage").notNull(),
+    duration: text("duration"),
+    quantity: text("quantity"),
+    form: text("form"),
+    note: text("note"),
+  },
+);
 
 export type PrescriptionMed = typeof prescriptionMedications.$inferSelect;
 export type NewPrescriptionMed = typeof prescriptionMedications.$inferInsert;

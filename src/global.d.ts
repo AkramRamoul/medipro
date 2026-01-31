@@ -101,7 +101,12 @@ export interface IElectronAPI {
     machineId: string;
   }>;
   resetLicense: () => void;
-
+  getCustomFields: () => Promise<any[]>;
+  addCustomField: (data: any) => Promise<{ success: boolean; error?: string }>;
+  deleteCustomField: (id: number) => Promise<{ success: boolean; error?: string }>;
+  getPrescriptionTemplates: () => Promise<any[]>;
+  addPrescriptionTemplate: (data: any) => Promise<{ success: boolean; error?: string }>;
+  deletePrescriptionTemplate: (id: number) => Promise<{ success: boolean; error?: string }>;
 }
 
 declare global {

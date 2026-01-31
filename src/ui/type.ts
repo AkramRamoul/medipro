@@ -27,6 +27,7 @@ export type Consultation = {
   heartRate?: string;
   temperature?: string;
   weight?: string;
+  customFields?: Record<string, any>;
   date: string;
 };
 
@@ -84,6 +85,7 @@ export type ConsultationWithPatient = {
   heartRate?: string;
   temperature?: string;
   weight?: string;
+  customFields?: Record<string, any>;
   patient: {
     id: number;
     first_name: string;

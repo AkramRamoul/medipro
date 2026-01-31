@@ -24,6 +24,9 @@ import {
   psychotropicCounters,
   Document,
   appointments,
+  customFields,
+  prescriptionTemplates,
+  prescriptionTemplateMedications,
 } from "./schema.js";
 import { restoreDatabase } from "./restore.js";
 import { backupDatabase } from "./bdBackup.js";
@@ -192,6 +195,7 @@ app.on("ready", () => {
         bloodPressure: consultations.bloodPressure,
         glucose: consultations.glucose,
         weight: consultations.weight,
+        customFields: consultations.customFields,
         patient: {
           id: patients.id,
           first_name: patients.first_name,
@@ -330,7 +334,7 @@ app.on("ready", () => {
 
       glucose: vitals?.glucose ? Number(vitals.glucose) : null,
       weight: vitals?.weight?.toString() || null,
-
+      customFields: data.customFields || {},
       date: new Date().toISOString(),
     });
   });
@@ -1151,6 +1155,7 @@ app.on("ready", () => {
   function getMachineId(original = false): string {
     try {
       const id = machineIdSync(original); // original = true gives full hardware ID
+      console.log(`Machine ID (${original ? 'original' : 'hashed'}):`, id);
       return id;
     } catch (err) {
       console.error("Failed to get machine ID:", err);
@@ -1174,17 +1179,104 @@ app.on("ready", () => {
 
   ipcMain.handle("get-app-init-data", async () => {
     const license = getLicense();
+    let isLicensed = false;
+
+    if (license && license.key && license.payload) {
+      // Re-validate stored license against current machine
+      isLicensed = validateLicenseKey(license.key, license.payload as any);
+      console.log("Startup license validation:", isLicensed);
+    }
+
     const result = await db.select().from(auth).limit(1);
     const passwordExists = result.length > 0 && Boolean(result[0].passwordHash);
 
     return {
-      isLicensed: !!license,
+      isLicensed,
       passwordExists,
       machineId: getMachineId()
     };
   });
   ipcMain.handle("reset-license", async () => {
     resetLicense();
+  });
+
+  ipcMain.handle("get-custom-fields", async () => {
+    try {
+      return await db.select().from(customFields).where(eq(customFields.isActive, true));
+    } catch (error) {
+      console.error("Failed to fetch custom fields:", error);
+      return [];
+    }
+  });
+
+  ipcMain.handle("add-custom-field", async (_, data) => {
+    try {
+      await db.insert(customFields).values(data);
+      return { success: true };
+    } catch (error) {
+      console.error("Failed to add custom field:", error);
+      return { success: false, error: (error as Error).message };
+    }
+  });
+
+  ipcMain.handle("delete-custom-field", async (_, id) => {
+    try {
+      await db.update(customFields).set({ isActive: false }).where(eq(customFields.id, id));
+      return { success: true };
+    } catch (error) {
+      console.error("Failed to delete custom field:", error);
+      return { success: false, error: (error as Error).message };
+    }
+  });
+
+  ipcMain.handle("get-prescription-templates", async () => {
+    try {
+      const templates = await db.select().from(prescriptionTemplates);
+      const fullTemplates = await Promise.all(
+        templates.map(async (template) => {
+          const meds = await db
+            .select()
+            .from(prescriptionTemplateMedications)
+            .where(eq(prescriptionTemplateMedications.templateId, template.id));
+          return { ...template, medications: meds };
+        }),
+      );
+      return fullTemplates;
+    } catch (error) {
+      console.error("Failed to fetch prescription templates:", error);
+      return [];
+    }
+  });
+
+  ipcMain.handle("add-prescription-template", async (_, { name, medications }) => {
+    try {
+      const [newTemplate] = await db
+        .insert(prescriptionTemplates)
+        .values({ name })
+        .returning({ id: prescriptionTemplates.id });
+
+      if (medications && medications.length > 0) {
+        const medsToInsert = medications.map((med: any) => ({
+          ...med,
+          templateId: newTemplate.id,
+        }));
+        await db.insert(prescriptionTemplateMedications).values(medsToInsert);
+      }
+      return { success: true };
+    } catch (error) {
+      console.error("Failed to add prescription template:", error);
+      return { success: false, error: (error as Error).message };
+    }
+  });
+
+  ipcMain.handle("delete-prescription-template", async (_, id) => {
+    try {
+      await db.delete(prescriptionTemplates).where(eq(prescriptionTemplates.id, id));
+      return { success: true };
+    } catch (error) {
+      console.error("Failed to delete prescription template:", error);
+      return { success: false, error: (error as Error).message };
+    }
   });
 
   registerBackupIpc();

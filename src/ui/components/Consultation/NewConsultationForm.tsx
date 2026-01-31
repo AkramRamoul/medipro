@@ -16,6 +16,7 @@ import {
   ClipboardList,
   Save,
   X,
+  Plus,
 } from "lucide-react";
 import { Patient } from "../../type";
 import { toast } from "sonner";
@@ -43,6 +44,8 @@ function NewConsultationForm({
   const [glucose, setGlucose] = useState("");
   const [weight, setWeight] = useState("");
   const [temperature, setTemperature] = useState("");
+  const [customFieldConfigs, setCustomFieldConfigs] = useState<any[]>([]);
+  const [customFieldValues, setCustomFieldValues] = useState<Record<string, any>>({});
 
   useEffect(() => {
     if (!id) return;
@@ -55,6 +58,15 @@ function NewConsultationForm({
       })
       .catch(console.error)
       .finally(() => setLoading(false));
+
+    window.electronAPI.getCustomFields().then((fields) => {
+      setCustomFieldConfigs(fields);
+      const initialValues: Record<string, any> = {};
+      fields.forEach((f: any) => {
+        initialValues[f.name] = "";
+      });
+      setCustomFieldValues(initialValues);
+    });
   }, [id]);
 
   const handleSave = async () => {
@@ -73,6 +85,7 @@ function NewConsultationForm({
         weight: weight ? weight : null,
         temperature: temperature ? temperature : null,
       },
+      customFields: customFieldValues,
     };
 
     try {
@@ -166,6 +179,38 @@ function NewConsultationForm({
             </div>
           </div>
         </div>
+
+        {customFieldConfigs.length > 0 && (
+          <>
+            <Separator />
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold flex items-center gap-2 text-primary">
+                <Plus className="w-5 h-5" />
+                Champs personnalisés
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {customFieldConfigs.map((config) => (
+                  <div key={config.id} className="space-y-2">
+                    <Label className="flex items-center gap-2 text-foreground font-medium">
+                      {config.label}
+                    </Label>
+                    <Input
+                      type={config.type}
+                      value={customFieldValues[config.name] || ""}
+                      onChange={(e) =>
+                        setCustomFieldValues((prev) => ({
+                          ...prev,
+                          [config.name]: e.target.value,
+                        }))
+                      }
+                      className="bg-muted/30"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </>
+        )}
 
         <Separator />
 

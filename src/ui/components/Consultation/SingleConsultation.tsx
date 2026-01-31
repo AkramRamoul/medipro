@@ -21,6 +21,7 @@ import {
   FileText,
   Save,
   HeartPulse,
+  Plus,
 } from "lucide-react";
 import { Consultation } from "../../type";
 import { toast } from "sonner";
@@ -43,24 +44,23 @@ export default function SingleConsultation({
   const [bpDiastolic, setBpDiastolic] = useState("");
   const [glucose, setGlucose] = useState("");
   const [weight, setWeight] = useState("");
+  const [customFieldConfigs, setCustomFieldConfigs] = useState<any[]>([]);
+  const [customFieldValues, setCustomFieldValues] = useState<Record<string, any>>({});
 
   useEffect(() => {
     if (id) {
-      window.electronAPI
-        .getConsultation(id)
-        /* eslint-disable  @typescript-eslint/no-explicit-any */
-
-        .then((data: any) => {
-          const extractedConsultation = data[0] || null;
-          setConsultation(extractedConsultation);
-          if (extractedConsultation) {
-            setReason(extractedConsultation.reason || "");
-            setSymptoms(extractedConsultation.symptoms || "");
-            setDiagnosis(extractedConsultation.diagnosis || "");
-            setNotes(extractedConsultation.notes || "");
-            setGlucose(extractedConsultation.glucose || "");
-            setWeight(extractedConsultation.weight || "");
-            const bp = extractedConsultation.bloodPressure;
+      const fetchData = async () => {
+        try {
+          const [consultationData] = await window.electronAPI.getConsultation(id);
+          setConsultation(consultationData);
+          if (consultationData) {
+            setReason(consultationData.reason || "");
+            setSymptoms(consultationData.symptoms || "");
+            setDiagnosis(consultationData.diagnosis || "");
+            setNotes(consultationData.notes || "");
+            setGlucose(consultationData.glucose || "");
+            setWeight(consultationData.weight || "");
+            const bp = consultationData.bloodPressure;
 
             if (bp && bp.includes("/")) {
               const [sys, dia] = bp.split("/");
@@ -70,12 +70,20 @@ export default function SingleConsultation({
               setBpSystolic("");
               setBpDiastolic("");
             }
+            setCustomFieldValues(consultationData.customFields || {});
           }
-        })
-        .catch((error: Error) =>
-          console.error("Error fetching consultation:", error),
-        )
-        .finally(() => setLoading(false));
+
+          const fieldConfigs = await window.electronAPI.getCustomFields();
+          setCustomFieldConfigs(fieldConfigs);
+        } catch (error) {
+          console.error("Error fetching consultation data:", error);
+          toast.error("Erreur lors du chargement des données.");
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      fetchData();
     }
   }, [id]);
 
@@ -91,13 +99,12 @@ export default function SingleConsultation({
         glucose,
         weight,
         notes,
+        customFields: customFieldValues,
       };
 
       try {
         await window.electronAPI.editConsultation(updatedConsultation);
-        toast.success("Consultation mise à jour avec succès !");
-        const refreshedData = await window.electronAPI.getConsultation(id);
-        setConsultation(refreshedData[0]);
+        toast.success("Consultation mise à jour avec succès !");
         onClose();
       } catch (error) {
         console.error("Error saving consultation:", error);
@@ -105,6 +112,7 @@ export default function SingleConsultation({
       }
     }
   };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-10">
@@ -121,10 +129,10 @@ export default function SingleConsultation({
           Consultation du{" "}
           {consultation?.date
             ? new Date(consultation.date).toLocaleDateString("fr-FR", {
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              })
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            })
             : ""}
         </CardTitle>
       </CardHeader>
@@ -216,6 +224,35 @@ export default function SingleConsultation({
           </div>
         </div>
 
+        {customFieldConfigs.length > 0 && (
+          <div className="rounded-lg border bg-card p-4">
+            <h3 className="font-semibold mb-3 flex items-center gap-2 text-sm text-muted-foreground uppercase tracking-wide">
+              <Plus className="h-4 w-4" />
+              Champs personnalisés
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {customFieldConfigs.map((config) => (
+                <div key={config.id} className="space-y-2">
+                  <Label className="text-xs flex items-center gap-1">
+                    {config.label}
+                  </Label>
+                  <Input
+                    type={config.type}
+                    value={customFieldValues[config.name] || ""}
+                    onChange={(e) =>
+                      setCustomFieldValues((prev) => ({
+                        ...prev,
+                        [config.name]: e.target.value,
+                      }))
+                    }
+                    className="h-9"
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         <div className="grid gap-4">
           <div className="grid gap-2">
             <Label htmlFor="diagnosis" className="flex items-center gap-2">
@@ -234,7 +271,7 @@ export default function SingleConsultation({
           <div className="grid gap-2">
             <Label
               htmlFor="notes"
-              className="text-left flex items-center gap-2"
+              className="text-left flex items-center gap-2 font-medium"
             >
               Notes Complémentaires
             </Label>
@@ -243,6 +280,7 @@ export default function SingleConsultation({
               placeholder="Autres observations..."
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
+              className="min-h-[80px]"
             />
           </div>
         </div>

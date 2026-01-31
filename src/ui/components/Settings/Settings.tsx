@@ -2,6 +2,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import DatabaseSettings from "./DataBaseSettings";
 import GeneralSettings from "./GeneralSettings/GeneralSettings";
 import { PasswordForm } from "./PassordSettings.tsx/PasswordForm";
+import ConsultationFieldsSettings from "./ConsultationFieldsSettings";
+import PrescriptionTemplatesSettings from "./PrescriptionTemplatesSettings";
 
 function Settings() {
   return (
@@ -28,6 +30,18 @@ function Settings() {
           >
             Base de données
           </TabsTrigger>
+          <TabsTrigger
+            value="consultation-fields"
+            className="flex-1 text-muted-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+          >
+            Champs de consultation
+          </TabsTrigger>
+          <TabsTrigger
+            value="prescription-templates"
+            className="flex-1 text-muted-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+          >
+            Modèles d'ordonnance
+          </TabsTrigger>
         </TabsList>
 
         {/* Tab Contents */}
@@ -49,6 +63,18 @@ function Settings() {
           className="text-center text-foreground mt-6"
         >
           <DatabaseSettings />
+        </TabsContent>
+        <TabsContent
+          value="consultation-fields"
+          className="text-center text-foreground mt-6"
+        >
+          <ConsultationFieldsSettings />
+        </TabsContent>
+        <TabsContent
+          value="prescription-templates"
+          className="text-center text-foreground mt-6"
+        >
+          <PrescriptionTemplatesSettings />
         </TabsContent>
       </Tabs>
     </div>

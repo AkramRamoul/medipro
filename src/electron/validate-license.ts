@@ -13,10 +13,19 @@ export function validateLicenseKey(
         const cleanedKey = licenseKey.replace(/-/g, "").toUpperCase();
         const signature = Buffer.from(base32Decode(cleanedKey, "RFC4648"));
 
-        const payloadStr = JSON.stringify(payload);
-        const hash = crypto.createHash("sha256").update(payloadStr).digest();
+        // Ensure deterministic JSON payload string
+        const payloadStr = JSON.stringify({
+            expiry: payload.expiry,
+            machineId: payload.machineId
+        });
 
-        const isValid = crypto.verify("sha256", hash, publicKey, signature);
+        console.log("Validating license for payload:", payloadStr);
+
+        // Use the buffer directly with the algorithm specified
+        const data = Buffer.from(payloadStr);
+        const isValid = crypto.verify("sha256", data, publicKey, signature);
+
+        console.log("License validation result:", isValid);
         return isValid;
     } catch (err) {
         console.error("Validation failed:", err);

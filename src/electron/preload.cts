@@ -167,5 +167,27 @@ contextBridge.exposeInMainWorld("electronAPI", {
   getMachineId: () => ipcRenderer.invoke("get-machine-id"),
   getAppInitData: () => ipcRenderer.invoke("get-app-init-data"),
   resetLicense: () => ipcRenderer.invoke("reset-license"),
-
+  getCustomFields: async () => {
+    try {
+      return await ipcRenderer.invoke("get-custom-fields");
+    } catch (error) {
+      console.error("📢 Failed to fetch custom fields:", error);
+      return [];
+    }
+  },
+  addCustomField: async (data: unknown) => {
+    return await ipcRenderer.invoke("add-custom-field", data);
+  },
+  deleteCustomField: async (id: number) => {
+    return await ipcRenderer.invoke("delete-custom-field", id);
+  },
+  getPrescriptionTemplates: async () => {
+    return await ipcRenderer.invoke("get-prescription-templates");
+  },
+  addPrescriptionTemplate: async (data: any) => {
+    return await ipcRenderer.invoke("add-prescription-template", data);
+  },
+  deletePrescriptionTemplate: async (id: number) => {
+    return await ipcRenderer.invoke("delete-prescription-template", id);
+  },
 });
