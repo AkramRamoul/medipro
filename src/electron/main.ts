@@ -798,9 +798,14 @@ app.on("ready", () => {
         );
 
       const [totalPatients] = await db
+        .select({ count: sql<number>`count(DISTINCT ${consultations.patientId})` })
+        .from(consultations)
+        .where(sql`${consultations.date} >= date('now', '-12 months')`);
+
+      const [appointmentsToday] = await db
         .select({ count: sql<number>`count(*)` })
-        .from(patients)
-        .where(sql`${patients.status} != 'deleted'`);
+        .from(appointments)
+        .where(sql`date(${appointments.date}) = date('now')`);
 
       const recentConsultations = await db
         .select({
@@ -818,20 +823,20 @@ app.on("ready", () => {
 
       const [patientsThisMonth] = await db
         .select({
-          count: sql<number>`count(*)`,
+          count: sql<number>`count(DISTINCT ${consultations.patientId})`,
         })
-        .from(patients)
+        .from(consultations)
         .where(
-          sql`strftime('%Y-%m', ${patients.createdAt}) = strftime('%Y-%m', CURRENT_TIMESTAMP) AND ${patients.status} != 'deleted'`,
+          sql`strftime('%Y-%m', ${consultations.date}) = strftime('%Y-%m', CURRENT_TIMESTAMP)`,
         );
 
       const [patientsLastMonth] = await db
         .select({
-          count: sql<number>`count(*)`,
+          count: sql<number>`count(DISTINCT ${consultations.patientId})`,
         })
-        .from(patients)
+        .from(consultations)
         .where(
-          sql`strftime('%Y-%m', ${patients.createdAt}) = strftime('%Y-%m', date('now', '-1 month')) AND ${patients.status} != 'deleted'`,
+          sql`strftime('%Y-%m', ${consultations.date}) = strftime('%Y-%m', date('now', '-1 month'))`,
         );
 
       return {
@@ -839,6 +844,7 @@ app.on("ready", () => {
         consultationsToday: consultationsToday.count,
         prescriptionsThisMonth: prescriptionsThisMonth.count,
         totalPatients: totalPatients.count,
+        appointmentsToday: appointmentsToday.count,
         recentConsultations,
         consultationsLastMonth: consultationsLastMonth.count,
         patientsThisMonth: patientsThisMonth.count,
@@ -880,10 +886,10 @@ app.on("ready", () => {
     const results = await db.all(
       sql`
   SELECT 
-    strftime('%m', created_at) AS month,
-    COUNT(*) AS total
-  FROM ${patients}
-  WHERE strftime('%Y', created_at) = ${String(currentYear)}
+    strftime('%m', date) AS month,
+    COUNT(DISTINCT patient_id) AS total
+  FROM ${consultations}
+  WHERE strftime('%Y', date) = ${String(currentYear)}
   GROUP BY month
   `,
     );

@@ -4,6 +4,7 @@ export interface DashboardStats {
   consultationsToday: number;
   prescriptionsThisMonth: number;
   totalPatients: number;
+  appointmentsToday: number;
   patientsThisMonth: number;
   patientsLastMonth: number;
   recentConsultations: {
