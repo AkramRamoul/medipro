@@ -108,7 +108,8 @@ export type monthlyPatients = {
 export type Document = {
   id: number;
   patientId: number;
-  type: "blood" | "certificate" | "report";
+  name?: string;
+  type: "blood" | "certificate" | "report" | "template";
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   content: any;
   createdAt: string | null;

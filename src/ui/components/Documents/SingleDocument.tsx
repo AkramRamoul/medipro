@@ -26,16 +26,18 @@ interface SingleDocumentProps {
   onClose?: () => void;
 }
 
-const labels = {
+const labels: Record<Document["type"], string> = {
   blood: "Demande Bilan",
   certificate: "Certificat Médical",
   report: "Rapport Médical",
-} as const;
+  template: "Lettre / Certificat (Modèle)",
+};
 
-const icons = {
+const icons: Record<Document["type"], any> = {
   blood: FlaskConical,
   certificate: FileCheck,
   report: FileText,
+  template: FileText,
 };
 
 export function SingleDocument({ document, onClose }: SingleDocumentProps) {
@@ -101,8 +103,8 @@ export function SingleDocument({ document, onClose }: SingleDocumentProps) {
                 Date d'examen:{" "}
                 {certContent.examinationDate
                   ? new Date(certContent.examinationDate).toLocaleDateString(
-                      "fr-FR",
-                    )
+                    "fr-FR",
+                  )
                   : "N/A"}
               </span>
             </div>
@@ -122,8 +124,8 @@ export function SingleDocument({ document, onClose }: SingleDocumentProps) {
                 <span className="font-medium">
                   {certContent.restStartDate
                     ? new Date(certContent.restStartDate).toLocaleDateString(
-                        "fr-FR",
-                      )
+                      "fr-FR",
+                    )
                     : "N/A"}
                 </span>
               </div>
@@ -134,8 +136,8 @@ export function SingleDocument({ document, onClose }: SingleDocumentProps) {
                 <span className="font-medium">
                   {certContent.restEndDate
                     ? new Date(certContent.restEndDate).toLocaleDateString(
-                        "fr-FR",
-                      )
+                      "fr-FR",
+                    )
                     : "N/A"}
                 </span>
               </div>
@@ -210,6 +212,15 @@ export function SingleDocument({ document, onClose }: SingleDocumentProps) {
         );
       }
 
+      case "template": {
+        return (
+          <div
+            className="prose prose-sm dark:prose-invert max-w-none"
+            dangerouslySetInnerHTML={{ __html: document.content }}
+          />
+        );
+      }
+
       default:
         return <p>Type de document non reconnu.</p>;
     }
@@ -225,7 +236,7 @@ export function SingleDocument({ document, onClose }: SingleDocumentProps) {
             </div>
             <div>
               <CardTitle className="text-xl text-primary">
-                {labels[document.type]}
+                {document.name || labels[document.type]}
               </CardTitle>
               <CardDescription>
                 Crée le{" "}
@@ -236,14 +247,15 @@ export function SingleDocument({ document, onClose }: SingleDocumentProps) {
             </div>
           </div>
           <Badge variant="secondary" className="text-xs uppercase">
-            {labels[document.type].split(" ")[0]}
+            {(document.name || labels[document.type]).split(" ")[0]}
           </Badge>
         </div>
       </CardHeader>
 
-      <div className="flex-1 max-h-[60vh]">
-        <CardContent className="pt-6">{renderContent()}</CardContent>
-      </div>
+      <CardContent className="pt-6 flex-1 overflow-y-auto max-h-[80vh]">
+        {renderContent()}
+      </CardContent>
+
 
       {onClose && (
         <CardFooter className="pt-4 mt-auto justify-end">

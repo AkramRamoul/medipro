@@ -22,12 +22,15 @@ const documentTypes = [
   { value: "BLOOD_WORK", label: "Analyse / Bilan sanguin", icon: FlaskConical },
   { value: "CERTIFICATE", label: "Certificat médical", icon: FileBadge },
   { value: "REPORT", label: "Rapport médical", icon: ClipboardList },
+  { value: "TEMPLATE", label: "Depuis un modèle", icon: FileText },
 ];
 
 export function DocumentTypeSelector({
   onSelect,
+  allowedTypes,
 }: {
   onSelect: (type: string) => void;
+  allowedTypes?: string[];
 }) {
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState<string | null>(null);
@@ -47,31 +50,33 @@ export function DocumentTypeSelector({
           <CommandEmpty>Aucun résultat.</CommandEmpty>
 
           <CommandGroup heading="Types de documents">
-            {documentTypes.map((doc) => {
-              const Icon = doc.icon;
-              return (
-                <CommandItem
-                  key={doc.value}
-                  value={doc.value}
-                  onSelect={() => {
-                    setSelected(doc.value);
-                    setOpen(false);
-                    onSelect(doc.value);
-                  }}
-                >
-                  <Icon className="mr-2 h-4 w-4" />
+            {documentTypes
+              .filter((doc) => !allowedTypes || allowedTypes.includes(doc.value))
+              .map((doc) => {
+                const Icon = doc.icon;
+                return (
+                  <CommandItem
+                    key={doc.value}
+                    value={doc.value}
+                    onSelect={() => {
+                      setSelected(doc.value);
+                      setOpen(false);
+                      onSelect(doc.value);
+                    }}
+                  >
+                    <Icon className="mr-2 h-4 w-4" />
 
-                  {doc.label}
+                    {doc.label}
 
-                  <Check
-                    className={cn(
-                      "ml-auto h-4 w-4",
-                      selected === doc.value ? "opacity-100" : "opacity-0",
-                    )}
-                  />
-                </CommandItem>
-              );
-            })}
+                    <Check
+                      className={cn(
+                        "ml-auto h-4 w-4",
+                        selected === doc.value ? "opacity-100" : "opacity-0",
+                      )}
+                    />
+                  </CommandItem>
+                );
+              })}
           </CommandGroup>
         </Command>
       </PopoverContent>

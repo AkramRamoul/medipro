@@ -13,22 +13,28 @@ import {
 } from "../ui/table";
 import PrescriptionRow from "./PrescriptionRow";
 import { DocumentTypeSelector } from "./NewDossier";
-import { MedicalCertificate } from "../Documents/MedicalCertificate";
 import { BloodWork } from "../Documents/BloodWork";
-import { MedicalReport } from "../Documents/MedicalReport";
 import DocumentRow from "../Documents/DocumentRow";
 import { SingleDocument } from "../Documents/SingleDocument";
+import NewDocumentFromTemplate from "../Documents/NewDocumentFromTemplate";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Pill, FileText, Clock, Calendar } from "lucide-react";
 import ModalV2 from "../Modalsecond";
 import Pagination from "../Pagination";
+import { Button } from "../ui/button";
 
 const ITEMS_PER_PAGE = 8;
 
-function MainPrescriptionPage({ id }: { id: string }) {
+function MainPrescriptionPage({
+  id,
+  mode = "prescriptions",
+}: {
+  id: string;
+  mode?: "prescriptions" | "letters";
+}) {
   const [isOpen, setIsOpen] = useState(false);
   const [docType, setDocType] = useState<
-    null | "PRESCRIPTION" | "BLOOD_WORK" | "CERTIFICATE" | "REPORT"
+    null | "PRESCRIPTION" | "BLOOD_WORK" | "CERTIFICATE" | "REPORT" | "TEMPLATE"
   >(null);
 
   const [prescriptions, setPrescriptions] = useState<Prescription[]>([]);
@@ -76,38 +82,47 @@ function MainPrescriptionPage({ id }: { id: string }) {
           <Card className="border-none shadow-sm bg-card">
             <CardHeader className="pb-2">
               <CardTitle className="text-xl flex items-center gap-2 text-primary">
-                <Pill className="w-5 h-5" />
-                Gestion des Ordonnances et Documents
+                {mode === "prescriptions" ? (
+                  <>
+                    <Pill className="w-5 h-5" />
+                    Gestion des Ordonnances
+                  </>
+                ) : (
+                  <>
+                    <FileText className="w-5 h-5" />
+                    Gestion des Lettres
+                  </>
+                )}
               </CardTitle>
               <p className="text-sm text-muted-foreground">
-                Créez et gérez les documents médicaux pour {patient?.first_name}{" "}
-                {patient?.last_name}
+                {mode === "prescriptions"
+                  ? `Gérez les prescriptions pour ${patient?.first_name} ${patient?.last_name}`
+                  : `Gérez les lettres et documents pour ${patient?.first_name} ${patient?.last_name}`}
               </p>
             </CardHeader>
             <CardContent>
-              <DocumentTypeSelector
-                onSelect={(type) => {
-                  setIsOpen(true);
-                  if (
-                    [
-                      "PRESCRIPTION",
-                      "BLOOD_WORK",
-                      "CERTIFICATE",
-                      "REPORT",
-                    ].includes(type)
-                  ) {
-                    setDocType(
-                      type as
-                        | "PRESCRIPTION"
-                        | "BLOOD_WORK"
-                        | "CERTIFICATE"
-                        | "REPORT",
-                    );
-                    setViewingDocument(null);
+              {mode === "prescriptions" ? (
+                <DocumentTypeSelector
+                  allowedTypes={["PRESCRIPTION", "BLOOD_WORK"]}
+                  onSelect={(type) => {
                     setIsOpen(true);
-                  }
-                }}
-              />
+                    setDocType(type as any);
+                    setViewingDocument(null);
+                  }}
+                />
+              ) : (
+                <Button
+                  onClick={() => {
+                    setIsOpen(true);
+                    setDocType("TEMPLATE");
+                    setViewingDocument(null);
+                  }}
+                  className="flex items-center gap-2"
+                >
+                  <FileText className="w-4 h-4" />
+                  Nouveau Document
+                </Button>
+              )}
             </CardContent>
           </Card>
         </div>
@@ -115,7 +130,9 @@ function MainPrescriptionPage({ id }: { id: string }) {
         <div className="border rounded-xl shadow-sm bg-card overflow-hidden">
           <div className="bg-muted/30 p-3 border-b flex items-center gap-2 text-sm font-medium text-muted-foreground">
             <FileText className="w-4 h-4" />
-            Historique des documents
+            {mode === "prescriptions"
+              ? "Historique des ordonnances"
+              : "Historique des lettres"}
           </div>
 
           {/* Old Modal for PRESCRIPTION */}
@@ -139,11 +156,10 @@ function MainPrescriptionPage({ id }: { id: string }) {
             >
               {viewingDocument && (
                 <div
-                  className={`transition-all duration-200 ${
-                    isOpen
-                      ? "opacity-100 translate-y-0"
-                      : "opacity-0 -translate-y-2"
-                  }`}
+                  className={`transition-all duration-200 ${isOpen
+                    ? "opacity-100 translate-y-0"
+                    : "opacity-0 -translate-y-2"
+                    }`}
                 >
                   <SingleDocument
                     document={viewingDocument}
@@ -163,19 +179,10 @@ function MainPrescriptionPage({ id }: { id: string }) {
                 />
               )}
 
-              {docType === "CERTIFICATE" && (
-                <MedicalCertificate
+              {docType === "TEMPLATE" && (
+                <NewDocumentFromTemplate
                   patient={patient!}
                   onClose={() => setIsOpen(false)}
-                  refreshDocuments={fetchPrescriptions}
-                />
-              )}
-
-              {docType === "REPORT" && (
-                <MedicalReport
-                  patient={patient!}
-                  onClose={() => setIsOpen(false)}
-                  type={"REPORT"}
                   refreshDocuments={fetchPrescriptions}
                 />
               )}
@@ -200,7 +207,8 @@ function MainPrescriptionPage({ id }: { id: string }) {
               </TableRow>
             </TableHeader>
 
-            {prescriptions.length === 0 && documents.length === 0 ? (
+            {(mode === "prescriptions" ? prescriptions : documents).length ===
+              0 ? (
               <TableBody>
                 <TableRow className="hover:bg-transparent border-none">
                   <TableCell
@@ -209,9 +217,9 @@ function MainPrescriptionPage({ id }: { id: string }) {
                   >
                     <div className="flex flex-col items-center justify-center gap-2">
                       <FileText className="w-8 h-8 opacity-20" />
-                      <p>Aucun document pour le moment.</p>
+                      <p>Aucun(e) {mode === "prescriptions" ? "ordonnance" : "lettre"} pour le moment.</p>
                       <p className="text-xs opacity-70">
-                        Sélectionnez un type de document ci-dessus pour
+                        Sélectionnez un type de {mode === "prescriptions" ? "document" : "lettre"} ci-dessus pour
                         commencer.
                       </p>
                     </div>
@@ -221,14 +229,25 @@ function MainPrescriptionPage({ id }: { id: string }) {
             ) : (
               <TableBody>
                 {[
-                  ...prescriptions.map((p) => ({
-                    ...p,
-                    kind: "prescription" as const,
-                  })),
-                  ...documents.map((d) => ({
-                    ...d,
-                    kind: "document" as const,
-                  })),
+                  ...(mode === "prescriptions"
+                    ? [
+                      ...prescriptions.map((p) => ({
+                        ...p,
+                        kind: "prescription" as const,
+                      })),
+                      ...documents
+                        .filter((d) => d.type === "blood")
+                        .map((d) => ({
+                          ...d,
+                          kind: "document" as const,
+                        })),
+                    ]
+                    : documents
+                      .filter((d) => d.type !== "blood")
+                      .map((d) => ({
+                        ...d,
+                        kind: "document" as const,
+                      }))),
                 ]
                   .sort((a, b) => {
                     const dateA = new Date(
@@ -275,7 +294,11 @@ function MainPrescriptionPage({ id }: { id: string }) {
         </div>
         <Pagination
           itemsPerPage={ITEMS_PER_PAGE}
-          totalItems={prescriptions.length + documents.length}
+          totalItems={
+            mode === "prescriptions"
+              ? prescriptions.length + documents.filter((d) => d.type === "blood").length
+              : documents.filter((d) => d.type !== "blood").length
+          }
           currentPage={currentPage}
           onPageChange={setCurrentPage}
         />

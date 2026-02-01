@@ -27,6 +27,7 @@ import {
   customFields,
   prescriptionTemplates,
   prescriptionTemplateMedications,
+  documentTemplates,
 } from "./schema.js";
 import { restoreDatabase } from "./restore.js";
 import { backupDatabase } from "./bdBackup.js";
@@ -47,6 +48,66 @@ app.on("ready", () => {
 
   win.maximize();
   win.show();
+
+  // Preload default templates
+  (async () => {
+    try {
+      const existing = await db.select().from(documentTemplates).limit(1);
+      if (existing.length === 0) {
+        const defaults = [
+          {
+            name: "Arrêt de travail",
+            type: "work_stop",
+            content: "<h2>Arrêt de Travail</h2><p>Je soussigné, Dr. [Nom du Médecin], certifie avoir examiné M./Mme <strong>[Nom du Patient]</strong> et que son état de santé nécessite un arrêt de travail de <strong>[Nombre]</strong> jours à compter du <strong>[Date]</strong>.</p><p>Sauf complication, la reprise du travail pourra avoir lieu le [Date de reprise].</p>",
+            isDefault: true,
+          },
+          {
+            name: "Certificat Médical d'Aptitude",
+            type: "medical_certificate",
+            content: "<h2>Certificat Médical d'Aptitude</h2><p>Je soussigné, Dr. [Nom du Médecin], certifie que l'état de santé de M./Mme <strong>[Nom du Patient]</strong>, après examen clinique ce jour, ne présente aucune contre-indication apparente à la pratique de <strong>[Activité Sportive/Professionnelle]</strong>.</p><p>Certificat délivré à la demande de l'intéressé(e) pour servir et valoir ce que de droit.</p>",
+            isDefault: true,
+          },
+          {
+            name: "Certificat de maladie chronique",
+            type: "chronic_disease",
+            content: "<h2>Certificat de Maladie Chronique</h2><p>Le patient M./Mme <strong>[Nom du Patient]</strong> est suivi régulièrement par notre cabinet pour une pathologie chronique nécessitant un traitement continu et une surveillance médicale régulière.</p><p>Ce certificat est établi pour permettre le suivi de son dossier médical.</p>",
+            isDefault: true,
+          },
+          {
+            name: "Lettre d'Orientation",
+            type: "custom",
+            content: "<h2>Lettre d'Orientation</h2><p>Cher confrère,</p><p>Je vous adresse M./Mme <strong>[Nom du Patient]</strong> pour une prise en charge spécialisée concernant <strong>[Motif de la consultation]</strong>.</p><p>Voici les éléments cliniques notables :</p><ul><li>[Élément 1]</li><li>[Élément 2]</li></ul><p>Je vous remercie par avance de votre avis et de la conduite à tenir que vous jugerez nécessaire.</p><p>Confraternellement,</p>",
+            isDefault: true,
+          },
+          {
+            name: "Note d'honoraires",
+            type: "custom",
+            content: "<h2>Note d'honoraires</h2><p>Reçu de M./Mme <strong>[Nom du Patient]</strong> la somme de : <strong>[Montant] DA</strong></p><p>Pour : Consultation médicale / Acte médical</p><p>Fait à [Ville], le [Date]</p>",
+            isDefault: true,
+          }
+        ];
+        // @ts-ignore
+        await db.insert(documentTemplates).values(defaults);
+      }
+
+      const existingPrescTemplates = await db.select().from(prescriptionTemplates).limit(1);
+      if (existingPrescTemplates.length === 0) {
+        // Preload some standard prescription templates
+        const [grippe] = await db.insert(prescriptionTemplates).values({ name: "État Grippal" }).returning({ id: prescriptionTemplates.id });
+        await db.insert(prescriptionTemplateMedications).values([
+          { templateId: grippe.id, medicineName: "PARACETAMOL 1G", dosage: "1 tab 3x/jour", duration: "5 jours", quantity: "1 bte", form: "Comprimé" },
+          { templateId: grippe.id, medicineName: "VITAMINE C 1000MG", dosage: "1 tab le matin", duration: "10 jours", quantity: "1 bte", form: "Comprimé effervescent" }
+        ]);
+
+        const [hypertension] = await db.insert(prescriptionTemplates).values({ name: "Hypertension (Initial)" }).returning({ id: prescriptionTemplates.id });
+        await db.insert(prescriptionTemplateMedications).values([
+          { templateId: hypertension.id, medicineName: "AMLODIPINE 5MG", dosage: "1 tab le soir", duration: "3 mois", quantity: "3 btes", form: "Comprimé" }
+        ]);
+      }
+    } catch (err) {
+      console.error("Failed to preload default templates:", err);
+    }
+  })();
 
   if (isDevelopment()) {
     win.loadURL("http://localhost:5123");
@@ -1077,10 +1138,10 @@ app.on("ready", () => {
   });
   ipcMain.handle("create-document", async (_, data) => {
     try {
-      const { patientId, type, content } = data;
+      const { patientId, type, content, name } = data;
       const [newDoc] = await db
         .insert(Document)
-        .values({ patientId, type, content })
+        .values({ patientId, type, content, name })
         .returning({ id: Document.id });
       return { success: true, id: newDoc.id };
     } catch (error) {
@@ -1275,6 +1336,57 @@ app.on("ready", () => {
       return { success: true };
     } catch (error) {
       console.error("Failed to delete prescription template:", error);
+      return { success: false, error: (error as Error).message };
+    }
+  });
+
+  ipcMain.handle("get-document-templates", async () => {
+    try {
+      return await db.select().from(documentTemplates).orderBy(desc(documentTemplates.isDefault));
+    } catch (error) {
+      console.error("Failed to fetch document templates:", error);
+      return [];
+    }
+  });
+
+  ipcMain.handle("add-document-template", async (_, data) => {
+    try {
+      await db.insert(documentTemplates).values({
+        ...data,
+        isDefault: false,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      });
+      return { success: true };
+    } catch (error) {
+      console.error("Failed to add document template:", error);
+      return { success: false, error: (error as Error).message };
+    }
+  });
+
+  ipcMain.handle("update-document-template", async (_, { id, ...data }) => {
+    try {
+      await db.update(documentTemplates)
+        .set({ ...data, updatedAt: new Date().toISOString() })
+        .where(eq(documentTemplates.id, id));
+      return { success: true };
+    } catch (error) {
+      console.error("Failed to update document template:", error);
+      return { success: false, error: (error as Error).message };
+    }
+  });
+
+  ipcMain.handle("delete-document-template", async (_, id) => {
+    try {
+      // Don't delete defaults
+      const [template] = await db.select().from(documentTemplates).where(eq(documentTemplates.id, id));
+      if (template?.isDefault) {
+        return { success: false, error: "Cannot delete default templates" };
+      }
+      await db.delete(documentTemplates).where(eq(documentTemplates.id, id));
+      return { success: true };
+    } catch (error) {
+      console.error("Failed to delete document template:", error);
       return { success: false, error: (error as Error).message };
     }
   });

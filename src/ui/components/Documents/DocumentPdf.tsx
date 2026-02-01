@@ -86,6 +86,7 @@ const DocumentPdf = ({
   image,
   documentContent,
   documentType,
+  documentName,
 }: {
   first_name: string;
   last_name: string;
@@ -104,14 +105,16 @@ const DocumentPdf = ({
     city: string;
   };
   image: string | null;
-  documentContent: document["content"];
-  documentType: document["type"];
+  documentContent: any;
+  documentType: "blood" | "certificate" | "report" | "template";
+  documentName?: string;
 }) => {
-  const labels = {
+  const labels: Record<string, string> = {
     blood: "Demande Bilan",
     certificate: "Certificat de travail",
     report: "Rapport médical",
-  } as const;
+    template: "Lettre / Certificat",
+  };
 
   return (
     <Document>
@@ -223,7 +226,7 @@ const DocumentPdf = ({
           </View>
         </View>
 
-        <Text style={styles.title}>{labels[documentType]}</Text>
+        <Text style={styles.title}>{documentName || labels[documentType]}</Text>
 
         <View style={{ marginTop: 8, gap: 6 }}>
           {documentType === "blood" ? (
@@ -282,6 +285,16 @@ const DocumentPdf = ({
                   {(documentContent as any).remarks}
                 </Text>
               )}
+            </View>
+          ) : documentType === "template" ? (
+            <View style={{ marginTop: 15 }}>
+              <Text style={{ fontSize: 12, lineHeight: 1.5 }}>
+                {String(documentContent)
+                  .replace(/<[^>]+>/g, "\n")
+                  .split("\n")
+                  .filter((line) => line.trim() !== "")
+                  .join("\n\n")}
+              </Text>
             </View>
           ) : (
             <View style={{ marginTop: 15, gap: 8 }}>

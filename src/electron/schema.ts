@@ -105,13 +105,14 @@ export const Name = sqliteTable("name", {
   nameFr: text("name").notNull(),
 });
 
-const docTypeEnums = ["blood", "certificate", "report"] as const;
+const docTypeEnums = ["blood", "certificate", "report", "template"] as const;
 
 export const Document = sqliteTable("document", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   patientId: integer("patient_id")
     .notNull()
     .references(() => patients.id, { onDelete: "cascade" }),
+  name: text("name"),
   type: text("type", { enum: docTypeEnums }).notNull(),
   content: text("content", { mode: "json" })
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -152,9 +153,22 @@ export const prescriptionTemplateMedications = sqliteTable(
   },
 );
 
+export const documentTemplates = sqliteTable("document_templates", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  name: text("name").notNull(),
+  type: text("type", {
+    enum: ["work_stop", "medical_certificate", "chronic_disease", "custom"],
+  }).notNull(),
+  content: text("content").notNull(),
+  isDefault: integer("is_default", { mode: "boolean" }).default(false),
+  createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
+  updatedAt: text("updated_at").default(sql`CURRENT_TIMESTAMP`),
+});
+
 export type PrescriptionMed = typeof prescriptionMedications.$inferSelect;
 export type NewPrescriptionMed = typeof prescriptionMedications.$inferInsert;
 export type prescriptionModel = typeof prescriptionModel.$inferSelect;
 export type document = typeof Document.$inferSelect;
 export type Prescription = typeof prescriptions.$inferSelect;
 export type Appointment = typeof appointments.$inferSelect;
+export type DocumentTemplate = typeof documentTemplates.$inferSelect;

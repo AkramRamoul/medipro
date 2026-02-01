@@ -298,7 +298,7 @@ export function PrescriptionModelForm() {
               </div>
               {/* Registration fields */}
               <div>
-                <label className="block font-medium">N° d'inscription</label>
+                <label className="block font-medium">N° d'order</label>
                 <input
                   type="text"
                   name="inscriptionNumber"

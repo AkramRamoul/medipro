@@ -59,6 +59,7 @@ const DocPrint = ({
         image={image}
         documentContent={document.content}
         documentType={document.type}
+        documentName={document.name}
         first_name={patient.first_name}
         last_name={patient.last_name}
         patientAge={patient.age}

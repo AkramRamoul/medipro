@@ -78,7 +78,7 @@ export interface IElectronAPI {
   createName: (nameFr: string) => Promise<{ success: boolean }>;
   getName: () => Promise<{ success: boolean; name: string }>;
   getNextPsychotropicNumber: () => Promise<number>;
-  createDocument: (data: unknown) => Promise<void>;
+  createDocument: (data: unknown) => Promise<{ success: boolean; id?: number; error?: string }>;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getPatientDocuments: (id: string) => Promise<any[]>;
   deleteDocument: (id: string) => Promise<void>;
@@ -107,6 +107,10 @@ export interface IElectronAPI {
   getPrescriptionTemplates: () => Promise<any[]>;
   addPrescriptionTemplate: (data: any) => Promise<{ success: boolean; error?: string }>;
   deletePrescriptionTemplate: (id: number) => Promise<{ success: boolean; error?: string }>;
+  getDocumentTemplates: () => Promise<any[]>;
+  addDocumentTemplate: (data: any) => Promise<{ success: boolean; error?: string }>;
+  updateDocumentTemplate: (data: any) => Promise<{ success: boolean; error?: string }>;
+  deleteDocumentTemplate: (id: number) => Promise<{ success: boolean; error?: string }>;
 }
 
 declare global {

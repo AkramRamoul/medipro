@@ -51,10 +51,16 @@ function MainPage() {
               Consultation
             </TabsTrigger>
             <TabsTrigger
-              value="password"
+              value="prescriptions"
               className="flex-1 text-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
             >
-              Ordonnance & Documents
+              Ordonnances
+            </TabsTrigger>
+            <TabsTrigger
+              value="letters"
+              className="flex-1 text-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+            >
+              Lettres
             </TabsTrigger>
             <TabsTrigger
               value="timeline"
@@ -84,10 +90,16 @@ function MainPage() {
           <ConsultationForm id={id!} />
         </TabsContent>
         <TabsContent
-          value="password"
+          value="prescriptions"
           className="bg-card text-card-foreground p-4 rounded-lg"
         >
-          <MainPrescriptionPage id={id!} />
+          <MainPrescriptionPage id={id!} mode="prescriptions" />
+        </TabsContent>
+        <TabsContent
+          value="letters"
+          className="bg-card text-card-foreground p-4 rounded-lg"
+        >
+          <MainPrescriptionPage id={id!} mode="letters" />
         </TabsContent>
         <TabsContent
           value="timeline"

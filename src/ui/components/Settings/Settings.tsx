@@ -4,6 +4,7 @@ import GeneralSettings from "./GeneralSettings/GeneralSettings";
 import { PasswordForm } from "./PassordSettings.tsx/PasswordForm";
 import ConsultationFieldsSettings from "./ConsultationFieldsSettings";
 import PrescriptionTemplatesSettings from "./PrescriptionTemplatesSettings";
+import DocumentTemplatesSettings from "./DocumentTemplatesSettings";
 
 function Settings() {
   return (
@@ -42,6 +43,12 @@ function Settings() {
           >
             Modèles d'ordonnance
           </TabsTrigger>
+          <TabsTrigger
+            value="document-templates"
+            className="flex-1 text-muted-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+          >
+            Modèles de documents
+          </TabsTrigger>
         </TabsList>
 
         {/* Tab Contents */}
@@ -75,6 +82,12 @@ function Settings() {
           className="text-center text-foreground mt-6"
         >
           <PrescriptionTemplatesSettings />
+        </TabsContent>
+        <TabsContent
+          value="document-templates"
+          className="text-center text-foreground mt-6"
+        >
+          <DocumentTemplatesSettings />
         </TabsContent>
       </Tabs>
     </div>

@@ -190,4 +190,16 @@ contextBridge.exposeInMainWorld("electronAPI", {
   deletePrescriptionTemplate: async (id: number) => {
     return await ipcRenderer.invoke("delete-prescription-template", id);
   },
+  getDocumentTemplates: async () => {
+    return await ipcRenderer.invoke("get-document-templates");
+  },
+  addDocumentTemplate: async (data: any) => {
+    return await ipcRenderer.invoke("add-document-template", data);
+  },
+  updateDocumentTemplate: async (data: any) => {
+    return await ipcRenderer.invoke("update-document-template", data);
+  },
+  deleteDocumentTemplate: async (id: number) => {
+    return await ipcRenderer.invoke("delete-document-template", id);
+  },
 });
