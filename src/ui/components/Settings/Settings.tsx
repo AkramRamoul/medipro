@@ -1,6 +1,5 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import DatabaseSettings from "./DataBaseSettings";
-import GeneralSettings from "./GeneralSettings/GeneralSettings";
 import { PasswordForm } from "./PassordSettings.tsx/PasswordForm";
 import ConsultationFieldsSettings from "./ConsultationFieldsSettings";
 import PrescriptionTemplatesSettings from "./PrescriptionTemplatesSettings";
@@ -9,16 +8,9 @@ import DocumentTemplatesSettings from "./DocumentTemplatesSettings";
 function Settings() {
   return (
     <div className="p-4 flex justify-center bg-background">
-      <Tabs defaultValue="example" className="w-full max-w-5xl">
+      <Tabs defaultValue="password" className="w-full max-w-5xl">
         {/* Tab Headers */}
         <TabsList className="w-full flex justify-center bg-muted rounded-lg overflow-hidden">
-          <TabsTrigger
-            value="example"
-            className="flex-1 text-muted-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-          >
-            Paramètres généraux
-          </TabsTrigger>
-
           <TabsTrigger
             value="password"
             className="flex-1 text-muted-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
@@ -41,7 +33,7 @@ function Settings() {
             value="prescription-templates"
             className="flex-1 text-muted-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
           >
-            Modèles d'ordonnance
+            Ordonnances types
           </TabsTrigger>
           <TabsTrigger
             value="document-templates"
@@ -52,13 +44,6 @@ function Settings() {
         </TabsList>
 
         {/* Tab Contents */}
-        <TabsContent
-          value="example"
-          className="text-center text-foreground mt-6"
-        >
-          <GeneralSettings />
-        </TabsContent>
-
         <TabsContent
           value="password"
           className="text-center text-foreground mt-6"

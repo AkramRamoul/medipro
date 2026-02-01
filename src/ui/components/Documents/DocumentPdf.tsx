@@ -10,7 +10,6 @@ import {
 
 import AmiriRegular from "/fonts/Amiri-Regular.ttf";
 import AmiriBold from "/fonts/Amiri-Bold.ttf";
-import { document } from "../../../electron/schema";
 
 Font.register({
   family: "Amiri",
@@ -30,48 +29,50 @@ const styles = StyleSheet.create({
     fontFamily: "Amiri",
     direction: "rtl",
     paddingTop: 15,
-    paddingBottom: 65,
+    paddingBottom: 45,
     paddingHorizontal: 20,
   },
   headerfr: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: "bold",
     textAlign: "left",
-    marginBottom: 5,
+    marginBottom: 4,
   },
   headerar: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: "bold",
     textAlign: "right",
-    marginBottom: 5,
+    marginBottom: 4,
   },
   colLeft: {
     textAlign: "left",
-    fontSize: 8,
+    fontSize: 7.5,
+    lineHeight: 1.2,
   },
   colRight: {
     textAlign: "right",
-    fontSize: 8,
+    fontSize: 7.5,
+    lineHeight: 1.2,
   },
   colCenter: {
     textAlign: "center",
     fontSize: 8,
   },
   infoPatient: {
-    fontSize: 10,
-    marginVertical: 2,
+    fontSize: 9,
+    marginVertical: 1,
     textAlign: "left",
   },
   line: {
-    borderBottomWidth: 1,
-    borderBottomColor: "black",
-    marginVertical: 5,
+    borderBottomWidth: 0.5,
+    borderBottomColor: "#666",
+    marginVertical: 4,
     width: "100%",
     alignSelf: "center",
   },
   title: {
     textDecoration: "underline",
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: "bold",
     textAlign: "center",
     marginTop: 6,
@@ -141,12 +142,13 @@ const DocumentPdf = ({
           style={{
             flexDirection: "row",
             justifyContent: "space-between",
-            alignItems: "flex-start",
-            marginBottom: 5,
+            alignItems: "stretch",
+            marginBottom: 10,
+            minHeight: 80,
           }}
         >
           {/* Left side: French */}
-          <View style={{ flex: 1, gap: 1 }}>
+          <View style={{ flex: 1.2, gap: 1 }}>
             <Text style={styles.headerfr}>{prescriptionModel.nameFr}</Text>
             <Text style={styles.colLeft}>{prescriptionModel.specialtyFr}</Text>
             {(JSON.parse(prescriptionModel.servicesFr) as string[]).map(
@@ -162,22 +164,22 @@ const DocumentPdf = ({
           {image && (
             <View
               style={{
-                width: 70,
-                height: 70,
-                marginHorizontal: 6,
+                width: 55,
+                marginHorizontal: 8,
                 justifyContent: "center",
                 alignItems: "center",
+                flexShrink: 0,
               }}
             >
               <Image
                 src={image}
-                style={{ width: 60, height: 60, objectFit: "contain" }}
+                style={{ width: 50, height: 50, objectFit: "contain" }}
               />
             </View>
           )}
 
           {/* Right side: Arabic */}
-          <View style={{ flex: 1, gap: 2 }}>
+          <View style={{ flex: 1.2, gap: 2 }}>
             <Text style={styles.headerar}>{prescriptionModel.nameAr}</Text>
             <Text style={styles.colRight}>{prescriptionModel.specialtyAr}</Text>
             {(JSON.parse(prescriptionModel.servicesAr) as string[]).map(
@@ -234,15 +236,15 @@ const DocumentPdf = ({
               {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
               {(documentContent as any)?.results?.map(
                 (item: string, index: number) => (
-                  <Text key={index} style={{ fontSize: 14 }}>
+                  <Text key={index} style={{ fontSize: 11 }}>
                     - {item}
                   </Text>
                 ),
               )}
             </View>
           ) : documentType === "certificate" ? (
-            <View style={{ marginTop: 20, gap: 10 }}>
-              <Text style={{ fontSize: 12, lineHeight: 1.5 }}>
+            <View style={{ marginTop: 15, gap: 10 }}>
+              <Text style={{ fontSize: 11, lineHeight: 1.5 }}>
                 Je soussigné(e), Dr {prescriptionModel.nameFr}, certifie avoir
                 examiné ce jour le patient
                 <Text style={{ fontWeight: "bold" }}>
@@ -252,7 +254,7 @@ const DocumentPdf = ({
                 âgé de {patientAge} ans.
               </Text>
 
-              <Text style={{ fontSize: 12, lineHeight: 1.5 }}>
+              <Text style={{ fontSize: 11, lineHeight: 1.5 }}>
                 Son état de santé nécessite un repos de maladie à partir du :{" "}
                 {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                 {(documentContent as any).restStartDate} au{" "}
@@ -262,7 +264,7 @@ const DocumentPdf = ({
 
               {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
               {(documentContent as any).diagnosis && (
-                <Text style={{ fontSize: 12, marginTop: 10 }}>
+                <Text style={{ fontSize: 11, marginTop: 10 }}>
                   <Text
                     style={{ fontWeight: "bold", textDecoration: "underline" }}
                   >
@@ -275,7 +277,7 @@ const DocumentPdf = ({
 
               {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
               {(documentContent as any).remarks && (
-                <Text style={{ fontSize: 12, marginTop: 5 }}>
+                <Text style={{ fontSize: 11, marginTop: 5 }}>
                   <Text
                     style={{ fontWeight: "bold", textDecoration: "underline" }}
                   >
@@ -288,9 +290,10 @@ const DocumentPdf = ({
             </View>
           ) : documentType === "template" ? (
             <View style={{ marginTop: 15 }}>
-              <Text style={{ fontSize: 12, lineHeight: 1.5 }}>
+              <Text style={{ fontSize: 11, lineHeight: 1.5 }}>
                 {String(documentContent)
-                  .replace(/<[^>]+>/g, "\n")
+                  .replace(/<(p|div|br)[^>]*>/gi, "\n")
+                  .replace(/<[^>]+>/g, "")
                   .split("\n")
                   .filter((line) => line.trim() !== "")
                   .join("\n\n")}
@@ -304,14 +307,14 @@ const DocumentPdf = ({
                   <Text
                     style={{
                       fontWeight: "bold",
-                      fontSize: 12,
+                      fontSize: 11,
                       marginBottom: 2,
                       textDecoration: "underline",
                     }}
                   >
                     Examen clinique :
                   </Text>
-                  <Text style={{ fontSize: 12, lineHeight: 1.4 }}>
+                  <Text style={{ fontSize: 11, lineHeight: 1.4 }}>
                     {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                     {(documentContent as any).examenClinique}
                   </Text>
@@ -324,14 +327,14 @@ const DocumentPdf = ({
                   <Text
                     style={{
                       fontWeight: "bold",
-                      fontSize: 12,
+                      fontSize: 11,
                       marginBottom: 2,
                       textDecoration: "underline",
                     }}
                   >
                     Diagnostic :
                   </Text>
-                  <Text style={{ fontSize: 12, lineHeight: 1.4 }}>
+                  <Text style={{ fontSize: 11, lineHeight: 1.4 }}>
                     {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                     {(documentContent as any).diagnostic}
                   </Text>
@@ -344,14 +347,14 @@ const DocumentPdf = ({
                   <Text
                     style={{
                       fontWeight: "bold",
-                      fontSize: 12,
+                      fontSize: 11,
                       marginBottom: 2,
                       textDecoration: "underline",
                     }}
                   >
                     Traitement :
                   </Text>
-                  <Text style={{ fontSize: 12, lineHeight: 1.4 }}>
+                  <Text style={{ fontSize: 11, lineHeight: 1.4 }}>
                     {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                     {(documentContent as any).traitement}
                   </Text>

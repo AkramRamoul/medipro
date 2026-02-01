@@ -136,7 +136,12 @@ const NewDocumentFromTemplate: React.FC<NewDocumentFromTemplateProps> = ({
                                 </div>
                                 <div className="space-y-1">
                                     <CardTitle className="text-sm">{template.name}</CardTitle>
-                                    <p className="text-[10px] text-muted-foreground uppercase">{template.type.replace('_', ' ')}</p>
+                                    <p className="text-[10px] text-muted-foreground uppercase">
+                                        {template.type === 'work_stop' ? 'Arrêt de travail' :
+                                            template.type === 'medical_certificate' ? 'Certificat médical' :
+                                                template.type === 'chronic_disease' ? 'Maladie chronique' :
+                                                    'Document'}
+                                    </p>
                                 </div>
                             </CardHeader>
                         </Card>

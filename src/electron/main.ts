@@ -95,13 +95,13 @@ app.on("ready", () => {
         // Preload some standard prescription templates
         const [grippe] = await db.insert(prescriptionTemplates).values({ name: "État Grippal" }).returning({ id: prescriptionTemplates.id });
         await db.insert(prescriptionTemplateMedications).values([
-          { templateId: grippe.id, medicineName: "PARACETAMOL 1G", dosage: "1 tab 3x/jour", duration: "5 jours", quantity: "1 bte", form: "Comprimé" },
-          { templateId: grippe.id, medicineName: "VITAMINE C 1000MG", dosage: "1 tab le matin", duration: "10 jours", quantity: "1 bte", form: "Comprimé effervescent" }
+          { templateId: grippe.id, medicineName: "PARACETAMOL 1G", dosage: "1 cp 3 fois/jour", duration: "5 jours", quantity: "1 bte", form: "Comprimé" },
+          { templateId: grippe.id, medicineName: "VITAMINE C 1000MG", dosage: "1 cp le matin", duration: "10 jours", quantity: "1 bte", form: "Comprimé effervescent" }
         ]);
 
         const [hypertension] = await db.insert(prescriptionTemplates).values({ name: "Hypertension (Initial)" }).returning({ id: prescriptionTemplates.id });
         await db.insert(prescriptionTemplateMedications).values([
-          { templateId: hypertension.id, medicineName: "AMLODIPINE 5MG", dosage: "1 tab le soir", duration: "3 mois", quantity: "3 btes", form: "Comprimé" }
+          { templateId: hypertension.id, medicineName: "AMLODIPINE 5MG", dosage: "1 cp le soir", duration: "3 mois", quantity: "3 btes", form: "Comprimé" }
         ]);
       }
     } catch (err) {
