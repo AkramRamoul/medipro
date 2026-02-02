@@ -25,7 +25,7 @@ import { NavSecondary } from "./Nav-secondary";
 
 const items = [
   { title: "Tableau de bord", url: "/", icon: ChartColumnIncreasing },
-  { title: "Patientes", url: "/patients", icon: User },
+  { title: "Home", url: "/patients", icon: User },
   { title: "Tous les patients", url: "/all-patients", icon: Users },
   { title: "Rendez-vous", url: "/appointments", icon: Calendar },
   { title: "Consultations", url: "/consultations", icon: Clipboard },
