@@ -7,6 +7,7 @@ import {
   User,
   FilePen,
   Calendar,
+  Users,
 } from "lucide-react";
 
 import {
@@ -25,6 +26,7 @@ import { NavSecondary } from "./Nav-secondary";
 const items = [
   { title: "Tableau de bord", url: "/", icon: ChartColumnIncreasing },
   { title: "Patientes", url: "/patients", icon: User },
+  { title: "Tous les patients", url: "/all-patients", icon: Users },
   { title: "Rendez-vous", url: "/appointments", icon: Calendar },
   { title: "Consultations", url: "/consultations", icon: Clipboard },
   { title: "Ordonnances", url: "/prescriptions", icon: PillBottle },

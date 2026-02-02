@@ -194,17 +194,30 @@ function NewConsultationForm({
                     <Label className="flex items-center gap-2 text-foreground font-medium">
                       {config.label}
                     </Label>
-                    <Input
-                      type={config.type}
-                      value={customFieldValues[config.name] || ""}
-                      onChange={(e) =>
-                        setCustomFieldValues((prev) => ({
-                          ...prev,
-                          [config.name]: e.target.value,
-                        }))
-                      }
-                      className="bg-muted/30"
-                    />
+                    {config.type === "textarea" ? (
+                      <Textarea
+                        value={customFieldValues[config.name] || ""}
+                        onChange={(e) =>
+                          setCustomFieldValues((prev) => ({
+                            ...prev,
+                            [config.name]: e.target.value,
+                          }))
+                        }
+                        className="bg-muted/30 min-h-[100px]"
+                      />
+                    ) : (
+                      <Input
+                        type={config.type}
+                        value={customFieldValues[config.name] || ""}
+                        onChange={(e) =>
+                          setCustomFieldValues((prev) => ({
+                            ...prev,
+                            [config.name]: e.target.value,
+                          }))
+                        }
+                        className="bg-muted/30"
+                      />
+                    )}
                   </div>
                 ))}
               </div>

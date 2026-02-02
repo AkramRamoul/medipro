@@ -54,8 +54,14 @@ function App() {
               <Route path="/consultations" element={<Page />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/pat/:id" element={<MainPage />} />
-              <Route path="/patients" element={<Home />} />
-              <Route path="/patients" element={<Home />} />
+              <Route
+                path="/patients"
+                element={<Home showAll={false} />}
+              />
+              <Route
+                path="/all-patients"
+                element={<Home showAll={true} />}
+              />
               <Route path="/Ordonnance" element={<PrescriptionModelForm />} />
               <Route path="/appointments" element={<MainAppointmentPage />} />
             </Route>

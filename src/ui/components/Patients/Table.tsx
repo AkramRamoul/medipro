@@ -53,15 +53,29 @@ import {
   initialsAvatar,
 } from "../../lib/utils";
 
+import { Calendar as CalendarIcon } from "lucide-react"
+import { format, isWithinInterval, startOfDay, endOfDay } from "date-fns"
+import { fr } from "date-fns/locale"
+import { cn } from "../../lib/utils"
+import { Calendar } from "../ui/calendar"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "../ui/popover"
+import { DateRange } from "react-day-picker"
+
 function PatientsTable({
   patients,
   onPatientArchived,
+  disableDateFilter,
 }: {
   patients: Patient[];
   onPatientArchived: (
     id: string,
     status: "active" | "archived" | "deleted",
   ) => void;
+  disableDateFilter?: boolean;
 }) {
   const [query, setQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -70,6 +84,10 @@ function PatientsTable({
   >("createdAt");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [showArchived, setShowArchived] = useState(false);
+  const [date, setDate] = useState<DateRange | undefined>({
+    from: new Date(),
+    to: new Date(),
+  })
 
   const [confirmDialog, setConfirmDialog] = useState<{
     id: string;
@@ -84,6 +102,25 @@ function PatientsTable({
     .filter((patient) => {
       const isArchived = patient.status === "archived";
       if (!showArchived && isArchived) return false;
+
+      // Date Filtering
+      if (!disableDateFilter && date?.from) {
+        const from = startOfDay(date.from);
+        const to = date.to ? endOfDay(date.to) : endOfDay(date.from);
+
+        const lastVisitDate = patient.lastVisit ? new Date(patient.lastVisit) : null;
+        const createdDate = patient.createdAt ? new Date(patient.createdAt) : null;
+
+        const matchesVisit = lastVisitDate && isWithinInterval(lastVisitDate, { start: from, end: to });
+        // Also check created date if visit date is missing or to catch new patients today
+        const matchesCreated = createdDate && isWithinInterval(createdDate, { start: from, end: to });
+
+        if (!matchesVisit && !matchesCreated) {
+          // Special case: if filtering for Today, and patient has NO dates but was just added (optimistic UI), maybe show? 
+          // For now, strict filtering based on data.
+          return false;
+        }
+      }
 
       const first = patient.firstname?.toLowerCase() || "";
       const last = patient.lastname?.toLowerCase() || "";
@@ -101,6 +138,7 @@ function PatientsTable({
       );
     })
     .sort((a, b) => {
+      // ... existing sort logic ...
       if (!sortKey) return 0;
 
       if (sortKey === "name") {
@@ -217,8 +255,13 @@ function PatientsTable({
       <div className="flex flex-col p-2 sm:p-4 border rounded-2xl bg-card text-card-foreground shadow-lg w-full max-w-[900px] mx-auto">
         {/* Search Bar & Controls */}
         <div className="flex flex-col gap-4 mb-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-foreground">
+              Patients ({filteredData.length})
+            </h2>
+          </div>
           <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-            {/* Use full width for search on mobile, adjust on larger screens */}
+            {/* search */}
             <div className="relative w-full max-w-md">
               <Input
                 placeholder="Filtrer par prénom, nom ou téléphone..."
@@ -232,6 +275,47 @@ function PatientsTable({
             </div>
 
             <div className="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-end">
+              {!disableDateFilter && (
+                <div className="grid gap-2">
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        id="date"
+                        variant={"outline"}
+                        className={cn(
+                          "w-[300px] justify-start text-left font-normal",
+                          !date && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {date?.from ? (
+                          date.to ? (
+                            <>
+                              {format(date.from, "LLL dd, y", { locale: fr })} -{" "}
+                              {format(date.to, "LLL dd, y", { locale: fr })}
+                            </>
+                          ) : (
+                            format(date.from, "LLL dd, y", { locale: fr })
+                          )
+                        ) : (
+                          <span>Pick a date</span>
+                        )}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        initialFocus
+                        mode="range"
+                        defaultMonth={date?.from}
+                        selected={date}
+                        onSelect={setDate}
+                        numberOfMonths={2}
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+              )}
+
               <div className="flex items-center space-x-2">
                 <Switch
                   id="airplane-mode"
@@ -296,11 +380,10 @@ function PatientsTable({
                     return (
                       <TableRow
                         key={patient.id}
-                        className={`transition-colors cursor-pointer ${
-                          isArchived
-                            ? "hover:bg-transparent opacity-60 bg-muted/20"
-                            : "hover:bg-accent"
-                        }`}
+                        className={`transition-colors cursor-pointer ${isArchived
+                          ? "hover:bg-transparent opacity-60 bg-muted/20"
+                          : "hover:bg-accent"
+                          }`}
                         onClick={() => {
                           navigate(`/pat/${patient.id}`);
                         }}

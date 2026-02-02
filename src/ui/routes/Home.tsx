@@ -13,7 +13,11 @@ async function getData(): Promise<Patient[]> {
   }
 }
 
-export function Home() {
+interface HomeProps {
+  showAll?: boolean;
+}
+
+export function Home({ showAll = false }: HomeProps) {
   const [data, setData] = useState<Patient[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [name, setName] = useState("");
@@ -47,6 +51,8 @@ export function Home() {
     }
   };
 
+  const filteredData = showAll ? data : data.filter((p) => p.lastVisit !== null);
+
   return (
     <>
       <div className="h-full flex-1 flex-col space-y-4 p-4 md:p-6 flex bg-background text-foreground transition-colors">
@@ -56,7 +62,9 @@ export function Home() {
               Bienvenu(e) DR. {name ? name : ""}
             </h2>
             <p className="text-muted-foreground">
-              Voici une liste de vos patients !
+              {showAll
+                ? "Voici la liste de tous vos patients."
+                : "Voici la liste des patients ayant effectué une consultation."}
             </p>
           </div>
         </div>
@@ -67,8 +75,9 @@ export function Home() {
           </div>
         ) : (
           <PatientsTable
-            patients={data}
+            patients={filteredData}
             onPatientArchived={handlePatientArchived}
+            disableDateFilter={showAll}
           />
         )}
       </div>
