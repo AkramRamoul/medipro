@@ -2,22 +2,19 @@ import * as React from "react";
 import { HelpCircleIcon, Lock } from "lucide-react";
 
 import {
-  SidebarGroup,
-  SidebarGroupContent,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
 } from "../components/ui/sidebar";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
-import { Button } from "./ui/button";
 import { useAuth } from "../context/auth-context";
-import { NavLink, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { usePasswordStatus } from "../hooks/usePasswordStatus";
 import { toast } from "sonner";
 
 export function NavSecondary({
   ...props
-}: {} & React.ComponentPropsWithoutRef<typeof SidebarGroup>) {
+}: {} & React.ComponentPropsWithoutRef<typeof SidebarMenu>) {
   const { setAuthed } = useAuth();
   const navigate = useNavigate();
 
@@ -36,33 +33,18 @@ export function NavSecondary({
   }
 
   return (
-    <SidebarGroup {...props}>
-      <SidebarGroupContent>
-        <SidebarMenu>
-          {/* Lock button FIRST */}
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild className="flex items-center">
-              <Button
-                variant="ghost"
-                className="flex items-center w-full justify-start"
-                onClick={handleLock}
-              >
-                <Lock className="w-4 h-4" />
-                <span className="ml-2 font-semibold">Déconnexion</span>
-              </Button>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
+    <SidebarMenu {...props}>
+      <SidebarMenuItem>
+        <SidebarMenuButton onClick={handleLock} tooltip="Déconnexion">
+          <Lock />
+          <span>Déconnexion</span>
+        </SidebarMenuButton>
+      </SidebarMenuItem>
 
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild>
-              <NavLink to={"#"}>
-                <HelpComponent />
-              </NavLink>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarGroupContent>
-    </SidebarGroup>
+      <SidebarMenuItem>
+        <HelpComponent />
+      </SidebarMenuItem>
+    </SidebarMenu>
   );
 }
 
@@ -72,9 +54,11 @@ function HelpComponent() {
 
   return (
     <Popover>
-      <PopoverTrigger className="flex items-center">
-        <HelpCircleIcon className="w-4 h-4" />
-        <span className="ml-4 font-semibold">Obtenir de l'aide</span>
+      <PopoverTrigger asChild>
+        <SidebarMenuButton tooltip="Obtenir de l'aide">
+          <HelpCircleIcon />
+          <span>Obtenir de l'aide</span>
+        </SidebarMenuButton>
       </PopoverTrigger>
 
       <PopoverContent className="w-80 ml-2">

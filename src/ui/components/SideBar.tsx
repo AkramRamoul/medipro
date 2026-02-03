@@ -25,7 +25,7 @@ import { NavSecondary } from "./Nav-secondary";
 
 const items = [
   { title: "Tableau de bord", url: "/", icon: ChartColumnIncreasing },
-  { title: "Home", url: "/patients", icon: User },
+  { title: "Accueil", url: "/patients", icon: User },
   { title: "Tous les patients", url: "/all-patients", icon: Users },
   { title: "Rendez-vous", url: "/appointments", icon: Calendar },
   { title: "Consultations", url: "/consultations", icon: Clipboard },
@@ -39,7 +39,7 @@ export function AppSidebar() {
   const currentPath = location.pathname;
 
   return (
-    <Sidebar className="h-screen text-black">
+    <Sidebar className="h-screen text-black" collapsible='icon'>
       <SidebarContent className="flex flex-col h-full">
         <div>
           <SidebarGroup>
@@ -51,6 +51,7 @@ export function AppSidebar() {
                 {items.map((item) => (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton
+                      tooltip={item.title}
                       asChild
                       className="mt-2 hover:bg-transparent hover:text-inherit"
                     >

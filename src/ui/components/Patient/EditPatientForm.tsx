@@ -186,7 +186,7 @@ export function EditPatientForm({ id }: { id: string }) {
           {/* Contact & Adresse */}
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="grid gap-2">
-              <Label htmlFor="contact">Contact (optionnel)</Label>
+              <Label htmlFor="contact">Contact</Label>
               <Input
                 {...register("contact")}
                 id="contact"
@@ -200,7 +200,7 @@ export function EditPatientForm({ id }: { id: string }) {
             </div>
 
             <div className="grid gap-2">
-              <Label htmlFor="address">Adresse (optionnel)</Label>
+              <Label htmlFor="address">Adresse</Label>
               <Input
                 {...register("address")}
                 id="address"
@@ -212,7 +212,7 @@ export function EditPatientForm({ id }: { id: string }) {
           {/* Groupe sanguin & Poids */}
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="grid gap-2">
-              <Label htmlFor="bloodType">Groupe sanguin (optionnel)</Label>
+              <Label htmlFor="bloodType">Groupe sanguin</Label>
               <Controller
                 name="bloodType"
                 control={control}
@@ -244,7 +244,7 @@ export function EditPatientForm({ id }: { id: string }) {
           {/* Antécédents médicaux, Allergies, Remarques */}
           <div className="grid gap-2">
             <Label htmlFor="medicalHistory">
-              Antécédents médicaux (optionnel)
+              Antécédents médicaux
             </Label>
             <Textarea
               {...register("medicalHistory")}
@@ -253,13 +253,13 @@ export function EditPatientForm({ id }: { id: string }) {
             />
           </div>
 
-          <Label htmlFor="allergies">Allergies (optionnel)</Label>
+          <Label htmlFor="allergies">Allergies</Label>
           <Textarea
             {...register("allergies")}
             placeholder="Entrer les allergies"
           />
 
-          <Label htmlFor="notes">Remarques (optionnel)</Label>
+          <Label htmlFor="notes">Remarques</Label>
           <Textarea {...register("notes")} placeholder="Autres remarques" />
         </CardContent>
 

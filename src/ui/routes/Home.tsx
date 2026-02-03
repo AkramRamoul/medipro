@@ -59,7 +59,7 @@ export function Home({ showAll = false }: HomeProps) {
         <div className="flex items-center justify-between space-y-2">
           <div className=" flex-col">
             <h2 className="text-2xl font-bold tracking-tight">
-              Bienvenu(e) DR. {name ? name : ""}
+              Bienvenu(e)
             </h2>
             <p className="text-muted-foreground">
               {showAll
