@@ -8,6 +8,9 @@ export function usePatientPdfExport() {
     const exportPdf = async (patientId: string) => {
         setIsExporting(true);
         try {
+            // Wait for DB to settle (fix for stale data on immediate export)
+            await new Promise((resolve) => setTimeout(resolve, 500));
+
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const patientArray: any = await window.electronAPI.getpatient(patientId);
             const patient = patientArray[0];

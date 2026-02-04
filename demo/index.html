@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clinic Secretary Client</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+            background: #f4f4f9;
+        }
+
+        .card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1rem;
+        }
+
+        input,
+        button {
+            padding: 0.5rem;
+            margin: 0.25rem 0;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        button:hover {
+            background: #0056b3;
+        }
+
+        button.secondary {
+            background: #6c757d;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .patient-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #eee;
+            padding: 0.5rem 0;
+        }
+
+        .success {
+            color: green;
+        }
+
+        .error {
+            color: red;
+        }
+
+        #server-url-input {
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>🏥 Clinic Management</h1>
+
+    <!-- LOGIN SCREEN -->
+    <div id="login-view" class="card">
+        <h2>Login</h2>
+        <div id="server-url-input">
+            <label>Host IP/URL:</label>
+            <input type="text" id="api-url" value="http://localhost:3000">
+        </div>
+        <input type="text" id="username" placeholder="Username (doc / sec)" value="sec">
+        <input type="password" id="password" placeholder="Password (123)" value="123">
+        <button onclick="login()">Sign In</button>
+        <p id="login-msg" class="error"></p>
+    </div>
+
+    <!-- DASHBOARD SCREEN -->
+    <div id="dashboard-view" class="card hidden">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h2 id="welcome-msg">Welcome</h2>
+            <button onclick="logout()" class="secondary" style="width:auto;">Logout</button>
+        </div>
+
+        <h3>Patient List</h3>
+        <button onclick="loadPatients()">Refresh List</button>
+        <div id="patients-list" style="margin-top:1rem;"></div>
+    </div>
+
+    <!-- EDIT MODAL (Simulated) -->
+    <div id="edit-view" class="card hidden" style="border: 2px solid #007bff;">
+        <h3>Edit Patient</h3>
+        <input type="hidden" id="edit-id">
+        <label>Name:</label>
+        <input type="text" id="edit-name">
+        <label>Age:</label>
+        <input type="number" id="edit-age">
+        <label>Condition:</label>
+        <input type="text" id="edit-condition">
+        <div style="display:flex; gap:0.5rem;">
+            <button onclick="savePatient()">Save Changes</button>
+            <button onclick="cancelEdit()" class="secondary">Cancel</button>
+        </div>
+    </div>
+
+    <script>
+        let API_URL = window.location.origin;
+        let TOKEN = null;
+        let CURRENT_ROLE = null;
+
+        // --- AUTH ---
+
+        async function login() {
+            API_URL = document.getElementById('api-url').value;
+            const u = document.getElementById('username').value;
+            const p = document.getElementById('password').value;
+
+            try {
+                const res = await fetch(`${API_URL}/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: u, password: p })
+                });
+
+                const data = await res.json();
+                if (res.ok) {
+                    TOKEN = data.token;
+                    CURRENT_ROLE = data.role;
+                    document.getElementById('welcome-msg').innerText = `Welcome, ${data.name} (${data.role})`;
+                    showDashboard();
+                    loadPatients();
+                } else {
+                    document.getElementById('login-msg').innerText = data.error;
+                }
+            } catch (err) {
+                alert("Connection failed. Check Host URL.");
+            }
+        }
+
+        function logout() {
+            TOKEN = null;
+            document.getElementById('login-view').classList.remove('hidden');
+            document.getElementById('dashboard-view').classList.add('hidden');
+            document.getElementById('edit-view').classList.add('hidden');
+        }
+
+        function showDashboard() {
+            document.getElementById('login-view').classList.add('hidden');
+            document.getElementById('dashboard-view').classList.remove('hidden');
+        }
+
+        // --- PATIENTS ---
+
+        async function loadPatients() {
+            const list = document.getElementById('patients-list');
+            list.innerHTML = 'Loading...';
+
+            try {
+                const res = await fetch(`${API_URL}/patients`, {
+                    headers: { 'Authorization': TOKEN }
+                });
+                const patients = await res.json();
+
+                list.innerHTML = '';
+                patients.forEach(p => {
+                    const div = document.createElement('div');
+                    div.className = 'patient-item';
+
+                    // Delete button only visible to doctor (though enforced on server too)
+                    const deleteBtn = CURRENT_ROLE === 'doctor'
+                        ? `<button style="background:red; width:auto; padding:0.2rem 0.5rem; margin-left:0.5rem;" onclick="deletePatient(${p.id})">Del</button>`
+                        : '';
+
+                    div.innerHTML = `
+                        <div>
+                            <strong>${p.name}</strong> (${p.age}y) - <em style="color:#666">${p.condition}</em>
+                        </div>
+                        <div>
+                            <button style="width:auto; padding:0.2rem 0.5rem;" onclick='openEdit(${JSON.stringify(p)})'>Edit</button>
+                            ${deleteBtn}
+                        </div>
+                    `;
+                    list.appendChild(div);
+                });
+            } catch (err) {
+                list.innerText = "Error loading patients.";
+            }
+        }
+
+        // --- EDITING ---
+
+        function openEdit(patient) {
+            document.getElementById('edit-id').value = patient.id;
+            document.getElementById('edit-name').value = patient.name;
+            document.getElementById('edit-age').value = patient.age;
+            document.getElementById('edit-condition').value = patient.condition;
+
+            document.getElementById('edit-view').classList.remove('hidden');
+            document.getElementById('dashboard-view').classList.add('hidden');
+        }
+
+        function cancelEdit() {
+            document.getElementById('edit-view').classList.add('hidden');
+            document.getElementById('dashboard-view').classList.remove('hidden');
+        }
+
+        async function savePatient() {
+            const id = document.getElementById('edit-id').value;
+            const updates = {
+                name: document.getElementById('edit-name').value,
+                age: document.getElementById('edit-age').value,
+                condition: document.getElementById('edit-condition').value
+            };
+
+            try {
+                const res = await fetch(`${API_URL}/patients/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': TOKEN
+                    },
+                    body: JSON.stringify(updates)
+                });
+
+                if (res.ok) {
+                    cancelEdit();
+                    loadPatients();
+                } else {
+                    alert("Failed to update.");
+                }
+            } catch (e) {
+                alert("Error updating patient.");
+            }
+        }
+
+        async function deletePatient(id) {
+            if (!confirm("Are you sure?")) return;
+
+            const res = await fetch(`${API_URL}/patients/${id}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': TOKEN }
+            });
+
+            if (res.ok) {
+                loadPatients();
+            } else {
+                const data = await res.json();
+                alert(data.error); // Show "Access Denied" if handled by server
+            }
+        }
+
+    </script>
+</body>
+
+</html>

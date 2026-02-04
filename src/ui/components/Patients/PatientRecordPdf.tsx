@@ -148,23 +148,55 @@ const PatientRecordPdf = ({
               <Text>Diagnostic & Notes</Text>
             </View>
           </View>
-          {consultations.map((c, i) => (
-            <View key={i} style={styles.tableRow}>
-              <View style={styles.colDate}>
-                <Text>
-                  {new Date(c.date).toLocaleDateString("fr-FR")}
-                </Text>
+          {consultations.map((c, i) => {
+            const vitals = [];
+            if (c.bloodPressure) vitals.push(`TA: ${c.bloodPressure}`);
+            if (c.glucose) vitals.push(`Glycémie: ${c.glucose} g/L`);
+            if (c.weight) vitals.push(`Poids: ${c.weight} kg`);
+
+            // Format custom fields if they exist
+            let customFieldsText = "";
+            if (c.customFields && typeof c.customFields === 'object') {
+              const entries = Object.entries(c.customFields);
+              if (entries.length > 0) {
+                customFieldsText = entries.map(([key, value]) => `${key}: ${value}`).join(", ");
+              }
+            }
+
+            return (
+              <View key={i} style={styles.tableRow}>
+                <View style={styles.colDate}>
+                  <Text>
+                    {new Date(c.date).toLocaleDateString("fr-FR")}
+                  </Text>
+                </View>
+                <View style={styles.colType}>
+                  <Text style={{ fontWeight: 'bold' }}>{c.reason}</Text>
+                  {c.symptoms && (
+                    <Text style={{ fontSize: 8, color: '#444', marginTop: 2 }}>
+                      Symptômes: {c.symptoms}
+                    </Text>
+                  )}
+                </View>
+                <View style={styles.colContent}>
+                  <Text style={{ fontWeight: 'bold' }}>Diagnostic: {c.diagnosis}</Text>
+                  {c.notes ? <Text>Note: {c.notes}</Text> : null}
+
+                  {vitals.length > 0 && (
+                    <Text style={{ marginTop: 4, fontSize: 9, color: '#333' }}>
+                      Constantes: {vitals.join(" | ")}
+                    </Text>
+                  )}
+
+                  {customFieldsText ? (
+                    <Text style={{ marginTop: 2, fontSize: 9, color: '#333' }}>
+                      Autres: {customFieldsText}
+                    </Text>
+                  ) : null}
+                </View>
               </View>
-              <View style={styles.colType}>
-                <Text>{c.reason}</Text>
-              </View>
-              <View style={styles.colContent}>
-                <Text>
-                  {c.diagnosis} {c.notes ? `\nNote: ${c.notes}` : ""}
-                </Text>
-              </View>
-            </View>
-          ))}
+            )
+          })}
           {consultations.length === 0 && (
             <View style={styles.tableRow}>
               <Text style={{ textAlign: "center", flex: 1, padding: 10 }}>

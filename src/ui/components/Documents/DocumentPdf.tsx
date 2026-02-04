@@ -28,7 +28,7 @@ const styles = StyleSheet.create({
   page: {
     fontFamily: "Amiri",
     direction: "rtl",
-    paddingTop: 15,
+    paddingTop: 5,
     paddingBottom: 45,
     paddingHorizontal: 20,
   },

@@ -30,7 +30,8 @@ const styles = StyleSheet.create({
   page: {
     fontFamily: "Amiri",
     direction: "rtl",
-    paddingVertical: 10,
+    paddingTop: 5,
+    paddingBottom: 10,
     paddingHorizontal: 20,
   },
   headerfr: {
