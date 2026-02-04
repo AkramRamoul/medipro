@@ -24,7 +24,8 @@ const Modal: React.FC<ModalProps> = ({ isOpen = false, onClose, children }) => {
 
   return (
     <Transition show={isOpen} as={Fragment}>
-      <Dialog as="div" static className="relative z-50" onClose={onClose}>
+      <Dialog as="div" static className="relative z-50" onClose={() => { }}
+      >
         {/* Backdrop with premium blur */}
         <TransitionChild
           as={Fragment}

@@ -30,7 +30,7 @@ const styles = StyleSheet.create({
   page: {
     fontFamily: "Amiri",
     direction: "rtl",
-    paddingTop: 5,
+    paddingTop: 0,
     paddingBottom: 10,
     paddingHorizontal: 20,
   },
@@ -124,7 +124,7 @@ const PrescriptionPDF = ({
     <Document>
       {medicationChunks.map((chunk, pageIndex) => (
         <Page
-          size={{ width: 419.53, height: 595.28 }}
+          size="A5"
           style={styles.page}
           key={pageIndex}
         >

@@ -28,7 +28,7 @@ const styles = StyleSheet.create({
   page: {
     fontFamily: "Amiri",
     direction: "rtl",
-    paddingTop: 5,
+    paddingTop: 0,
     paddingBottom: 45,
     paddingHorizontal: 20,
   },
@@ -119,7 +119,7 @@ const DocumentPdf = ({
 
   return (
     <Document>
-      <Page size={{ width: 419.53, height: 595.28 }} style={styles.page}>
+      <Page size="A5" style={styles.page}>
         {image && (
           <Image
             fixed

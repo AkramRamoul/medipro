@@ -377,15 +377,14 @@ const NewPrescriptionForm = ({
       </Card>
 
       {Number(id) !== 0 && (
-        <Card className={`border transition-colors ${isPsychotropic ? "border-amber-400 bg-amber-50/10" : "border-border"}`}>
-          <CardContent className="pt-6 flex flex-col md:flex-row gap-6 items-start md:items-center justify-between text-left">
-            <div className="flex items-center space-x-4">
-              <div className={`p-2 rounded-full ${isPsychotropic ? "bg-amber-100 text-amber-600" : "bg-muted text-muted-foreground"}`}>
-                <AlertTriangle className="h-6 w-6" />
+        <div className={`rounded-lg border transition-all ${isPsychotropic ? "border-amber-400 bg-amber-50" : "border-border bg-card"}`}>
+          <div className="p-4 flex flex-row items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className={`p-1.5 rounded-full ${isPsychotropic ? "bg-amber-100 text-amber-600" : "bg-muted text-muted-foreground"}`}>
+                <AlertTriangle className="h-4 w-4" />
               </div>
               <div className="space-y-0.5">
-                <Label htmlFor="psychotropic-switch" className="text-base font-medium">Traitement Psychotrope</Label>
-                <p className="text-sm text-muted-foreground">Activez cette option pour les médicaments contrôlés.</p>
+                <Label htmlFor="psychotropic-switch" className="text-sm font-medium cursor-pointer">Traitement Psychotrope</Label>
               </div>
             </div>
             <Switch
@@ -401,22 +400,22 @@ const NewPrescriptionForm = ({
                 }
               }}
             />
-          </CardContent>
+          </div>
           {isPsychotropic && (
-            <CardContent className="pt-0 border-t border-border/50 mt-4 animate-in slide-in-from-top-2 text-left">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
-                <div className="space-y-2">
-                  <Label>Numéro de prescription</Label>
-                  <Input value={psychotropicNumber} readOnly className="font-mono bg-muted" />
+            <div className="px-4 pb-4 pt-0 animate-in slide-in-from-top-2">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t border-amber-200/50">
+                <div className="space-y-1.5">
+                  <Label className="text-xs text-muted-foreground">Numéro de prescription</Label>
+                  <Input value={psychotropicNumber} readOnly className="h-8 font-mono bg-white" />
                 </div>
-                <div className="space-y-2">
-                  <Label>Adresse du patient</Label>
-                  <Input value={patientAddress} onChange={(e) => setPatientAddress(e.target.value)} placeholder="Adresse complète" />
+                <div className="space-y-1.5">
+                  <Label className="text-xs text-muted-foreground">Adresse du patient</Label>
+                  <Input value={patientAddress} onChange={(e) => setPatientAddress(e.target.value)} placeholder="Adresse complète" className="h-8 bg-white" />
                 </div>
               </div>
-            </CardContent>
+            </div>
           )}
-        </Card>
+        </div>
       )}
 
       {selectedMedications.length > 0 && (
