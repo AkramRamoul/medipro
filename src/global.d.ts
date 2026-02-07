@@ -59,6 +59,10 @@ export interface IElectronAPI {
     buffer: ArrayBuffer,
     filename: string,
   ) => Promise<{ success: boolean; filePath?: string; error?: string }>;
+  generatePdf: (
+    htmlContent: string,
+    filename: string,
+  ) => Promise<{ success: boolean; filePath?: string; error?: string }>;
   getAllPrescriptions: () => Promise<Prescription[]>;
   getAllConsultations: () => Promise<Consultation[]>;
   getMonthlyPatients: () => Promise<{

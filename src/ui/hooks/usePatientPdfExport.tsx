@@ -33,7 +33,7 @@ export function usePatientPdfExport() {
                     prescriptions={prescriptions}
                     timeline={timeline}
                     documents={documents}
-                />,
+                />
             ).toBlob();
 
             const buffer = await blob.arrayBuffer();
