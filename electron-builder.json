@@ -1,9 +1,8 @@
 {
   "appId": "com.akram.doc-right",
-
+  "productName": "DocRight",
   "asar": true,
   "compression": "maximum",
-
   "files": [
     "dist-electron/**",
     "dist-react/**",
@@ -12,7 +11,6 @@
     "!**/test/**",
     "!**/__tests__/**"
   ],
-
   "extraResources": [
     {
       "from": "public/meds.json",
@@ -31,10 +29,18 @@
       "to": "database.db"
     }
   ],
-
   "icon": "./icon.png",
-
-  "mac": { "target": "dmg" },
-  "linux": { "target": "AppImage", "category": "Utility" },
-  "win": { "target": ["portable", "msi"] }
+  "mac": {
+    "target": "dmg"
+  },
+  "linux": {
+    "target": "AppImage",
+    "category": "Utility"
+  },
+  "win": {
+    "target": [
+      "portable",
+      "msi"
+    ]
+  }
 }

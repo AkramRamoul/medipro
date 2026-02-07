@@ -31,6 +31,7 @@ const patientSchema = z.object({
     errorMap: () => ({ message: "Le sexe est requis." }),
   }),
   contact: z.string().optional(),
+  tags: z.string().optional(),
   weight: z.coerce.number().optional(),
   notes: z.string().optional(),
 });
@@ -145,7 +146,7 @@ export function AddPatientForm({ onClose, onSave }: AddPatientFormProps) {
                 {...register("age")}
                 id="age"
                 type="number"
-                placeholder="Enter age"
+                placeholder="Entrez l'âge"
                 className="bg-background text-foreground"
               />
               {errors.age && (
@@ -171,6 +172,18 @@ export function AddPatientForm({ onClose, onSave }: AddPatientFormProps) {
                   {errors.contact.message}
                 </p>
               )}
+            </div>
+
+            <div className="grid gap-2">
+              <Label htmlFor="tags" className="text-foreground">
+                Tags / Groupes (Séparés par des virgules)
+              </Label>
+              <Input
+                {...register("tags")}
+                id="tags"
+                placeholder="ex: diabétique, hypertendu"
+                className="bg-background text-foreground"
+              />
             </div>
           </div>
 

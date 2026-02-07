@@ -27,17 +27,18 @@ import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 const patientSchema = z.object({
-  first_name: z.string().min(2, "First name must be at least 2 characters"),
-  last_name: z.string().min(2, "Last name must be at least 2 characters"),
-  age: z.coerce.number().min(1, "Age must be at least 1"),
+  first_name: z.string().min(2, "Le nom doit comporter au moins 2 caractères"),
+  last_name: z.string().min(2, "Le prénom doit comporter au moins 2 caractères"),
+  age: z.coerce.number().min(1, "L'âge doit être d'au moins 1"),
   gender: z.enum(["Male", "Female"]),
-  contact: z.string().optional(),
-  weight: z.coerce.number().optional(),
-  address: z.string().optional(),
-  bloodType: z.string().optional(),
-  medicalHistory: z.string().optional(),
-  allergies: z.string().optional(),
-  notes: z.string().optional(),
+  contact: z.string().nullish(),
+  weight: z.coerce.number().nullish(),
+  address: z.string().nullish(),
+  bloodType: z.string().nullish(),
+  tags: z.string().nullish(),
+  medicalHistory: z.string().nullish(),
+  allergies: z.string().nullish(),
+  notes: z.string().nullish(),
 });
 
 type PatientData = z.infer<typeof patientSchema>;
@@ -54,13 +55,18 @@ export function EditPatientForm({ id }: { id: string }) {
   } = useForm<PatientData>({
     resolver: zodResolver(patientSchema),
     defaultValues: {
+      first_name: "",
+      last_name: "",
+      age: undefined,
+      gender: "Male",
       weight: undefined,
-      contact: undefined,
-      address: undefined,
-      bloodType: undefined,
-      medicalHistory: undefined,
-      allergies: undefined,
-      notes: undefined,
+      contact: "",
+      address: "",
+      bloodType: "",
+      tags: "",
+      medicalHistory: "",
+      allergies: "",
+      notes: "",
     },
   });
 
@@ -205,6 +211,15 @@ export function EditPatientForm({ id }: { id: string }) {
                 {...register("address")}
                 id="address"
                 placeholder="Entrer l'adresse"
+              />
+            </div>
+
+            <div className="grid gap-2">
+              <Label htmlFor="tags">Tags / Groupes (Séparés par des virgules)</Label>
+              <Input
+                {...register("tags")}
+                id="tags"
+                placeholder="ex: diabétique, hypertendu"
               />
             </div>
           </div>

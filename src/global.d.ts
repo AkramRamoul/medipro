@@ -15,6 +15,21 @@ export interface DashboardStats {
     diagnosis: string;
     date: string;
   }[];
+  commonDiagnoses: { diagnosis: string; count: number }[];
+  busiestDays: { day: string; count: number }[];
+  retentionRate: number;
+  totalReturnPatients: number;
+  totalUniquePatients: number;
+  earningsThisMonth: number;
+  earningsToday: number;
+  earningsLastMonth: number;
+}
+
+export interface VitalSignsData {
+  date: string | null;
+  bloodPressure?: string | null;
+  glucose?: string | null;
+  weight?: string | null;
 }
 
 export interface IElectronAPI {
@@ -59,6 +74,7 @@ export interface IElectronAPI {
     buffer: ArrayBuffer,
     filename: string,
   ) => Promise<{ success: boolean; filePath?: string; error?: string }>;
+  printHtml: (htmlContent: string) => Promise<{ success: boolean; error?: string }>;
   generatePdf: (
     htmlContent: string,
     filename: string,
@@ -115,6 +131,7 @@ export interface IElectronAPI {
   addDocumentTemplate: (data: any) => Promise<{ success: boolean; error?: string }>;
   updateDocumentTemplate: (data: any) => Promise<{ success: boolean; error?: string }>;
   deleteDocumentTemplate: (id: number) => Promise<{ success: boolean; error?: string }>;
+  getPatientVitals: (patientId: number) => Promise<VitalSignsData[]>;
 }
 
 declare global {

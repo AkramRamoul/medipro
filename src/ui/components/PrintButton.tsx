@@ -1,8 +1,6 @@
-import { pdf } from "@react-pdf/renderer";
 import { useEffect, useState } from "react";
 import { PrescriptionMed } from "../../electron/schema";
 import { smallPatient } from "../type";
-import PrescriptionPDF from "./Patient/Pdf";
 import { Button } from "./ui/button";
 import { toast } from "sonner";
 import { Printer } from "lucide-react";
@@ -60,36 +58,33 @@ const PrintButton = ({
       return;
     }
 
-    const blob = await pdf(
-      <PrescriptionPDF
-        patient={patient}
-        prescriptionModel={prescriptionModel}
-        image={image}
-        medications={prescription}
-        isPsychotropic={isPsychotropic}
-        psychotropicNumber={psychotropicNumber}
-        patientAddress={patientAddress}
-      />,
-    ).toBlob();
+    try {
+      const { renderToStaticMarkup } = await import("react-dom/server");
+      const { default: PrescriptionPrintable } = await import("./PrescriptionPrintable");
 
-    const arrayBuffer = await blob.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
+      const htmlContent = renderToStaticMarkup(
+        <PrescriptionPrintable
+          patient={patient}
+          prescriptionModel={prescriptionModel}
+          image={image}
+          medications={prescription}
+          isPsychotropic={isPsychotropic}
+          psychotropicNumber={psychotropicNumber}
+          patientAddress={patientAddress}
+        />
+      );
 
-    await window.electronAPI.printPdf(buffer);
+      const fullHtml = `<!DOCTYPE html>${htmlContent}`;
+      const result = await window.electronAPI.printHtml(fullHtml);
 
-    const url = URL.createObjectURL(blob);
-
-    const newTab = window.open(url);
-
-    if (newTab) {
-      newTab.onload = () => {
-        newTab.print();
-        newTab.onafterprint = () => {
-          newTab.close();
-        };
-      };
-    } else {
-      toast.error("Popup bloqué ! Veuillez autoriser les popups.");
+      if (result.success) {
+        toast.success("Impression lancée !");
+      } else {
+        toast.error(`Erreur d'impression: ${result.error}`);
+      }
+    } catch (error) {
+      console.error("Failed to print:", error);
+      toast.error("Erreur lors de l'impression");
     }
   };
 

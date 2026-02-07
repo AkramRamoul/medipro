@@ -1,8 +1,6 @@
-import { pdf } from "@react-pdf/renderer";
 import { toast } from "sonner";
 import { Button } from "../components/ui/button";
 import { Printer } from "lucide-react";
-import EmptyPrescriptionPDF from "./EmptyPrescriptionPDF";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const PrintButton = ({ model, image }: any) => {
@@ -12,22 +10,26 @@ const PrintButton = ({ model, image }: any) => {
       return;
     }
 
-    const blob = await pdf(
-      <EmptyPrescriptionPDF prescriptionModel={model} image={image} />,
-    ).toBlob();
+    try {
+      const { renderToStaticMarkup } = await import("react-dom/server");
+      const { default: EmptyPrescriptionPrintable } = await import("../components/EmptyPrescriptionPrintable");
 
-    const url = URL.createObjectURL(blob);
-    const win = window.open(url);
+      const htmlContent = renderToStaticMarkup(
+        <EmptyPrescriptionPrintable prescriptionModel={model} image={image} />
+      );
 
-    if (!win) {
-      toast.error("Impossible d'ouvrir la fenêtre d'impression.");
-      return;
+      const fullHtml = `<!DOCTYPE html>${htmlContent}`;
+      const result = await window.electronAPI.printHtml(fullHtml);
+
+      if (result.success) {
+        toast.success("Impression lancée !");
+      } else {
+        toast.error(`Erreur d'impression: ${result.error}`);
+      }
+    } catch (error) {
+      console.error("Failed to print:", error);
+      toast.error("Erreur lors de l'impression");
     }
-
-    win.onload = () => {
-      win.print();
-      win.onafterprint = () => win.close();
-    };
   };
 
   return (

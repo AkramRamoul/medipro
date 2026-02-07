@@ -162,6 +162,51 @@ app.on("ready", () => {
     });
   });
 
+  ipcMain.handle(
+    "print-html",
+    async (_, { htmlContent }: { htmlContent: string }) => {
+      try {
+        const win = new BrowserWindow({
+          show: false,
+          webPreferences: {
+            nodeIntegration: false,
+          },
+        });
+
+        const dataUrl = `data:text/html;charset=utf-8,${encodeURIComponent(htmlContent)}`;
+        await win.loadURL(dataUrl);
+
+        return new Promise((resolve) => {
+          win.webContents.print({
+            silent: false,
+            printBackground: true,
+            deviceName: "", // default printer
+            margins: {
+              marginType: "custom",
+              top: 5,
+              bottom: 5,
+              left: 5,
+              right: 5
+            },
+            pageSize: "A5",
+          }, (success, errorType) => {
+            if (!success) {
+              console.error("Print failed:", errorType);
+              resolve({ success: false, error: errorType });
+            } else {
+              resolve({ success: true });
+            }
+            win.close();
+          });
+        });
+
+      } catch (error) {
+        console.error("Failed to print HTML:", error);
+        return { success: false, error: (error as Error).message };
+      }
+    }
+  );
+
   ipcMain.handle("save-pdf", async (_, { buffer, filename }) => {
     try {
       const { filePath } = await dialog.showSaveDialog({
@@ -288,6 +333,7 @@ app.on("ready", () => {
         notes: patients.notes,
         createdAt: patients.createdAt,
         status: patients.status,
+        tags: patients.tags,
         lastVisit: sql`MAX(consultations.date)`.as("lastVisit"),
       })
       .from(patients)
@@ -395,6 +441,7 @@ app.on("ready", () => {
 
       glucose: vitals?.glucose ? Number(vitals.glucose) : null,
       weight: vitals?.weight?.toString() || null,
+      amountPaid: data.amountPaid ? Number(data.amountPaid) : null,
       customFields: data.customFields || {},
       date: new Date().toISOString(),
     });
@@ -862,6 +909,25 @@ app.on("ready", () => {
           sql`strftime('%Y-%m', ${prescriptions.date}) = strftime('%Y-%m', CURRENT_TIMESTAMP)`,
         );
 
+      const [earningsToday] = await db
+        .select({ sum: sql<number>`sum(${consultations.amountPaid})` })
+        .from(consultations)
+        .where(sql`date(${consultations.date}) = date('now')`);
+
+      const [earningsThisMonth] = await db
+        .select({ sum: sql<number>`sum(${consultations.amountPaid})` })
+        .from(consultations)
+        .where(
+          sql`strftime('%Y-%m', ${consultations.date}) = strftime('%Y-%m', CURRENT_TIMESTAMP)`,
+        );
+
+      const [earningsLastMonth] = await db
+        .select({ sum: sql<number>`sum(${consultations.amountPaid})` })
+        .from(consultations)
+        .where(
+          sql`strftime('%Y-%m', ${consultations.date}) = strftime('%Y-%m', date('now', '-1 month'))`,
+        );
+
       const [totalPatients] = await db
         .select({ count: sql<number>`count(DISTINCT ${consultations.patientId})` })
         .from(consultations)
@@ -904,6 +970,66 @@ app.on("ready", () => {
           sql`strftime('%Y-%m', ${consultations.date}) = strftime('%Y-%m', date('now', '-1 month'))`,
         );
 
+      // Most common diagnoses (last 3 months)
+      const commonDiagnosesRaw = await db.all(
+        sql`
+          SELECT 
+            ${consultations.diagnosis} as diagnosis,
+            COUNT(*) as count
+          FROM ${consultations}
+          WHERE ${consultations.diagnosis} IS NOT NULL 
+            AND ${consultations.diagnosis} != ''
+            AND ${consultations.date} >= date('now', '-3 months')
+          GROUP BY ${consultations.diagnosis}
+          ORDER BY count DESC
+          LIMIT 5
+        `
+      );
+      const commonDiagnoses = (commonDiagnosesRaw as { diagnosis: string; count: number }[]);
+
+      // Busiest days of week
+      const busiestDaysRaw = await db.all(
+        sql`
+          SELECT 
+            CASE CAST(strftime('%w', ${consultations.date}) AS INTEGER)
+              WHEN 0 THEN 'Dimanche'
+              WHEN 1 THEN 'Lundi'
+              WHEN 2 THEN 'Mardi'
+              WHEN 3 THEN 'Mercredi'
+              WHEN 4 THEN 'Jeudi'
+              WHEN 5 THEN 'Vendredi'
+              WHEN 6 THEN 'Samedi'
+            END as day,
+            COUNT(*) as count
+          FROM ${consultations}
+          WHERE ${consultations.date} >= date('now', '-3 months')
+          GROUP BY strftime('%w', ${consultations.date})
+          ORDER BY CAST(strftime('%w', ${consultations.date}) AS INTEGER)
+        `
+      );
+      const busiestDays = (busiestDaysRaw as { day: string; count: number }[]);
+
+      // Patient retention rate (patients with multiple visits in last 6 months)
+      const [retentionStats] = await db.all(
+        sql`
+          SELECT 
+            COUNT(DISTINCT patient_id) as totalUniquePatients,
+            COUNT(DISTINCT CASE WHEN visit_count > 1 THEN patient_id END) as totalReturnPatients
+          FROM (
+            SELECT 
+              patient_id,
+              COUNT(*) as visit_count
+            FROM ${consultations}
+            WHERE ${consultations.date} >= date('now', '-6 months')
+            GROUP BY patient_id
+          )
+        `
+      ) as { totalUniquePatients: number; totalReturnPatients: number }[];
+
+      const retentionRate = retentionStats.totalUniquePatients > 0
+        ? (retentionStats.totalReturnPatients / retentionStats.totalUniquePatients) * 100
+        : 0;
+
       return {
         consultationsThisMonth: consultationsThisMonth.count,
         consultationsToday: consultationsToday.count,
@@ -914,6 +1040,14 @@ app.on("ready", () => {
         consultationsLastMonth: consultationsLastMonth.count,
         patientsThisMonth: patientsThisMonth.count,
         patientsLastMonth: patientsLastMonth.count,
+        earningsToday: earningsToday.sum || 0,
+        earningsThisMonth: earningsThisMonth.sum || 0,
+        earningsLastMonth: earningsLastMonth.sum || 0,
+        commonDiagnoses,
+        busiestDays,
+        retentionRate: Math.round(retentionRate * 10) / 10, // Round to 1 decimal
+        totalReturnPatients: retentionStats.totalReturnPatients,
+        totalUniquePatients: retentionStats.totalUniquePatients,
       };
     } catch (error) {
       console.error("Failed to load dashboard stats:", error);
@@ -1388,6 +1522,26 @@ app.on("ready", () => {
     } catch (error) {
       console.error("Failed to delete document template:", error);
       return { success: false, error: (error as Error).message };
+    }
+  });
+
+  ipcMain.handle("get-patient-vitals", async (_, patientId) => {
+    try {
+      const result = await db
+        .select({
+          date: consultations.date,
+          bloodPressure: consultations.bloodPressure,
+          glucose: consultations.glucose,
+          weight: consultations.weight,
+        })
+        .from(consultations)
+        .where(eq(consultations.patientId, patientId))
+        .orderBy(consultations.date);
+
+      return result;
+    } catch (error) {
+      console.error("Error fetching patient vitals:", error);
+      return [];
     }
   });
 

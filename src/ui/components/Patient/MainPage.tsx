@@ -8,6 +8,7 @@ import { Button } from "../ui/button";
 import { Download, Loader2 } from "lucide-react";
 import { usePatientPdfExport } from "../../hooks/usePatientPdfExport";
 import { AppointmentTab } from "../Appointment/AppointmentTab";
+import { VitalSignsChart } from "./VitalSignsChart";
 
 function MainPage() {
   const { id } = useParams<{ id: string }>();
@@ -43,6 +44,12 @@ function MainPage() {
               className="flex-1 text-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
             >
               Détails du patient
+            </TabsTrigger>
+            <TabsTrigger
+              value="vitals"
+              className="flex-1 text-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+            >
+              Signes Vitaux
             </TabsTrigger>
             <TabsTrigger
               value="account"
@@ -82,6 +89,12 @@ function MainPage() {
           className="bg-card text-card-foreground p-4 rounded-lg"
         >
           <EditPatientForm id={id!} />
+        </TabsContent>
+        <TabsContent
+          value="vitals"
+          className="bg-card text-card-foreground p-4 rounded-lg"
+        >
+          <VitalSignsChart patientId={id!} />
         </TabsContent>
         <TabsContent
           value="account"

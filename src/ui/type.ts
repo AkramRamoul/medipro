@@ -12,6 +12,7 @@ export type Patient = {
   bloodType?: string;
   medicalHistory?: string;
   allergies?: string;
+  tags?: string;
   notes?: string;
   createdAt: string; // "YYYY-MM-DD"
 };
@@ -28,6 +29,7 @@ export type Consultation = {
   temperature?: string;
   weight?: string;
   customFields?: Record<string, any>;
+  amountPaid?: number;
   date: string;
 };
 
@@ -41,6 +43,9 @@ export type DashboardStats = {
 
   totalPatients: number;
   appointmentsToday: number;
+  earningsThisMonth: number;
+  earningsToday: number;
+  earningsLastMonth: number;
   recentConsultations: {
     id: number;
     firstName: string;
@@ -49,7 +54,20 @@ export type DashboardStats = {
     diagnosis: string;
     date: string;
   }[];
+  commonDiagnoses: { diagnosis: string; count: number }[];
+  busiestDays: { day: string; count: number }[];
+  retentionRate: number;
+  totalReturnPatients: number;
+  totalUniquePatients: number;
 };
+
+export type VitalSignsData = {
+  date: string | null;
+  bloodPressure?: string | null;
+  glucose?: string | null;
+  weight?: string | null;
+};
+
 export interface Prescription {
   id: number;
   isPsychotropic?: boolean;

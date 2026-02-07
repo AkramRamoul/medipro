@@ -22,6 +22,7 @@ import {
   Save,
   HeartPulse,
   Plus,
+  Banknote,
 } from "lucide-react";
 import { Consultation } from "../../type";
 import { toast } from "sonner";
@@ -44,6 +45,7 @@ export default function SingleConsultation({
   const [bpDiastolic, setBpDiastolic] = useState("");
   const [glucose, setGlucose] = useState("");
   const [weight, setWeight] = useState("");
+  const [amountPaid, setAmountPaid] = useState("");
   const [customFieldConfigs, setCustomFieldConfigs] = useState<any[]>([]);
   const [customFieldValues, setCustomFieldValues] = useState<Record<string, any>>({});
 
@@ -60,6 +62,7 @@ export default function SingleConsultation({
             setNotes(consultationData.notes || "");
             setGlucose(consultationData.glucose || "");
             setWeight(consultationData.weight || "");
+            setAmountPaid(consultationData.amountPaid?.toString() || "");
             const bp = consultationData.bloodPressure;
 
             if (bp && bp.includes("/")) {
@@ -99,6 +102,7 @@ export default function SingleConsultation({
         glucose,
         weight,
         notes,
+        amountPaid: amountPaid ? Number(amountPaid) : null,
         customFields: customFieldValues,
       };
 
@@ -163,6 +167,20 @@ export default function SingleConsultation({
               value={symptoms}
               onChange={(e) => setSymptoms(e.target.value)}
               className="min-h-[80px]"
+            />
+          </div>
+
+          <div className="grid gap-2">
+            <Label htmlFor="diagnosis" className="flex items-center gap-2">
+              <FileText className="h-4 w-4 text-muted-foreground" />
+              Diagnostic
+            </Label>
+            <Textarea
+              id="diagnosis"
+              placeholder="Conclusion médicale..."
+              value={diagnosis}
+              onChange={(e) => setDiagnosis(e.target.value)}
+              className="min-h-[80px] bg-muted/20"
             />
           </div>
         </div>
@@ -255,20 +273,6 @@ export default function SingleConsultation({
 
         <div className="grid gap-4">
           <div className="grid gap-2">
-            <Label htmlFor="diagnosis" className="flex items-center gap-2">
-              <FileText className="h-4 w-4 text-muted-foreground" />
-              Diagnostic
-            </Label>
-            <Textarea
-              id="diagnosis"
-              placeholder="Conclusion médicale..."
-              value={diagnosis}
-              onChange={(e) => setDiagnosis(e.target.value)}
-              className="min-h-[80px] bg-muted/20"
-            />
-          </div>
-
-          <div className="grid gap-2">
             <Label
               htmlFor="notes"
               className="text-left flex items-center gap-2 font-medium"
@@ -281,6 +285,25 @@ export default function SingleConsultation({
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               className="min-h-[80px]"
+            />
+          </div>
+        </div>
+
+        <div className="rounded-lg border bg-primary/5 p-4">
+          <h3 className="font-semibold mb-3 flex items-center gap-2 text-sm text-primary uppercase tracking-wide">
+            <Banknote className="h-4 w-4" />
+            Règlement
+          </h3>
+          <div className="max-w-xs space-y-2">
+            <Label className="text-xs flex items-center gap-1">
+              Honoraires (DA)
+            </Label>
+            <Input
+              type="number"
+              placeholder="0.00"
+              value={amountPaid}
+              onChange={(e) => setAmountPaid(e.target.value)}
+              className="h-10 bg-background font-bold text-primary"
             />
           </div>
         </div>

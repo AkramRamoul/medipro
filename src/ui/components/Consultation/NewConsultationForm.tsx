@@ -17,6 +17,7 @@ import {
   Save,
   X,
   Plus,
+  Banknote,
 } from "lucide-react";
 import { Patient } from "../../type";
 import { toast } from "sonner";
@@ -44,6 +45,7 @@ function NewConsultationForm({
   const [glucose, setGlucose] = useState("");
   const [weight, setWeight] = useState("");
   const [temperature, setTemperature] = useState("");
+  const [amountPaid, setAmountPaid] = useState("");
   const [customFieldConfigs, setCustomFieldConfigs] = useState<any[]>([]);
   const [customFieldValues, setCustomFieldValues] = useState<Record<string, any>>({});
 
@@ -85,6 +87,7 @@ function NewConsultationForm({
         weight: weight ? weight : null,
         temperature: temperature ? temperature : null,
       },
+      amountPaid: amountPaid ? Number(amountPaid) : null,
       customFields: customFieldValues,
     };
 
@@ -231,7 +234,7 @@ function NewConsultationForm({
         <div className="space-y-4">
           <h3 className="text-lg font-semibold flex items-center gap-2 text-primary">
             <Activity className="w-5 h-5" />
-            Signes Vitaux
+            Constantes Vitales
           </h3>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-muted/20 rounded-lg border border-border/50">
@@ -296,6 +299,31 @@ function NewConsultationForm({
                 value={temperature}
                 onChange={(e) => setTemperature(e.target.value)}
                 className="bg-background"
+              />
+            </div>
+
+          </div>
+        </div>
+
+        <Separator />
+
+        {/* Section 3: Payment */}
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold flex items-center gap-2 text-primary">
+            <Banknote className="w-5 h-5" />
+            Paiement
+          </h3>
+          <div className="p-4 bg-primary/5 rounded-lg border border-primary/10 max-w-xs">
+            <div className="space-y-2">
+              <Label className="text-xs font-medium text-muted-foreground uppercase flex items-center gap-1">
+                Honoraires (DA)
+              </Label>
+              <Input
+                type="number"
+                placeholder="0.00"
+                value={amountPaid}
+                onChange={(e) => setAmountPaid(e.target.value)}
+                className="bg-background border-primary/20 font-bold text-primary text-lg"
               />
             </div>
           </div>

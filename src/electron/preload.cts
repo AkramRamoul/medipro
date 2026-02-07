@@ -101,8 +101,8 @@ contextBridge.exposeInMainWorld("electronAPI", {
   savePdf: (buffer: any, filename: string) => {
     return ipcRenderer.invoke("save-pdf", { buffer, filename });
   },
-  generatePdf: (htmlContent: string, filename: string) => {
-    return ipcRenderer.invoke("generate-pdf", { htmlContent, filename });
+  printHtml: (htmlContent: string) => {
+    return ipcRenderer.invoke("print-html", { htmlContent });
   },
   getAllPrescriptions: async () => {
     return await ipcRenderer.invoke("get-all-prescriptions");
@@ -204,5 +204,8 @@ contextBridge.exposeInMainWorld("electronAPI", {
   },
   deleteDocumentTemplate: async (id: number) => {
     return await ipcRenderer.invoke("delete-document-template", id);
+  },
+  getPatientVitals: async (patientId: number) => {
+    return await ipcRenderer.invoke("get-patient-vitals", patientId);
   },
 });

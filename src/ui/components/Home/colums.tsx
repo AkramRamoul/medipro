@@ -10,6 +10,7 @@ export type Patient = {
   lastVisit: string | null;
   createdAt?: string;
   status?: string;
+  tags?: string;
 };
 
 export const columns: ColumnDef<Patient>[] = [

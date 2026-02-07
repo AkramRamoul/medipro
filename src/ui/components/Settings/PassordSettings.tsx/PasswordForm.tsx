@@ -238,7 +238,7 @@ export function PasswordForm() {
           />
 
           <div className="pt-4 flex flex-col gap-4">
-            <Button type="submit" disabled={submitting}>
+            <Button type="submit" disabled={submitting} className="dark:text-white">
               {status.status === "not-exists"
                 ? "Créer un mot de passe"
                 : "Mettre à jour le mot de passe"}
@@ -246,6 +246,7 @@ export function PasswordForm() {
 
             {status.status === "exists" && (
               <Button
+                className="dark:text-white"
                 type="button"
                 variant="destructive"
                 onClick={() => setIsRemoveOpen(true)}
@@ -280,6 +281,7 @@ export function PasswordForm() {
               Annuler
             </Button>
             <Button
+              className="dark:text-white"
               variant="destructive"
               onClick={handleRemovePassword}
               disabled={isRemoving || !removePasswordValue}

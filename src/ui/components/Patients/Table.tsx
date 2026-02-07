@@ -127,6 +127,7 @@ function PatientsTable({
       const full1 = `${first} ${last}`;
       const full2 = `${last} ${first}`;
       const contact = patient.contact?.toLowerCase() || "";
+      const tags = patient.tags?.toLowerCase() || "";
       const q = query.trim().toLowerCase();
 
       return (
@@ -134,7 +135,8 @@ function PatientsTable({
         last.includes(q) ||
         full1.includes(q) ||
         full2.includes(q) ||
-        contact.includes(q)
+        contact.includes(q) ||
+        tags.includes(q)
       );
     })
     .sort((a, b) => {
@@ -414,6 +416,19 @@ function PatientsTable({
                               <span className="text-xs text-muted-foreground">
                                 {patient.lastname || ""}
                               </span>
+                              {patient.tags && (
+                                <div className="flex flex-wrap gap-1 mt-1">
+                                  {patient.tags.split(",").map((tag, i) => (
+                                    <Badge
+                                      key={i}
+                                      variant="secondary"
+                                      className="text-[10px] px-1.5 h-4 bg-primary/5 text-primary border-primary/10"
+                                    >
+                                      {tag.trim()}
+                                    </Badge>
+                                  ))}
+                                </div>
+                              )}
                             </div>
                           </div>
                         </TableCell>

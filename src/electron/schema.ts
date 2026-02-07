@@ -13,6 +13,7 @@ export const patients = sqliteTable("patients", {
   bloodType: text("blood_type"),
   medicalHistory: text("medical_history"),
   allergies: text("allergies"),
+  tags: text("tags"),
   notes: text("notes"),
   status: text("status").notNull().default("active"),
   createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
@@ -31,6 +32,7 @@ export const consultations = sqliteTable("consultations", {
   bloodPressure: text("blood_pressure"),
   glucose: text("glucose"),
   weight: text("weight"),
+  amountPaid: integer("amount_paid"),
   customFields: text("custom_fields", { mode: "json" })
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     .$type<Record<string, any>>()

@@ -1,5 +1,3 @@
-import { pdf } from "@react-pdf/renderer";
-import PrescriptionPDF from "../Patient/Pdf"; // Your PDF component
 import { useEffect, useState } from "react";
 import { smallPatient } from "../../type";
 import { Printer } from "lucide-react";
@@ -54,31 +52,33 @@ const PrintButton = ({
       return;
     }
 
-    const blob = await pdf(
-      <PrescriptionPDF
-        patient={patient}
-        prescriptionModel={prescriptionModel}
-        image={image}
-        medications={prescription}
-        isPsychotropic={isPsychotropic}
-        psychotropicNumber={psychotropicNumber}
-        patientAddress={patientAddress}
-      />,
-    ).toBlob();
+    try {
+      const { renderToStaticMarkup } = await import("react-dom/server");
+      const { default: PrescriptionPrintable } = await import("../PrescriptionPrintable");
 
-    const url = URL.createObjectURL(blob);
+      const htmlContent = renderToStaticMarkup(
+        <PrescriptionPrintable
+          patient={patient}
+          prescriptionModel={prescriptionModel}
+          image={image}
+          medications={prescription}
+          isPsychotropic={isPsychotropic}
+          psychotropicNumber={psychotropicNumber}
+          patientAddress={patientAddress}
+        />
+      );
 
-    const newTab = window.open(url);
+      const fullHtml = `<!DOCTYPE html>${htmlContent}`;
+      const result = await window.electronAPI.printHtml(fullHtml);
 
-    if (newTab) {
-      newTab.onload = () => {
-        newTab.print();
-        newTab.onafterprint = () => {
-          newTab.close();
-        };
-      };
-    } else {
-      toast.error("Erreur lors de l'ouverture d'un nouvel onglet.");
+      if (result.success) {
+        toast.success("Impression lancée !");
+      } else {
+        toast.error(`Erreur d'impression: ${result.error}`);
+      }
+    } catch (error) {
+      console.error("Failed to print:", error);
+      toast.error("Erreur lors de l'impression");
     }
   };
 
