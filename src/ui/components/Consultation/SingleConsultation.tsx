@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 import { Consultation } from "../../type";
 import { toast } from "sonner";
+import { ICD10Search } from "./ICD10Search";
 
 export default function SingleConsultation({
   id,
@@ -175,12 +176,10 @@ export default function SingleConsultation({
               <FileText className="h-4 w-4 text-muted-foreground" />
               Diagnostic
             </Label>
-            <Textarea
-              id="diagnosis"
-              placeholder="Conclusion médicale..."
+            <ICD10Search
               value={diagnosis}
-              onChange={(e) => setDiagnosis(e.target.value)}
-              className="min-h-[80px] bg-muted/20"
+              onChange={setDiagnosis}
+              placeholder="Rechercher un diagnostic (CIM-10)..."
             />
           </div>
         </div>

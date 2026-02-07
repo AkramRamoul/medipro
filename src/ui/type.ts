@@ -46,6 +46,9 @@ export type DashboardStats = {
   earningsThisMonth: number;
   earningsToday: number;
   earningsLastMonth: number;
+  expensesThisMonth: number;
+  expensesToday: number;
+  expensesLastMonth: number;
   recentConsultations: {
     id: number;
     firstName: string;
@@ -154,3 +157,26 @@ export type ReportContent = {
 };
 
 export type DocumentContent = BloodContent | CertificateContent | ReportContent;
+
+export type Expense = {
+  id: number;
+  description: string;
+  amount: number;
+  category: string;
+  date: string;
+};
+
+export type ICD10 = {
+  code: string;
+  label: string;
+  category?: string;
+};
+
+export interface SearchResult {
+  type: "patient" | "consultation" | "action";
+  id?: number;
+  patientId?: number;
+  title: string;
+  subtitle: string;
+  url?: string;
+}

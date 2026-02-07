@@ -167,6 +167,20 @@ export const documentTemplates = sqliteTable("document_templates", {
   updatedAt: text("updated_at").default(sql`CURRENT_TIMESTAMP`),
 });
 
+export const expenses = sqliteTable("expenses", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  description: text("description").notNull(),
+  amount: integer("amount").notNull(),
+  category: text("category").notNull(), // 'supplies', 'rent', 'staff', 'other'
+  date: text("date").default(sql`CURRENT_TIMESTAMP`),
+});
+
+export const icd10 = sqliteTable("icd10", {
+  code: text("code").primaryKey(),
+  label: text("label").notNull(),
+  category: text("category"),
+});
+
 export type PrescriptionMed = typeof prescriptionMedications.$inferSelect;
 export type NewPrescriptionMed = typeof prescriptionMedications.$inferInsert;
 export type prescriptionModel = typeof prescriptionModel.$inferSelect;
@@ -174,3 +188,5 @@ export type document = typeof Document.$inferSelect;
 export type Prescription = typeof prescriptions.$inferSelect;
 export type Appointment = typeof appointments.$inferSelect;
 export type DocumentTemplate = typeof documentTemplates.$inferSelect;
+export type Expense = typeof expenses.$inferSelect;
+export type ICD10 = typeof icd10.$inferSelect;

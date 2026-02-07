@@ -208,4 +208,22 @@ contextBridge.exposeInMainWorld("electronAPI", {
   getPatientVitals: async (patientId: number) => {
     return await ipcRenderer.invoke("get-patient-vitals", patientId);
   },
+  getExpenses: async () => {
+    return await ipcRenderer.invoke("get-expenses");
+  },
+  addExpense: async (data: unknown) => {
+    return await ipcRenderer.invoke("add-expense", data);
+  },
+  deleteExpense: async (id: number) => {
+    return await ipcRenderer.invoke("delete-expense", id);
+  },
+  searchICD10: async (query: string) => {
+    return await ipcRenderer.invoke("search-icd10", query);
+  },
+  importICD10: async (data: any[]) => {
+    return await ipcRenderer.invoke("import-icd10", data);
+  },
+  globalSearch: async (query: string) => {
+    return await ipcRenderer.invoke("global-search", query);
+  },
 });

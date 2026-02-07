@@ -4,6 +4,7 @@ import { SidebarProvider, SidebarTrigger } from "../components/ui/sidebar";
 import BackButton from "../components/BackButton";
 import { useLocation } from "react-router-dom";
 import { ThemeToggle } from "../components/ThemeToggle";
+import { CommandPalette } from "../components/CommandPalette";
 
 const Layout = () => {
   const location = useLocation();
@@ -23,6 +24,7 @@ const Layout = () => {
             </div>
           </div>
 
+          <CommandPalette />
           <Outlet />
         </main>
       </SidebarProvider>

@@ -1,0 +1,1082 @@
+[
+    {
+        "code": "J00",
+        "label": "Rhinopharyngite aiguë [rhume banal]",
+        "category": "O.R.L / Respiratoire"
+    },
+    {
+        "code": "J01",
+        "label": "Sinusite aiguë",
+        "category": "O.R.L / Respiratoire"
+    },
+    {
+        "code": "J02",
+        "label": "Pharyngite aiguë",
+        "category": "O.R.L / Respiratoire"
+    },
+    {
+        "code": "J03",
+        "label": "Amygdalite aiguë",
+        "category": "O.R.L / Respiratoire"
+    },
+    {
+        "code": "J04",
+        "label": "Laryngite et trachéite aiguës",
+        "category": "O.R.L / Respiratoire"
+    },
+    {
+        "code": "J06",
+        "label": "Infections aiguës des voies respiratoires supérieures, à localisations multiples et non précisées",
+        "category": "O.R.L / Respiratoire"
+    },
+    {
+        "code": "J11",
+        "label": "Grippe, virus non identifié",
+        "category": "O.R.L / Respiratoire"
+    },
+    {
+        "code": "J15",
+        "label": "Pneumonie bactérienne, non classée ailleurs",
+        "category": "O.R.L / Respiratoire"
+    },
+    {
+        "code": "J18",
+        "label": "Pneumonie, germe non précisé",
+        "category": "O.R.L / Respiratoire"
+    },
+    {
+        "code": "J20",
+        "label": "Bronchite aiguë",
+        "category": "O.R.L / Respiratoire"
+    },
+    {
+        "code": "J21",
+        "label": "Bronchiolite aiguë",
+        "category": "O.R.L / Respiratoire"
+    },
+    {
+        "code": "J30",
+        "label": "Rhinite allergique et vasomotrice",
+        "category": "O.R.L / Respiratoire"
+    },
+    {
+        "code": "J31",
+        "label": "Rhinite, rhinopharyngite et pharyngite chroniques",
+        "category": "O.R.L / Respiratoire"
+    },
+    {
+        "code": "J32",
+        "label": "Sinusite chronique",
+        "category": "O.R.L / Respiratoire"
+    },
+    {
+        "code": "J35",
+        "label": "Maladies chroniques des amygdales et des végétations adénoïdes",
+        "category": "O.R.L / Respiratoire"
+    },
+    {
+        "code": "J40",
+        "label": "Bronchite, non précisée comme aiguë ou chronique",
+        "category": "O.R.L / Respiratoire"
+    },
+    {
+        "code": "J42",
+        "label": "Bronchite chronique non précisée",
+        "category": "O.R.L / Respiratoire"
+    },
+    {
+        "code": "J44",
+        "label": "Autres maladies pulmonaires obstructives chroniques (BPCO)",
+        "category": "O.R.L / Respiratoire"
+    },
+    {
+        "code": "J45",
+        "label": "Asthme",
+        "category": "O.R.L / Respiratoire"
+    },
+    {
+        "code": "I10",
+        "label": "Hypertension essentielle (primitive)",
+        "category": "Cardiovasculaire"
+    },
+    {
+        "code": "I11",
+        "label": "Cardiopathie hypertensive",
+        "category": "Cardiovasculaire"
+    },
+    {
+        "code": "I20",
+        "label": "Angine de poitrine (Angor)",
+        "category": "Cardiovasculaire"
+    },
+    {
+        "code": "I21",
+        "label": "Infarctus aigu du myocarde",
+        "category": "Cardiovasculaire"
+    },
+    {
+        "code": "I25",
+        "label": "Cardiopathie ischémique chronique",
+        "category": "Cardiovasculaire"
+    },
+    {
+        "code": "I35",
+        "label": "Atteintes non rhumatismales de la valvule aortique",
+        "category": "Cardiovasculaire"
+    },
+    {
+        "code": "I42",
+        "label": "Cardiomyopathies",
+        "category": "Cardiovasculaire"
+    },
+    {
+        "code": "I47",
+        "label": "Tachycardie paroxystique",
+        "category": "Cardiovasculaire"
+    },
+    {
+        "code": "I48",
+        "label": "Fibrillation et flutter auriculaires",
+        "category": "Cardiovasculaire"
+    },
+    {
+        "code": "I50",
+        "label": "Insuffisance cardiaque",
+        "category": "Cardiovasculaire"
+    },
+    {
+        "code": "I63",
+        "label": "Infarctus cérébral (AVC ischémique)",
+        "category": "Cardiovasculaire"
+    },
+    {
+        "code": "I64",
+        "label": "Accident vasculaire cérébral, non précisé comme hémorragique ou par infarctus",
+        "category": "Cardiovasculaire"
+    },
+    {
+        "code": "I67",
+        "label": "Autres maladies cérébrovasculaires",
+        "category": "Cardiovasculaire"
+    },
+    {
+        "code": "I70",
+        "label": "Athérosclérose",
+        "category": "Cardiovasculaire"
+    },
+    {
+        "code": "I73",
+        "label": "Autres maladies vasculaires périphériques (Raynaud)",
+        "category": "Cardiovasculaire"
+    },
+    {
+        "code": "I80",
+        "label": "Phlébite et thrombophlébite",
+        "category": "Cardiovasculaire"
+    },
+    {
+        "code": "I82",
+        "label": "Autres embolies et thromboses veineuses",
+        "category": "Cardiovasculaire"
+    },
+    {
+        "code": "I83",
+        "label": "Varices des membres inférieurs",
+        "category": "Cardiovasculaire"
+    },
+    {
+        "code": "E10",
+        "label": "Diabète sucré insulinodépendant (Type 1)",
+        "category": "Endocrinologie"
+    },
+    {
+        "code": "E11",
+        "label": "Diabète sucré non insulinodépendant (Type 2)",
+        "category": "Endocrinologie"
+    },
+    {
+        "code": "E03",
+        "label": "Autres hypothyroïdies",
+        "category": "Endocrinologie"
+    },
+    {
+        "code": "E05",
+        "label": "Thyréotoxicose [hyperthyroïdie]",
+        "category": "Endocrinologie"
+    },
+    {
+        "code": "E06",
+        "label": "Thyroïdite",
+        "category": "Endocrinologie"
+    },
+    {
+        "code": "E66",
+        "label": "Obésité",
+        "category": "Endocrinologie"
+    },
+    {
+        "code": "E78",
+        "label": "Anomalies du métabolisme des lipoprotéines et autres lipidémies (Cholestérol)",
+        "category": "Endocrinologie"
+    },
+    {
+        "code": "E89",
+        "label": "Troubles endocriniens et métaboliques après un acte à visée diagnostique et thérapeutique, non classés ailleurs",
+        "category": "Endocrinologie"
+    },
+    {
+        "code": "K20",
+        "label": "Oesophagite",
+        "category": "Digestif"
+    },
+    {
+        "code": "K21",
+        "label": "Reflux gastro-œsophagien",
+        "category": "Digestif"
+    },
+    {
+        "code": "K25",
+        "label": "Ulcère gastrique",
+        "category": "Digestif"
+    },
+    {
+        "code": "K29",
+        "label": "Gastrite et duodénite",
+        "category": "Digestif"
+    },
+    {
+        "code": "K30",
+        "label": "Dyspepsie",
+        "category": "Digestif"
+    },
+    {
+        "code": "K35",
+        "label": "Appendicite aiguë",
+        "category": "Digestif"
+    },
+    {
+        "code": "K40",
+        "label": "Hernie inguinale",
+        "category": "Digestif"
+    },
+    {
+        "code": "K42",
+        "label": "Hernie ombilicale",
+        "category": "Digestif"
+    },
+    {
+        "code": "K52",
+        "label": "Autres gastro-entérites et colites non infectieuses",
+        "category": "Digestif"
+    },
+    {
+        "code": "K57",
+        "label": "Diverticulose du côlon",
+        "category": "Digestif"
+    },
+    {
+        "code": "K58",
+        "label": "Syndrome de l'intestin irritable",
+        "category": "Digestif"
+    },
+    {
+        "code": "K59",
+        "label": "Constipation",
+        "category": "Digestif"
+    },
+    {
+        "code": "K62",
+        "label": "Autres maladies de l'anus et du rectum (Hémorroïdes)",
+        "category": "Digestif"
+    },
+    {
+        "code": "K80",
+        "label": "Lithiase biliaire (Calculs)",
+        "category": "Digestif"
+    },
+    {
+        "code": "K81",
+        "label": "Cholécystite",
+        "category": "Digestif"
+    },
+    {
+        "code": "N10",
+        "label": "Néphrite tubulo-interstitielle aiguë (Pyélonéphrite)",
+        "category": "Urologie / Néphrologie"
+    },
+    {
+        "code": "N18",
+        "label": "Insuffisance rénale chronique",
+        "category": "Urologie / Néphrologie"
+    },
+    {
+        "code": "N20",
+        "label": "Calcul du rein et de l'uretère",
+        "category": "Urologie / Néphrologie"
+    },
+    {
+        "code": "N30",
+        "label": "Cystite aiguë",
+        "category": "Urologie / Néphrologie"
+    },
+    {
+        "code": "N39",
+        "label": "Autres affections de l'appareil urinaire (Infection urinaire non précisée)",
+        "category": "Urologie / Néphrologie"
+    },
+    {
+        "code": "N40",
+        "label": "Hypertrophie de la prostate",
+        "category": "Urologie / Néphrologie"
+    },
+    {
+        "code": "N41",
+        "label": "Maladies inflammatoires de la prostate",
+        "category": "Urologie / Néphrologie"
+    },
+    {
+        "code": "M15",
+        "label": "Polyarthrose",
+        "category": "Rhumatologie / Appareil locomoteur"
+    },
+    {
+        "code": "M16",
+        "label": "Coxarthrose [arthrose de la hanche]",
+        "category": "Rhumatologie / Appareil locomoteur"
+    },
+    {
+        "code": "M17",
+        "label": "Gonarthrose [arthrose du genou]",
+        "category": "Rhumatologie / Appareil locomoteur"
+    },
+    {
+        "code": "M20",
+        "label": "Déformations des doigts et des orteils, acquises (Hallux valgus)",
+        "category": "Rhumatologie / Appareil locomoteur"
+    },
+    {
+        "code": "M45",
+        "label": "Spondylarthrite ankylosante",
+        "category": "Rhumatologie / Appareil locomoteur"
+    },
+    {
+        "code": "M47",
+        "label": "Spondylose (Arthrose vertébrale)",
+        "category": "Rhumatologie / Appareil locomoteur"
+    },
+    {
+        "code": "M51",
+        "label": "Autres troubles de disque intervertébral (Hernie discale)",
+        "category": "Rhumatologie / Appareil locomoteur"
+    },
+    {
+        "code": "M54",
+        "label": "Dorsalgies (Lumbago, Sciatique, Cervicalgie)",
+        "category": "Rhumatologie / Appareil locomoteur"
+    },
+    {
+        "code": "M62",
+        "label": "Autres troubles musculaires (Myalgies)",
+        "category": "Rhumatologie / Appareil locomoteur"
+    },
+    {
+        "code": "M75",
+        "label": "Lésions de l'épaule (Tendinite)",
+        "category": "Rhumatologie / Appareil locomoteur"
+    },
+    {
+        "code": "M77",
+        "label": "Autres enthésopathies (Epicondylite)",
+        "category": "Rhumatologie / Appareil locomoteur"
+    },
+    {
+        "code": "M79",
+        "label": "Autres affections des tissus mous, non classées ailleurs",
+        "category": "Rhumatologie / Appareil locomoteur"
+    },
+    {
+        "code": "M81",
+        "label": "Ostéoporose sans fracture pathologique",
+        "category": "Rhumatologie / Appareil locomoteur"
+    },
+    {
+        "code": "L02",
+        "label": "Abcès cutané, furoncle et anthrax",
+        "category": "Dermatologie"
+    },
+    {
+        "code": "L03",
+        "label": "Phlégmon (Cellulite infectieuse)",
+        "category": "Dermatologie"
+    },
+    {
+        "code": "L20",
+        "label": "Dermatite atopique (Eczéma)",
+        "category": "Dermatologie"
+    },
+    {
+        "code": "L21",
+        "label": "Dermatite séborrhéique",
+        "category": "Dermatologie"
+    },
+    {
+        "code": "L30",
+        "label": "Autres dermatites (Dermite de contact)",
+        "category": "Dermatologie"
+    },
+    {
+        "code": "L40",
+        "label": "Psoriasis",
+        "category": "Dermatologie"
+    },
+    {
+        "code": "L50",
+        "label": "Urticaire",
+        "category": "Dermatologie"
+    },
+    {
+        "code": "L53",
+        "label": "Autres affections érythémateuses",
+        "category": "Dermatologie"
+    },
+    {
+        "code": "L60",
+        "label": "Affections des ongles",
+        "category": "Dermatologie"
+    },
+    {
+        "code": "L63",
+        "label": "Alopécie en aires",
+        "category": "Dermatologie"
+    },
+    {
+        "code": "L70",
+        "label": "Acné",
+        "category": "Dermatologie"
+    },
+    {
+        "code": "L71",
+        "label": "Rosacée",
+        "category": "Dermatologie"
+    },
+    {
+        "code": "L80",
+        "label": "Vitiligo",
+        "category": "Dermatologie"
+    },
+    {
+        "code": "L82",
+        "label": "Kératose séborrhéique",
+        "category": "Dermatologie"
+    },
+    {
+        "code": "B35",
+        "label": "Dermatophytose (Mycose cutanée)",
+        "category": "Dermatologie"
+    },
+    {
+        "code": "A00",
+        "label": "Choléra",
+        "category": "Infectiologie"
+    },
+    {
+        "code": "A01",
+        "label": "Fièvres typhoïde et paratyphoïde",
+        "category": "Infectiologie"
+    },
+    {
+        "code": "A04",
+        "label": "Autres infections intestinales bactériennes",
+        "category": "Infectiologie"
+    },
+    {
+        "code": "A09",
+        "label": "Diarrhée et gastro-entérite d'origine présumée infectieuse",
+        "category": "Infectiologie"
+    },
+    {
+        "code": "A15",
+        "label": "Tuberculose respiratoire, confirmée par l'examen bactériologique et l'étude histologique",
+        "category": "Infectiologie"
+    },
+    {
+        "code": "A30",
+        "label": "Lèpre [maladie de Hansen]",
+        "category": "Infectiologie"
+    },
+    {
+        "code": "A41",
+        "label": "Autres septicémies",
+        "category": "Infectiologie"
+    },
+    {
+        "code": "A46",
+        "label": "Érysipèle",
+        "category": "Infectiologie"
+    },
+    {
+        "code": "A60",
+        "label": "Infection anogénitale par le virus de l'herpès (herpès simplex)",
+        "category": "Infectiologie"
+    },
+    {
+        "code": "B00",
+        "label": "Infection à virus de l'herpès (Herpès simplex)",
+        "category": "Infectiologie"
+    },
+    {
+        "code": "B01",
+        "label": "Varicelle",
+        "category": "Infectiologie"
+    },
+    {
+        "code": "B02",
+        "label": "Zona",
+        "category": "Infectiologie"
+    },
+    {
+        "code": "B03",
+        "label": "Variole",
+        "category": "Infectiologie"
+    },
+    {
+        "code": "B05",
+        "label": "Rougeole",
+        "category": "Infectiologie"
+    },
+    {
+        "code": "B06",
+        "label": "Rubéole",
+        "category": "Infectiologie"
+    },
+    {
+        "code": "B07",
+        "label": "Verrues d'origine virale",
+        "category": "Infectiologie"
+    },
+    {
+        "code": "B15",
+        "label": "Hépatite aiguë A",
+        "category": "Infectiologie"
+    },
+    {
+        "code": "B16",
+        "label": "Hépatite aiguë B",
+        "category": "Infectiologie"
+    },
+    {
+        "code": "B17",
+        "label": "Autres hépatites virales aiguës",
+        "category": "Infectiologie"
+    },
+    {
+        "code": "B18",
+        "label": "Hépatite virale chronique",
+        "category": "Infectiologie"
+    },
+    {
+        "code": "B19",
+        "label": "Hépatite virale, non précisée",
+        "category": "Infectiologie"
+    },
+    {
+        "code": "B20",
+        "label": "Maladie par virus de l'immunodéficience humaine [VIH], avec maladies infectieuses et parasitaires",
+        "category": "Infectiologie"
+    },
+    {
+        "code": "B26",
+        "label": "Oreillons",
+        "category": "Infectiologie"
+    },
+    {
+        "code": "B37",
+        "label": "Candidose (Muguet)",
+        "category": "Infectiologie"
+    },
+    {
+        "code": "B86",
+        "label": "Gale",
+        "category": "Infectiologie"
+    },
+    {
+        "code": "F03",
+        "label": "Démence, sans précision",
+        "category": "Psychiatrie / Neurologie"
+    },
+    {
+        "code": "F10",
+        "label": "Troubles mentaux et du comportement liés à l'utilisation d'alcool",
+        "category": "Psychiatrie / Neurologie"
+    },
+    {
+        "code": "F17",
+        "label": "Troubles mentaux et du comportement liés à l'utilisation de tabac",
+        "category": "Psychiatrie / Neurologie"
+    },
+    {
+        "code": "F31",
+        "label": "Trouble affectif bipolaire",
+        "category": "Psychiatrie / Neurologie"
+    },
+    {
+        "code": "F32",
+        "label": "Épisode dépressif",
+        "category": "Psychiatrie / Neurologie"
+    },
+    {
+        "code": "F40",
+        "label": "Troubles anxieux phobiques",
+        "category": "Psychiatrie / Neurologie"
+    },
+    {
+        "code": "F41",
+        "label": "Autres troubles anxieux (Angoisse, Panique)",
+        "category": "Psychiatrie / Neurologie"
+    },
+    {
+        "code": "F43",
+        "label": "Réactions à un stress sévère et troubles de l'adaptation",
+        "category": "Psychiatrie / Neurologie"
+    },
+    {
+        "code": "F45",
+        "label": "Troubles somatoformes",
+        "category": "Psychiatrie / Neurologie"
+    },
+    {
+        "code": "F50",
+        "label": "Troubles de l'alimentation (Anorexie, Boulimie)",
+        "category": "Psychiatrie / Neurologie"
+    },
+    {
+        "code": "F51",
+        "label": "Troubles du sommeil non organiques (Insomnie)",
+        "category": "Psychiatrie / Neurologie"
+    },
+    {
+        "code": "G20",
+        "label": "Maladie de Parkinson",
+        "category": "Psychiatrie / Neurologie"
+    },
+    {
+        "code": "G30",
+        "label": "Maladie d'Alzheimer",
+        "category": "Psychiatrie / Neurologie"
+    },
+    {
+        "code": "G40",
+        "label": "Épilepsie",
+        "category": "Psychiatrie / Neurologie"
+    },
+    {
+        "code": "G43",
+        "label": "Migraine",
+        "category": "Psychiatrie / Neurologie"
+    },
+    {
+        "code": "G44",
+        "label": "Autres syndromes d'algies céphaliques (Céphalée de tension)",
+        "category": "Psychiatrie / Neurologie"
+    },
+    {
+        "code": "G47",
+        "label": "Troubles du sommeil",
+        "category": "Psychiatrie / Neurologie"
+    },
+    {
+        "code": "G51",
+        "label": "Affections du nerf facial (Paralysie faciale)",
+        "category": "Psychiatrie / Neurologie"
+    },
+    {
+        "code": "G56",
+        "label": "Mononévrites du membre supérieur (Canal carpien)",
+        "category": "Psychiatrie / Neurologie"
+    },
+    {
+        "code": "G62",
+        "label": "Autres polyneuropathies",
+        "category": "Psychiatrie / Neurologie"
+    },
+    {
+        "code": "R05",
+        "label": "Toux",
+        "category": "Symptômes et Signes"
+    },
+    {
+        "code": "R06",
+        "label": "Anomalies de la respiration (Dyspnée)",
+        "category": "Symptômes et Signes"
+    },
+    {
+        "code": "R07",
+        "label": "Douleur dans la gorge et dans la poitrine",
+        "category": "Symptômes et Signes"
+    },
+    {
+        "code": "R10",
+        "label": "Douleurs abdominales et pelviennes",
+        "category": "Symptômes et Signes"
+    },
+    {
+        "code": "R11",
+        "label": "Nausées et vomissements",
+        "category": "Symptômes et Signes"
+    },
+    {
+        "code": "R12",
+        "label": "Brûlures d'estomac (Pyrosis)",
+        "category": "Symptômes et Signes"
+    },
+    {
+        "code": "R13",
+        "label": "Dysphagie",
+        "category": "Symptômes et Signes"
+    },
+    {
+        "code": "R17",
+        "label": "Ictère sans précision",
+        "category": "Symptômes et Signes"
+    },
+    {
+        "code": "R21",
+        "label": "Éruption et autres lésions cutanées non spécifiques",
+        "category": "Symptômes et Signes"
+    },
+    {
+        "code": "R30",
+        "label": "Douleur associée à la miction",
+        "category": "Symptômes et Signes"
+    },
+    {
+        "code": "R31",
+        "label": "Hématurie sans précision",
+        "category": "Symptômes et Signes"
+    },
+    {
+        "code": "R32",
+        "label": "Incontinence urinaire, sans précision",
+        "category": "Symptômes et Signes"
+    },
+    {
+        "code": "R41",
+        "label": "Autres symptômes et signes relatifs aux fonctions cognitives et à la conscience (Troubles de mémoire)",
+        "category": "Symptômes et Signes"
+    },
+    {
+        "code": "R42",
+        "label": "Étourdissements et vertiges",
+        "category": "Symptômes et Signes"
+    },
+    {
+        "code": "R47",
+        "label": "Troubles de l'élocution, non classés ailleurs",
+        "category": "Symptômes et Signes"
+    },
+    {
+        "code": "R50",
+        "label": "Fièvre, origine non précisée",
+        "category": "Symptômes et Signes"
+    },
+    {
+        "code": "R51",
+        "label": "Céphalée",
+        "category": "Symptômes et Signes"
+    },
+    {
+        "code": "R53",
+        "label": "Malaise et fatigue (Asthénie)",
+        "category": "Symptômes et Signes"
+    },
+    {
+        "code": "R54",
+        "label": "Sénilité",
+        "category": "Symptômes et Signes"
+    },
+    {
+        "code": "R55",
+        "label": "Syncope et collapsus",
+        "category": "Symptômes et Signes"
+    },
+    {
+        "code": "R56",
+        "label": "Convulsions, non classées ailleurs (Convulsions fébriles)",
+        "category": "Symptômes et Signes"
+    },
+    {
+        "code": "R60",
+        "label": "Œdème, non classé ailleurs",
+        "category": "Symptômes et Signes"
+    },
+    {
+        "code": "R63",
+        "label": "Symptômes et signes relatifs à l'absorption d'aliments et de liquides (Anorexie)",
+        "category": "Symptômes et Signes"
+    },
+    {
+        "code": "D50",
+        "label": "Anémie par carence en fer",
+        "category": "Hématologie / Immunologie"
+    },
+    {
+        "code": "D64",
+        "label": "Autres anémies",
+        "category": "Hématologie / Immunologie"
+    },
+    {
+        "code": "D69",
+        "label": "Purpura et autres affections hémorragiques",
+        "category": "Hématologie / Immunologie"
+    },
+    {
+        "code": "H10",
+        "label": "Conjonctivite",
+        "category": "Sens (Vue / Ouïe)"
+    },
+    {
+        "code": "H11",
+        "label": "Autres affections de la conjonctive",
+        "category": "Sens (Vue / Ouïe)"
+    },
+    {
+        "code": "H25",
+        "label": "Cataracte sénile",
+        "category": "Sens (Vue / Ouïe)"
+    },
+    {
+        "code": "H40",
+        "label": "Glaucome",
+        "category": "Sens (Vue / Ouïe)"
+    },
+    {
+        "code": "H60",
+        "label": "Otite externe",
+        "category": "Sens (Vue / Ouïe)"
+    },
+    {
+        "code": "H65",
+        "label": "Otite moyenne non suppurée (Otite séreuse)",
+        "category": "Sens (Vue / Ouïe)"
+    },
+    {
+        "code": "H66",
+        "label": "Otite moyenne suppurée et sans précision",
+        "category": "Sens (Vue / Ouïe)"
+    },
+    {
+        "code": "H81",
+        "label": "Troubles de la fonction vestibulaire (Vertige de Ménière)",
+        "category": "Sens (Vue / Ouïe)"
+    },
+    {
+        "code": "H91",
+        "label": "Autres pertes de l'audition (Surdité)",
+        "category": "Sens (Vue / Ouïe)"
+    },
+    {
+        "code": "H93",
+        "label": "Autres affections de l'oreille, non classées ailleurs (Acouphènes)",
+        "category": "Sens (Vue / Ouïe)"
+    },
+    {
+        "code": "O21",
+        "label": "Vomissements excessifs au cours de la grossesse",
+        "category": "Gynécologie / Obstétrique"
+    },
+    {
+        "code": "O24",
+        "label": "Diabète sucré au cours de la grossesse",
+        "category": "Gynécologie / Obstétrique"
+    },
+    {
+        "code": "N60",
+        "label": "Dystrophie mammaire bénigne",
+        "category": "Gynécologie / Obstétrique"
+    },
+    {
+        "code": "N64",
+        "label": "Autres affections du sein",
+        "category": "Gynécologie / Obstétrique"
+    },
+    {
+        "code": "N70",
+        "label": "Salpingite et oophorite",
+        "category": "Gynécologie / Obstétrique"
+    },
+    {
+        "code": "N76",
+        "label": "Autres inflammations du vagin et de la vulve (Vaginite, Vulvite)",
+        "category": "Gynécologie / Obstétrique"
+    },
+    {
+        "code": "N81",
+        "label": "Prolapsus génital féminin",
+        "category": "Gynécologie / Obstétrique"
+    },
+    {
+        "code": "N83",
+        "label": "Troubles non inflammatoires de l'ovaire, de la trompe et du ligament large (Kyste ovarien)",
+        "category": "Gynécologie / Obstétrique"
+    },
+    {
+        "code": "N91",
+        "label": "Absence de règles, règles peu abondantes et rares (Aménorrhée)",
+        "category": "Gynécologie / Obstétrique"
+    },
+    {
+        "code": "N92",
+        "label": "Règles trop abondantes, trop fréquentes et irrégulières (Ménorragie)",
+        "category": "Gynécologie / Obstétrique"
+    },
+    {
+        "code": "N94",
+        "label": "Douleurs et autres affections des organes génitaux de la femme et du cycle menstruel (Dysménorrhée)",
+        "category": "Gynécologie / Obstétrique"
+    },
+    {
+        "code": "N95",
+        "label": "Troubles de la ménopause et autres troubles périménopausiques",
+        "category": "Gynécologie / Obstétrique"
+    },
+    {
+        "code": "N97",
+        "label": "Stérilité de la femme",
+        "category": "Gynécologie / Obstétrique"
+    },
+    {
+        "code": "Z00",
+        "label": "Examen général et investigation de personnes sans plaintes ou diagnostic rapporté (Check-up)",
+        "category": "Prévention / Examens"
+    },
+    {
+        "code": "Z01",
+        "label": "Autres examens et investigations spéciaux de personnes sans plaintes ou diagnostic rapporté",
+        "category": "Prévention / Examens"
+    },
+    {
+        "code": "Z13",
+        "label": "Examen spécial de dépistage de maladies et troubles divers",
+        "category": "Prévention / Examens"
+    },
+    {
+        "code": "Z23",
+        "label": "Besoin d'immunisation contre une seule maladie virale (Vaccination)",
+        "category": "Prévention / Examens"
+    },
+    {
+        "code": "Z39",
+        "label": "Soins et examens après l'accouchement",
+        "category": "Prévention / Examens"
+    },
+    {
+        "code": "Z71",
+        "label": "Personnes consultant pour d'autres conseils et avis médicaux, non classés ailleurs",
+        "category": "Prévention / Examens"
+    },
+    {
+        "code": "Z76",
+        "label": "Personnes consultant pour d'autres circonstances (Certificat médical)",
+        "category": "Prévention / Examens"
+    },
+    {
+        "code": "S00",
+        "label": "Lésion superficielle de la tête",
+        "category": "Traumatologie"
+    },
+    {
+        "code": "S01",
+        "label": "Plaie ouverte de la tête",
+        "category": "Traumatologie"
+    },
+    {
+        "code": "S06",
+        "label": "Traumatisme intracrânien (Commotion cérébrale)",
+        "category": "Traumatologie"
+    },
+    {
+        "code": "S13",
+        "label": "Entorse et foulure au niveau du cou (Coup du lapin)",
+        "category": "Traumatologie"
+    },
+    {
+        "code": "S30",
+        "label": "Lésion superficielle de l'abdomen, des lombes et du bassin",
+        "category": "Traumatologie"
+    },
+    {
+        "code": "S33",
+        "label": "Entorse, foulure et luxation des articulations et des ligaments du rachis lombaire et du bassin",
+        "category": "Traumatologie"
+    },
+    {
+        "code": "S40",
+        "label": "Lésion superficielle de l'épaule et du bras",
+        "category": "Traumatologie"
+    },
+    {
+        "code": "S42",
+        "label": "Fracture de l'épaule et du bras",
+        "category": "Traumatologie"
+    },
+    {
+        "code": "S52",
+        "label": "Fracture de l'avant-bras",
+        "category": "Traumatologie"
+    },
+    {
+        "code": "S60",
+        "label": "Lésion superficielle du poignet et de la main",
+        "category": "Traumatologie"
+    },
+    {
+        "code": "S61",
+        "label": "Plaie ouverte du poignet et de la main",
+        "category": "Traumatologie"
+    },
+    {
+        "code": "S62",
+        "label": "Fracture au niveau du poignet et de la main",
+        "category": "Traumatologie"
+    },
+    {
+        "code": "S72",
+        "label": "Fracture du fémur",
+        "category": "Traumatologie"
+    },
+    {
+        "code": "S80",
+        "label": "Lésion superficielle de la jambe",
+        "category": "Traumatologie"
+    },
+    {
+        "code": "S82",
+        "label": "Fracture de la jambe, y compris la cheville",
+        "category": "Traumatologie"
+    },
+    {
+        "code": "S83",
+        "label": "Entorse et foulure du genou",
+        "category": "Traumatologie"
+    },
+    {
+        "code": "S90",
+        "label": "Lésion superficielle de la cheville et du pied",
+        "category": "Traumatologie"
+    },
+    {
+        "code": "S93",
+        "label": "Entorse et foulure de la cheville et du pied",
+        "category": "Traumatologie"
+    },
+    {
+        "code": "T14",
+        "label": "Traumatisme d'une région du corps non précisée",
+        "category": "Traumatologie"
+    },
+    {
+        "code": "T78",
+        "label": "Effets indésirables, non classés ailleurs (Allergie non précisée)",
+        "category": "Traumatologie"
+    }
+]

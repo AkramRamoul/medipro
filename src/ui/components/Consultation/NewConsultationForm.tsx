@@ -22,6 +22,7 @@ import {
 import { Patient } from "../../type";
 import { toast } from "sonner";
 import { Separator } from "../ui/separator";
+import { ICD10Search } from "./ICD10Search";
 
 function NewConsultationForm({
   id,
@@ -160,11 +161,10 @@ function NewConsultationForm({
                 <Activity className="w-4 h-4 text-blue-500" />
                 Diagnostic
               </Label>
-              <Textarea
+              <ICD10Search
                 value={diagnosis}
-                onChange={(e) => setDiagnosis(e.target.value)}
-                placeholder="Diagnostic médical..."
-                className="min-h-[80px] bg-muted/30 resize-none"
+                onChange={setDiagnosis}
+                placeholder="Rechercher un diagnostic (CIM-10)..."
               />
             </div>
 

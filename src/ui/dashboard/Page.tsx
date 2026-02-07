@@ -33,6 +33,9 @@ export default function DashboardPage() {
     earningsThisMonth: 0,
     earningsToday: 0,
     earningsLastMonth: 0,
+    expensesThisMonth: 0,
+    expensesToday: 0,
+    expensesLastMonth: 0,
   });
 
   const fetchDashboardStats = async () => {
@@ -168,10 +171,50 @@ export default function DashboardPage() {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold text-foreground">
-                  {stats.earningsThisMonth?.toLocaleString()} DA
+                  {(stats.earningsThisMonth || 0).toLocaleString()} DA
                 </div>
                 <p className="text-xs text-muted-foreground mt-1">
-                  {stats.earningsToday?.toLocaleString()} DA aujourd'hui
+                  {(stats.earningsToday || 0).toLocaleString()} DA aujourd'hui
+                </p>
+              </CardContent>
+            </Card>
+
+            {/* Expenses This Month Card */}
+            <Card className="shadow-sm rounded-xl bg-card border-none ring-1 ring-border/50">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
+                  Dépenses (Mois)
+                </CardTitle>
+                <div className="bg-red-100 p-2 rounded-full dark:bg-red-900/30">
+                  <TrendingUp className="h-4 w-4 text-red-600 dark:text-red-400 rotate-180" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-foreground">
+                  {(stats.expensesThisMonth || 0).toLocaleString()} DA
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {(stats.expensesToday || 0).toLocaleString()} DA aujourd'hui
+                </p>
+              </CardContent>
+            </Card>
+
+            {/* Net Profit Card */}
+            <Card className="shadow-sm rounded-xl bg-card border-none ring-1 ring-border/50 bg-gradient-to-br from-primary/5 to-transparent">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium text-primary">
+                  Profit Net (Mois)
+                </CardTitle>
+                <div className="bg-primary/20 p-2 rounded-full">
+                  <TrendingUp className="h-4 w-4 text-primary" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-primary">
+                  {((stats.earningsThisMonth || 0) - (stats.expensesThisMonth || 0)).toLocaleString()} DA
+                </div>
+                <p className="text-xs text-primary/70 mt-1">
+                  Revenus - Dépenses
                 </p>
               </CardContent>
             </Card>

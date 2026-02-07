@@ -23,6 +23,9 @@ export interface DashboardStats {
   earningsThisMonth: number;
   earningsToday: number;
   earningsLastMonth: number;
+  expensesThisMonth: number;
+  expensesToday: number;
+  expensesLastMonth: number;
 }
 
 export interface VitalSignsData {
@@ -132,6 +135,26 @@ export interface IElectronAPI {
   updateDocumentTemplate: (data: any) => Promise<{ success: boolean; error?: string }>;
   deleteDocumentTemplate: (id: number) => Promise<{ success: boolean; error?: string }>;
   getPatientVitals: (patientId: number) => Promise<VitalSignsData[]>;
+  getExpenses: () => Promise<Expense[]>;
+  addExpense: (data: any) => Promise<{ success: boolean; error?: string }>;
+  deleteExpense: (id: number) => Promise<{ success: boolean; error?: string }>;
+  searchICD10: (query: string) => Promise<ICD10[]>;
+  importICD10: (data: any[]) => Promise<{ success: boolean; error?: string }>;
+  globalSearch: (query: string) => Promise<any[]>;
+}
+
+export interface Expense {
+  id: number;
+  description: string;
+  amount: number;
+  category: string;
+  date: string;
+}
+
+export interface ICD10 {
+  code: string;
+  label: string;
+  category?: string;
 }
 
 declare global {

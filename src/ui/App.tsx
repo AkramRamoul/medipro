@@ -17,6 +17,7 @@ import { useEffect, useState } from "react";
 import LicenseScreen from "./components/License/LicenseScreen";
 import { Loader2 } from "lucide-react";
 import GlobalShortcuts from "./hooks/use-navigate";
+import ExpensesPage from "./expenses/Page";
 
 function App() {
   const [licensed, setLicensed] = useState(false);
@@ -64,6 +65,7 @@ function App() {
               />
               <Route path="/Ordonnance" element={<PrescriptionModelForm />} />
               <Route path="/appointments" element={<MainAppointmentPage />} />
+              <Route path="/expenses" element={<ExpensesPage />} />
             </Route>
           </Routes>
           <GlobalShortcuts />

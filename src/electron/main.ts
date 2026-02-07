@@ -2,7 +2,7 @@ import "dotenv/config";
 
 import { app, BrowserWindow, dialog, ipcMain } from "electron";
 import path from "path";
-import { desc, eq, sql } from "drizzle-orm";
+import { desc, eq, sql, or, like } from "drizzle-orm";
 import fs from "fs";
 import { isDevelopment } from "./util.js";
 import { getfontPath, getMedsPath } from "./pathResolver.js";
@@ -28,6 +28,8 @@ import {
   prescriptionTemplates,
   prescriptionTemplateMedications,
   documentTemplates,
+  expenses,
+  icd10,
 } from "./schema.js";
 import { restoreDatabase } from "./restore.js";
 import { backupDatabase } from "./bdBackup.js";
@@ -928,6 +930,25 @@ app.on("ready", () => {
           sql`strftime('%Y-%m', ${consultations.date}) = strftime('%Y-%m', date('now', '-1 month'))`,
         );
 
+      const [expensesToday] = await db
+        .select({ sum: sql<number>`sum(${expenses.amount})` })
+        .from(expenses)
+        .where(sql`date(${expenses.date}) = date('now')`);
+
+      const [expensesThisMonth] = await db
+        .select({ sum: sql<number>`sum(${expenses.amount})` })
+        .from(expenses)
+        .where(
+          sql`strftime('%Y-%m', ${expenses.date}) = strftime('%Y-%m', CURRENT_TIMESTAMP)`,
+        );
+
+      const [expensesLastMonth] = await db
+        .select({ sum: sql<number>`sum(${expenses.amount})` })
+        .from(expenses)
+        .where(
+          sql`strftime('%Y-%m', ${expenses.date}) = strftime('%Y-%m', date('now', '-1 month'))`,
+        );
+
       const [totalPatients] = await db
         .select({ count: sql<number>`count(DISTINCT ${consultations.patientId})` })
         .from(consultations)
@@ -1043,6 +1064,9 @@ app.on("ready", () => {
         earningsToday: earningsToday.sum || 0,
         earningsThisMonth: earningsThisMonth.sum || 0,
         earningsLastMonth: earningsLastMonth.sum || 0,
+        expensesToday: expensesToday.sum || 0,
+        expensesThisMonth: expensesThisMonth.sum || 0,
+        expensesLastMonth: expensesLastMonth.sum || 0,
         commonDiagnoses,
         busiestDays,
         retentionRate: Math.round(retentionRate * 10) / 10, // Round to 1 decimal
@@ -1424,6 +1448,38 @@ app.on("ready", () => {
     }
   });
 
+  ipcMain.handle("get-expenses", async () => {
+    try {
+      return await db.select().from(expenses).orderBy(desc(expenses.date));
+    } catch (error) {
+      console.error("Failed to fetch expenses:", error);
+      return [];
+    }
+  });
+
+  ipcMain.handle("add-expense", async (_, data) => {
+    try {
+      await db.insert(expenses).values({
+        ...data,
+        date: new Date().toISOString(),
+      });
+      return { success: true };
+    } catch (error) {
+      console.error("Failed to add expense:", error);
+      return { success: false, error: (error as Error).message };
+    }
+  });
+
+  ipcMain.handle("delete-expense", async (_, id) => {
+    try {
+      await db.delete(expenses).where(eq(expenses.id, id));
+      return { success: true };
+    } catch (error) {
+      console.error("Failed to delete expense:", error);
+      return { success: false, error: (error as Error).message };
+    }
+  });
+
   ipcMain.handle("get-prescription-templates", async () => {
     try {
       const templates = await db.select().from(prescriptionTemplates);
@@ -1545,17 +1601,108 @@ app.on("ready", () => {
     }
   });
 
+  ipcMain.handle("search-icd10", async (_, query: string) => {
+    try {
+      if (!query || query.length < 2) {
+        // Return common codes or top results if no query
+        return await db.select().from(icd10).limit(50);
+      }
+
+      const results = await db
+        .select()
+        .from(icd10)
+        .where(
+          or(
+            like(icd10.code, `%${query}%`),
+            like(icd10.label, `%${query}%`)
+          )
+        )
+        .limit(100);
+      return results;
+    } catch (error) {
+      console.error("Failed to search ICD-10:", error);
+      return [];
+    }
+  });
+
+  ipcMain.handle("import-icd10", async (_, data: { code: string; label: string; category?: string }[]) => {
+    try {
+      // Bulk insert
+      await db.insert(icd10).values(data).onConflictDoUpdate({
+        target: icd10.code,
+        set: { label: sql`excluded.label`, category: sql`excluded.category` },
+      });
+      return { success: true };
+    } catch (error) {
+      console.error("Failed to import ICD-10:", error);
+      return { success: false, error: (error as Error).message };
+    }
+  });
+
+  ipcMain.handle("global-search", async (_, query: string) => {
+    if (!query || query.length < 2) return [];
+
+    try {
+      const patientResults = await db
+        .select({
+          id: patients.id,
+          firstName: patients.first_name,
+          lastName: patients.last_name,
+        })
+        .from(patients)
+        .where(
+          or(
+            like(patients.first_name, `%${query}%`),
+            like(patients.last_name, `%${query}%`),
+            like(patients.contact, `%${query}%`)
+          )
+        )
+        .limit(5);
+
+      const consultationResults = await db
+        .select({
+          id: consultations.id,
+          patientId: consultations.patientId,
+          reason: consultations.reason,
+          diagnosis: consultations.diagnosis,
+          date: consultations.date,
+          patientFirstName: patients.first_name,
+          patientLastName: patients.last_name,
+        })
+        .from(consultations)
+        .leftJoin(patients, eq(consultations.patientId, patients.id))
+        .where(
+          or(
+            like(consultations.reason, `%${query}%`),
+            like(consultations.diagnosis, `%${query}%`)
+          )
+        )
+        .limit(5);
+
+      const results = [
+        ...patientResults.map(p => ({
+          type: "patient",
+          id: p.id,
+          title: `${p.firstName} ${p.lastName}`,
+          subtitle: "Patient",
+        })),
+        ...consultationResults.map(c => ({
+          type: "consultation",
+          id: c.id,
+          patientId: c.patientId,
+          title: `${c.patientFirstName} ${c.patientLastName} - ${c.reason || c.diagnosis}`,
+          subtitle: `Consultation (${new Date(c.date!).toLocaleDateString("fr-FR")})`,
+        })),
+      ];
+
+      return results;
+    } catch (error) {
+      console.error("Global search failed:", error);
+      return [];
+    }
+  });
+
   registerBackupIpc();
 
   win.webContents.setWindowOpenHandler(() => ({ action: "allow" }));
-  // win.webContents.session.webRequest.onHeadersReceived((details, callback) => {
-  //   callback({
-  //     responseHeaders: {
-  //       ...details.responseHeaders,
-  //       "Content-Security-Policy": [
-  //         "default-src 'self'; script-src 'self' 'unsafe-inline'",
-  //       ],
-  //     },
-  //   });
-  // });
 });

@@ -8,6 +8,7 @@ import {
   FilePen,
   Calendar,
   Users,
+  Wallet,
 } from "lucide-react";
 
 import {
@@ -29,6 +30,7 @@ const items = [
   { title: "Tous les patients", url: "/all-patients", icon: Users },
   { title: "Rendez-vous", url: "/appointments", icon: Calendar },
   { title: "Consultations", url: "/consultations", icon: Clipboard },
+  { title: "Dépenses", url: "/expenses", icon: Wallet },
   { title: "Ordonnances", url: "/prescriptions", icon: PillBottle },
   { title: "Modèle Ordonnance ", url: "/Ordonnance", icon: FilePen },
   { title: "Paramètres", url: "/settings", icon: SettingsIcon },
