@@ -14,7 +14,7 @@ import {
   FormMessage,
 } from "../ui/form";
 import { Input } from "../ui/input";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Plus,
   Trash2,
@@ -23,6 +23,7 @@ import {
   Calendar,
   User,
   FlaskConical,
+  Search,
 } from "lucide-react";
 import { Patient } from "../../type";
 import { Separator } from "../ui/separator";
@@ -52,12 +53,70 @@ export function BloodWork({
   });
 
   const [currentItem, setCurrentItem] = useState("");
+  const [suggestions, setSuggestions] = useState<{ name: string }[]>([]);
+  const [allBilans, setAllBilans] = useState<{ name: string }[]>([]);
+  const [highlightedIndex, setHighlightedIndex] = useState(-1);
+  const suggestionsRef = useRef<HTMLDivElement>(null);
 
-  function addItem() {
-    if (!currentItem.trim()) return;
-    const updated = [...form.getValues("results"), currentItem.trim()];
-    form.setValue("results", updated);
+  useEffect(() => {
+    window.electronAPI.getBilans().then(setAllBilans).catch(console.error);
+    const handleClickOutside = (event: MouseEvent) => {
+      if (suggestionsRef.current && !suggestionsRef.current.contains(event.target as Node)) {
+        setSuggestions([]);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  function addItem(name?: string) {
+    const itemToAdd = (name || currentItem).trim();
+    if (!itemToAdd) return;
+    const currentResults = form.getValues("results");
+    if (!currentResults.includes(itemToAdd)) {
+      form.setValue("results", [...currentResults, itemToAdd]);
+    }
     setCurrentItem("");
+    setSuggestions([]);
+    setHighlightedIndex(-1);
+  }
+
+  function handleSuggestionClick(name: string) {
+    setCurrentItem(name);
+    setSuggestions([]);
+    setHighlightedIndex(-1);
+  }
+
+  function handleInputChange(value: string) {
+    setCurrentItem(value);
+    if (!value.trim()) {
+      setSuggestions([]);
+      return;
+    }
+    const filtered = allBilans
+      .filter((b) => b.name.toLowerCase().includes(value.toLowerCase()))
+      .slice(0, 10);
+    setSuggestions(filtered);
+    setHighlightedIndex(-1);
+  }
+
+  function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setHighlightedIndex((prev) => Math.min(prev + 1, suggestions.length - 1));
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setHighlightedIndex((prev) => Math.max(prev - 1, 0));
+    } else if (e.key === "Enter") {
+      e.preventDefault();
+      if (highlightedIndex >= 0) {
+        handleSuggestionClick(suggestions[highlightedIndex].name);
+      } else {
+        addItem();
+      }
+    } else if (e.key === "Escape") {
+      setSuggestions([]);
+    }
   }
 
   function removeItem(index: number) {
@@ -139,28 +198,65 @@ export function BloodWork({
                 Liste des Analyses
               </FormLabel>
 
-              <div className="flex gap-2">
-                <Input
-                  placeholder="Ex: FNS, Créatinine..."
-                  value={currentItem}
-                  onChange={(e) => setCurrentItem(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      e.preventDefault();
-                      addItem();
-                    }
-                  }}
-                  className="flex-1"
-                />
-                <Button
-                  type="button"
-                  onClick={addItem}
-                  className="gap-2 bg-primary/10 text-primary hover:bg-primary/20"
-                  variant="ghost"
-                >
-                  <Plus className="w-4 h-4" />
-                  Ajouter
-                </Button>
+              <div className="relative space-y-2" ref={suggestionsRef}>
+                <div className="flex gap-2">
+                  <div className="relative flex-1 group">
+                    <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-primary transition-colors">
+                      <Search className="w-4 h-4" />
+                    </div>
+                    <Input
+                      placeholder="Rechercher une analyse..."
+                      className="pl-9 pr-9 h-11 bg-background/50 border-muted-foreground/20 focus:border-primary/50 focus:ring-primary/20 transition-all rounded-xl"
+                      value={currentItem}
+                      onChange={(e) => handleInputChange(e.target.value)}
+                      onKeyDown={handleKeyDown}
+                      autoComplete="off"
+                    />
+                    {currentItem && (
+                      <button
+                        onClick={() => handleInputChange("")}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors p-1 rounded-full hover:bg-muted"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    )}
+
+                    {suggestions.length > 0 && (
+                      <div className="absolute z-50 w-full bg-popover/95 backdrop-blur-md border border-border/50 rounded-xl shadow-2xl mt-2 overflow-hidden animate-in fade-in zoom-in-95 duration-200 ring-1 ring-black/5">
+                        <div className="max-h-[300px] overflow-y-auto p-1 custom-scrollbar">
+                          {suggestions.map((s, index) => (
+                            <div
+                              key={index}
+                              className={`group/item flex items-center gap-3 px-3 py-2.5 text-sm cursor-pointer rounded-lg transition-all text-left ${index === highlightedIndex
+                                ? "bg-primary text-primary-foreground shadow-md scale-[1.02] z-10"
+                                : "hover:bg-accent hover:text-accent-foreground"
+                                }`}
+                              onMouseDown={() => handleSuggestionClick(s.name)}
+                            >
+                              <div className={`p-1.5 rounded-md transition-colors ${index === highlightedIndex
+                                ? "bg-primary-foreground/20"
+                                : "bg-muted group-hover/item:bg-primary/10 group-hover/item:text-primary"
+                                }`}>
+                                <FlaskConical className="w-3.5 h-3.5" />
+                              </div>
+                              <span className="font-medium flex-1">{s.name}</span>
+                              <Plus className={`w-4 h-4 opacity-0 transition-opacity ${index === highlightedIndex ? "opacity-100" : "group-hover/item:opacity-100"
+                                }`} />
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  <Button
+                    type="button"
+                    onClick={() => addItem()}
+                    className="h-11 px-5 gap-2 bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/20 transition-all active:scale-95 rounded-xl border-none"
+                  >
+                    <Plus className="w-4 h-4" />
+                    Ajouter
+                  </Button>
+                </div>
               </div>
 
               <div className="bg-muted/20 rounded-lg border min-h-[150px] p-2 space-y-1">

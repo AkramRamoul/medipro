@@ -1,0 +1,458 @@
+[
+    {
+        "name": "FNS (Formule Numération Sanguine)"
+    },
+    {
+        "name": "Groupage Sanguin + Facteur Rhésus"
+    },
+    {
+        "name": "VS (Vitesse de Sédimentation)"
+    },
+    {
+        "name": "Réticulocytes"
+    },
+    {
+        "name": "Electrophorèse de l'hémoglobine"
+    },
+    {
+        "name": "Test de Coombs Direct"
+    },
+    {
+        "name": "Test de Coombs Indirect"
+    },
+    {
+        "name": "Glycémie à jeun"
+    },
+    {
+        "name": "Glycémie post-prandiale"
+    },
+    {
+        "name": "HbA1c (Hémoglobine Glyquée)"
+    },
+    {
+        "name": "Urée sanguine"
+    },
+    {
+        "name": "Créatinine sanguine"
+    },
+    {
+        "name": "Clairance de la créatinine"
+    },
+    {
+        "name": "Acide urique"
+    },
+    {
+        "name": "Cholestérol total"
+    },
+    {
+        "name": "Triglycérides"
+    },
+    {
+        "name": "HDL Cholestérol"
+    },
+    {
+        "name": "LDL Cholestérol"
+    },
+    {
+        "name": "VLDL Cholestérol"
+    },
+    {
+        "name": "Lp(a) (Lipoprotéine a)"
+    },
+    {
+        "name": "Apolipoprotéine A1"
+    },
+    {
+        "name": "Apolipoprotéine B"
+    },
+    {
+        "name": "Bilan Hépatique (ASAT, ALAT, PAL, GGT, Bilirubine)"
+    },
+    {
+        "name": "ASAT (TGO)"
+    },
+    {
+        "name": "ALAT (TGP)"
+    },
+    {
+        "name": "Gamma GT (GGT)"
+    },
+    {
+        "name": "Phosphatases alcalines (PAL)"
+    },
+    {
+        "name": "Bilirubine Totale"
+    },
+    {
+        "name": "Bilirubine Directe (Conjuguée)"
+    },
+    {
+        "name": "Bilirubine Indirecte (Libre)"
+    },
+    {
+        "name": "LDH (Lactate Déshydrogénase)"
+    },
+    {
+        "name": "Amylasémie"
+    },
+    {
+        "name": "Lipasémie"
+    },
+    {
+        "name": "CPK Totale"
+    },
+    {
+        "name": "CPK-MB"
+    },
+    {
+        "name": "Troponine I"
+    },
+    {
+        "name": "BNP / NT-proBNP"
+    },
+    {
+        "name": "Calcium (Calcémie)"
+    },
+    {
+        "name": "Phosphore (Phosphorémie)"
+    },
+    {
+        "name": "Magnésium (Magnésémie)"
+    },
+    {
+        "name": "Ionogramme Sanguin (Na+, K+, Cl-)"
+    },
+    {
+        "name": "Sodium (Natrémie)"
+    },
+    {
+        "name": "Potassium (Kaliémie)"
+    },
+    {
+        "name": "Chlore (Chlorémie)"
+    },
+    {
+        "name": "Réserve alcaline (Bicarbonates)"
+    },
+    {
+        "name": "Fer sérique"
+    },
+    {
+        "name": "Ferritine"
+    },
+    {
+        "name": "Transferrine"
+    },
+    {
+        "name": "Capacité Totale de Fixation du Fer (CTFF)"
+    },
+    {
+        "name": "Coefficient de saturation de la transferrine"
+    },
+    {
+        "name": "Vitamine D (25-OH Vitamine D)"
+    },
+    {
+        "name": "Vitamine B12"
+    },
+    {
+        "name": "Folatés (Vitamine B9)"
+    },
+    {
+        "name": "TSH us"
+    },
+    {
+        "name": "T4 Libre (FT4)"
+    },
+    {
+        "name": "T3 Libre (FT3)"
+    },
+    {
+        "name": "Anticorps anti-TPO"
+    },
+    {
+        "name": "Anticorps anti-Thyroglobuline"
+    },
+    {
+        "name": "Thyroglobuline"
+    },
+    {
+        "name": "Anticorps anti-Récepteur de la TSH (TRAK)"
+    },
+    {
+        "name": "FSH"
+    },
+    {
+        "name": "LH"
+    },
+    {
+        "name": "Oestradiol"
+    },
+    {
+        "name": "Progestérone"
+    },
+    {
+        "name": "Prolactine"
+    },
+    {
+        "name": "Testostérone Totale"
+    },
+    {
+        "name": "Testostérone Libre"
+    },
+    {
+        "name": "HCG Plasmatique (Béta-HCG)"
+    },
+    {
+        "name": "Cortisol Plasmatique (8h/16h)"
+    },
+    {
+        "name": "ACTH"
+    },
+    {
+        "name": "Aldostérone"
+    },
+    {
+        "name": "Rénine"
+    },
+    {
+        "name": "PTH (Parathormone)"
+    },
+    {
+        "name": "Somatomédine C (IGF-1)"
+    },
+    {
+        "name": "Hormone de croissance (GH)"
+    },
+    {
+        "name": "Inhibine B"
+    },
+    {
+        "name": "AMH (Hormone Anti-Müllérienne)"
+    },
+    {
+        "name": "CRP (Protéine C-Réactive)"
+    },
+    {
+        "name": "CRP Ultra-sensible"
+    },
+    {
+        "name": "Procalcitonine"
+    },
+    {
+        "name": "TP (Taux de Prothrombine) / INR"
+    },
+    {
+        "name": "TCA (Temps de Céphaline Activée)"
+    },
+    {
+        "name": "Fibrinogène"
+    },
+    {
+        "name": "D-Dimères"
+    },
+    {
+        "name": "Temps de Saignement"
+    },
+    {
+        "name": "Protéines Totales"
+    },
+    {
+        "name": "Albumine"
+    },
+    {
+        "name": "Electrophorèse des Protéines Sanguines"
+    },
+    {
+        "name": "Immunofixation des Protéines Sanguines"
+    },
+    {
+        "name": "Alpha-1 Antitrypsine"
+    },
+    {
+        "name": "Haptoglobine"
+    },
+    {
+        "name": "Orosomucoïde"
+    },
+    {
+        "name": "Préalbumine"
+    },
+    {
+        "name": "C3 Complément"
+    },
+    {
+        "name": "C4 Complément"
+    },
+    {
+        "name": "CH50"
+    },
+    {
+        "name": "ASLO (Antistreptolysines O)"
+    },
+    {
+        "name": "Facteur Rhumatoïde (LaTeX / Waaler-Rose)"
+    },
+    {
+        "name": "Anticorps anti-CCP (ACPA)"
+    },
+    {
+        "name": "Anticorps anti-nucléaires (AAN)"
+    },
+    {
+        "name": "Anticorps anti-ADN natif"
+    },
+    {
+        "name": "Anticorps anti-ECT / ENA"
+    },
+    {
+        "name": "PSA Total"
+    },
+    {
+        "name": "PSA Libre"
+    },
+    {
+        "name": "Rapport PSA Libre / PSA Total"
+    },
+    {
+        "name": "CEA (Antigène Carciono-Embryonnaire)"
+    },
+    {
+        "name": "Alpha-foetoprotéine (AFP)"
+    },
+    {
+        "name": "CA 125"
+    },
+    {
+        "name": "CA 15-3"
+    },
+    {
+        "name": "CA 19-9"
+    },
+    {
+        "name": "Cyfra 21-1"
+    },
+    {
+        "name": "NSE"
+    },
+    {
+        "name": "Hélicobacter Pylori (Sérologie / Test respiratoire)"
+    },
+    {
+        "name": "Sérologie Toxoplasmose (IgG / IgM)"
+    },
+    {
+        "name": "Sérologie Rubéole (IgG / IgM)"
+    },
+    {
+        "name": "Sérologie CMV (IgG / IgM)"
+    },
+    {
+        "name": "Sérologie Syphilis (VDRL / TPHA)"
+    },
+    {
+        "name": "Sérologie HIV 1/2"
+    },
+    {
+        "name": "Ag HBs"
+    },
+    {
+        "name": "Ac anti-HBs"
+    },
+    {
+        "name": "Ac anti-HBc"
+    },
+    {
+        "name": "Ag HBe / Ac anti-HBe"
+    },
+    {
+        "name": "Sérologie Hépatite C (VHC)"
+    },
+    {
+        "name": "Sérologie Hépatite A (VHA)"
+    },
+    {
+        "name": "Sérologie Chlamydia"
+    },
+    {
+        "name": "Sérologie Mycoplasme"
+    },
+    {
+        "name": "Sérologie Lyme"
+    },
+    {
+        "name": "ECBU (Examen Cytobactériologique des Urines)"
+    },
+    {
+        "name": "Protéinurie des 24h"
+    },
+    {
+        "name": "Microalbuminurie"
+    },
+    {
+        "name": "Glycosurie des 24h"
+    },
+    {
+        "name": "Créatininurie des 24h"
+    },
+    {
+        "name": "Uréurie des 24h"
+    },
+    {
+        "name": "Ionogramme urinaire (Na, K, Cl)"
+    },
+    {
+        "name": "Uricurie des 24h"
+    },
+    {
+        "name": "Calciurie des 24h"
+    },
+    {
+        "name": "Compte d'Addis (HLM)"
+    },
+    {
+        "name": "Recherche de B.K. (Crachats / Urines)"
+    },
+    {
+        "name": "Coproculture"
+    },
+    {
+        "name": "Examen Parasitologique des Selles"
+    },
+    {
+        "name": "Recherche de Sang dans les Selles"
+    },
+    {
+        "name": "Spermogramme / Spermocytogramme"
+    },
+    {
+        "name": "Spermoculture"
+    },
+    {
+        "name": "Prélèvement Vaginal (PV)"
+    },
+    {
+        "name": "Prélèvement Urétral"
+    },
+    {
+        "name": "Lithium"
+    },
+    {
+        "name": "Valproate (Dépakine)"
+    },
+    {
+        "name": "Digoxine"
+    },
+    {
+        "name": "Carbamazépine (Tégrétol)"
+    },
+    {
+        "name": "Phénobarbital"
+    },
+    {
+        "name": "Ciclosporine"
+    },
+    {
+        "name": "Tacrolimus"
+    }
+]

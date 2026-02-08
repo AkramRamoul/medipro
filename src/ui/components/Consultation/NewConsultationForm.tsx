@@ -88,7 +88,7 @@ function NewConsultationForm({
         weight: weight ? weight : null,
         temperature: temperature ? temperature : null,
       },
-      amountPaid: amountPaid ? Number(amountPaid) : null,
+      amountPaid: amountPaid ? Math.round(Number(amountPaid)) : null,
       customFields: customFieldValues,
     };
 

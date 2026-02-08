@@ -5,7 +5,7 @@ import path from "path";
 import { desc, eq, sql, or, like } from "drizzle-orm";
 import fs from "fs";
 import { isDevelopment } from "./util.js";
-import { getfontPath, getMedsPath } from "./pathResolver.js";
+import { getfontPath, getMedsPath, getBilansPath } from "./pathResolver.js";
 import { db } from "./index.js";
 import os from "os";
 import bcrypt from "bcrypt";
@@ -431,6 +431,26 @@ app.on("ready", () => {
     });
   });
 
+  ipcMain.handle("get-bilans", () => {
+    const bilansPath = getBilansPath();
+
+    return new Promise((resolve, reject) => {
+      fs.readFile(bilansPath, "utf-8", (err, data) => {
+        if (err) {
+          console.error("Failed to read JSON:", err);
+          return reject(err);
+        }
+        try {
+          const bilans = JSON.parse(data);
+          resolve(bilans);
+        } catch (parseErr) {
+          console.error("Failed to parse JSON:", parseErr);
+          reject(parseErr);
+        }
+      });
+    });
+  });
+
   ipcMain.handle("add-consultation", async (_, data) => {
     const { vitals, ...rest } = data;
 
@@ -443,7 +463,7 @@ app.on("ready", () => {
 
       glucose: vitals?.glucose ? Number(vitals.glucose) : null,
       weight: vitals?.weight?.toString() || null,
-      amountPaid: data.amountPaid ? Number(data.amountPaid) : null,
+      amountPaid: data.amountPaid ? Math.round(Number(data.amountPaid)) : null,
       customFields: data.customFields || {},
       date: new Date().toISOString(),
     });
@@ -659,6 +679,9 @@ app.on("ready", () => {
 
   ipcMain.handle("edit-consultation", async (_, data) => {
     const { id, ...rest } = data;
+    if (rest.amountPaid !== undefined && rest.amountPaid !== null) {
+      rest.amountPaid = Math.round(Number(rest.amountPaid));
+    }
     await db.update(consultations).set(rest).where(eq(consultations.id, id));
   });
   ipcMain.handle(

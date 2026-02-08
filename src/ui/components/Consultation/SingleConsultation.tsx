@@ -103,7 +103,7 @@ export default function SingleConsultation({
         glucose,
         weight,
         notes,
-        amountPaid: amountPaid ? Number(amountPaid) : null,
+        amountPaid: amountPaid ? Math.round(Number(amountPaid)) : null,
         customFields: customFieldValues,
       };
 

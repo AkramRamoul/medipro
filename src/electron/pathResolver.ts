@@ -14,6 +14,12 @@ export function getMedsPath() {
     : path.join(process.resourcesPath, "meds.json");
 }
 
+export function getBilansPath() {
+  return isDevelopment()
+    ? "public/common_bilans.json"
+    : path.join(process.resourcesPath, "common_bilans.json");
+}
+
 export function getfontPath() {
   return isDevelopment()
     ? path.join(app.getAppPath(), "public/fonts")
