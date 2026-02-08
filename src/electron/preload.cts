@@ -224,6 +224,8 @@ contextBridge.exposeInMainWorld("electronAPI", {
   importICD10: async (data: any[]) => {
     return await ipcRenderer.invoke("import-icd10", data);
   },
+  updateBilans: (bilans: { name: string }[]) =>
+    ipcRenderer.invoke("update-bilans", bilans),
   globalSearch: async (query: string) => {
     return await ipcRenderer.invoke("global-search", query);
   },

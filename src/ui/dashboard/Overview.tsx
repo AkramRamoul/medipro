@@ -23,6 +23,7 @@ export function Overview() {
 
     fetchData();
   }, []);
+  console.log(data);
   return (
     <div className="w-[90vh]">
       <ResponsiveContainer width="100%" height={350}>

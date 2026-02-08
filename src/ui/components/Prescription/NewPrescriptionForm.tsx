@@ -471,7 +471,7 @@ const NewPrescriptionForm = ({
           disabled={selectedMedications.length === 0}
         />
         {Number(id) !== 0 && (
-          <Button onClick={handleSave} size="lg" className="gap-2 min-w-[150px] dark:text-white">
+          <Button onClick={handleSave} size="lg" className="gap-2 min-w-[150px]">
             <Save className="w-4 h-4" />
             Enregistrer
           </Button>

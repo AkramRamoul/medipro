@@ -47,7 +47,6 @@ export function ICD10Search({ value, onChange, placeholder }: ICD10SearchProps) 
 
                 // If no results and it's the first time/empty table, seed with common codes
                 if (data.length === 0 && query === "") {
-                    console.log("Seeding common ICD-10 codes...");
                     await window.electronAPI.importICD10(commonICD10);
                     const seededData = await window.electronAPI.searchICD10("");
                     setResults(seededData);

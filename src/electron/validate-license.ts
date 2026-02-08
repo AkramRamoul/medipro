@@ -19,13 +19,11 @@ export function validateLicenseKey(
             machineId: payload.machineId
         });
 
-        console.log("Validating license for payload:", payloadStr);
 
         // Use the buffer directly with the algorithm specified
         const data = Buffer.from(payloadStr);
         const isValid = crypto.verify("sha256", data, publicKey, signature);
 
-        console.log("License validation result:", isValid);
         return isValid;
     } catch (err) {
         console.error("Validation failed:", err);

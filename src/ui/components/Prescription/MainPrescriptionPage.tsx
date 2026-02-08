@@ -75,6 +75,26 @@ function MainPrescriptionPage({
     }
   }, [id]);
 
+  const allItems = useCallback(() => {
+    const base = mode === "prescriptions"
+      ? [
+        ...prescriptions.map((p) => ({ ...p, kind: "prescription" as const })),
+        ...documents.filter((d) => d.type === "blood").map((d) => ({ ...d, kind: "document" as const })),
+      ]
+      : documents.filter((d) => d.type !== "blood").map((d) => ({ ...d, kind: "document" as const }));
+
+    return base.sort((a, b) => {
+      const getTime = (val: any) => {
+        if (!val) return 0;
+        const d = new Date(val);
+        return isNaN(d.getTime()) ? 0 : d.getTime();
+      };
+      const dateA = getTime(a.kind === "prescription" ? a.date : a.createdAt);
+      const dateB = getTime(b.kind === "prescription" ? b.date : b.createdAt);
+      return dateB - dateA;
+    });
+  }, [prescriptions, documents, mode])();
+
   return (
     <>
       <div className="space-y-6 max-w-[80%] mx-auto">
@@ -85,7 +105,7 @@ function MainPrescriptionPage({
                 {mode === "prescriptions" ? (
                   <>
                     <Pill className="w-5 h-5" />
-                    Gestion des Ordonnances
+                    Gestion des Ordonnances & Bilans
                   </>
                 ) : (
                   <>
@@ -131,7 +151,7 @@ function MainPrescriptionPage({
           <div className="bg-muted/30 p-3 border-b flex items-center gap-2 text-sm font-medium text-muted-foreground">
             <FileText className="w-4 h-4" />
             {mode === "prescriptions"
-              ? "Historique des ordonnances"
+              ? "Historique des ordonnances & bilans"
               : "Historique des lettres"}
           </div>
 
@@ -207,8 +227,7 @@ function MainPrescriptionPage({
               </TableRow>
             </TableHeader>
 
-            {(mode === "prescriptions" ? prescriptions : documents).length ===
-              0 ? (
+            {allItems.length === 0 ? (
               <TableBody>
                 <TableRow className="hover:bg-transparent border-none">
                   <TableCell
@@ -217,7 +236,7 @@ function MainPrescriptionPage({
                   >
                     <div className="flex flex-col items-center justify-center gap-2">
                       <FileText className="w-8 h-8 opacity-20" />
-                      <p>Aucun(e) {mode === "prescriptions" ? "ordonnance" : "lettre"} pour le moment.</p>
+                      <p>Aucun(e) {mode === "prescriptions" ? "ordonnance ou bilan" : "lettre"} pour le moment.</p>
                       <p className="text-xs opacity-70">
                         Sélectionnez un type de {mode === "prescriptions" ? "document" : "lettre"} ci-dessus pour
                         commencer.
@@ -228,40 +247,7 @@ function MainPrescriptionPage({
               </TableBody>
             ) : (
               <TableBody>
-                {[
-                  ...(mode === "prescriptions"
-                    ? [
-                      ...prescriptions.map((p) => ({
-                        ...p,
-                        kind: "prescription" as const,
-                      })),
-                      ...documents
-                        .filter((d) => d.type === "blood")
-                        .map((d) => ({
-                          ...d,
-                          kind: "document" as const,
-                        })),
-                    ]
-                    : documents
-                      .filter((d) => d.type !== "blood")
-                      .map((d) => ({
-                        ...d,
-                        kind: "document" as const,
-                      }))),
-                ]
-                  .sort((a, b) => {
-                    const dateA = new Date(
-                      a.kind === "prescription"
-                        ? a.date || 0
-                        : a.createdAt || 0,
-                    ).getTime();
-                    const dateB = new Date(
-                      b.kind === "prescription"
-                        ? b.date || 0
-                        : b.createdAt || 0,
-                    ).getTime();
-                    return dateB - dateA;
-                  })
+                {allItems
                   .slice(
                     (currentPage - 1) * ITEMS_PER_PAGE,
                     currentPage * ITEMS_PER_PAGE,
@@ -294,11 +280,7 @@ function MainPrescriptionPage({
         </div>
         <Pagination
           itemsPerPage={ITEMS_PER_PAGE}
-          totalItems={
-            mode === "prescriptions"
-              ? prescriptions.length + documents.filter((d) => d.type === "blood").length
-              : documents.filter((d) => d.type !== "blood").length
-          }
+          totalItems={allItems.length}
           currentPage={currentPage}
           onPageChange={setCurrentPage}
         />

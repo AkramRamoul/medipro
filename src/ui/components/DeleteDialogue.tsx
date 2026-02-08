@@ -70,7 +70,7 @@ function DeleteDialogue({ consultationId, setData }: DeleteDialogueProps) {
           </AlertDialogCancel>
           <AlertDialogAction
             disabled={isDeleting}
-            className="bg-destructive hover:bg-destructive dark:text-white"
+            className="bg-destructive hover:bg-destructive"
             onClick={(e) => {
               e.stopPropagation();
               handleDelete();

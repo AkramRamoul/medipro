@@ -61,7 +61,7 @@ function MainPage() {
               value="prescriptions"
               className="flex-1 text-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
             >
-              Ordonnances
+              Ordonnances & Bilans
             </TabsTrigger>
             <TabsTrigger
               value="letters"

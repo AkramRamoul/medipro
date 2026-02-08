@@ -123,7 +123,6 @@ app.on("ready", () => {
         .values(data)
         .returning({ id: patients.id });
 
-      win.webContents.executeJavaScript("console.log('📢 Patient added!');");
       return insertedPatient.id;
     } catch (error) {
       win.webContents.executeJavaScript(
@@ -449,6 +448,17 @@ app.on("ready", () => {
         }
       });
     });
+  });
+
+  ipcMain.handle("update-bilans", async (_, bilans) => {
+    const bilansPath = getBilansPath();
+    try {
+      fs.writeFileSync(bilansPath, JSON.stringify(bilans, null, 4), "utf-8");
+      return { success: true };
+    } catch (error) {
+      console.error("Failed to write common_bilans.json:", error);
+      return { success: false, error: (error as Error).message };
+    }
   });
 
   ipcMain.handle("add-consultation", async (_, data) => {
@@ -1322,7 +1332,13 @@ app.on("ready", () => {
       const { patientId, type, content, name } = data;
       const [newDoc] = await db
         .insert(Document)
-        .values({ patientId, type, content, name })
+        .values({
+          patientId,
+          type,
+          content,
+          name,
+          createdAt: new Date().toISOString(),
+        })
         .returning({ id: Document.id });
       return { success: true, id: newDoc.id };
     } catch (error) {
@@ -1397,10 +1413,8 @@ app.on("ready", () => {
   function getMachineId(original = false): string {
     try {
       const id = machineIdSync(original); // original = true gives full hardware ID
-      console.log(`Machine ID (${original ? 'original' : 'hashed'}):`, id);
       return id;
     } catch (err) {
-      console.error("Failed to get machine ID:", err);
       return "UNKNOWN";
     }
   }
@@ -1426,7 +1440,6 @@ app.on("ready", () => {
     if (license && license.key && license.payload) {
       // Re-validate stored license against current machine
       isLicensed = validateLicenseKey(license.key, license.payload as any);
-      console.log("Startup license validation:", isLicensed);
     }
 
     const result = await db.select().from(auth).limit(1);

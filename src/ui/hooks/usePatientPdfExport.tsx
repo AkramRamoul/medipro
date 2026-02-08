@@ -42,7 +42,6 @@ export function usePatientPdfExport() {
             const result = await window.electronAPI.savePdf(buffer, filename);
 
             if (result.success) {
-                console.log("PDF saved to:", result.filePath);
                 return true;
             }
             return false;

@@ -95,7 +95,6 @@ function PatientsTable({
   } | null>(null);
 
   const navigate = useNavigate();
-  console.log(patients);
 
   const itemsPerPage = 8;
   const filteredData = patients
@@ -329,7 +328,7 @@ function PatientsTable({
 
               <Button
                 onClick={() => setIsOpen(true)}
-                className="w-fit flex items-center space-x-2 bg-primary text-white hover:bg-primary/90"
+                className="w-fit flex items-center space-x-2 bg-primary  hover:bg-primary/90"
               >
                 <span>Ajouter un nouveau patient</span>
                 <Plus className="w-4 h-4 font-bold" />

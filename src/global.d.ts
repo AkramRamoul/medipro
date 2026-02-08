@@ -43,6 +43,7 @@ export interface IElectronAPI {
     { name: string; form: string; dosage: string }[]
   >;
   getBilans: () => Promise<{ name: string }[]>;
+  updateBilans: (bilans: { name: string }[]) => Promise<{ success: boolean; error?: string }>;
   loadFonts: () => Promise<string>;
   addConsultation: (data: unknown) => Promise<void>;
   getConsultations(id: string): Consultation[];
