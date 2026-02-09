@@ -139,3 +139,102 @@ html {
     @apply bg-background text-foreground;
   }
 }
+
+/* React Big Calendar Overrides */
+.rbc-calendar {
+  @apply font-sans text-foreground;
+}
+
+.rbc-header {
+  @apply py-4 text-sm font-medium text-muted-foreground border-b border-border/50 uppercase tracking-wider flex items-center justify-center min-h-[50px];
+}
+
+.rbc-month-view {
+  @apply border-none;
+}
+
+.rbc-day-bg {
+  @apply border-l border-border/50;
+}
+
+.rbc-month-row {
+  @apply border-t border-border/50;
+}
+
+.rbc-off-range-bg {
+  @apply bg-muted/30;
+}
+
+.rbc-today {
+  @apply bg-primary/5 border-none;
+}
+
+.rbc-date-cell {
+  @apply py-1 px-2 text-sm text-muted-foreground font-medium;
+}
+
+.rbc-date-cell.rbc-now {
+  @apply text-primary font-bold;
+}
+
+.rbc-event {
+  @apply rounded-md shadow-sm border-none;
+}
+
+.rbc-event-label {
+  @apply text-xs opacity-90;
+}
+
+.rbc-toolbar {
+  @apply mb-4 gap-2 flex flex-wrap items-center justify-between p-1 bg-muted/30 rounded-lg border border-border/50;
+}
+
+.rbc-toolbar button {
+  @apply px-3 py-1.5 text-sm font-medium text-muted-foreground bg-transparent border-none rounded-md transition-all hover:bg-background hover:text-foreground hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-ring/20 !important;
+}
+
+.rbc-toolbar button.rbc-active {
+  @apply bg-background text-foreground shadow-sm !important;
+}
+
+.rbc-toolbar-label {
+  @apply text-lg font-semibold text-foreground px-4;
+}
+
+/* Hide default borders that clash */
+.rbc-month-view,
+.rbc-time-view,
+.rbc-agenda-view {
+  @apply border-none;
+}
+
+.rbc-time-view {
+  @apply flex flex-col h-full w-full;
+  /* Ensure it takes full height and uses flex column */
+}
+
+.rbc-time-content {
+  @apply border-t border-border/50 flex-1;
+  /* Ensure content takes remaining space */
+}
+
+.rbc-time-header {
+  @apply shrink-0;
+  /* Prevent header from shrinking/collapsing */
+}
+
+.rbc-time-header-content {
+  @apply border-l border-border/50;
+}
+
+.rbc-timeslot-group {
+  @apply border-b border-border/50;
+}
+
+.rbc-time-slot {
+  @apply text-xs text-muted-foreground/50;
+}
+
+.rbc-current-time-indicator {
+  @apply bg-primary h-[2px];
+}

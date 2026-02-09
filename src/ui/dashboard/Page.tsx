@@ -120,24 +120,6 @@ export default function DashboardPage() {
             </Card>
 
             {/* Total Patients Card */}
-            <Card className="shadow-sm rounded-xl bg-card border-none ring-1 ring-border/50">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  Patients actifs
-                </CardTitle>
-                <div className="bg-blue-100 p-2 rounded-full dark:bg-blue-900/30">
-                  <Activity className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-foreground">
-                  {stats.totalPatients}
-                </div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Consultation au cours des 12 derniers mois
-                </p>
-              </CardContent>
-            </Card>
 
             {/* Prescriptions This Month Card */}
             <Card className="shadow-sm rounded-xl bg-card border-none ring-1 ring-border/50">
@@ -200,7 +182,7 @@ export default function DashboardPage() {
             </Card>
 
             {/* Net Profit Card */}
-            <Card className="shadow-sm rounded-xl bg-card border-none ring-1 ring-border/50 bg-gradient-to-br from-primary/5 to-transparent">
+            <Card className="shadow-sm rounded-xl bg-card border-none ring-1 ring-border/50">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium text-primary">
                   Profit Net (Mois)
