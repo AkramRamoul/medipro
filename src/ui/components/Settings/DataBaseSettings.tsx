@@ -19,6 +19,8 @@ export default function DatabaseSettings() {
       const success = await window.electronAPI.backup();
       if (success) {
         toast.success("Sauvegarde effectuée");
+      } else {
+        toast.info("Sauvegarde annulée");
       }
     } catch (error) {
       console.error(error);
@@ -39,6 +41,8 @@ export default function DatabaseSettings() {
       const success = await window.electronAPI.restore();
       if (success) {
         toast.success("Restauration effectuée");
+      } else {
+        toast.info("Restauration annulée");
       }
     } catch (error) {
       console.error(error);
