@@ -13,6 +13,7 @@
     "preview": "vite preview",
     "drizzle:generate": "drizzle-kit generate",
     "drizzle:push": "drizzle-kit push",
+    "db:clear": "tsx scripts/clear-db.ts",
     "transpile:electron": "tsc --project src/electron/tsconfig.json",
     "dist:mac": "npm run transpile:electron && npm run build && electron-builder --mac --arm64",
     "dist:win": "npm run transpile:electron && npm run build && electron-builder --win --x64",

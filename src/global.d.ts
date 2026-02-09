@@ -107,8 +107,8 @@ export interface IElectronAPI {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getPatientDocuments: (id: string) => Promise<any[]>;
   deleteDocument: (id: string) => Promise<void>;
-  backup: () => Promise<void>;
-  restore: () => Promise<void>;
+  backup: () => Promise<boolean>;
+  restore: () => Promise<boolean>;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getPatientTimeline: (id: string) => Promise<any[]>;

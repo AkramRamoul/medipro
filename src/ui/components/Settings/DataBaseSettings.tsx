@@ -1,7 +1,6 @@
 import { useState } from "react";
-import { DatabaseBackup, RotateCcw, Loader2 } from "lucide-react";
+import { DatabaseBackup, RotateCcw, Loader2, Info } from "lucide-react";
 import { Button } from "../ui/button";
-import { Separator } from "../ui/separator";
 import {
   Card,
   CardContent,
@@ -17,8 +16,10 @@ export default function DatabaseSettings() {
   async function handleBackup() {
     setLoading(true);
     try {
-      await window.electronAPI.backup();
-      toast.success("Sauvegarde effectuée");
+      const success = await window.electronAPI.backup();
+      if (success) {
+        toast.success("Sauvegarde effectuée");
+      }
     } catch (error) {
       console.error(error);
       toast.error("Erreur lors de la sauvegarde");
@@ -35,8 +36,10 @@ export default function DatabaseSettings() {
 
     setLoading(true);
     try {
-      await window.electronAPI.restore();
-      toast.success("Restauration effectuée");
+      const success = await window.electronAPI.restore();
+      if (success) {
+        toast.success("Restauration effectuée");
+      }
     } catch (error) {
       console.error(error);
       toast.error("Erreur lors de la restauration");
@@ -58,6 +61,12 @@ export default function DatabaseSettings() {
       <CardContent className="space-y-6">
         <div className="space-y-4">
           <h4 className="text-sm font-medium">Maintenance</h4>
+          <div className="flex items-start gap-2 p-3 rounded-lg bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800">
+            <Info className="h-4 w-4 text-blue-600 dark:text-blue-400 mt-0.5 shrink-0" />
+            <p className="text-sm text-blue-700 dark:text-blue-300">
+              Il est recommandé de sauvegarder vos données régulièrement (idéalement chaque semaine) pour éviter toute perte.
+            </p>
+          </div>
           <div className="flex flex-col items-center justify-center sm:flex-row gap-4">
             <Button
               onClick={handleBackup}
@@ -75,8 +84,7 @@ export default function DatabaseSettings() {
             <Button
               onClick={handleRestore}
               disabled={loading}
-              variant="destructive"
-              className="w-full sm:w-auto"
+              className="w-full sm:w-auto bg-red-600 hover:bg-red-700 text-white"
             >
               {loading ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -87,8 +95,6 @@ export default function DatabaseSettings() {
             </Button>
           </div>
         </div>
-
-        <Separator />
       </CardContent>
     </Card>
   );
