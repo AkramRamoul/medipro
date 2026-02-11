@@ -5,48 +5,55 @@ import ConsultationFieldsSettings from "./ConsultationFieldsSettings";
 import PrescriptionTemplatesSettings from "./PrescriptionTemplatesSettings";
 import DocumentTemplatesSettings from "./DocumentTemplatesSettings";
 import BilanListSettings from "./BilanListSettings";
+import DiagnosticListSettings from "./ConsultationListSettings";
 
 function Settings() {
   return (
     <div className="p-4 flex justify-center bg-background">
       <Tabs defaultValue="password" className="w-full max-w-5xl">
         {/* Tab Headers */}
-        <TabsList className="w-full flex justify-center bg-muted rounded-lg overflow-hidden">
+        <TabsList className="w-full flex justify-center bg-muted rounded-lg overflow-hidden flex-wrap h-auto">
           <TabsTrigger
             value="password"
-            className="flex-1 text-muted-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+            className="flex-1 text-muted-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground min-w-[100px]"
           >
-            Mot de passe
+            Sécurité
           </TabsTrigger>
           <TabsTrigger
             value="backup"
-            className="flex-1 text-muted-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+            className="flex-1 text-muted-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground min-w-[100px]"
           >
-            Base de données
+            Données
           </TabsTrigger>
           <TabsTrigger
             value="consultation-fields"
-            className="flex-1 text-muted-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+            className="flex-1 text-muted-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground min-w-[100px]"
           >
-            Champs de consultation
+            Champs
           </TabsTrigger>
           <TabsTrigger
             value="prescription-templates"
-            className="flex-1 text-muted-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+            className="flex-1 text-muted-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground min-w-[100px]"
           >
-            Ordonnances types
+            Ordonnances
           </TabsTrigger>
           <TabsTrigger
             value="document-templates"
-            className="flex-1 text-muted-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+            className="flex-1 text-muted-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground min-w-[100px]"
           >
-            Modèles de documents
+            Documents
           </TabsTrigger>
           <TabsTrigger
             value="bilans"
-            className="flex-1 text-muted-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+            className="flex-1 text-muted-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground min-w-[100px]"
           >
             Bilans
+          </TabsTrigger>
+          <TabsTrigger
+            value="diagnostics"
+            className="flex-1 text-muted-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground min-w-[100px]"
+          >
+            Diagnostics
           </TabsTrigger>
         </TabsList>
 
@@ -86,6 +93,12 @@ function Settings() {
           className="text-center text-foreground mt-6"
         >
           <BilanListSettings />
+        </TabsContent>
+        <TabsContent
+          value="diagnostics"
+          className="text-center text-foreground mt-6"
+        >
+          <DiagnosticListSettings />
         </TabsContent>
       </Tabs>
     </div>

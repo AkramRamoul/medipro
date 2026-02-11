@@ -20,6 +20,12 @@ export function getBilansPath() {
     : path.join(process.resourcesPath, "common_bilans.json");
 }
 
+export function getConsultationsPath() {
+  return isDevelopment()
+    ? "public/common_consultations.json"
+    : path.join(process.resourcesPath, "common_consultations.json");
+}
+
 export function getfontPath() {
   return isDevelopment()
     ? path.join(app.getAppPath(), "public/fonts")

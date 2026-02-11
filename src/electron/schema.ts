@@ -175,11 +175,7 @@ export const expenses = sqliteTable("expenses", {
   date: text("date").default(sql`CURRENT_TIMESTAMP`),
 });
 
-export const icd10 = sqliteTable("icd10", {
-  code: text("code").primaryKey(),
-  label: text("label").notNull(),
-  category: text("category"),
-});
+export type Expense = typeof expenses.$inferSelect;
 
 export type PrescriptionMed = typeof prescriptionMedications.$inferSelect;
 export type NewPrescriptionMed = typeof prescriptionMedications.$inferInsert;
@@ -188,5 +184,3 @@ export type document = typeof Document.$inferSelect;
 export type Prescription = typeof prescriptions.$inferSelect;
 export type Appointment = typeof appointments.$inferSelect;
 export type DocumentTemplate = typeof documentTemplates.$inferSelect;
-export type Expense = typeof expenses.$inferSelect;
-export type ICD10 = typeof icd10.$inferSelect;

@@ -3,7 +3,7 @@ import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Activity,
   Heart,
@@ -18,11 +18,12 @@ import {
   X,
   Plus,
   Banknote,
+  Check,
 } from "lucide-react";
 import { Patient } from "../../type";
 import { toast } from "sonner";
 import { Separator } from "../ui/separator";
-import { ICD10Search } from "./ICD10Search";
+
 
 function NewConsultationForm({
   id,
@@ -54,6 +55,11 @@ function NewConsultationForm({
     Record<string, any>
   >({});
 
+  const [allDiagnostics, setAllDiagnostics] = useState<{ name: string }[]>([]);
+  const [diagnosticSuggestions, setDiagnosticSuggestions] = useState<{ name: string }[]>([]);
+  const [highlightedIndex, setHighlightedIndex] = useState(-1);
+  const suggestionsRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     if (!id) return;
 
@@ -74,7 +80,58 @@ function NewConsultationForm({
       });
       setCustomFieldValues(initialValues);
     });
+
+    window.electronAPI.getCommonDiagnostics().then(setAllDiagnostics).catch(console.error);
   }, [id]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (suggestionsRef.current && !suggestionsRef.current.contains(event.target as Node)) {
+        setDiagnosticSuggestions([]);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  function handleDiagnosticChange(value: string) {
+    setDiagnosis(value);
+    if (!value.trim()) {
+      setDiagnosticSuggestions([]);
+      return;
+    }
+    const filtered = allDiagnostics
+      .filter((d) => d.name.toLowerCase().includes(value.toLowerCase()))
+      .slice(0, 8);
+    setDiagnosticSuggestions(filtered);
+    setHighlightedIndex(-1);
+  }
+
+  function handleDiagnosticKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+    // If not showing suggestions, don't trap enter
+    if (diagnosticSuggestions.length === 0) return;
+
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setHighlightedIndex((prev) => Math.min(prev + 1, diagnosticSuggestions.length - 1));
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setHighlightedIndex((prev) => Math.max(prev - 1, 0));
+    } else if (e.key === "Enter" && highlightedIndex >= 0) {
+      e.preventDefault();
+      setDiagnosis(diagnosticSuggestions[highlightedIndex].name);
+      setDiagnosticSuggestions([]);
+      setHighlightedIndex(-1);
+    } else if (e.key === "Escape") {
+      setDiagnosticSuggestions([]);
+    }
+  }
+
+  function selectDiagnosticSuggestion(name: string) {
+    setDiagnosis(name);
+    setDiagnosticSuggestions([]);
+    setHighlightedIndex(-1);
+  }
 
   const handleSave = async () => {
     if (!patient) return;
@@ -166,16 +223,53 @@ function NewConsultationForm({
           </div>
 
           <div className="space-y-4">
-            <div className="space-y-2">
+            <div className="space-y-2 relative" ref={suggestionsRef}>
               <Label className="flex items-center gap-2 text-foreground font-medium">
                 <Activity className="w-4 h-4 text-blue-500" />
                 Diagnostic
               </Label>
-              <ICD10Search
-                value={diagnosis}
-                onChange={setDiagnosis}
-                placeholder="Rechercher un diagnostic (CIM-10)..."
-              />
+              <div className="relative">
+                <Input
+                  value={diagnosis}
+                  onChange={(e) => handleDiagnosticChange(e.target.value)}
+                  onKeyDown={handleDiagnosticKeyDown}
+                  onFocus={() => {
+                    if (diagnosis) handleDiagnosticChange(diagnosis);
+                  }}
+                  placeholder="Rechercher un diagnostic..."
+                  className="bg-muted/30"
+                  autoComplete="off"
+                />
+                {diagnosticSuggestions.length > 0 && (
+                  <div className="absolute z-50 w-full bg-popover text-popover-foreground text-left border rounded-lg shadow-lg mt-2 max-h-[300px] overflow-y-auto animate-in fade-in zoom-in-95 duration-200 ring-1 ring-black/5">
+                    <div className="p-1.5">
+                      <div className="text-xs font-medium text-muted-foreground px-2 py-1.5 mb-1">
+                        Suggestions
+                      </div>
+                      {diagnosticSuggestions.map((suggestion, index) => (
+                        <div
+                          key={index}
+                          className={`
+                            relative flex items-center gap-2 px-3 py-2.5 text-sm rounded-md cursor-pointer transition-colors
+                            ${index === highlightedIndex
+                              ? "bg-accent/80 text-accent-foreground"
+                              : "hover:bg-accent/50 hover:text-accent-foreground"
+                            }
+                          `}
+                          onClick={() => selectDiagnosticSuggestion(suggestion.name)}
+                          onMouseDown={(e) => e.preventDefault()}
+                        >
+                          <Activity className="w-3.5 h-3.5 text-blue-500/70" />
+                          <span className="flex-1">{suggestion.name}</span>
+                          {diagnosis === suggestion.name && (
+                            <Check className="w-4 h-4 text-primary ml-auto" />
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
 
             <div className="space-y-2">

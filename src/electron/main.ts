@@ -5,7 +5,7 @@ import path from "path";
 import { desc, eq, sql, or, like } from "drizzle-orm";
 import fs from "fs";
 import { isDevelopment } from "./util.js";
-import { getfontPath, getMedsPath, getBilansPath } from "./pathResolver.js";
+import { getfontPath, getMedsPath, getBilansPath, getConsultationsPath } from "./pathResolver.js";
 import { db } from "./index.js";
 import os from "os";
 import bcrypt from "bcrypt";
@@ -29,7 +29,7 @@ import {
   prescriptionTemplateMedications,
   documentTemplates,
   expenses,
-  icd10,
+
 } from "./schema.js";
 import { restoreDatabase } from "./restore.js";
 import { backupDatabase } from "./bdBackup.js";
@@ -495,6 +495,37 @@ app.on("ready", () => {
       return { success: true };
     } catch (error) {
       console.error("Failed to write common_bilans.json:", error);
+      return { success: false, error: (error as Error).message };
+    }
+  });
+
+  ipcMain.handle("get-consultations-list", () => {
+    const consultationsPath = getConsultationsPath();
+
+    return new Promise((resolve, reject) => {
+      fs.readFile(consultationsPath, "utf-8", (err, data) => {
+        if (err) {
+          console.error("Failed to read common_consultations.json:", err);
+          return reject(err);
+        }
+        try {
+          const consultations = JSON.parse(data);
+          resolve(consultations);
+        } catch (parseErr) {
+          console.error("Failed to parse common_consultations.json:", parseErr);
+          reject(parseErr);
+        }
+      });
+    });
+  });
+
+  ipcMain.handle("update-consultations-list", async (_, consultations) => {
+    const consultationsPath = getConsultationsPath();
+    try {
+      fs.writeFileSync(consultationsPath, JSON.stringify(consultations, null, 4), "utf-8");
+      return { success: true };
+    } catch (error) {
+      console.error("Failed to write common_consultations.json:", error);
       return { success: false, error: (error as Error).message };
     }
   });
@@ -1132,8 +1163,8 @@ app.on("ready", () => {
       const retentionRate =
         retentionStats.totalUniquePatients > 0
           ? (retentionStats.totalReturnPatients /
-              retentionStats.totalUniquePatients) *
-            100
+            retentionStats.totalUniquePatients) *
+          100
           : 0;
 
       return {
@@ -1714,49 +1745,9 @@ app.on("ready", () => {
     }
   });
 
-  ipcMain.handle("search-icd10", async (_, query: string) => {
-    try {
-      if (!query || query.length < 2) {
-        // Return common codes or top results if no query
-        return await db.select().from(icd10).limit(50);
-      }
 
-      const results = await db
-        .select()
-        .from(icd10)
-        .where(
-          or(like(icd10.code, `%${query}%`), like(icd10.label, `%${query}%`)),
-        )
-        .limit(100);
-      return results;
-    } catch (error) {
-      console.error("Failed to search ICD-10:", error);
-      return [];
-    }
-  });
 
-  ipcMain.handle(
-    "import-icd10",
-    async (_, data: { code: string; label: string; category?: string }[]) => {
-      try {
-        // Bulk insert
-        await db
-          .insert(icd10)
-          .values(data)
-          .onConflictDoUpdate({
-            target: icd10.code,
-            set: {
-              label: sql`excluded.label`,
-              category: sql`excluded.category`,
-            },
-          });
-        return { success: true };
-      } catch (error) {
-        console.error("Failed to import ICD-10:", error);
-        return { success: false, error: (error as Error).message };
-      }
-    },
-  );
+
 
   ipcMain.handle("global-search", async (_, query: string) => {
     if (!query || query.length < 2) return [];

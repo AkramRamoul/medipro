@@ -44,6 +44,8 @@ export interface IElectronAPI {
   >;
   getBilans: () => Promise<{ name: string }[]>;
   updateBilans: (bilans: { name: string }[]) => Promise<{ success: boolean; error?: string }>;
+  getCommonDiagnostics: () => Promise<{ name: string }[]>;
+  updateCommonDiagnostics: (diagnostics: { name: string }[]) => Promise<{ success: boolean; error?: string }>;
   loadFonts: () => Promise<string>;
   addConsultation: (data: unknown) => Promise<void>;
   getConsultations(id: string): Consultation[];
@@ -140,8 +142,7 @@ export interface IElectronAPI {
   getExpenses: () => Promise<Expense[]>;
   addExpense: (data: any) => Promise<{ success: boolean; error?: string }>;
   deleteExpense: (id: number) => Promise<{ success: boolean; error?: string }>;
-  searchICD10: (query: string) => Promise<ICD10[]>;
-  importICD10: (data: any[]) => Promise<{ success: boolean; error?: string }>;
+
   globalSearch: (query: string) => Promise<any[]>;
 }
 
@@ -153,11 +154,7 @@ export interface Expense {
   date: string;
 }
 
-export interface ICD10 {
-  code: string;
-  label: string;
-  category?: string;
-}
+
 
 declare global {
   interface Window {

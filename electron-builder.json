@@ -17,6 +17,14 @@
       "to": "meds.json"
     },
     {
+      "from": "public/common_bilans.json",
+      "to": "common_bilans.json"
+    },
+    {
+      "from": "public/common_consultations.json",
+      "to": "common_consultations.json"
+    },
+    {
       "from": "public/fonts",
       "to": "public/fonts"
     },

@@ -218,14 +218,12 @@ contextBridge.exposeInMainWorld("electronAPI", {
   deleteExpense: async (id: number) => {
     return await ipcRenderer.invoke("delete-expense", id);
   },
-  searchICD10: async (query: string) => {
-    return await ipcRenderer.invoke("search-icd10", query);
-  },
-  importICD10: async (data: any[]) => {
-    return await ipcRenderer.invoke("import-icd10", data);
-  },
+
   updateBilans: (bilans: { name: string }[]) =>
     ipcRenderer.invoke("update-bilans", bilans),
+  getCommonDiagnostics: () => ipcRenderer.invoke("get-consultations-list"),
+  updateCommonDiagnostics: (diagnostics: { name: string }[]) =>
+    ipcRenderer.invoke("update-consultations-list", diagnostics),
   globalSearch: async (query: string) => {
     return await ipcRenderer.invoke("global-search", query);
   },
