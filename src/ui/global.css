@@ -4,111 +4,153 @@
 
 @layer base {
   :root {
-    --background: 280.0000 33.3333% 96.4706%;
-    --foreground: 216.9231 19.1176% 26.6667%;
+    /* Clinical Medical Palette - Light Mode */
+    --background: 180 10% 98%;
+    --foreground: 200 15% 20%;
     --card: 0 0% 100%;
-    --card-foreground: 216.9231 19.1176% 26.6667%;
+    --card-foreground: 200 15% 20%;
     --popover: 0 0% 100%;
-    --popover-foreground: 216.9231 19.1176% 26.6667%;
-    --primary: 255.1351 91.7355% 76.2745%;
+    --popover-foreground: 200 15% 20%;
+
+    /* Primary: Medical Teal (scrubs, hospital) */
+    --primary: 173 80% 36%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 267.5676 90.2439% 91.9608%;
-    --secondary-foreground: 215 13.7931% 34.1176%;
-    --muted: 268.6957 100.0000% 95.4902%;
-    --muted-foreground: 220 8.9362% 46.0784%;
-    --accent: 292.5000 44.4444% 92.9412%;
-    --accent-foreground: 216.9231 19.1176% 26.6667%;
-    --destructive: 0 93.5484% 81.7647%;
+
+    /* Secondary: Soft clinical blue-gray */
+    --secondary: 200 20% 94%;
+    --secondary-foreground: 200 15% 30%;
+
+    /* Muted: Steel gray for calm backgrounds */
+    --muted: 200 15% 95%;
+    --muted-foreground: 200 10% 45%;
+
+    /* Accent: Light teal tint */
+    --accent: 173 40% 94%;
+    --accent-foreground: 173 80% 30%;
+
+    /* Destructive: Arterial red */
+    --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
-    --border: 267.5676 90.2439% 91.9608%;
-    --input: 267.5676 90.2439% 91.9608%;
-    --ring: 255.1351 91.7355% 76.2745%;
-    --chart-1: 255.1351 91.7355% 76.2745%;
-    --chart-2: 258.3117 89.5349% 66.2745%;
-    --chart-3: 262.1229 83.2558% 57.8431%;
-    --chart-4: 263.3898 69.9605% 50.3922%;
-    --chart-5: 263.3557 69.3023% 42.1569%;
-    --sidebar: 267.5676 90.2439% 91.9608%;
-    --sidebar-foreground: 216.9231 19.1176% 26.6667%;
-    --sidebar-primary: 255.1351 91.7355% 76.2745%;
+
+    /* Borders and inputs: Subtle steel */
+    --border: 200 20% 90%;
+    --input: 200 20% 90%;
+    --ring: 173 80% 36%;
+
+    /* Chart colors: Medical severity scale */
+    --chart-1: 173 80% 36%;
+    --chart-2: 199 89% 48%;
+    --chart-3: 142 71% 45%;
+    --chart-4: 38 92% 50%;
+    --chart-5: 0 72% 51%;
+
+    /* Sidebar: Clean clinical */
+    --sidebar: 180 10% 97%;
+    --sidebar-foreground: 200 15% 25%;
+    --sidebar-primary: 173 80% 36%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 292.5000 44.4444% 92.9412%;
-    --sidebar-accent-foreground: 216.9231 19.1176% 26.6667%;
-    --sidebar-border: 267.5676 90.2439% 91.9608%;
-    --sidebar-ring: 255.1351 91.7355% 76.2745%;
-    --font-sans: Open Sans, sans-serif;
+    --sidebar-accent: 173 40% 94%;
+    --sidebar-accent-foreground: 173 80% 30%;
+    --sidebar-border: 200 20% 90%;
+    --sidebar-ring: 173 80% 36%;
+
+    /* Typography */
+    --font-sans: Inter, system-ui, sans-serif;
     --font-serif: Source Serif 4, serif;
-    --font-mono: IBM Plex Mono, monospace;
-    --radius: 1.5rem;
+    --font-mono: JetBrains Mono, IBM Plex Mono, monospace;
+
+    /* Spacing and shapes */
+    --radius: 0.75rem;
     --shadow-x: 0px;
-    --shadow-y: 8px;
-    --shadow-blur: 16px;
-    --shadow-spread: -4px;
-    --shadow-opacity: 0.08;
-    --shadow-color: hsl(0 0% 0%);
-    --shadow-2xs: 0px 8px 16px -4px hsl(0 0% 0% / 0.04);
-    --shadow-xs: 0px 8px 16px -4px hsl(0 0% 0% / 0.04);
-    --shadow-sm: 0px 8px 16px -4px hsl(0 0% 0% / 0.08), 0px 1px 2px -5px hsl(0 0% 0% / 0.08);
-    --shadow: 0px 8px 16px -4px hsl(0 0% 0% / 0.08), 0px 1px 2px -5px hsl(0 0% 0% / 0.08);
-    --shadow-md: 0px 8px 16px -4px hsl(0 0% 0% / 0.08), 0px 2px 4px -5px hsl(0 0% 0% / 0.08);
-    --shadow-lg: 0px 8px 16px -4px hsl(0 0% 0% / 0.08), 0px 4px 6px -5px hsl(0 0% 0% / 0.08);
-    --shadow-xl: 0px 8px 16px -4px hsl(0 0% 0% / 0.08), 0px 8px 10px -5px hsl(0 0% 0% / 0.08);
-    --shadow-2xl: 0px 8px 16px -4px hsl(0 0% 0% / 0.20);
-    --tracking-normal: 0em;
+    --shadow-y: 4px;
+    --shadow-blur: 12px;
+    --shadow-spread: -2px;
+    --shadow-opacity: 0.06;
+    --shadow-color: hsl(200 20% 20%);
+    --shadow-2xs: 0px 1px 2px 0px hsl(200 20% 20% / 0.03);
+    --shadow-xs: 0px 1px 3px 0px hsl(200 20% 20% / 0.04);
+    --shadow-sm: 0px 2px 4px -1px hsl(200 20% 20% / 0.06);
+    --shadow: 0px 4px 8px -2px hsl(200 20% 20% / 0.08);
+    --shadow-md: 0px 6px 12px -3px hsl(200 20% 20% / 0.10);
+    --shadow-lg: 0px 8px 16px -4px hsl(200 20% 20% / 0.12);
+    --shadow-xl: 0px 12px 24px -6px hsl(200 20% 20% / 0.15);
+    --shadow-2xl: 0px 16px 32px -8px hsl(200 20% 20% / 0.20);
+    --tracking-normal: -0.01em;
     --spacing: 0.25rem;
   }
 
   .dark {
-    --background: 24 9.8039% 10%;
-    --foreground: 226.4516 100% 93.9216%;
-    --card: 270 17.7778% 17.6471%;
-    --card-foreground: 226.4516 100% 93.9216%;
-    --popover: 270 17.7778% 17.6471%;
-    --popover-foreground: 226.4516 100% 93.9216%;
-    --primary: 255.9036 95.4023% 82.9412%;
-    --primary-foreground: 24 9.8039% 10%;
-    --secondary: 272.5000 19.3548% 24.3137%;
-    --secondary-foreground: 216.0000 12.1951% 83.9216%;
-    --muted: 265.2632 28.3582% 13.1373%;
-    --muted-foreground: 217.8947 10.6145% 64.9020%;
-    --accent: 266.8966 19.2053% 29.6078%;
-    --accent-foreground: 216.0000 12.1951% 83.9216%;
-    --destructive: 0 93.5484% 81.7647%;
-    --destructive-foreground: 24 9.8039% 10%;
-    --border: 272.5000 19.3548% 24.3137%;
-    --input: 272.5000 19.3548% 24.3137%;
-    --ring: 255.9036 95.4023% 82.9412%;
-    --chart-1: 255.9036 95.4023% 82.9412%;
-    --chart-2: 255.1351 91.7355% 76.2745%;
-    --chart-3: 258.3117 89.5349% 66.2745%;
-    --chart-4: 262.1229 83.2558% 57.8431%;
-    --chart-5: 263.3898 69.9605% 50.3922%;
-    --sidebar: 272.5000 19.3548% 24.3137%;
-    --sidebar-foreground: 226.4516 100% 93.9216%;
-    --sidebar-primary: 255.9036 95.4023% 82.9412%;
-    --sidebar-primary-foreground: 24 9.8039% 10%;
-    --sidebar-accent: 266.8966 19.2053% 29.6078%;
-    --sidebar-accent-foreground: 216.0000 12.1951% 83.9216%;
-    --sidebar-border: 272.5000 19.3548% 24.3137%;
-    --sidebar-ring: 255.9036 95.4023% 82.9412%;
-    --font-sans: Open Sans, sans-serif;
+    /* Clinical Medical Palette - Dark Mode */
+    --background: 200 20% 10%;
+    --foreground: 180 10% 95%;
+    --card: 200 18% 14%;
+    --card-foreground: 180 10% 95%;
+    --popover: 200 18% 14%;
+    --popover-foreground: 180 10% 95%;
+
+    /* Primary: Lighter teal for dark mode visibility */
+    --primary: 173 70% 50%;
+    --primary-foreground: 200 20% 10%;
+
+    /* Secondary: Dark steel */
+    --secondary: 200 15% 20%;
+    --secondary-foreground: 180 10% 85%;
+
+    /* Muted: Deep charcoal */
+    --muted: 200 15% 16%;
+    --muted-foreground: 200 10% 60%;
+
+    /* Accent: Teal tint */
+    --accent: 173 30% 22%;
+    --accent-foreground: 173 70% 70%;
+
+    /* Destructive: Softer red for dark mode */
+    --destructive: 0 65% 55%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Borders and inputs */
+    --border: 200 15% 22%;
+    --input: 200 15% 22%;
+    --ring: 173 70% 50%;
+
+    /* Chart colors: Medical severity scale */
+    --chart-1: 173 70% 50%;
+    --chart-2: 199 80% 55%;
+    --chart-3: 142 60% 50%;
+    --chart-4: 38 85% 55%;
+    --chart-5: 0 65% 55%;
+
+    /* Sidebar */
+    --sidebar: 200 18% 12%;
+    --sidebar-foreground: 180 10% 90%;
+    --sidebar-primary: 173 70% 50%;
+    --sidebar-primary-foreground: 200 20% 10%;
+    --sidebar-accent: 173 30% 22%;
+    --sidebar-accent-foreground: 173 70% 70%;
+    --sidebar-border: 200 15% 22%;
+    --sidebar-ring: 173 70% 50%;
+
+    /* Typography - inherit from light */
+    --font-sans: Inter, system-ui, sans-serif;
     --font-serif: Source Serif 4, serif;
-    --font-mono: IBM Plex Mono, monospace;
-    --radius: 1.5rem;
+    --font-mono: JetBrains Mono, IBM Plex Mono, monospace;
+
+    /* Dark mode shadows */
+    --radius: 0.75rem;
     --shadow-x: 0px;
-    --shadow-y: 8px;
+    --shadow-y: 4px;
     --shadow-blur: 16px;
-    --shadow-spread: -4px;
-    --shadow-opacity: 0.08;
+    --shadow-spread: -2px;
+    --shadow-opacity: 0.25;
     --shadow-color: hsl(0 0% 0%);
-    --shadow-2xs: 0px 8px 16px -4px hsl(0 0% 0% / 0.04);
-    --shadow-xs: 0px 8px 16px -4px hsl(0 0% 0% / 0.04);
-    --shadow-sm: 0px 8px 16px -4px hsl(0 0% 0% / 0.08), 0px 1px 2px -5px hsl(0 0% 0% / 0.08);
-    --shadow: 0px 8px 16px -4px hsl(0 0% 0% / 0.08), 0px 1px 2px -5px hsl(0 0% 0% / 0.08);
-    --shadow-md: 0px 8px 16px -4px hsl(0 0% 0% / 0.08), 0px 2px 4px -5px hsl(0 0% 0% / 0.08);
-    --shadow-lg: 0px 8px 16px -4px hsl(0 0% 0% / 0.08), 0px 4px 6px -5px hsl(0 0% 0% / 0.08);
-    --shadow-xl: 0px 8px 16px -4px hsl(0 0% 0% / 0.08), 0px 8px 10px -5px hsl(0 0% 0% / 0.08);
-    --shadow-2xl: 0px 8px 16px -4px hsl(0 0% 0% / 0.20);
+    --shadow-2xs: 0px 1px 2px 0px hsl(0 0% 0% / 0.15);
+    --shadow-xs: 0px 1px 3px 0px hsl(0 0% 0% / 0.20);
+    --shadow-sm: 0px 2px 4px -1px hsl(0 0% 0% / 0.25);
+    --shadow: 0px 4px 8px -2px hsl(0 0% 0% / 0.30);
+    --shadow-md: 0px 6px 12px -3px hsl(0 0% 0% / 0.35);
+    --shadow-lg: 0px 8px 16px -4px hsl(0 0% 0% / 0.40);
+    --shadow-xl: 0px 12px 24px -6px hsl(0 0% 0% / 0.45);
+    --shadow-2xl: 0px 16px 32px -8px hsl(0 0% 0% / 0.50);
   }
 
   body {

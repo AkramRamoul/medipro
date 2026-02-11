@@ -22,6 +22,7 @@ function NewPatientModal({ isOpen, onClose }: NewPatientModalProps) {
   const handleSave = async (data: Patient) => {
     try {
       const newPatientId = await window.electronAPI.addPatient(data);
+      window.dispatchEvent(new Event("patients-updated"));
       toast.success("Patient enregistré avec succès !");
       onClose();
 

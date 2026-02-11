@@ -190,6 +190,7 @@ function PatientsTable({
     try {
       if (confirmDialog.action === "delete") {
         await window.electronAPI.deletePatient(confirmDialog.id);
+        window.dispatchEvent(new Event("patients-updated"));
         onPatientArchived(confirmDialog.id, "deleted");
       } else {
         const newStatus =

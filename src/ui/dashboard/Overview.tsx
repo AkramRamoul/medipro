@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from "recharts";
 import { monthlyPatients } from "../type";
 
@@ -13,16 +13,29 @@ async function getData(): Promise<monthlyPatients[]> {
 }
 
 export function Overview() {
-  const [data, setData] = useState<monthlyPatients[]>();
+  const [data, setData] = useState<monthlyPatients[]>([]);
+
+  const fetchData = useCallback(async () => {
+    const monthlyPatients = await getData();
+    setData(monthlyPatients);
+  }, []);
 
   useEffect(() => {
-    const fetchData = async () => {
-      const monthlyPatients = await getData();
-      setData(monthlyPatients);
+    fetchData();
+  }, [fetchData]);
+
+  useEffect(() => {
+    const handleUpdated = () => {
+      fetchData();
     };
 
-    fetchData();
-  }, []);
+    window.addEventListener("patients-updated", handleUpdated);
+    window.addEventListener("consultations-updated", handleUpdated);
+    return () => {
+      window.removeEventListener("patients-updated", handleUpdated);
+      window.removeEventListener("consultations-updated", handleUpdated);
+    };
+  }, [fetchData]);
   console.log(data);
   return (
     <div className="w-[90vh]">

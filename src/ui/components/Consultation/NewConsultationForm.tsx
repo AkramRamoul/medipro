@@ -47,8 +47,12 @@ function NewConsultationForm({
   const [weight, setWeight] = useState("");
   const [temperature, setTemperature] = useState("");
   const [amountPaid, setAmountPaid] = useState("");
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [customFieldConfigs, setCustomFieldConfigs] = useState<any[]>([]);
-  const [customFieldValues, setCustomFieldValues] = useState<Record<string, any>>({});
+  const [customFieldValues, setCustomFieldValues] = useState<
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    Record<string, any>
+  >({});
 
   useEffect(() => {
     if (!id) return;
@@ -94,6 +98,12 @@ function NewConsultationForm({
 
     try {
       await window.electronAPI.addConsultation(consultationData);
+      window.dispatchEvent(
+        new CustomEvent("patient-vitals-updated", {
+          detail: { patientId: Number(id) },
+        }),
+      );
+      window.dispatchEvent(new Event("consultations-updated"));
       toast.success("Consultation enregistrée avec succès !");
       refreshConsultations();
       onClose();
@@ -301,7 +311,6 @@ function NewConsultationForm({
                 className="bg-background"
               />
             </div>
-
           </div>
         </div>
 

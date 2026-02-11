@@ -60,50 +60,85 @@ app.on("ready", () => {
           {
             name: "Arrêt de travail",
             type: "work_stop",
-            content: "<h2>Arrêt de Travail</h2><p>Je soussigné, Dr. [Nom du Médecin], certifie avoir examiné M./Mme <strong>[Nom du Patient]</strong> et que son état de santé nécessite un arrêt de travail de <strong>[Nombre]</strong> jours à compter du <strong>[Date]</strong>.</p><p>Sauf complication, la reprise du travail pourra avoir lieu le [Date de reprise].</p>",
+            content:
+              "<h2>Arrêt de Travail</h2><p>Je soussigné, Dr. [Nom du Médecin], certifie avoir examiné M./Mme <strong>[Nom du Patient]</strong> et que son état de santé nécessite un arrêt de travail de <strong>[Nombre]</strong> jours à compter du <strong>[Date]</strong>.</p><p>Sauf complication, la reprise du travail pourra avoir lieu le [Date de reprise].</p>",
             isDefault: true,
           },
           {
             name: "Certificat Médical d'Aptitude",
             type: "medical_certificate",
-            content: "<h2>Certificat Médical d'Aptitude</h2><p>Je soussigné, Dr. [Nom du Médecin], certifie que l'état de santé de M./Mme <strong>[Nom du Patient]</strong>, après examen clinique ce jour, ne présente aucune contre-indication apparente à la pratique de <strong>[Activité Sportive/Professionnelle]</strong>.</p><p>Certificat délivré à la demande de l'intéressé(e) pour servir et valoir ce que de droit.</p>",
+            content:
+              "<h2>Certificat Médical d'Aptitude</h2><p>Je soussigné, Dr. [Nom du Médecin], certifie que l'état de santé de M./Mme <strong>[Nom du Patient]</strong>, après examen clinique ce jour, ne présente aucune contre-indication apparente à la pratique de <strong>[Activité Sportive/Professionnelle]</strong>.</p><p>Certificat délivré à la demande de l'intéressé(e) pour servir et valoir ce que de droit.</p>",
             isDefault: true,
           },
           {
             name: "Certificat de maladie chronique",
             type: "chronic_disease",
-            content: "<h2>Certificat de Maladie Chronique</h2><p>Le patient M./Mme <strong>[Nom du Patient]</strong> est suivi régulièrement par notre cabinet pour une pathologie chronique nécessitant un traitement continu et une surveillance médicale régulière.</p><p>Ce certificat est établi pour permettre le suivi de son dossier médical.</p>",
+            content:
+              "<h2>Certificat de Maladie Chronique</h2><p>Le patient M./Mme <strong>[Nom du Patient]</strong> est suivi régulièrement par notre cabinet pour une pathologie chronique nécessitant un traitement continu et une surveillance médicale régulière.</p><p>Ce certificat est établi pour permettre le suivi de son dossier médical.</p>",
             isDefault: true,
           },
           {
             name: "Lettre d'Orientation",
             type: "custom",
-            content: "<h2>Lettre d'Orientation</h2><p>Cher confrère,</p><p>Je vous adresse M./Mme <strong>[Nom du Patient]</strong> pour une prise en charge spécialisée concernant <strong>[Motif de la consultation]</strong>.</p><p>Voici les éléments cliniques notables :</p><ul><li>[Élément 1]</li><li>[Élément 2]</li></ul><p>Je vous remercie par avance de votre avis et de la conduite à tenir que vous jugerez nécessaire.</p><p>Confraternellement,</p>",
+            content:
+              "<h2>Lettre d'Orientation</h2><p>Cher confrère,</p><p>Je vous adresse M./Mme <strong>[Nom du Patient]</strong> pour une prise en charge spécialisée concernant <strong>[Motif de la consultation]</strong>.</p><p>Voici les éléments cliniques notables :</p><ul><li>[Élément 1]</li><li>[Élément 2]</li></ul><p>Je vous remercie par avance de votre avis et de la conduite à tenir que vous jugerez nécessaire.</p><p>Confraternellement,</p>",
             isDefault: true,
           },
           {
             name: "Note d'honoraires",
             type: "custom",
-            content: "<h2>Note d'honoraires</h2><p>Reçu de M./Mme <strong>[Nom du Patient]</strong> la somme de : <strong>[Montant] DA</strong></p><p>Pour : Consultation médicale / Acte médical</p><p>Fait à [Ville], le [Date]</p>",
+            content:
+              "<h2>Note d'honoraires</h2><p>Reçu de M./Mme <strong>[Nom du Patient]</strong> la somme de : <strong>[Montant] DA</strong></p><p>Pour : Consultation médicale / Acte médical</p><p>Fait à [Ville], le [Date]</p>",
             isDefault: true,
-          }
+          },
         ];
-        // @ts-ignore
+        // @ts-expect-error-type
         await db.insert(documentTemplates).values(defaults);
       }
 
-      const existingPrescTemplates = await db.select().from(prescriptionTemplates).limit(1);
+      const existingPrescTemplates = await db
+        .select()
+        .from(prescriptionTemplates)
+        .limit(1);
       if (existingPrescTemplates.length === 0) {
         // Preload some standard prescription templates
-        const [grippe] = await db.insert(prescriptionTemplates).values({ name: "État Grippal" }).returning({ id: prescriptionTemplates.id });
+        const [grippe] = await db
+          .insert(prescriptionTemplates)
+          .values({ name: "État Grippal" })
+          .returning({ id: prescriptionTemplates.id });
         await db.insert(prescriptionTemplateMedications).values([
-          { templateId: grippe.id, medicineName: "PARACETAMOL 1G", dosage: "1 cp 3 fois/jour", duration: "5 jours", quantity: "1 bte", form: "Comprimé" },
-          { templateId: grippe.id, medicineName: "VITAMINE C 1000MG", dosage: "1 cp le matin", duration: "10 jours", quantity: "1 bte", form: "Comprimé effervescent" }
+          {
+            templateId: grippe.id,
+            medicineName: "PARACETAMOL 1G",
+            dosage: "1 cp 3 fois/jour",
+            duration: "5 jours",
+            quantity: "1 bte",
+            form: "Comprimé",
+          },
+          {
+            templateId: grippe.id,
+            medicineName: "VITAMINE C 1000MG",
+            dosage: "1 cp le matin",
+            duration: "10 jours",
+            quantity: "1 bte",
+            form: "Comprimé effervescent",
+          },
         ]);
 
-        const [hypertension] = await db.insert(prescriptionTemplates).values({ name: "Hypertension (Initial)" }).returning({ id: prescriptionTemplates.id });
+        const [hypertension] = await db
+          .insert(prescriptionTemplates)
+          .values({ name: "Hypertension (Initial)" })
+          .returning({ id: prescriptionTemplates.id });
         await db.insert(prescriptionTemplateMedications).values([
-          { templateId: hypertension.id, medicineName: "AMLODIPINE 5MG", dosage: "1 cp le soir", duration: "3 mois", quantity: "3 btes", form: "Comprimé" }
+          {
+            templateId: hypertension.id,
+            medicineName: "AMLODIPINE 5MG",
+            dosage: "1 cp le soir",
+            duration: "3 mois",
+            quantity: "3 btes",
+            form: "Comprimé",
+          },
         ]);
       }
     } catch (err) {
@@ -178,34 +213,36 @@ app.on("ready", () => {
         await win.loadURL(dataUrl);
 
         return new Promise((resolve) => {
-          win.webContents.print({
-            silent: false,
-            printBackground: true,
-            deviceName: "", // default printer
-            margins: {
-              marginType: "custom",
-              top: 5,
-              bottom: 5,
-              left: 5,
-              right: 5
+          win.webContents.print(
+            {
+              silent: false,
+              printBackground: true,
+              deviceName: "", // default printer
+              margins: {
+                marginType: "custom",
+                top: 5,
+                bottom: 5,
+                left: 5,
+                right: 5,
+              },
+              pageSize: "A5",
             },
-            pageSize: "A5",
-          }, (success, errorType) => {
-            if (!success) {
-              console.error("Print failed:", errorType);
-              resolve({ success: false, error: errorType });
-            } else {
-              resolve({ success: true });
-            }
-            win.close();
-          });
+            (success, errorType) => {
+              if (!success) {
+                console.error("Print failed:", errorType);
+                resolve({ success: false, error: errorType });
+              } else {
+                resolve({ success: true });
+              }
+              win.close();
+            },
+          );
         });
-
       } catch (error) {
         console.error("Failed to print HTML:", error);
         return { success: false, error: (error as Error).message };
       }
-    }
+    },
   );
 
   ipcMain.handle("save-pdf", async (_, { buffer, filename }) => {
@@ -370,6 +407,7 @@ app.on("ready", () => {
   ipcMain.handle("delete-consultaion", async (_, id) => {
     try {
       await db.delete(consultations).where(eq(consultations.id, id));
+      invalidateMonthlyPatientsCache();
     } catch (error) {
       win.webContents.executeJavaScript(
         "console.error('Failed to delete consultation:', error);",
@@ -477,6 +515,7 @@ app.on("ready", () => {
       customFields: data.customFields || {},
       date: new Date().toISOString(),
     });
+    invalidateMonthlyPatientsCache();
   });
 
   ipcMain.handle("get-consultation", async (_, id) => {
@@ -654,8 +693,12 @@ app.on("ready", () => {
             if (doc.content?.diagnosis) {
               details = `Diagnostic: ${doc.content.diagnosis}`;
               if (doc.content.restStartDate && doc.content.restEndDate) {
-                const startDate = new Date(doc.content.restStartDate).toLocaleDateString("fr-FR");
-                const endDate = new Date(doc.content.restEndDate).toLocaleDateString("fr-FR");
+                const startDate = new Date(
+                  doc.content.restStartDate,
+                ).toLocaleDateString("fr-FR");
+                const endDate = new Date(
+                  doc.content.restEndDate,
+                ).toLocaleDateString("fr-FR");
                 details += `\nRepos: ${startDate} - ${endDate}`;
               }
             }
@@ -693,6 +736,7 @@ app.on("ready", () => {
       rest.amountPaid = Math.round(Number(rest.amountPaid));
     }
     await db.update(consultations).set(rest).where(eq(consultations.id, id));
+    invalidateMonthlyPatientsCache();
   });
   ipcMain.handle(
     "addFullPrescription",
@@ -983,7 +1027,9 @@ app.on("ready", () => {
         );
 
       const [totalPatients] = await db
-        .select({ count: sql<number>`count(DISTINCT ${consultations.patientId})` })
+        .select({
+          count: sql<number>`count(DISTINCT ${consultations.patientId})`,
+        })
         .from(consultations)
         .where(sql`${consultations.date} >= date('now', '-12 months')`);
 
@@ -1037,9 +1083,12 @@ app.on("ready", () => {
           GROUP BY ${consultations.diagnosis}
           ORDER BY count DESC
           LIMIT 5
-        `
+        `,
       );
-      const commonDiagnoses = (commonDiagnosesRaw as { diagnosis: string; count: number }[]);
+      const commonDiagnoses = commonDiagnosesRaw as {
+        diagnosis: string;
+        count: number;
+      }[];
 
       // Busiest days of week
       const busiestDaysRaw = await db.all(
@@ -1059,12 +1108,12 @@ app.on("ready", () => {
           WHERE ${consultations.date} >= date('now', '-3 months')
           GROUP BY strftime('%w', ${consultations.date})
           ORDER BY CAST(strftime('%w', ${consultations.date}) AS INTEGER)
-        `
+        `,
       );
-      const busiestDays = (busiestDaysRaw as { day: string; count: number }[]);
+      const busiestDays = busiestDaysRaw as { day: string; count: number }[];
 
       // Patient retention rate (patients with multiple visits in last 6 months)
-      const [retentionStats] = await db.all(
+      const [retentionStats] = (await db.all(
         sql`
           SELECT 
             COUNT(DISTINCT patient_id) as totalUniquePatients,
@@ -1077,12 +1126,15 @@ app.on("ready", () => {
             WHERE ${consultations.date} >= date('now', '-6 months')
             GROUP BY patient_id
           )
-        `
-      ) as { totalUniquePatients: number; totalReturnPatients: number }[];
+        `,
+      )) as { totalUniquePatients: number; totalReturnPatients: number }[];
 
-      const retentionRate = retentionStats.totalUniquePatients > 0
-        ? (retentionStats.totalReturnPatients / retentionStats.totalUniquePatients) * 100
-        : 0;
+      const retentionRate =
+        retentionStats.totalUniquePatients > 0
+          ? (retentionStats.totalReturnPatients /
+              retentionStats.totalUniquePatients) *
+            100
+          : 0;
 
       return {
         consultationsThisMonth: consultationsThisMonth.count,
@@ -1129,6 +1181,10 @@ app.on("ready", () => {
 
   let cache: { data: any; timestamp: number } | null = null;
   const CACHE_DURATION = 5 * 60 * 1000;
+
+  const invalidateMonthlyPatientsCache = () => {
+    cache = null;
+  };
 
   async function getMonthlyPatients() {
     const now = Date.now();
@@ -1242,7 +1298,10 @@ app.on("ready", () => {
       return false;
     }
 
-    const isUserPasswordCorrect = await bcrypt.compare(inputPassword, storedHash);
+    const isUserPasswordCorrect = await bcrypt.compare(
+      inputPassword,
+      storedHash,
+    );
 
     return Boolean(isUserPasswordCorrect);
   });
@@ -1415,13 +1474,13 @@ app.on("ready", () => {
       const id = machineIdSync(original); // original = true gives full hardware ID
       return id;
     } catch (err) {
+      console.error("Failed to get machine ID:", err);
       return "UNKNOWN";
     }
   }
   ipcMain.handle("get-machine-id", async () => {
     return getMachineId();
   });
-
 
   ipcMain.handle("validate-license", async (_, key, payload) => {
     const isValid = validateLicenseKey(key, payload);
@@ -1448,7 +1507,7 @@ app.on("ready", () => {
     return {
       isLicensed,
       passwordExists,
-      machineId: getMachineId()
+      machineId: getMachineId(),
     };
   });
   ipcMain.handle("reset-license", async () => {
@@ -1457,7 +1516,10 @@ app.on("ready", () => {
 
   ipcMain.handle("get-custom-fields", async () => {
     try {
-      return await db.select().from(customFields).where(eq(customFields.isActive, true));
+      return await db
+        .select()
+        .from(customFields)
+        .where(eq(customFields.isActive, true));
     } catch (error) {
       console.error("Failed to fetch custom fields:", error);
       return [];
@@ -1476,7 +1538,10 @@ app.on("ready", () => {
 
   ipcMain.handle("delete-custom-field", async (_, id) => {
     try {
-      await db.update(customFields).set({ isActive: false }).where(eq(customFields.id, id));
+      await db
+        .update(customFields)
+        .set({ isActive: false })
+        .where(eq(customFields.id, id));
       return { success: true };
     } catch (error) {
       console.error("Failed to delete custom field:", error);
@@ -1535,30 +1600,35 @@ app.on("ready", () => {
     }
   });
 
-  ipcMain.handle("add-prescription-template", async (_, { name, medications }) => {
-    try {
-      const [newTemplate] = await db
-        .insert(prescriptionTemplates)
-        .values({ name })
-        .returning({ id: prescriptionTemplates.id });
+  ipcMain.handle(
+    "add-prescription-template",
+    async (_, { name, medications }) => {
+      try {
+        const [newTemplate] = await db
+          .insert(prescriptionTemplates)
+          .values({ name })
+          .returning({ id: prescriptionTemplates.id });
 
-      if (medications && medications.length > 0) {
-        const medsToInsert = medications.map((med: any) => ({
-          ...med,
-          templateId: newTemplate.id,
-        }));
-        await db.insert(prescriptionTemplateMedications).values(medsToInsert);
+        if (medications && medications.length > 0) {
+          const medsToInsert = medications.map((med: any) => ({
+            ...med,
+            templateId: newTemplate.id,
+          }));
+          await db.insert(prescriptionTemplateMedications).values(medsToInsert);
+        }
+        return { success: true };
+      } catch (error) {
+        console.error("Failed to add prescription template:", error);
+        return { success: false, error: (error as Error).message };
       }
-      return { success: true };
-    } catch (error) {
-      console.error("Failed to add prescription template:", error);
-      return { success: false, error: (error as Error).message };
-    }
-  });
+    },
+  );
 
   ipcMain.handle("delete-prescription-template", async (_, id) => {
     try {
-      await db.delete(prescriptionTemplates).where(eq(prescriptionTemplates.id, id));
+      await db
+        .delete(prescriptionTemplates)
+        .where(eq(prescriptionTemplates.id, id));
       return { success: true };
     } catch (error) {
       console.error("Failed to delete prescription template:", error);
@@ -1568,7 +1638,10 @@ app.on("ready", () => {
 
   ipcMain.handle("get-document-templates", async () => {
     try {
-      return await db.select().from(documentTemplates).orderBy(desc(documentTemplates.isDefault));
+      return await db
+        .select()
+        .from(documentTemplates)
+        .orderBy(desc(documentTemplates.isDefault));
     } catch (error) {
       console.error("Failed to fetch document templates:", error);
       return [];
@@ -1581,7 +1654,7 @@ app.on("ready", () => {
         ...data,
         isDefault: false,
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
       });
       return { success: true };
     } catch (error) {
@@ -1592,7 +1665,8 @@ app.on("ready", () => {
 
   ipcMain.handle("update-document-template", async (_, { id, ...data }) => {
     try {
-      await db.update(documentTemplates)
+      await db
+        .update(documentTemplates)
         .set({ ...data, updatedAt: new Date().toISOString() })
         .where(eq(documentTemplates.id, id));
       return { success: true };
@@ -1605,7 +1679,10 @@ app.on("ready", () => {
   ipcMain.handle("delete-document-template", async (_, id) => {
     try {
       // Don't delete defaults
-      const [template] = await db.select().from(documentTemplates).where(eq(documentTemplates.id, id));
+      const [template] = await db
+        .select()
+        .from(documentTemplates)
+        .where(eq(documentTemplates.id, id));
       if (template?.isDefault) {
         return { success: false, error: "Cannot delete default templates" };
       }
@@ -1648,10 +1725,7 @@ app.on("ready", () => {
         .select()
         .from(icd10)
         .where(
-          or(
-            like(icd10.code, `%${query}%`),
-            like(icd10.label, `%${query}%`)
-          )
+          or(like(icd10.code, `%${query}%`), like(icd10.label, `%${query}%`)),
         )
         .limit(100);
       return results;
@@ -1661,19 +1735,28 @@ app.on("ready", () => {
     }
   });
 
-  ipcMain.handle("import-icd10", async (_, data: { code: string; label: string; category?: string }[]) => {
-    try {
-      // Bulk insert
-      await db.insert(icd10).values(data).onConflictDoUpdate({
-        target: icd10.code,
-        set: { label: sql`excluded.label`, category: sql`excluded.category` },
-      });
-      return { success: true };
-    } catch (error) {
-      console.error("Failed to import ICD-10:", error);
-      return { success: false, error: (error as Error).message };
-    }
-  });
+  ipcMain.handle(
+    "import-icd10",
+    async (_, data: { code: string; label: string; category?: string }[]) => {
+      try {
+        // Bulk insert
+        await db
+          .insert(icd10)
+          .values(data)
+          .onConflictDoUpdate({
+            target: icd10.code,
+            set: {
+              label: sql`excluded.label`,
+              category: sql`excluded.category`,
+            },
+          });
+        return { success: true };
+      } catch (error) {
+        console.error("Failed to import ICD-10:", error);
+        return { success: false, error: (error as Error).message };
+      }
+    },
+  );
 
   ipcMain.handle("global-search", async (_, query: string) => {
     if (!query || query.length < 2) return [];
@@ -1690,8 +1773,8 @@ app.on("ready", () => {
           or(
             like(patients.first_name, `%${query}%`),
             like(patients.last_name, `%${query}%`),
-            like(patients.contact, `%${query}%`)
-          )
+            like(patients.contact, `%${query}%`),
+          ),
         )
         .limit(5);
 
@@ -1710,19 +1793,19 @@ app.on("ready", () => {
         .where(
           or(
             like(consultations.reason, `%${query}%`),
-            like(consultations.diagnosis, `%${query}%`)
-          )
+            like(consultations.diagnosis, `%${query}%`),
+          ),
         )
         .limit(5);
 
       const results = [
-        ...patientResults.map(p => ({
+        ...patientResults.map((p) => ({
           type: "patient",
           id: p.id,
           title: `${p.firstName} ${p.lastName}`,
           subtitle: "Patient",
         })),
-        ...consultationResults.map(c => ({
+        ...consultationResults.map((c) => ({
           type: "consultation",
           id: c.id,
           patientId: c.patientId,

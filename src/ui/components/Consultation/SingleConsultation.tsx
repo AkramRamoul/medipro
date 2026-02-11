@@ -109,6 +109,12 @@ export default function SingleConsultation({
 
       try {
         await window.electronAPI.editConsultation(updatedConsultation);
+        window.dispatchEvent(
+          new CustomEvent("patient-vitals-updated", {
+            detail: { patientId: Number(consultation.patientId) },
+          }),
+        );
+        window.dispatchEvent(new Event("consultations-updated"));
         toast.success("Consultation mise à jour avec succès !");
         onClose();
       } catch (error) {

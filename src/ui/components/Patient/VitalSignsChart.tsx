@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine, Area, AreaChart } from "recharts";
-import { Activity, TrendingUp, Weight } from "lucide-react";
+import { Activity } from "lucide-react";
 import { VitalSignsData } from "../../type";
+import { VITALS_CONFIG } from "../../lib/vitals-config";
 
 interface VitalSignsChartProps {
     patientId: string;
@@ -12,23 +13,38 @@ export function VitalSignsChart({ patientId }: VitalSignsChartProps) {
     const [vitalsData, setVitalsData] = useState<VitalSignsData[]>([]);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        const fetchVitals = async () => {
-            try {
-                setLoading(true);
-                const data = await window.electronAPI.getPatientVitals(Number(patientId));
-                setVitalsData(data);
-            } catch (error) {
-                console.error("Failed to fetch vital signs:", error);
-            } finally {
-                setLoading(false);
-            }
-        };
+    const fetchVitals = useCallback(async () => {
+        try {
+            setLoading(true);
+            const data = await window.electronAPI.getPatientVitals(Number(patientId));
+            setVitalsData(data);
+        } catch (error) {
+            console.error("Failed to fetch vital signs:", error);
+        } finally {
+            setLoading(false);
+        }
+    }, [patientId]);
 
+    useEffect(() => {
         if (patientId) {
             fetchVitals();
         }
-    }, [patientId]);
+    }, [fetchVitals, patientId]);
+
+    useEffect(() => {
+        const handleVitalsUpdated = (event: Event) => {
+            const detail = (event as CustomEvent<{ patientId?: number }>).detail;
+            if (!detail?.patientId || detail.patientId !== Number(patientId)) {
+                return;
+            }
+            fetchVitals();
+        };
+
+        window.addEventListener("patient-vitals-updated", handleVitalsUpdated);
+        return () => {
+            window.removeEventListener("patient-vitals-updated", handleVitalsUpdated);
+        };
+    }, [fetchVitals, patientId]);
 
     // Parse blood pressure data
     const bpData = vitalsData
@@ -174,110 +190,116 @@ export function VitalSignsChart({ patientId }: VitalSignsChartProps) {
             )}
 
             {/* Weight Chart */}
-            {weightData.length > 0 && (
-                <Card className="shadow-lg rounded-2xl bg-gradient-to-br from-card to-card/50 border-none ring-1 ring-border/50 overflow-hidden">
-                    <CardHeader className="pb-4">
-                        <div className="flex items-center gap-3">
-                            <div className="bg-gradient-to-br from-blue-500 to-cyan-600 p-3 rounded-xl shadow-md">
-                                <Weight className="h-5 w-5 text-white" />
+            {weightData.length > 0 && (() => {
+                const WeightIcon = VITALS_CONFIG.weight.icon;
+                return (
+                    <Card className="shadow-lg rounded-2xl bg-gradient-to-br from-card to-card/50 border-none ring-1 ring-border/50 overflow-hidden">
+                        <CardHeader className="pb-4">
+                            <div className="flex items-center gap-3">
+                                <div className="bg-gradient-to-br from-blue-500 to-cyan-600 p-3 rounded-xl shadow-md">
+                                    <WeightIcon className="h-5 w-5 text-white" />
+                                </div>
+                                <div>
+                                    <CardTitle className="text-xl text-foreground">{VITALS_CONFIG.weight.label}</CardTitle>
+                                    <CardDescription className="text-sm">Évolution du poids corporel</CardDescription>
+                                </div>
                             </div>
-                            <div>
-                                <CardTitle className="text-xl text-foreground">Poids</CardTitle>
-                                <CardDescription className="text-sm">Évolution du poids corporel</CardDescription>
-                            </div>
-                        </div>
-                    </CardHeader>
-                    <CardContent className="pt-0">
-                        <ResponsiveContainer width="100%" height={320}>
-                            <AreaChart data={weightData} margin={{ top: 10, right: 30, left: 10, bottom: 10 }}>
-                                <defs>
-                                    <linearGradient id="colorWeight" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.4} />
-                                        <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.05} />
-                                    </linearGradient>
-                                </defs>
-                                <CartesianGrid strokeDasharray="3 3" className="stroke-muted/30" />
-                                <XAxis
-                                    dataKey="date"
-                                    tick={{ fontSize: 12, fill: 'hsl(var(--muted-foreground))' }}
-                                    axisLine={{ stroke: 'hsl(var(--border))' }}
-                                />
-                                <YAxis
-                                    tick={{ fontSize: 12, fill: 'hsl(var(--muted-foreground))' }}
-                                    axisLine={{ stroke: 'hsl(var(--border))' }}
-                                    domain={['dataMin - 5', 'dataMax + 5']}
-                                />
-                                <Tooltip content={<CustomTooltip />} />
-                                <Legend wrapperStyle={{ paddingTop: '20px' }} />
-                                <Area
-                                    type="monotone"
-                                    dataKey="weight"
-                                    stroke="#3b82f6"
-                                    strokeWidth={3}
-                                    fill="url(#colorWeight)"
-                                    name="Poids (kg)"
-                                    dot={{ fill: '#3b82f6', r: 5, strokeWidth: 2, stroke: '#fff' }}
-                                    activeDot={{ r: 7, strokeWidth: 2 }}
-                                />
-                            </AreaChart>
-                        </ResponsiveContainer>
-                    </CardContent>
-                </Card>
-            )}
+                        </CardHeader>
+                        <CardContent className="pt-0">
+                            <ResponsiveContainer width="100%" height={320}>
+                                <AreaChart data={weightData} margin={{ top: 10, right: 30, left: 10, bottom: 10 }}>
+                                    <defs>
+                                        <linearGradient id="colorWeight" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.4} />
+                                            <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.05} />
+                                        </linearGradient>
+                                    </defs>
+                                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted/30" />
+                                    <XAxis
+                                        dataKey="date"
+                                        tick={{ fontSize: 12, fill: 'hsl(var(--muted-foreground))' }}
+                                        axisLine={{ stroke: 'hsl(var(--border))' }}
+                                    />
+                                    <YAxis
+                                        tick={{ fontSize: 12, fill: 'hsl(var(--muted-foreground))' }}
+                                        axisLine={{ stroke: 'hsl(var(--border))' }}
+                                        domain={['dataMin - 5', 'dataMax + 5']}
+                                    />
+                                    <Tooltip content={<CustomTooltip />} />
+                                    <Legend wrapperStyle={{ paddingTop: '20px' }} />
+                                    <Area
+                                        type="monotone"
+                                        dataKey="weight"
+                                        stroke="#3b82f6"
+                                        strokeWidth={3}
+                                        fill="url(#colorWeight)"
+                                        name="Poids (kg)"
+                                        dot={{ fill: '#3b82f6', r: 5, strokeWidth: 2, stroke: '#fff' }}
+                                        activeDot={{ r: 7, strokeWidth: 2 }}
+                                    />
+                                </AreaChart>
+                            </ResponsiveContainer>
+                        </CardContent>
+                    </Card>
+                );
+            })()}
 
             {/* Glucose Chart */}
-            {glucoseData.length > 0 && (
-                <Card className="shadow-lg rounded-2xl bg-gradient-to-br from-card to-card/50 border-none ring-1 ring-border/50 overflow-hidden">
-                    <CardHeader className="pb-4">
-                        <div className="flex items-center gap-3">
-                            <div className="bg-gradient-to-br from-purple-500 to-violet-600 p-3 rounded-xl shadow-md">
-                                <TrendingUp className="h-5 w-5 text-white" />
+            {glucoseData.length > 0 && (() => {
+                const GlucoseIcon = VITALS_CONFIG.glucose.icon;
+                return (
+                    <Card className="shadow-lg rounded-2xl bg-gradient-to-br from-card to-card/50 border-none ring-1 ring-border/50 overflow-hidden">
+                        <CardHeader className="pb-4">
+                            <div className="flex items-center gap-3">
+                                <div className="bg-gradient-to-br from-purple-500 to-violet-600 p-3 rounded-xl shadow-md">
+                                    <GlucoseIcon className="h-5 w-5 text-white" />
+                                </div>
+                                <div>
+                                    <CardTitle className="text-xl text-foreground">{VITALS_CONFIG.glucose.label}</CardTitle>
+                                    <CardDescription className="text-sm">Évolution du taux de glucose sanguin</CardDescription>
+                                </div>
                             </div>
-                            <div>
-                                <CardTitle className="text-xl text-foreground">Glycémie</CardTitle>
-                                <CardDescription className="text-sm">Évolution du taux de glucose sanguin</CardDescription>
-                            </div>
-                        </div>
-                    </CardHeader>
-                    <CardContent className="pt-0">
-                        <ResponsiveContainer width="100%" height={320}>
-                            <LineChart data={glucoseData} margin={{ top: 10, right: 30, left: 10, bottom: 10 }}>
-                                <defs>
-                                    <linearGradient id="colorGlucose" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3} />
-                                        <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
-                                    </linearGradient>
-                                </defs>
-                                <CartesianGrid strokeDasharray="3 3" className="stroke-muted/30" />
-                                <XAxis
-                                    dataKey="date"
-                                    tick={{ fontSize: 12, fill: 'hsl(var(--muted-foreground))' }}
-                                    axisLine={{ stroke: 'hsl(var(--border))' }}
-                                />
-                                <YAxis
-                                    tick={{ fontSize: 12, fill: 'hsl(var(--muted-foreground))' }}
-                                    axisLine={{ stroke: 'hsl(var(--border))' }}
-                                    domain={[50, 200]}
-                                />
-                                <Tooltip content={<CustomTooltip />} />
-                                <Legend wrapperStyle={{ paddingTop: '20px' }} />
-                                <ReferenceLine y={100} stroke="#10b981" strokeDasharray="5 5" strokeOpacity={0.6} label={{ value: "Normal", fill: '#10b981', fontSize: 11 }} />
-                                <ReferenceLine y={126} stroke="#ef4444" strokeDasharray="5 5" strokeOpacity={0.6} label={{ value: "Diabète", fill: '#ef4444', fontSize: 11 }} />
-                                <Area type="monotone" dataKey="glucose" stroke="none" fill="url(#colorGlucose)" />
-                                <Line
-                                    type="monotone"
-                                    dataKey="glucose"
-                                    stroke="#8b5cf6"
-                                    strokeWidth={3}
-                                    name="Glucose (mg/dL)"
-                                    dot={{ fill: '#8b5cf6', r: 5, strokeWidth: 2, stroke: '#fff' }}
-                                    activeDot={{ r: 7, strokeWidth: 2 }}
-                                />
-                            </LineChart>
-                        </ResponsiveContainer>
-                    </CardContent>
-                </Card>
-            )}
+                        </CardHeader>
+                        <CardContent className="pt-0">
+                            <ResponsiveContainer width="100%" height={320}>
+                                <LineChart data={glucoseData} margin={{ top: 10, right: 30, left: 10, bottom: 10 }}>
+                                    <defs>
+                                        <linearGradient id="colorGlucose" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3} />
+                                            <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
+                                        </linearGradient>
+                                    </defs>
+                                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted/30" />
+                                    <XAxis
+                                        dataKey="date"
+                                        tick={{ fontSize: 12, fill: 'hsl(var(--muted-foreground))' }}
+                                        axisLine={{ stroke: 'hsl(var(--border))' }}
+                                    />
+                                    <YAxis
+                                        tick={{ fontSize: 12, fill: 'hsl(var(--muted-foreground))' }}
+                                        axisLine={{ stroke: 'hsl(var(--border))' }}
+                                        domain={[50, 200]}
+                                    />
+                                    <Tooltip content={<CustomTooltip />} />
+                                    <Legend wrapperStyle={{ paddingTop: '20px' }} />
+                                    <ReferenceLine y={100} stroke="#10b981" strokeDasharray="5 5" strokeOpacity={0.6} label={{ value: "Normal", fill: '#10b981', fontSize: 11 }} />
+                                    <ReferenceLine y={126} stroke="#ef4444" strokeDasharray="5 5" strokeOpacity={0.6} label={{ value: "Diabète", fill: '#ef4444', fontSize: 11 }} />
+                                    <Area type="monotone" dataKey="glucose" stroke="none" fill="url(#colorGlucose)" />
+                                    <Line
+                                        type="monotone"
+                                        dataKey="glucose"
+                                        stroke="#8b5cf6"
+                                        strokeWidth={3}
+                                        name="Glucose (mg/dL)"
+                                        dot={{ fill: '#8b5cf6', r: 5, strokeWidth: 2, stroke: '#fff' }}
+                                        activeDot={{ r: 7, strokeWidth: 2 }}
+                                    />
+                                </LineChart>
+                            </ResponsiveContainer>
+                        </CardContent>
+                    </Card>
+                );
+            })()}
         </div>
     );
 }

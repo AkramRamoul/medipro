@@ -2,19 +2,11 @@ import { useCallback, useEffect, useState } from "react";
 import NewConsultationForm from "./NewConsultationForm";
 import { Button } from "../ui/button";
 import { Consultation } from "../../type";
-import DeleteDialogue from "../DeleteDialogue";
 import SingleConsultation from "./SingleConsultation";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "../ui/table";
+import { ConsultationCard } from "./ConsultationCard";
 import Pagination from "../Pagination";
 import { Card, CardHeader, CardTitle } from "../ui/card";
-import { Stethoscope, Plus, Calendar, FileText, Activity } from "lucide-react";
+import { Stethoscope, Plus } from "lucide-react";
 import ModalV2 from "../Modalsecond";
 
 function ConsultationForm({ id }: { id: string }) {
@@ -82,9 +74,9 @@ function ConsultationForm({ id }: { id: string }) {
         />
       </ModalV2>
 
-      <div className="border rounded-xl shadow-sm bg-card overflow-hidden">
+      <div className="rounded-xl">
         {consultations.length === 0 ? (
-          <div className="flex flex-col items-center justify-center p-12 text-center text-muted-foreground bg-muted/10">
+          <div className="flex flex-col items-center justify-center p-12 text-center text-muted-foreground bg-muted/10 rounded-xl border border-dashed">
             <Stethoscope className="w-12 h-12 opacity-20 mb-3" />
             <p className="font-medium">Aucune consultation pour le moment</p>
             <p className="text-sm opacity-70 mt-1">
@@ -92,85 +84,29 @@ function ConsultationForm({ id }: { id: string }) {
             </p>
           </div>
         ) : (
-          <div>
-            <Table>
-              <TableHeader className="bg-muted/50">
-                <TableRow>
-                  <TableHead className="w-[150px]">
-                    <div className="flex items-center gap-2">
-                      <Calendar className="w-3 h-3" /> Date
-                    </div>
-                  </TableHead>
-                  <TableHead className="w-[250px]">
-                    <div className="flex items-center gap-2">
-                      <FileText className="w-3 h-3" /> Motif de consultation
-                    </div>
-                  </TableHead>
-                  <TableHead>
-                    <div className="flex items-center gap-2">
-                      <Activity className="w-3 h-3" /> Diagnostic
-                    </div>
-                  </TableHead>
-                  <TableHead className="w-[80px] text-center">
-                    Actions
-                  </TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {consultations
-                  .slice(
-                    (currentPage - 1) * itemsPerPage,
-                    currentPage * itemsPerPage,
-                  )
-                  .map((cons) => (
-                    <TableRow
-                      key={cons.id}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setOpenConsultationId(cons.id.toString());
-                      }}
-                      className="hover:bg-muted/50 transition-colors cursor-pointer"
-                    >
-                      <TableCell className="font-medium">
-                        {new Date(cons.date).toLocaleDateString("fr-FR")}
-                      </TableCell>
-                      <TableCell>
-                        <div className="line-clamp-1">
-                          {cons.reason || (
-                            <span className="text-muted-foreground italic">
-                              Non spécifié
-                            </span>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="line-clamp-1">
-                          {cons.diagnosis ? (
-                            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
-                              {cons.diagnosis}
-                            </span>
-                          ) : (
-                            <span className="text-muted-foreground italic">
-                              Non spécifié
-                            </span>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell className="w-[80px]">
-                        <div
-                          className="flex justify-center items-center h-full"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <DeleteDialogue
-                            consultationId={cons.id.toString()}
-                            setData={setConsultations}
-                          />
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-              </TableBody>
-            </Table>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {consultations
+              .slice(
+                (currentPage - 1) * itemsPerPage,
+                currentPage * itemsPerPage,
+              )
+              .map((cons) => (
+                <ConsultationCard
+                  key={cons.id}
+                  consultation={cons}
+                  onClick={() => setOpenConsultationId(cons.id.toString())}
+                  onDelete={async () => {
+                    await window.electronAPI.deleteCosultaion(cons.id.toString());
+                    fetchConsultations();
+                    window.dispatchEvent(
+                      new CustomEvent("patient-vitals-updated", {
+                        detail: { patientId: Number(id) },
+                      }),
+                    );
+                    window.dispatchEvent(new Event("consultations-updated"));
+                  }}
+                />
+              ))}
           </div>
         )}
       </div>

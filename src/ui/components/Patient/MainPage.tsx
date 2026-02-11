@@ -9,6 +9,7 @@ import { Download, Loader2 } from "lucide-react";
 import { usePatientPdfExport } from "../../hooks/usePatientPdfExport";
 import { AppointmentTab } from "../Appointment/AppointmentTab";
 import { VitalSignsChart } from "./VitalSignsChart";
+import { VitalsTrendCard } from "./VitalsTrendCard";
 
 function MainPage() {
   const { id } = useParams<{ id: string }>();
@@ -34,6 +35,11 @@ function MainPage() {
           )}
           {isExporting ? "Export..." : "Exporter PDF"}
         </Button>
+      </div>
+
+      {/* Quick Vitals Overview */}
+      <div className="w-full max-w-5xl mb-4">
+        <VitalsTrendCard patientId={id!} />
       </div>
 
       <Tabs defaultValue="example" className="w-full max-w-5xl">
