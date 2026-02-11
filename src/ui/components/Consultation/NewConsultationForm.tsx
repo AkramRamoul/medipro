@@ -288,7 +288,7 @@ function NewConsultationForm({
 
             <div className="space-y-2">
               <Label className="text-xs font-medium text-muted-foreground uppercase flex items-center gap-1">
-                <Activity className="w-3 h-3" /> Glycémie (mg/dL)
+                <Activity className="w-3 h-3" /> Glycémie (g/l)
               </Label>
               <Input
                 type="number"

@@ -9,7 +9,6 @@ import {
   TableRow,
 } from "../components/ui/table";
 import { Input } from "../components/ui/input";
-import Modal from "../components/Modal";
 import SingleConsultation from "../components/Consultation/SingleConsultation";
 import Pagination from "../components/Pagination";
 import {
@@ -23,6 +22,7 @@ import {
 } from "lucide-react";
 import DeleteDialogue from "../components/DeleteDialogue";
 import { Card, CardHeader, CardTitle } from "../components/ui/card";
+import ModalV2 from "../components/Modalsecond";
 
 function Page() {
   const [data, setData] = useState<ConsultationWithPatient[]>([]);
@@ -225,7 +225,11 @@ function Page() {
 
       {/* Modal */}
       {selectedPrescriptionId && (
-        <Modal isOpen onClose={() => setSelectedPrescriptionId(null)}>
+        <ModalV2
+          isOpen
+          onClose={() => setSelectedPrescriptionId(null)}
+          panelClassName="sm:max-w-4xl"
+        >
           <SingleConsultation
             id={selectedPrescriptionId}
             onClose={() => {
@@ -233,7 +237,7 @@ function Page() {
               fetchConsultations();
             }}
           />
-        </Modal>
+        </ModalV2>
       )}
     </div>
   );

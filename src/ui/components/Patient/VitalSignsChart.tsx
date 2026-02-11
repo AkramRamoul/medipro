@@ -278,19 +278,19 @@ export function VitalSignsChart({ patientId }: VitalSignsChartProps) {
                                     <YAxis
                                         tick={{ fontSize: 12, fill: 'hsl(var(--muted-foreground))' }}
                                         axisLine={{ stroke: 'hsl(var(--border))' }}
-                                        domain={[50, 200]}
+                                        domain={[0.5, 2.0]}
                                     />
                                     <Tooltip content={<CustomTooltip />} />
                                     <Legend wrapperStyle={{ paddingTop: '20px' }} />
-                                    <ReferenceLine y={100} stroke="#10b981" strokeDasharray="5 5" strokeOpacity={0.6} label={{ value: "Normal", fill: '#10b981', fontSize: 11 }} />
-                                    <ReferenceLine y={126} stroke="#ef4444" strokeDasharray="5 5" strokeOpacity={0.6} label={{ value: "Diabète", fill: '#ef4444', fontSize: 11 }} />
+                                    <ReferenceLine y={1.0} stroke="#10b981" strokeDasharray="5 5" strokeOpacity={0.6} label={{ value: "Normal", fill: '#10b981', fontSize: 11 }} />
+                                    <ReferenceLine y={1.26} stroke="#ef4444" strokeDasharray="5 5" strokeOpacity={0.6} label={{ value: "Diabète", fill: '#ef4444', fontSize: 11 }} />
                                     <Area type="monotone" dataKey="glucose" stroke="none" fill="url(#colorGlucose)" />
                                     <Line
                                         type="monotone"
                                         dataKey="glucose"
                                         stroke="#8b5cf6"
                                         strokeWidth={3}
-                                        name="Glucose (mg/dL)"
+                                        name="Glucose (g/l)"
                                         dot={{ fill: '#8b5cf6', r: 5, strokeWidth: 2, stroke: '#fff' }}
                                         activeDot={{ r: 7, strokeWidth: 2 }}
                                     />

@@ -222,7 +222,7 @@ export default function SingleConsultation({
 
             <div className="space-y-2">
               <Label className="text-xs flex items-center gap-1">
-                <Droplet className="h-3 w-3" /> Glycémie (mg/dL)
+                <Droplet className="h-3 w-3" /> Glycémie (g/l)
               </Label>
               <Input
                 placeholder="Ex: 0.95"
