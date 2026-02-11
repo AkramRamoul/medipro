@@ -108,7 +108,7 @@ function Prescriptions() {
           </div>
           <Button
             onClick={() => setIsNewPrescriptionOpen(true)}
-            className="ml-4 gap-2 bg-gradient-to-r from-primary to-violet-600 hover:shadow-lg hover:shadow-primary/20 transition"
+            className="ml-4 gap-2 hover:shadow-lg hover:shadow-primary/20 transition"
           >
             <Plus className="h-4 w-4" /> Nouvelle Ordonnance
           </Button>

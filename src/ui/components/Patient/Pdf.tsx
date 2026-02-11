@@ -123,11 +123,7 @@ const PrescriptionPDF = ({
   return (
     <Document>
       {medicationChunks.map((chunk, pageIndex) => (
-        <Page
-          size="A5"
-          style={styles.page}
-          key={pageIndex}
-        >
+        <Page size="A5" style={styles.page} key={pageIndex}>
           {image && (
             <Image
               src={image}
@@ -245,7 +241,7 @@ const PrescriptionPDF = ({
               </Text>
               {isPsychotropic && psychotropicNumber && (
                 <Text style={styles.infoPatient}>
-                  Numero d'serie : {psychotropicNumber}
+                  Numero de serie : {psychotropicNumber}
                 </Text>
               )}
             </View>

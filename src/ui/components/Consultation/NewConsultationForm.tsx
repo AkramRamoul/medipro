@@ -24,7 +24,6 @@ import { Patient } from "../../type";
 import { toast } from "sonner";
 import { Separator } from "../ui/separator";
 
-
 function NewConsultationForm({
   id,
   onClose,
@@ -56,7 +55,9 @@ function NewConsultationForm({
   >({});
 
   const [allDiagnostics, setAllDiagnostics] = useState<{ name: string }[]>([]);
-  const [diagnosticSuggestions, setDiagnosticSuggestions] = useState<{ name: string }[]>([]);
+  const [diagnosticSuggestions, setDiagnosticSuggestions] = useState<
+    { name: string }[]
+  >([]);
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
   const suggestionsRef = useRef<HTMLDivElement>(null);
 
@@ -81,12 +82,18 @@ function NewConsultationForm({
       setCustomFieldValues(initialValues);
     });
 
-    window.electronAPI.getCommonDiagnostics().then(setAllDiagnostics).catch(console.error);
+    window.electronAPI
+      .getCommonDiagnostics()
+      .then(setAllDiagnostics)
+      .catch(console.error);
   }, [id]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (suggestionsRef.current && !suggestionsRef.current.contains(event.target as Node)) {
+      if (
+        suggestionsRef.current &&
+        !suggestionsRef.current.contains(event.target as Node)
+      ) {
         setDiagnosticSuggestions([]);
       }
     };
@@ -113,7 +120,9 @@ function NewConsultationForm({
 
     if (e.key === "ArrowDown") {
       e.preventDefault();
-      setHighlightedIndex((prev) => Math.min(prev + 1, diagnosticSuggestions.length - 1));
+      setHighlightedIndex((prev) =>
+        Math.min(prev + 1, diagnosticSuggestions.length - 1),
+      );
     } else if (e.key === "ArrowUp") {
       e.preventDefault();
       setHighlightedIndex((prev) => Math.max(prev - 1, 0));
@@ -251,12 +260,15 @@ function NewConsultationForm({
                           key={index}
                           className={`
                             relative flex items-center gap-2 px-3 py-2.5 text-sm rounded-md cursor-pointer transition-colors
-                            ${index === highlightedIndex
-                              ? "bg-accent/80 text-accent-foreground"
-                              : "hover:bg-accent/50 hover:text-accent-foreground"
+                            ${
+                              index === highlightedIndex
+                                ? "bg-accent/80 text-accent-foreground"
+                                : "hover:bg-accent/50 hover:text-accent-foreground"
                             }
                           `}
-                          onClick={() => selectDiagnosticSuggestion(suggestion.name)}
+                          onClick={() =>
+                            selectDiagnosticSuggestion(suggestion.name)
+                          }
                           onMouseDown={(e) => e.preventDefault()}
                         >
                           <Activity className="w-3.5 h-3.5 text-blue-500/70" />
@@ -386,7 +398,7 @@ function NewConsultationForm({
               </Label>
               <Input
                 type="number"
-                placeholder="100"
+                placeholder="1.0"
                 value={glucose}
                 onChange={(e) => setGlucose(e.target.value)}
                 className="bg-background"
