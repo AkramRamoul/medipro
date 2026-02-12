@@ -278,7 +278,7 @@ export function PrescriptionModelForm() {
                         onClick={() => removeService(index)}
                         className="text-destructive hover:underline"
                       >
-                        Supprimer / حذف
+                        Supprimer
                       </button>
                     )}
                   </div>
@@ -358,7 +358,7 @@ export function PrescriptionModelForm() {
                 type="submit"
                 className="bg-primary text-primary-foreground font-semibold p-2 text-md"
               >
-                Soumettre / إرسال
+                Soumettre
               </Button>
             </div>
           </CardContent>
@@ -391,7 +391,8 @@ export function PrescriptionModelForm() {
               <line x1="12" y1="16" x2="12" y2="12" />
               <line x1="12" y1="8" x2="12.01" y2="8" />
             </svg>
-            Utilisez une image avec un fond blanc ou transparent pour un meilleur rendu.
+            Utilisez une image avec un fond blanc ou transparent pour un
+            meilleur rendu.
           </p>
         </div>
       </Card>

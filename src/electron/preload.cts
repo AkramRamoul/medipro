@@ -13,6 +13,9 @@ contextBridge.exposeInMainWorld("electronAPI", {
     }
   },
   getMedications: () => ipcRenderer.invoke("get-medications"),
+  addMedication: async (medication: unknown) => {
+    return await ipcRenderer.invoke("add-medication", medication);
+  },
   getBilans: () => ipcRenderer.invoke("get-bilans"),
   getpatient: async (id: number) => {
     try {

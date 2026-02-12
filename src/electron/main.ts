@@ -1,6 +1,6 @@
 import "dotenv/config";
 
-import { app, BrowserWindow, dialog, ipcMain } from "electron";
+import { app, BrowserWindow, dialog, ipcMain, Menu, shell, type MenuItemConstructorOptions } from "electron";
 import path from "path";
 import { desc, eq, sql, or, like } from "drizzle-orm";
 import fs from "fs";
@@ -38,6 +38,139 @@ import { validateLicenseKey } from "./validate-license.js";
 import { getLicense, resetLicense, saveLicense } from "./LicenseStore.js";
 const { machineIdSync } = pkg;
 
+function setAppMenu(mainWindow: BrowserWindow) {
+  const isMac = process.platform === "darwin";
+
+  const template: MenuItemConstructorOptions[] = [
+    ...(isMac
+      ? ([
+        {
+          label: app.name,
+          submenu: [
+            { role: "about", label: "À propos de DocRight" },
+            { type: "separator" },
+            { role: "services", label: "Services" },
+            { type: "separator" },
+            { role: "hide", label: "Masquer DocRight" },
+            { role: "hideOthers", label: "Masquer les autres" },
+            { role: "unhide", label: "Tout afficher" },
+            { type: "separator" },
+            { role: "quit", label: "Quitter DocRight" },
+          ],
+        },
+      ] as MenuItemConstructorOptions[])
+      : []),
+    {
+      label: "Fichier",
+      submenu: [
+        {
+          label: "Sauvegarder la base de données...",
+          click: async () => {
+            const { canceled, filePath } = await dialog.showSaveDialog({
+              title: "Sauvegarder la base de données",
+              defaultPath: `backup-${Date.now()}.db`,
+              filters: [{ name: "Base de données", extensions: ["db"] }],
+            });
+
+            if (canceled || !filePath) return;
+
+            try {
+              await backupDatabase(filePath);
+            } catch (error) {
+              dialog.showErrorBox(
+                "Échec de la sauvegarde",
+                error instanceof Error ? error.message : "Erreur inconnue",
+              );
+            }
+          },
+        },
+        {
+          label: "Restaurer la base de données...",
+          click: async () => {
+            const confirm = await dialog.showMessageBox(mainWindow, {
+              type: "warning",
+              buttons: ["Annuler", "Restaurer"],
+              defaultId: 0,
+              cancelId: 0,
+              title: "Restaurer la base de données",
+              message:
+                "La restauration remplacera les données actuelles et redémarrera l'application.",
+            });
+
+            if (confirm.response !== 1) return;
+
+            const { canceled, filePaths } = await dialog.showOpenDialog({
+              title: "Restaurer la base de données",
+              filters: [{ name: "Base de données", extensions: ["db"] }],
+              properties: ["openFile"],
+            });
+
+            if (canceled || filePaths.length === 0) return;
+
+            try {
+              await restoreDatabase(filePaths[0]);
+            } catch (error) {
+              dialog.showErrorBox(
+                "Échec de la restauration",
+                error instanceof Error ? error.message : "Erreur inconnue",
+              );
+            }
+          },
+        },
+        { type: "separator" },
+        (isMac ? { role: "close", label: "Fermer" } : { role: "quit", label: "Quitter" }) as MenuItemConstructorOptions,
+      ],
+    },
+    {
+      label: "Édition",
+      submenu: [
+        { role: "undo", label: "Annuler" },
+        { role: "redo", label: "Rétablir" },
+        { type: "separator" },
+        { role: "cut", label: "Couper" },
+        { role: "copy", label: "Copier" },
+        { role: "paste", label: "Coller" },
+        { role: "selectAll", label: "Tout sélectionner" },
+      ],
+    },
+    {
+      label: "Affichage",
+      submenu: [
+        { role: "reload", label: "Actualiser" },
+        { role: "forceReload", label: "Forcer l'actualisation" },
+        { role: "togglefullscreen", label: "Plein écran" },
+        { role: "toggleDevTools", label: "Outils de développement" },
+        { type: "separator" },
+        { role: "resetZoom", label: "Réinitialiser le zoom" },
+        { role: "zoomIn", label: "Zoom avant" },
+        { role: "zoomOut", label: "Zoom arrière" },
+      ],
+    },
+    {
+      label: "Fenêtre",
+      submenu: [{ role: "minimize", label: "Réduire" }, { role: "close", label: "Fermer" }],
+    },
+    {
+      label: "Aide",
+      submenu: [
+        {
+          label: "À propos",
+          click: async () => {
+            await dialog.showMessageBox(mainWindow, {
+              type: "info",
+              title: "À propos",
+              message: "DocRight",
+              detail: `Version ${app.getVersion()}`,
+            });
+          },
+        },
+      ],
+    },
+  ];
+
+  Menu.setApplicationMenu(Menu.buildFromTemplate(template));
+}
+
 app.on("ready", () => {
   const win = new BrowserWindow({
     show: false,
@@ -50,6 +183,7 @@ app.on("ready", () => {
 
   win.maximize();
   win.show();
+  setAppMenu(win);
 
   // Preload default templates
   (async () => {
@@ -1816,3 +1950,4 @@ app.on("ready", () => {
 
   win.webContents.setWindowOpenHandler(() => ({ action: "allow" }));
 });
+

@@ -4,11 +4,11 @@ import {
   PillBottle,
   ChartColumnIncreasing,
   SettingsIcon,
-  User,
   FilePen,
   Calendar,
   Users,
   Wallet,
+  Home,
 } from "lucide-react";
 
 import {
@@ -26,12 +26,12 @@ import { NavSecondary } from "./Nav-secondary";
 
 const items = [
   { title: "Tableau de bord", url: "/", icon: ChartColumnIncreasing },
-  { title: "Accueil", url: "/patients", icon: User },
+  { title: "Accueil", url: "/patients", icon: Home },
   { title: "Tous les patients", url: "/all-patients", icon: Users },
   { title: "Rendez-vous", url: "/appointments", icon: Calendar },
   { title: "Consultations", url: "/consultations", icon: Clipboard },
-  { title: "Dépenses", url: "/expenses", icon: Wallet },
   { title: "Ordonnances", url: "/prescriptions", icon: PillBottle },
+  { title: "Dépenses", url: "/expenses", icon: Wallet },
   { title: "Modèle Ordonnance ", url: "/Ordonnance", icon: FilePen },
   { title: "Paramètres", url: "/settings", icon: SettingsIcon },
 ];

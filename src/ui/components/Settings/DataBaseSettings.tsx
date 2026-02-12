@@ -52,8 +52,6 @@ export default function DatabaseSettings() {
     }
   }
 
-
-
   return (
     <Card>
       <CardHeader>
@@ -68,14 +66,15 @@ export default function DatabaseSettings() {
           <div className="flex items-start gap-2 p-3 rounded-lg bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800">
             <Info className="h-4 w-4 text-blue-600 dark:text-blue-400 mt-0.5 shrink-0" />
             <p className="text-sm text-blue-700 dark:text-blue-300">
-              Il est recommandé de sauvegarder vos données régulièrement (idéalement chaque semaine) pour éviter toute perte.
+              Il est recommandé de sauvegarder vos données régulièrement
+              (idéalement chaque semaine) pour éviter toute perte.
             </p>
           </div>
           <div className="flex flex-col items-center justify-center sm:flex-row gap-4">
             <Button
               onClick={handleBackup}
               disabled={loading}
-              className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white"
+              className="w-full sm:w-auto text-white"
             >
               {loading ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
