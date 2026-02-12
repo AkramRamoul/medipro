@@ -39,8 +39,8 @@ const EmptyPrescriptionPrintable: React.FC<EmptyPrescriptionPrintableProps> = ({
     .specialty { font-size: 10px; }
     .service { font-size: 10px; }
     .divider { border-bottom: 1px solid #666; width: 100%; }
-    .patient-info { display: flex; justify-content: space-between; margin-bottom: 20px; font-size: 12px; }
-    .patient-details { text-align: left; display: flex; flex-direction: column; gap: 5px; width: 60%; }
+    .patient-info { display: flex; justify-content: space-between; margin-top: 20px; margin-bottom: 20px; font-size: 12px; }
+    .patient-details { text-align: left; display: flex; flex-direction: column; gap: 5px; }
     .document-info { text-align: right; width: 40%; }
     .title { text-align: center; font-size: 18px; font-weight: bold; text-decoration: underline; }
     .footer { position: fixed; bottom: 20px; left: 0; right: 0; text-align: center; border-top: 1px solid #aaa; padding-top: 5px; font-size: 11px; }

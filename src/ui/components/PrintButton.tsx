@@ -98,7 +98,7 @@ const PrintButton = ({
         e.stopPropagation();
         handlePrint();
       }}
-      className="  bg-primary px-4 py-2 text-white"
+      className="bg-primary px-4 py-2"
     >
       <Printer className="w-4 h-4" />
       Imprimer

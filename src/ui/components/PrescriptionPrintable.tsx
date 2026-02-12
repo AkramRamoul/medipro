@@ -60,7 +60,7 @@ const PrescriptionPrintable: React.FC<PrescriptionPrintableProps> = ({
     .specialty { font-size: 10px; margin-bottom: 2px; }
     .service { font-size: 10px; }
     .divider { border-bottom: 1px solid #666; margin: 10px 0; width: 100%; }
-    .patient-info { display: flex; justify-content: space-between; margin-bottom: 20px; font-size: 12px; }
+    .patient-info { display: flex; justify-content: space-between; margin-top: 20px; margin-bottom: 20px; font-size: 12px; }
     .patient-details { text-align: left; }
     .document-info { text-align: right; }
     .title { text-align: center; font-size: 18px; font-weight: bold; text-decoration: underline; margin: 10px 0 20px 0; }

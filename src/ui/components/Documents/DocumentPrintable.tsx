@@ -68,7 +68,7 @@ const DocumentPrintable: React.FC<DocumentPrintableProps> = ({
     .specialty { font-size: 10px; margin-bottom: 2px; }
     .service { font-size: 10px; }
     .divider { border-bottom: 1px solid #666; margin: 10px 0; width: 100%; }
-    .patient-info { display: flex; justify-content: space-between; margin-bottom: 20px; font-size: 12px; }
+    .patient-info { display: flex; justify-content: space-between; margin-top: 20px; margin-bottom: 20px; font-size: 12px; }
     .patient-details { text-align: left; display: flex; flex-direction: column; gap: 5px; }
     .document-info { text-align: right; display: flex; flex-direction: column; gap: 5px; }
     .title { text-align: center; font-size: 16px; font-weight: bold; text-decoration: underline; margin: 10px 0 20px 0; }
