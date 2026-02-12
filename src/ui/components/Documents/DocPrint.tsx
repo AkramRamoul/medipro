@@ -65,6 +65,7 @@ const DocPrint = ({
           documentContent={document.content}
           documentType={document.type}
           documentName={document.name}
+          documentDate={document.documentDate}
         />
       );
 

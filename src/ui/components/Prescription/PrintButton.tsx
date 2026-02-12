@@ -12,6 +12,7 @@ const PrintButton = ({
   isPsychotropic,
   psychotropicNumber,
   patientAddress,
+  prescriptionDate,
 }: {
   patient: smallPatient;
   window: Window;
@@ -19,6 +20,7 @@ const PrintButton = ({
   isPsychotropic?: boolean;
   psychotropicNumber?: number | null;
   patientAddress?: string | null;
+  prescriptionDate?: string | null;
 }) => {
   const [prescriptionModel, setPrescriptionModel] = useState(null);
   const [image, setImage] = useState<string | null>(null);
@@ -65,6 +67,7 @@ const PrintButton = ({
           isPsychotropic={isPsychotropic}
           psychotropicNumber={psychotropicNumber}
           patientAddress={patientAddress}
+          prescriptionDate={prescriptionDate}
         />
       );
 

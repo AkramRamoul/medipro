@@ -20,11 +20,17 @@ import {
   Trash2,
   Save,
   X,
-  Calendar,
+  Calendar as CalendarIcon,
   User,
   FlaskConical,
   Search,
+  AlertTriangle,
 } from "lucide-react";
+import { format, isToday, parseISO } from "date-fns";
+import { fr } from "date-fns/locale";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { Calendar } from "../ui/calendar";
+import { cn } from "../../lib/utils";
 import { Patient } from "../../type";
 import { Separator } from "../ui/separator";
 
@@ -131,6 +137,7 @@ export function BloodWork({
         patientId: patient.id,
         type: "blood",
         content: values,
+        documentDate: new Date(values.date).toISOString(),
       });
       refreshDocuments();
       onClose();
@@ -177,14 +184,51 @@ export function BloodWork({
                 control={form.control}
                 name="date"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="flex items-center gap-2">
-                      <Calendar className="w-4 h-4 text-muted-foreground" />
+                  <FormItem className="flex flex-col">
+                    <FormLabel className="flex items-center gap-2 mb-1">
+                      <CalendarIcon className="w-4 h-4 text-muted-foreground" />
                       Date
                     </FormLabel>
-                    <FormControl>
-                      <Input type="date" {...field} />
-                    </FormControl>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant={"outline"}
+                            className={cn(
+                              "w-full pl-3 text-left font-normal h-10 rounded-xl",
+                              !field.value && "text-muted-foreground",
+                              !isToday(parseISO(field.value)) && "border-amber-500 text-amber-600 bg-amber-50 hover:bg-amber-100"
+                            )}
+                          >
+                            {field.value ? (
+                              format(parseISO(field.value), "PPP", { locale: fr })
+                            ) : (
+                              <span>Choisir une date</span>
+                            )}
+                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={parseISO(field.value)}
+                          onSelect={(date) => field.onChange(date?.toISOString().split("T")[0])}
+                          disabled={(date) =>
+                            date > new Date() || date < new Date("1900-01-01")
+                          }
+                          initialFocus
+                          locale={fr}
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    {!isToday(parseISO(field.value)) && (
+                      <span className="text-[10px] font-medium text-amber-600 flex items-center gap-1 mt-1 animate-pulse">
+                        <AlertTriangle className="h-3 w-3" />
+                        Date modifiée manuellement
+                      </span>
+                    )}
+                    <FormMessage />
                   </FormItem>
                 )}
               />

@@ -21,7 +21,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
-import { Plus, Trash2, Pill, AlertTriangle, Save, X, ClipboardList } from "lucide-react";
+import { Plus, Trash2, Pill, AlertTriangle, Save, X, ClipboardList, Calendar as CalendarIcon } from "lucide-react";
+import { format, isToday } from "date-fns";
+import { fr } from "date-fns/locale";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { Calendar } from "../ui/calendar";
+import { cn } from "../../lib/utils";
 
 interface Medication {
   id?: number;
@@ -55,6 +60,7 @@ const NewPrescriptionForm = ({
   const [duration, setDuration] = useState<string>("");
   const [note, setNote] = useState<string>("");
   const [templates, setTemplates] = useState<any[]>([]);
+  const [prescriptionDate, setPrescriptionDate] = useState<Date>(new Date());
 
   const containerRef = useRef<HTMLDivElement>(null);
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -132,6 +138,7 @@ const NewPrescriptionForm = ({
       })),
       isPsychotropic,
       patientAddress,
+      prescriptionDate: prescriptionDate.toISOString(),
     };
     try {
       const response = await window.electronAPI.addFullPrescription(prescriptionData);
@@ -272,13 +279,48 @@ const NewPrescriptionForm = ({
     <div className="relative max-w-5xl mx-auto space-y-6">
       <Card className="border-border shadow-sm">
         <CardHeader className="pb-4">
-          <CardTitle className="text-lg flex items-center gap-2">
-            <Pill className="h-5 w-5 text-primary" />
-            Ajouter un médicament
-          </CardTitle>
-          <CardDescription>
-            Recherchez et ajoutez des médicaments à l'ordonnance.
-          </CardDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Pill className="h-5 w-5 text-primary" />
+                Ajouter un médicament
+              </CardTitle>
+              <CardDescription>
+                Recherchez et ajoutez des médicaments à l'ordonnance.
+              </CardDescription>
+            </div>
+            <div className="flex flex-col items-end gap-1">
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "h-9 justify-start text-left font-normal border-dashed",
+                      !isToday(prescriptionDate) && "border-amber-500 text-amber-600 bg-amber-50 hover:bg-amber-100"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {format(prescriptionDate, "PPP", { locale: fr })}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="end">
+                  <Calendar
+                    mode="single"
+                    selected={prescriptionDate}
+                    onSelect={(date) => date && setPrescriptionDate(date)}
+                    initialFocus
+                    locale={fr}
+                  />
+                </PopoverContent>
+              </Popover>
+              {!isToday(prescriptionDate) && (
+                <span className="text-[10px] font-medium text-amber-600 flex items-center gap-1 animate-pulse">
+                  <AlertTriangle className="h-3 w-3" />
+                  Date modifiée manuellement
+                </span>
+              )}
+            </div>
+          </div>
           {templates.length > 0 && (
             <div className="mt-4 flex items-center gap-4 p-3 bg-primary/5 border border-primary/10 rounded-lg">
               <ClipboardList className="h-5 w-5 text-primary" />
@@ -468,6 +510,7 @@ const NewPrescriptionForm = ({
           isPsychotropic={isPsychotropic}
           psychotropicNumber={Number(psychotropicNumber)}
           patientAddress={patientAddress}
+          prescriptionDate={prescriptionDate.toISOString()}
           disabled={selectedMedications.length === 0}
         />
         {Number(id) !== 0 && (

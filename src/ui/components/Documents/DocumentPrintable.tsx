@@ -11,6 +11,7 @@ interface DocumentPrintableProps {
     documentContent: any;
     documentType: "blood" | "certificate" | "report" | "template";
     documentName?: string;
+    documentDate?: string | null;
 }
 
 const DocumentPrintable: React.FC<DocumentPrintableProps> = ({
@@ -22,6 +23,7 @@ const DocumentPrintable: React.FC<DocumentPrintableProps> = ({
     documentContent,
     documentType,
     documentName,
+    documentDate,
 }) => {
     const formatDate = (date: Date) => {
         const day = String(date.getDate()).padStart(2, "0");
@@ -131,7 +133,7 @@ const DocumentPrintable: React.FC<DocumentPrintableProps> = ({
                     </div>
                     <div className="document-info">
                         <div>
-                            {prescriptionModel.city}, le : {formatDate(new Date())}
+                            {prescriptionModel.city}, le : {formatDate(documentDate ? new Date(documentDate) : new Date())}
                         </div>
                     </div>
                 </div>

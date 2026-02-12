@@ -25,18 +25,22 @@ function PrescriptionRow({
       >
         {/* Date - Always visible */}
         <TableCell className="w-[30%] font-medium text-left">
-          {prescription.date
-            ? new Date(prescription.date).toLocaleDateString("fr-FR")
-            : "Invalid Date"}
+          {prescription.createdAt
+            ? new Date(prescription.createdAt).toLocaleDateString("fr-FR")
+            : prescription.date
+              ? new Date(prescription.date).toLocaleDateString("fr-FR")
+              : "Invalid Date"}
         </TableCell>
 
         <TableCell className="text-left">Ordonnance</TableCell>
 
         {/* Time - Hidden on small screens, visible on md+ */}
         <TableCell className="hidden md:table-cell text-left text-muted-foreground">
-          {prescription.date
-            ? format(new Date(prescription.date), "hh:mm a")
-            : "N/A"}
+          {prescription.createdAt
+            ? format(new Date(prescription.createdAt), "HH:mm")
+            : prescription.date
+              ? format(new Date(prescription.date), "HH:mm")
+              : "N/A"}
         </TableCell>
 
         {/* Actions - Always visible */}

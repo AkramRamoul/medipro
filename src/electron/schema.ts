@@ -53,7 +53,8 @@ export const prescriptions = sqliteTable("prescriptions", {
   patientId: integer("patient_id")
     .notNull()
     .references(() => patients.id, { onDelete: "cascade" }),
-  date: text("date").default(sql`CURRENT_TIMESTAMP`),
+  prescriptionDate: text("prescription_date").notNull().default(sql`CURRENT_TIMESTAMP`),
+  createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
   is_psychotropic: integer("is_psychotropic", { mode: "boolean" }).default(
     false,
   ),
@@ -120,7 +121,8 @@ export const Document = sqliteTable("document", {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     .$type<any>()
     .default(sql`'[]'`),
-  createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
+  documentDate: text("document_date").notNull().default(sql`CURRENT_TIMESTAMP`),
+  createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
 });
 
 export const appointments = sqliteTable("appointments", {

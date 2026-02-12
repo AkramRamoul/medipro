@@ -11,6 +11,7 @@ interface PrescriptionPrintableProps {
   isPsychotropic?: boolean;
   psychotropicNumber?: number | null;
   patientAddress?: string | null;
+  prescriptionDate?: string | null;
 }
 
 const PrescriptionPrintable: React.FC<PrescriptionPrintableProps> = ({
@@ -21,6 +22,7 @@ const PrescriptionPrintable: React.FC<PrescriptionPrintableProps> = ({
   isPsychotropic,
   psychotropicNumber,
   patientAddress,
+  prescriptionDate,
 }) => {
   const formatDate = (date: Date) => {
     const day = String(date.getDate()).padStart(2, "0");
@@ -127,7 +129,7 @@ const PrescriptionPrintable: React.FC<PrescriptionPrintableProps> = ({
           </div>
           <div className="document-info">
             <div>
-              {prescriptionModel.city}, le : {formatDate(new Date())}
+              {prescriptionModel.city}, le : {formatDate(prescriptionDate ? new Date(prescriptionDate) : new Date())}
             </div>
             {isPsychotropic && psychotropicNumber && (
               <div>

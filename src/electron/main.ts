@@ -402,7 +402,8 @@ app.on("ready", () => {
     const result = await db
       .select({
         id: prescriptions.id,
-        date: prescriptions.date,
+        date: prescriptions.prescriptionDate,
+        createdAt: prescriptions.createdAt,
         isPsychotropic: prescriptions.is_psychotropic,
         psychotropicNumber: prescriptions.psychotropic_number,
         patientId: prescriptions.patientId,
@@ -426,7 +427,7 @@ app.on("ready", () => {
         prescriptionMedications,
         eq(prescriptions.id, prescriptionMedications.prescriptionId),
       )
-      .orderBy(desc(prescriptions.date));
+      .orderBy(desc(prescriptions.prescriptionDate));
 
     /* eslint-disable  @typescript-eslint/no-explicit-any */
     const prescriptionsGrouped = result.reduce((acc: any[], row: any) => {
@@ -436,6 +437,7 @@ app.on("ready", () => {
         prescription = {
           id: row.id,
           date: row.date,
+          createdAt: row.createdAt,
           isPsychotropic: row.isPsychotropic,
           psychotropicNumber: row.psychotropicNumber,
           patient: row.patient,
@@ -704,7 +706,8 @@ app.on("ready", () => {
       const result = await db
         .select({
           prescriptionId: prescriptions.id,
-          date: prescriptions.date,
+          date: prescriptions.prescriptionDate,
+          createdAt: prescriptions.createdAt,
           isPsychotropic: prescriptions.is_psychotropic,
           psychotropicNumber: prescriptions.psychotropic_number,
           patientAddress: prescriptions.patient_address,
@@ -716,7 +719,7 @@ app.on("ready", () => {
           eq(prescriptions.id, prescriptionMedications.prescriptionId),
         )
         .where(eq(prescriptions.patientId, patientId))
-        .orderBy(desc(prescriptions.date));
+        .orderBy(desc(prescriptions.prescriptionDate));
       const prescriptionsMap = new Map();
 
       result.forEach((row) => {
@@ -724,6 +727,7 @@ app.on("ready", () => {
           prescriptionsMap.set(row.prescriptionId, {
             id: row.prescriptionId,
             date: row.date,
+            createdAt: row.createdAt,
             isPsychotropic: row.isPsychotropic,
             psychotropicNumber: row.psychotropicNumber,
             patientAddress: row.patientAddress,
@@ -766,7 +770,7 @@ app.on("ready", () => {
       const patientPrescriptions = await db
         .select({
           id: prescriptions.id,
-          date: prescriptions.date,
+          date: prescriptions.prescriptionDate,
           medications: prescriptionMedications,
         })
         .from(prescriptions)
@@ -912,6 +916,7 @@ app.on("ready", () => {
         medications,
         isPsychotropic,
         patientAddress: frontendAddress,
+        prescriptionDate,
       },
     ) => {
       try {
@@ -952,7 +957,8 @@ app.on("ready", () => {
           .insert(prescriptions)
           .values({
             patientId,
-            date: new Date().toISOString(),
+            prescriptionDate: prescriptionDate || new Date().toISOString(),
+            createdAt: new Date().toISOString(),
             is_psychotropic: isPsychotropic,
             psychotropic_number: psychotropicNumber,
             patient_address: patientAddress,
@@ -1150,7 +1156,7 @@ app.on("ready", () => {
         .select({ count: sql<number>`count(*)` })
         .from(prescriptions)
         .where(
-          sql`strftime('%Y-%m', ${prescriptions.date}) = strftime('%Y-%m', CURRENT_TIMESTAMP)`,
+          sql`strftime('%Y-%m', ${prescriptions.prescriptionDate}) = strftime('%Y-%m', CURRENT_TIMESTAMP)`,
         );
 
       const [earningsToday] = await db
@@ -1553,7 +1559,7 @@ app.on("ready", () => {
   });
   ipcMain.handle("create-document", async (_, data) => {
     try {
-      const { patientId, type, content, name } = data;
+      const { patientId, type, content, name, documentDate } = data;
       const [newDoc] = await db
         .insert(Document)
         .values({
@@ -1561,6 +1567,7 @@ app.on("ready", () => {
           type,
           content,
           name,
+          documentDate: documentDate || new Date().toISOString(),
           createdAt: new Date().toISOString(),
         })
         .returning({ id: Document.id });

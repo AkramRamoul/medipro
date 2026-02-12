@@ -1,7 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { Button } from "../ui/button";
 import { toast } from "sonner";
-import { FileText, ArrowLeft, Save } from "lucide-react";
+import { FileText, ArrowLeft, Save, Calendar as CalendarIcon, AlertTriangle } from "lucide-react";
+import { format, isToday } from "date-fns";
+import { fr } from "date-fns/locale";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { Calendar } from "../ui/calendar";
+import { cn } from "../../lib/utils";
 import { Card, CardHeader, CardTitle } from "../ui/card";
 import Editor from "../Editor/Editor";
 import { Patient } from "../../type";
@@ -28,6 +33,7 @@ const NewDocumentFromTemplate: React.FC<NewDocumentFromTemplateProps> = ({
     const [isLoading, setIsLoading] = useState(true);
     const [selectedTemplate, setSelectedTemplate] = useState<DocumentTemplate | null>(null);
     const [editedContent, setEditedContent] = useState("");
+    const [documentDate, setDocumentDate] = useState<Date>(new Date());
 
     useEffect(() => {
         const fetchTemplates = async () => {
@@ -46,13 +52,24 @@ const NewDocumentFromTemplate: React.FC<NewDocumentFromTemplateProps> = ({
     const handleSelectTemplate = (template: DocumentTemplate) => {
         let content = template.content;
         // Basic placeholder replacement
-        const today = new Date().toLocaleDateString('fr-FR');
+        const formattedDate = format(documentDate, 'dd/MM/yyyy');
         content = content.replace(/\[Nom du Patient\]/g, `${patient.first_name} ${patient.last_name}`);
-        content = content.replace(/\[Date\]/g, today);
+        content = content.replace(/\[Date\]/g, formattedDate);
 
         setSelectedTemplate(template);
         setEditedContent(content);
     };
+
+    // Update placeholders when date changes if template is already selected
+    useEffect(() => {
+        if (selectedTemplate) {
+            const formattedDate = format(documentDate, 'dd/MM/yyyy');
+            let content = selectedTemplate.content;
+            content = content.replace(/\[Nom du Patient\]/g, `${patient.first_name} ${patient.last_name}`);
+            content = content.replace(/\[Date\]/g, formattedDate);
+            setEditedContent(content);
+        }
+    }, [documentDate]);
 
     const handleSave = async () => {
         if (!editedContent.trim()) {
@@ -67,7 +84,8 @@ const NewDocumentFromTemplate: React.FC<NewDocumentFromTemplateProps> = ({
                 patientId: patient.id,
                 type: "template",
                 content: editedContent,
-                name: selectedTemplate.name
+                name: selectedTemplate.name,
+                documentDate: documentDate.toISOString()
             });
 
             if (result.success) {
@@ -95,6 +113,37 @@ const NewDocumentFromTemplate: React.FC<NewDocumentFromTemplateProps> = ({
                             <ArrowLeft className="h-4 w-4" />
                         </Button>
                         <h3 className="text-lg font-medium">{selectedTemplate.name}</h3>
+                    </div>
+                    <div className="flex flex-col items-end gap-1">
+                        <Popover>
+                            <PopoverTrigger asChild>
+                                <Button
+                                    variant="outline"
+                                    className={cn(
+                                        "h-9 justify-start text-left font-normal border-dashed",
+                                        !isToday(documentDate) && "border-amber-500 text-amber-600 bg-amber-50 hover:bg-amber-100"
+                                    )}
+                                >
+                                    <CalendarIcon className="mr-2 h-4 w-4" />
+                                    {format(documentDate, "PPP", { locale: fr })}
+                                </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0" align="end">
+                                <Calendar
+                                    mode="single"
+                                    selected={documentDate}
+                                    onSelect={(date) => date && setDocumentDate(date)}
+                                    initialFocus
+                                    locale={fr}
+                                />
+                            </PopoverContent>
+                        </Popover>
+                        {!isToday(documentDate) && (
+                            <span className="text-[10px] font-medium text-amber-600 flex items-center gap-1 animate-pulse">
+                                <AlertTriangle className="h-3 w-3" />
+                                Date modifiée manuellement
+                            </span>
+                        )}
                     </div>
                 </div>
 

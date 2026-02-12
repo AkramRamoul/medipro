@@ -10,11 +10,6 @@ interface DocumentRowProps {
   onView?: (document: Document) => void;
 }
 
-const convertToUTCPlus1 = (utcDate: string): Date => {
-  const date = new Date(utcDate);
-  return new Date(date.getTime() + 3600000);
-};
-
 export default function DocumentRow({
   document,
   setData,
@@ -35,15 +30,19 @@ export default function DocumentRow({
       <TableCell className="w-[35%] font-medium text-left">
         {document.createdAt
           ? new Date(document.createdAt).toLocaleDateString("fr-FR")
-          : "Invalid Date"}
+          : document.documentDate
+            ? new Date(document.documentDate).toLocaleDateString("fr-FR")
+            : "Invalid Date"}
       </TableCell>
       <TableCell className="text-left capitalize w-[35%]">
         {document.name || labels[document.type]}
       </TableCell>
       <TableCell className="hidden md:table-cell text-left text-muted-foreground">
         {document.createdAt
-          ? format(convertToUTCPlus1(document.createdAt), "hh:mm a")
-          : "N/A"}
+          ? format(new Date(document.createdAt), "HH:mm")
+          : document.documentDate
+            ? format(new Date(document.documentDate), "HH:mm")
+            : "N/A"}
       </TableCell>
       <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
         <DocsDropdown patinet={patinet} document={document} setData={setData} />

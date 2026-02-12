@@ -224,6 +224,7 @@ function SinglePrescription({
             isPsychotropic={isPsychotropic}
             psychotropicNumber={psychotropicNumber}
             patientAddress={patientAddress}
+            prescriptionDate={prescriptionDate}
           />
         </CardFooter>
       </Card>

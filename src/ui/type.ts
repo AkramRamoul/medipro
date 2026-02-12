@@ -77,6 +77,7 @@ export interface Prescription {
   psychotropicNumber?: number;
   patientAddress?: string;
   date: string | null;
+  createdAt?: string | null;
   patientId: number;
   medications: PrescriptionMed[];
 }
@@ -84,6 +85,7 @@ export interface Prescription {
 export type PrescriptionWithPatient = {
   id: number;
   date: string;
+  createdAt?: string;
   patientId: number;
   isPsychotropic?: boolean;
   psychotropicNumber?: number;
@@ -133,6 +135,7 @@ export type Document = {
   type: "blood" | "certificate" | "report" | "template";
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   content: any;
+  documentDate: string | null;
   createdAt: string | null;
 };
 

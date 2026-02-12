@@ -3,6 +3,7 @@
 import React, { Fragment } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { cn } from "../lib/utils";
+import { X } from "lucide-react";
 
 interface ModalProps {
   isOpen?: boolean;
@@ -20,7 +21,7 @@ const ModalV2: React.FC<ModalProps> = ({
   return (
     <Transition.Root show={isOpen} as={Fragment}>
       <Dialog as="div" className="relative z-50" onClose={onClose}>
-        {/* Backdrop */}
+        {/* Backdrop with premium blur */}
         <Transition.Child
           as={Fragment}
           enter="ease-out duration-300"
@@ -30,13 +31,7 @@ const ModalV2: React.FC<ModalProps> = ({
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <div
-            className="
-              fixed inset-0
-              bg-gray-500/75
-              transition-opacity
-            "
-          />
+          <div className="fixed inset-0 bg-black/40 backdrop-blur-md transition-opacity" />
         </Transition.Child>
 
         <div className="fixed inset-0 z-10">
@@ -44,45 +39,51 @@ const ModalV2: React.FC<ModalProps> = ({
             <Transition.Child
               as={Fragment}
               enter="ease-out duration-300"
-              enterFrom="opacity-0 translate-y-4 sm:scale-95"
+              enterFrom="opacity-0 translate-y-2 sm:scale-98"
               enterTo="opacity-100 translate-y-0 sm:scale-100"
               leave="ease-in duration-200"
               leaveFrom="opacity-100 translate-y-0 sm:scale-100"
-              leaveTo="opacity-0 translate-y-4 sm:scale-95"
+              leaveTo="opacity-0 translate-y-2 sm:scale-98"
             >
               <Dialog.Panel
                 className={cn(
-                  `relative w-full transform rounded-lg
+                  `relative w-full rounded-2xl
                     max-h-[90vh] overflow-y-auto
-                    text-gray-900 dark:text-gray-100
+                    bg-background
+                    border border-border/50
+                    shadow-2xl
                     px-4 pb-4 pt-5
-                    bg-card
-                    sm:my-8 sm:max-w-lg sm:p-6`,
+                    sm:my-8 sm:max-w-lg sm:p-6
+                    transform-gpu`,
                   panelClassName,
                 )}
               >
-                {/* Close button */}
+                {/* Modern Close Button */}
                 <div className="absolute right-0 top-0 hidden pr-4 pt-4 sm:block z-10">
                   <button
                     type="button"
                     onClick={onClose}
                     className="
-                      rounded-md
-                      bg-white dark:bg-[#222327]
-                      text-gray-400 hover:text-gray-600
-                      dark:text-gray-500 dark:hover:text-gray-300
+                      rounded-full
+                      p-2
+                      text-muted-foreground
+                      hover:text-foreground
+                      hover:bg-accent
                       focus:outline-none
-                      focus:ring-2 focus:ring-indigo-500
-                      focus:ring-offset-2
-                      dark:focus:ring-offset-zinc-900
+                      focus:ring-2
+                      focus:ring-ring
+                      transition-colors
+                      duration-200
                     "
+                    aria-label="Fermer"
                   >
-                    <span className="sr-only">Close</span>
-                    {/* <IoClose className="h-6 w-6" /> */}
+                    <X className="h-5 w-5" />
                   </button>
                 </div>
 
-                {children}
+                <div className="text-left">
+                  {children}
+                </div>
               </Dialog.Panel>
             </Transition.Child>
           </div>
