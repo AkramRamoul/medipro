@@ -51,17 +51,18 @@ function MainPage() {
             >
               Détails du patient
             </TabsTrigger>
-            <TabsTrigger
-              value="vitals"
-              className="flex-1 text-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-            >
-              Signes Vitaux
-            </TabsTrigger>
+
             <TabsTrigger
               value="account"
               className="flex-1 text-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
             >
               Consultation
+            </TabsTrigger>
+            <TabsTrigger
+              value="vitals"
+              className="flex-1 text-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+            >
+              Signes Vitaux
             </TabsTrigger>
             <TabsTrigger
               value="prescriptions"

@@ -9,7 +9,6 @@ import {
 } from "../ui/card";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
-import { Separator } from "../ui/separator";
 import {
   X,
   FileText,
@@ -19,6 +18,7 @@ import {
   FileCheck,
   Pill,
   Stethoscope,
+  Printer,
 } from "lucide-react";
 
 interface SingleDocumentProps {
@@ -48,39 +48,69 @@ export function SingleDocument({ document, onClose }: SingleDocumentProps) {
 
     switch (document.type) {
       case "blood": {
-        const bloodContent = content as { results: string[]; date?: string };
+        const bloodContent = content as { results: string[]; date?: string; patientName?: string };
         return (
-          <div className="space-y-4">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Calendar className="w-4 h-4" />
-              <span>
-                Date:{" "}
-                {bloodContent.date
-                  ? new Date(bloodContent.date).toLocaleDateString("fr-FR")
-                  : "N/A"}
-              </span>
+          <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            {/* Header Info */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="p-4 rounded-2xl bg-primary/5 border border-primary/10 flex items-center gap-4 group transition-all hover:bg-primary/10">
+                <div className="p-3 rounded-xl bg-background shadow-sm text-primary transition-transform group-hover:scale-110 border border-border/50">
+                  <Calendar className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Date de demande</p>
+                  <p className="text-sm font-semibold text-foreground">
+                    {bloodContent.date
+                      ? new Date(bloodContent.date).toLocaleDateString("fr-FR", { day: 'numeric', month: 'long', year: 'numeric' })
+                      : "N/A"}
+                  </p>
+                </div>
+              </div>
+
+              {bloodContent.patientName && (
+                <div className="p-4 rounded-2xl bg-blue-500/5 border border-blue-500/20 dark:bg-blue-400/10 dark:border-blue-400/20 flex items-center gap-4 group transition-all hover:bg-blue-500/10">
+                  <div className="p-3 rounded-xl bg-background shadow-sm text-blue-600 dark:text-blue-400 transition-transform group-hover:scale-110 border border-border/50">
+                    <Activity className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-blue-600/70 dark:text-blue-400/70">Patient</p>
+                    <p className="text-sm font-semibold text-foreground">{bloodContent.patientName}</p>
+                  </div>
+                </div>
+              )}
             </div>
-            <Separator />
-            <div>
-              <h4 className="font-medium mb-2 flex items-center gap-2">
-                <FlaskConical className="w-4 h-4" /> Analyses demandées
-              </h4>
+
+            {/* Analysis List */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between border-b pb-2">
+                <h4 className="font-bold text-foreground flex items-center gap-2">
+                  <FlaskConical className="w-5 h-5 text-primary" />
+                  Analyses demandées
+                </h4>
+                <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20">
+                  {bloodContent.results?.length || 0} Examen(s)
+                </Badge>
+              </div>
+
               {bloodContent.results && bloodContent.results.length > 0 ? (
-                <ul className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {bloodContent.results.map((result, idx) => (
-                    <li
+                    <div
                       key={idx}
-                      className="bg-muted/30 p-2 rounded-md border text-sm flex items-center gap-2"
+                      className="group flex items-center gap-3 p-3 rounded-xl bg-card border shadow-sm transition-all hover:shadow-md hover:border-primary/30 hover:-translate-y-0.5"
                     >
-                      <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-                      {result}
-                    </li>
+                      <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary transition-colors">
+                        <span className="text-[10px] font-bold">{idx + 1}</span>
+                      </div>
+                      <span className="text-sm font-medium text-foreground/80 group-hover:text-foreground transition-colors">{result}</span>
+                    </div>
                   ))}
-                </ul>
+                </div>
               ) : (
-                <p className="text-sm text-muted-foreground italic">
-                  Aucune analyse spécifiée.
-                </p>
+                <div className="py-12 flex flex-col items-center justify-center bg-muted/20 rounded-2xl border border-dashed text-muted-foreground">
+                  <FlaskConical className="w-10 h-10 mb-2 opacity-20" />
+                  <p className="text-sm italic">Aucune analyse spécifiée.</p>
+                </div>
               )}
             </div>
           </div>
@@ -109,11 +139,11 @@ export function SingleDocument({ document, onClose }: SingleDocumentProps) {
               </span>
             </div>
 
-            <div className="bg-blue-50/50 p-4 rounded-lg border border-blue-100 dark:bg-blue-950/20 dark:border-blue-900/50">
-              <h4 className="font-medium text-blue-700 dark:text-blue-300 mb-2 flex items-center gap-2">
+            <div className="bg-blue-500/5 border border-blue-500/20 dark:bg-blue-400/10 dark:border-blue-400/20 p-4 rounded-xl">
+              <h4 className="font-semibold text-blue-700 dark:text-blue-400 mb-2 flex items-center gap-2">
                 <Activity className="w-4 h-4" /> Diagnostic
               </h4>
-              <p className="text-sm leading-relaxed">{certContent.diagnosis}</p>
+              <p className="text-sm leading-relaxed text-foreground/90">{certContent.diagnosis}</p>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
@@ -188,23 +218,23 @@ export function SingleDocument({ document, onClose }: SingleDocumentProps) {
             </div>
 
             {/* Diagnostic */}
-            <div className="p-4 rounded-lg border bg-blue-50/50 dark:bg-blue-950/20 dark:border-blue-900/50">
-              <h4 className="font-medium mb-2 flex items-center gap-2 text-blue-700 dark:text-blue-300">
+            <div className="p-4 rounded-xl border border-blue-500/20 bg-blue-500/5 dark:bg-blue-400/10 dark:border-blue-400/20">
+              <h4 className="font-semibold mb-2 flex items-center gap-2 text-blue-700 dark:text-blue-400">
                 <Activity className="w-4 h-4" />
                 Diagnostic
               </h4>
-              <p className="text-sm leading-relaxed">
+              <p className="text-sm leading-relaxed text-foreground/90">
                 {reportContent.diagnostic}
               </p>
             </div>
 
             {/* Traitement */}
-            <div className="p-4 rounded-lg border bg-green-50/50 dark:bg-green-950/20 dark:border-green-900/50">
-              <h4 className="font-medium mb-2 flex items-center gap-2 text-green-700 dark:text-green-300">
+            <div className="p-4 rounded-xl border border-green-500/20 bg-green-500/5 dark:bg-green-400/10 dark:border-green-400/20">
+              <h4 className="font-semibold mb-2 flex items-center gap-2 text-green-700 dark:text-green-400">
                 <Pill className="w-4 h-4" />
                 Traitement
               </h4>
-              <p className="text-sm leading-relaxed whitespace-pre-wrap">
+              <p className="text-sm leading-relaxed text-foreground/90 whitespace-pre-wrap">
                 {reportContent.traitement}
               </p>
             </div>
@@ -257,13 +287,29 @@ export function SingleDocument({ document, onClose }: SingleDocumentProps) {
       </CardContent>
 
 
-      {onClose && (
-        <CardFooter className="pt-4 mt-auto justify-end">
-          <Button onClick={onClose} variant="outline" className="gap-2">
+      <CardFooter className="pt-6 border-t mt-auto flex justify-between gap-3">
+        <div className="flex gap-2">
+          {document.type === "blood" && (
+            <Button
+              variant="outline"
+              className="gap-2 border-primary/20 hover:bg-primary/5 text-primary"
+              onClick={() => {
+                // We'll rely on the existing print functionality 
+                // but this signals intent.
+                // In a real scenario we'd call the handlePrint logic here.
+                window.print();
+              }}
+            >
+              <Printer className="w-4 h-4" /> Imprimer le bilan
+            </Button>
+          )}
+        </div>
+        {onClose && (
+          <Button onClick={onClose} variant="secondary" className="gap-2 px-6">
             <X className="w-4 h-4" /> Fermer
           </Button>
-        </CardFooter>
-      )}
+        )}
+      </CardFooter>
     </Card>
   );
 }

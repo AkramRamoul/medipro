@@ -29,31 +29,30 @@ const Modal: React.FC<ModalProps> = ({ isOpen = false, onClose, children }) => {
           <TransitionChild
             as={Fragment}
             enter="ease-out duration-300"
-            enterFrom="opacity-0 scale-98 translate-y-2"
+            enterFrom="opacity-0 scale-95 translate-y-4"
             enterTo="opacity-100 scale-100 translate-y-0"
             leave="ease-in duration-200"
             leaveFrom="opacity-100 scale-100 translate-y-0"
-            leaveTo="opacity-0 scale-98 translate-y-2"
+            leaveTo="opacity-0 scale-95 translate-y-4"
           >
             <DialogPanel
               className="
                 relative
                 flex flex-col
-                h-[90vh]
+                max-h-[90vh]
                 w-full
                 sm:max-w-6xl
-                max-w-none
-                overflow-hidden
-                rounded-2xl
                 bg-background
+                rounded-2xl
                 border border-border/50
                 shadow-2xl
-                ring-1 ring-black/5
-                transform-gpu
+                overflow-y-auto
+                scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent
+                will-change-transform
               "
             >
               {/* Modern Close Button */}
-              <div className="absolute top-4 right-4 z-10">
+              <div className="absolute top-4 right-4 z-50">in
                 <button
                   type="button"
                   onClick={onClose}
@@ -70,16 +69,16 @@ const Modal: React.FC<ModalProps> = ({ isOpen = false, onClose, children }) => {
                     focus:outline-none
                     focus:ring-2
                     focus:ring-ring
-                    transition-colors
+                    transition-all
                     duration-200
                   "
                   aria-label="Fermer"
                 >
-                  <X className="h-5 w-5 transition-transform group-hover:scale-110 group-active:scale-95" />
+                  <X className="h-5 w-5 transition-transform group-hover:rotate-90" />
                 </button>
               </div>
 
-              <div className="p-8 flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent">
+              <div className="p-6 md:p-8">
                 {children}
               </div>
             </DialogPanel>

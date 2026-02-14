@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState } from "react";
-import Modal from "../Modal";
 import NewPrescriptionForm from "./NewPrescriptionForm";
 
 import { Patient, Prescription, Document } from "../../type";
@@ -41,6 +40,7 @@ function MainPrescriptionPage({
   const [documents, setDocuments] = useState<Document[]>([]);
   const [viewingDocument, setViewingDocument] = useState<Document | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedTemplateForEdit, setSelectedTemplateForEdit] = useState<any | null>(null);
 
   const [patient, setPatient] = useState<Patient | null>(null);
 
@@ -58,6 +58,7 @@ function MainPrescriptionPage({
   useEffect(() => {
     fetchPrescriptions();
   }, [fetchPrescriptions]);
+
   useEffect(() => {
     if (id) {
       window.electronAPI
@@ -76,12 +77,17 @@ function MainPrescriptionPage({
   }, [id]);
 
   const allItems = useCallback(() => {
-    const base = mode === "prescriptions"
-      ? [
-        ...prescriptions.map((p) => ({ ...p, kind: "prescription" as const })),
-        ...documents.filter((d) => d.type === "blood").map((d) => ({ ...d, kind: "document" as const })),
-      ]
-      : documents.filter((d) => d.type !== "blood").map((d) => ({ ...d, kind: "document" as const }));
+    const base =
+      mode === "prescriptions"
+        ? [
+          ...prescriptions.map((p) => ({ ...p, kind: "prescription" as const })),
+          ...documents
+            .filter((d) => d.type === "blood")
+            .map((d) => ({ ...d, kind: "document" as const })),
+        ]
+        : documents
+          .filter((d) => d.type !== "blood")
+          .map((d) => ({ ...d, kind: "document" as const }));
 
     return base.sort((a, b) => {
       const getTime = (val: any) => {
@@ -95,9 +101,42 @@ function MainPrescriptionPage({
     });
   }, [prescriptions, documents, mode])();
 
+  if (isOpen && !viewingDocument && (docType === "PRESCRIPTION" || docType === "BLOOD_WORK" || selectedTemplateForEdit)) {
+    return (
+      <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
+        {docType === "PRESCRIPTION" && patient && (
+          <NewPrescriptionForm
+            id={id}
+            onClose={() => setIsOpen(false)}
+            refreshPrescriptions={fetchPrescriptions}
+            patient={patient}
+          />
+        )}
+        {docType === "BLOOD_WORK" && patient && (
+          <BloodWork
+            patient={patient}
+            onClose={() => setIsOpen(false)}
+            refreshDocuments={fetchPrescriptions}
+          />
+        )}
+        {selectedTemplateForEdit && patient && (
+          <NewDocumentFromTemplate
+            patient={patient}
+            initialTemplate={selectedTemplateForEdit}
+            onClose={() => {
+              setIsOpen(false);
+              setSelectedTemplateForEdit(null);
+            }}
+            refreshDocuments={fetchPrescriptions}
+          />
+        )}
+      </div>
+    );
+  }
+
   return (
     <>
-      <div className="space-y-6 max-w-[80%] mx-auto">
+      <div className="space-y-6 max-w-[80%] mx-auto animate-in fade-in duration-300">
         <div className="flex flex-col gap-4">
           <Card className="border-none shadow-sm bg-card">
             <CardHeader className="pb-2">
@@ -155,60 +194,6 @@ function MainPrescriptionPage({
               : "Historique des lettres"}
           </div>
 
-          {/* Old Modal for PRESCRIPTION */}
-          {docType === "PRESCRIPTION" && (
-            <Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>
-              <NewPrescriptionForm
-                id={id}
-                onClose={() => setIsOpen(false)}
-                refreshPrescriptions={fetchPrescriptions}
-                patient={patient!}
-              />
-            </Modal>
-          )}
-
-          {/* New ModalV2 for documents */}
-          {docType !== "PRESCRIPTION" && (
-            <ModalV2
-              isOpen={isOpen}
-              onClose={() => setIsOpen(false)}
-              panelClassName="sm:max-w-4xl"
-            >
-              {viewingDocument && (
-                <div
-                  className={`transition-all duration-200 ${isOpen
-                    ? "opacity-100 translate-y-0"
-                    : "opacity-0 -translate-y-2"
-                    }`}
-                >
-                  <SingleDocument
-                    document={viewingDocument}
-                    onClose={() => {
-                      setIsOpen(false);
-                      setViewingDocument(null);
-                    }}
-                  />
-                </div>
-              )}
-
-              {docType === "BLOOD_WORK" && (
-                <BloodWork
-                  patient={patient!}
-                  onClose={() => setIsOpen(false)}
-                  refreshDocuments={fetchPrescriptions}
-                />
-              )}
-
-              {docType === "TEMPLATE" && (
-                <NewDocumentFromTemplate
-                  patient={patient!}
-                  onClose={() => setIsOpen(false)}
-                  refreshDocuments={fetchPrescriptions}
-                />
-              )}
-            </ModalV2>
-          )}
-
           <Table>
             <TableHeader className="bg-muted/50">
               <TableRow>
@@ -230,16 +215,12 @@ function MainPrescriptionPage({
             {allItems.length === 0 ? (
               <TableBody>
                 <TableRow className="hover:bg-transparent border-none">
-                  <TableCell
-                    colSpan={4}
-                    className="h-32 text-center text-muted-foreground"
-                  >
+                  <TableCell colSpan={4} className="h-32 text-center text-muted-foreground">
                     <div className="flex flex-col items-center justify-center gap-2">
                       <FileText className="w-8 h-8 opacity-20" />
                       <p>Aucun(e) {mode === "prescriptions" ? "ordonnance ou bilan" : "lettre"} pour le moment.</p>
                       <p className="text-xs opacity-70">
-                        Sélectionnez un type de {mode === "prescriptions" ? "document" : "lettre"} ci-dessus pour
-                        commencer.
+                        Sélectionnez un type de {mode === "prescriptions" ? "document" : "lettre"} ci-dessus pour commencer.
                       </p>
                     </div>
                   </TableCell>
@@ -248,10 +229,7 @@ function MainPrescriptionPage({
             ) : (
               <TableBody>
                 {allItems
-                  .slice(
-                    (currentPage - 1) * ITEMS_PER_PAGE,
-                    currentPage * ITEMS_PER_PAGE,
-                  )
+                  .slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE)
                   .map((item, index) =>
                     item.kind === "prescription" ? (
                       <PrescriptionRow
@@ -285,6 +263,45 @@ function MainPrescriptionPage({
           onPageChange={setCurrentPage}
         />
       </div>
+
+      {(viewingDocument || docType === "TEMPLATE") && (
+        <ModalV2
+          isOpen={isOpen}
+          onClose={() => {
+            setIsOpen(false);
+            setViewingDocument(null);
+            setDocType(null);
+          }}
+          panelClassName="sm:max-w-4xl"
+        >
+          {viewingDocument ? (
+            <SingleDocument
+              document={viewingDocument}
+              onClose={() => {
+                setIsOpen(false);
+                setViewingDocument(null);
+              }}
+            />
+          ) : (
+            patient && (
+              <NewDocumentFromTemplate
+                patient={patient}
+                selectorOnly
+                onTemplateSelect={(template) => {
+                  setSelectedTemplateForEdit(template);
+                  setDocType(null);
+                  // Keep isOpen true so the full-page return triggers
+                }}
+                onClose={() => {
+                  setIsOpen(false);
+                  setDocType(null);
+                }}
+                refreshDocuments={fetchPrescriptions}
+              />
+            )
+          )}
+        </ModalV2>
+      )}
     </>
   );
 }

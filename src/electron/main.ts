@@ -1,11 +1,23 @@
 import "dotenv/config";
 
-import { app, BrowserWindow, dialog, ipcMain, Menu, shell, type MenuItemConstructorOptions } from "electron";
+import {
+  app,
+  BrowserWindow,
+  dialog,
+  ipcMain,
+  Menu,
+  type MenuItemConstructorOptions,
+} from "electron";
 import path from "path";
 import { desc, eq, sql, or, like } from "drizzle-orm";
 import fs from "fs";
 import { isDevelopment } from "./util.js";
-import { getfontPath, getMedsPath, getBilansPath, getConsultationsPath } from "./pathResolver.js";
+import {
+  getfontPath,
+  getMedsPath,
+  getBilansPath,
+  getConsultationsPath,
+} from "./pathResolver.js";
 import { db } from "./index.js";
 import os from "os";
 import bcrypt from "bcrypt";
@@ -29,7 +41,6 @@ import {
   prescriptionTemplateMedications,
   documentTemplates,
   expenses,
-
 } from "./schema.js";
 import { restoreDatabase } from "./restore.js";
 import { backupDatabase } from "./bdBackup.js";
@@ -118,7 +129,9 @@ function setAppMenu(mainWindow: BrowserWindow) {
           },
         },
         { type: "separator" },
-        (isMac ? { role: "close", label: "Fermer" } : { role: "quit", label: "Quitter" }) as MenuItemConstructorOptions,
+        (isMac
+          ? { role: "close", label: "Fermer" }
+          : { role: "quit", label: "Quitter" }) as MenuItemConstructorOptions,
       ],
     },
     {
@@ -148,7 +161,10 @@ function setAppMenu(mainWindow: BrowserWindow) {
     },
     {
       label: "Fenêtre",
-      submenu: [{ role: "minimize", label: "Réduire" }, { role: "close", label: "Fermer" }],
+      submenu: [
+        { role: "minimize", label: "Réduire" },
+        { role: "close", label: "Fermer" },
+      ],
     },
     {
       label: "Aide",
@@ -172,6 +188,30 @@ function setAppMenu(mainWindow: BrowserWindow) {
 }
 
 app.on("ready", () => {
+  // Initialize JSON data files in userData if they don't exist (Production only)
+  if (!isDevelopment()) {
+    const jsonFiles = ["common_bilans.json", "common_consultations.json"];
+    jsonFiles.forEach((fileName) => {
+      const targetPath = path.join(app.getPath("userData"), fileName);
+      try {
+        if (!fs.existsSync(targetPath)) {
+          const sourcePath = path.join(process.resourcesPath, fileName);
+          if (fs.existsSync(sourcePath)) {
+            fs.copyFileSync(sourcePath, targetPath);
+          } else {
+            fs.writeFileSync(targetPath, JSON.stringify([], null, 2));
+          }
+        }
+        // Ensure the file is writable (important on Windows if copied from read-only source)
+        if (fs.existsSync(targetPath)) {
+          fs.chmodSync(targetPath, 0o666);
+        }
+      } catch (err) {
+        console.error(`Failed to initialize or set permissions for ${fileName}:`, err);
+      }
+    });
+  }
+
   const win = new BrowserWindow({
     show: false,
     webPreferences: {
@@ -627,10 +667,31 @@ app.on("ready", () => {
   ipcMain.handle("update-bilans", async (_, bilans) => {
     const bilansPath = getBilansPath();
     try {
-      fs.writeFileSync(bilansPath, JSON.stringify(bilans, null, 4), "utf-8");
+      await fs.promises.writeFile(
+        bilansPath,
+        JSON.stringify(bilans, null, 4),
+        "utf-8",
+      );
       return { success: true };
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to write common_bilans.json:", error);
+      // If still getting EPERM, try to force permissions again
+      if (error.code === "EPERM") {
+        try {
+          fs.chmodSync(bilansPath, 0o666);
+          await fs.promises.writeFile(
+            bilansPath,
+            JSON.stringify(bilans, null, 4),
+            "utf-8",
+          );
+          return { success: true };
+        } catch (chmodError) {
+          return {
+            success: false,
+            error: `Permission error: ${error.message}`,
+          };
+        }
+      }
       return { success: false, error: (error as Error).message };
     }
   });
@@ -658,10 +719,30 @@ app.on("ready", () => {
   ipcMain.handle("update-consultations-list", async (_, consultations) => {
     const consultationsPath = getConsultationsPath();
     try {
-      fs.writeFileSync(consultationsPath, JSON.stringify(consultations, null, 4), "utf-8");
+      await fs.promises.writeFile(
+        consultationsPath,
+        JSON.stringify(consultations, null, 4),
+        "utf-8",
+      );
       return { success: true };
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to write common_consultations.json:", error);
+      if (error.code === "EPERM") {
+        try {
+          fs.chmodSync(consultationsPath, 0o666);
+          await fs.promises.writeFile(
+            consultationsPath,
+            JSON.stringify(consultations, null, 4),
+            "utf-8",
+          );
+          return { success: true };
+        } catch (chmodError) {
+          return {
+            success: false,
+            error: `Permission error: ${error.message}`,
+          };
+        }
+      }
       return { success: false, error: (error as Error).message };
     }
   });
@@ -1886,10 +1967,6 @@ app.on("ready", () => {
     }
   });
 
-
-
-
-
   ipcMain.handle("global-search", async (_, query: string) => {
     if (!query || query.length < 2) return [];
 
@@ -1957,4 +2034,3 @@ app.on("ready", () => {
 
   win.webContents.setWindowOpenHandler(() => ({ action: "allow" }));
 });
-

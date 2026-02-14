@@ -22,6 +22,7 @@ function SinglePrescription({
   psychotropicNumber,
   patientAddress,
   prescriptionDate,
+  createdAt,
 }: {
   onClose: () => void;
   meds: PrescriptionMed[];
@@ -30,39 +31,39 @@ function SinglePrescription({
   psychotropicNumber?: number | null;
   patientAddress?: string | null;
   prescriptionDate?: string | null;
+  createdAt?: string | null;
 }) {
   const formattedDate = prescriptionDate
     ? format(new Date(prescriptionDate), "dd MMMM yyyy", { locale: fr })
     : "Date non disponible";
-  const formattedTime = prescriptionDate
-    ? format(new Date(prescriptionDate), "HH:mm")
-    : "--:--";
+
+  const formattedCreatedAt = createdAt
+    ? format(new Date(createdAt), "dd/MM/yyyy HH:mm", { locale: fr })
+    : null;
 
   return (
     <div className="w-full max-w-5xl mx-auto space-y-6">
       <Card className="border-none shadow-none bg-transparent">
         <CardHeader className="p-0 pb-6">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-gradient-to-br from-blue-600 to-indigo-700 dark:from-blue-700 dark:to-indigo-900 p-8 rounded-3xl text-white shadow-xl shadow-blue-500/10 relative overflow-hidden">
-            {/* Background Decoration */}
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-gradient-to-br from-blue-600 to-indigo-700 dark:from-blue-700 dark:to-indigo-900 p-4 rounded-3xl text-white shadow-xl shadow-blue-500/10 relative overflow-hidden">
             <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 w-64 h-64 bg-white/10 rounded-full blur-3xl pointer-events-none" />
-
             <div className="relative z-10 flex items-center gap-4">
               <div className="p-3.5 bg-white/20 backdrop-blur-md rounded-2xl border border-white/30 shadow-inner">
                 <Pill className="h-8 w-8 text-white" />
               </div>
               <div>
-                <CardTitle className="text-3xl font-bold tracking-tight">
+                <CardTitle className="text-2xl font-bold tracking-tight">
                   Ordonnance
+                  {isPsychotropic && (
+                    <span className="ml-3 text-xs font-bold uppercase tracking-wider bg-white/20 px-2 py-0.5 rounded-full">
+                      Psychotrope
+                    </span>
+                  )}
                 </CardTitle>
                 <div className="flex items-center gap-3 mt-1.5 text-blue-100/90 text-sm font-medium">
                   <div className="flex items-center gap-1.5">
                     <Calendar className="h-4 w-4" />
                     {formattedDate}
-                  </div>
-                  <div className="w-1 h-1 rounded-full bg-blue-200/50" />
-                  <div className="flex items-center gap-1.5">
-                    <Clock className="h-4 w-4" />
-                    {formattedTime}
                   </div>
                 </div>
               </div>
@@ -131,20 +132,20 @@ function SinglePrescription({
                   {meds.map((med, index) => (
                     <div
                       key={index}
-                      className="group p-5 rounded-3xl border border-border/60 bg-card hover:border-blue-500/30 hover:shadow-lg hover:shadow-blue-500/5 transition-all duration-300 relative overflow-hidden"
+                      className="group p-4 rounded-2xl border border-border/60 bg-card hover:border-blue-500/30 hover:shadow-lg hover:shadow-blue-500/5 transition-all duration-300 relative overflow-hidden"
                     >
-                      <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:bg-blue-500/10 transition-colors" />
+                      <div className="absolute top-0 right-0 w-24 h-24 bg-blue-500/5 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:bg-blue-500/10 transition-colors" />
 
-                      <div className="flex flex-col gap-4">
-                        <div className="flex items-start justify-between gap-4">
-                          <div className="space-y-1">
-                            <h4 className="text-lg font-bold text-foreground group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                      <div className="flex flex-col gap-3">
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="space-y-0.5">
+                            <h4 className="text-base font-bold text-foreground group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                               {med.medicineName}
                             </h4>
                             {med.form && (
                               <Badge
                                 variant="outline"
-                                className="text-[10px] font-bold uppercase tracking-tight py-0 border-muted-foreground/30"
+                                className="text-[9px] font-bold uppercase tracking-tight py-0 border-muted-foreground/30 h-4"
                               >
                                 {med.form}
                               </Badge>
@@ -152,31 +153,31 @@ function SinglePrescription({
                           </div>
                         </div>
 
-                        <div className="grid grid-cols-3 gap-4">
-                          <div className="space-y-1">
-                            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+                        <div className="grid grid-cols-3 gap-3">
+                          <div className="space-y-0.5">
+                            <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider">
                               Dosage
                             </p>
-                            <p className="text-sm font-semibold">
+                            <p className="text-xs font-semibold">
                               {med.dosage}
                             </p>
                           </div>
                           {med.quantity && (
-                            <div className="space-y-1">
-                              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+                            <div className="space-y-0.5">
+                              <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider">
                                 Quantité
                               </p>
-                              <p className="text-sm font-semibold">
+                              <p className="text-xs font-semibold">
                                 {med.quantity}
                               </p>
                             </div>
                           )}
                           {med.duration && (
-                            <div className="space-y-1">
-                              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+                            <div className="space-y-0.5">
+                              <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider">
                                 Durée
                               </p>
-                              <p className="text-sm font-semibold">
+                              <p className="text-xs font-semibold">
                                 {med.duration}
                               </p>
                             </div>
@@ -184,11 +185,11 @@ function SinglePrescription({
                         </div>
 
                         {med.note && (
-                          <div className="mt-1 p-3.5 bg-muted/30 dark:bg-muted/10 rounded-2xl border-l-4 border-blue-500/50">
-                            <p className="text-[10px] font-bold text-muted-foreground uppercase mb-1 tracking-wider">
-                              Instructions spéciales
+                          <div className="mt-0.5 p-2 bg-muted/30 dark:bg-muted/10 rounded-xl border-l-4 border-blue-500/50">
+                            <p className="text-[9px] font-bold text-muted-foreground uppercase mb-0.5 tracking-wider">
+                              Instructions
                             </p>
-                            <p className="text-sm font-medium italic text-muted-foreground leading-relaxed">
+                            <p className="text-xs font-medium italic text-muted-foreground leading-relaxed">
                               &ldquo;{med.note}&rdquo;
                             </p>
                           </div>
@@ -209,24 +210,33 @@ function SinglePrescription({
           </div>
         </CardContent>
 
-        <CardFooter className="flex justify-end items-center gap-3 mt-8 pt-8 border-t border-border/50 p-0">
-          <Button
-            variant="ghost"
-            onClick={onClose}
-            className="rounded-2xl px-6 h-12 font-bold hover:bg-muted"
-          >
-            Annuler
-          </Button>
-          <PrintButton
-            prescription={meds}
-            patient={patient}
-            window={window}
-            isPsychotropic={isPsychotropic}
-            psychotropicNumber={psychotropicNumber}
-            patientAddress={patientAddress}
-            prescriptionDate={prescriptionDate}
-          />
-        </CardFooter>
+        <div className="mt-8 flex flex-col gap-6">
+          {formattedCreatedAt && (
+            <div className="flex items-center gap-2 text-[10px] text-muted-foreground/60 font-medium px-1">
+              <Clock className="h-3 w-3" />
+              <span>Créé le {formattedCreatedAt}</span>
+            </div>
+          )}
+
+          <CardFooter className="flex justify-end items-center gap-3 pt-6 border-t border-border/50 p-0">
+            <Button
+              variant="ghost"
+              onClick={onClose}
+              className="rounded-2xl px-6 h-12 font-bold hover:bg-muted"
+            >
+              Annuler
+            </Button>
+            <PrintButton
+              prescription={meds}
+              patient={patient}
+              window={window}
+              isPsychotropic={isPsychotropic}
+              psychotropicNumber={psychotropicNumber}
+              patientAddress={patientAddress}
+              prescriptionDate={prescriptionDate}
+            />
+          </CardFooter>
+        </div>
       </Card>
     </div>
   );

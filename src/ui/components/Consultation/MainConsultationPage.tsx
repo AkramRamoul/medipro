@@ -39,8 +39,20 @@ function ConsultationForm({ id }: { id: string }) {
     setCurrentPage(1);
   }, [consultations]);
 
+  if (isOpen) {
+    return (
+      <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
+        <NewConsultationForm
+          id={id}
+          onClose={() => setIsOpen(false)}
+          refreshConsultations={fetchConsultations}
+        />
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-6 max-w-[80%] mx-auto">
+    <div className="space-y-6 max-w-[80%] mx-auto animate-in fade-in duration-300">
       <Card className="border-none shadow-sm bg-card">
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <div>
@@ -61,18 +73,6 @@ function ConsultationForm({ id }: { id: string }) {
           </Button>
         </CardHeader>
       </Card>
-
-      <ModalV2
-        isOpen={isOpen}
-        onClose={() => setIsOpen(false)}
-        panelClassName="sm:max-w-4xl"
-      >
-        <NewConsultationForm
-          id={id}
-          onClose={() => setIsOpen(false)}
-          refreshConsultations={fetchConsultations}
-        />
-      </ModalV2>
 
       <div className="rounded-xl">
         {consultations.length === 0 ? (

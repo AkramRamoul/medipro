@@ -21,7 +21,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
-import { Plus, Trash2, Pill, AlertTriangle, Save, X, ClipboardList, Calendar as CalendarIcon } from "lucide-react";
+import {
+  Plus,
+  Trash2,
+  Pill,
+  AlertTriangle,
+  Save,
+  X,
+  ClipboardList,
+  Calendar as CalendarIcon,
+  ArrowLeft,
+} from "lucide-react";
 import { format, isToday } from "date-fns";
 import { fr } from "date-fns/locale";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
@@ -53,8 +63,11 @@ const NewPrescriptionForm = ({
   const [inputValue, setInputValue] = useState("");
   const [suggestions, setSuggestions] = useState<Medication[]>([]);
   const [isSearching, setIsSearching] = useState(false);
-  const [selectedMedications, setSelectedMedications] = useState<PrescriptionMed[]>([]);
-  const [selectedMedication, setSelectedMedication] = useState<Medication | null>(null);
+  const [selectedMedications, setSelectedMedications] = useState<
+    PrescriptionMed[]
+  >([]);
+  const [selectedMedication, setSelectedMedication] =
+    useState<Medication | null>(null);
   const [highlightedIndex, setHighlightedIndex] = useState<number>(-1);
   const [quantity, setQuantity] = useState<string>("");
   const [duration, setDuration] = useState<string>("");
@@ -109,7 +122,10 @@ const NewPrescriptionForm = ({
   const scrollToHighlighted = (index: number) => {
     const suggestionElement = document.getElementById(`suggestion-${index}`);
     if (suggestionElement) {
-      suggestionElement.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      suggestionElement.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest",
+      });
     }
   };
 
@@ -141,7 +157,8 @@ const NewPrescriptionForm = ({
       prescriptionDate: prescriptionDate.toISOString(),
     };
     try {
-      const response = await window.electronAPI.addFullPrescription(prescriptionData);
+      const response =
+        await window.electronAPI.addFullPrescription(prescriptionData);
       if (response.success) {
         if (response.psychotropic_number) {
           setPsychotropicNumber(response.psychotropic_number.toString());
@@ -168,7 +185,9 @@ const NewPrescriptionForm = ({
   };
 
   const handleAddMedication = () => {
-    const medName = selectedMedication ? selectedMedication.name : inputValue.trim();
+    const medName = selectedMedication
+      ? selectedMedication.name
+      : inputValue.trim();
     if (!medName) {
       toast.error("Le nom du médicament ne peut pas être vide.");
       return;
@@ -191,33 +210,38 @@ const NewPrescriptionForm = ({
     setNote("");
   };
 
-  const searchMedications = useCallback((query: string) => {
-    if (query.trim() === "") {
-      setSuggestions([]);
+  const searchMedications = useCallback(
+    (query: string) => {
+      if (query.trim() === "") {
+        setSuggestions([]);
+        setIsSearching(false);
+        return;
+      }
+      const lower = query.toLowerCase();
+      const words = lower.split(/\s+/);
+      const scored = medications
+        .map((med) => {
+          const nameLower = med.name.toLowerCase();
+          let score = 0;
+          if (nameLower === lower) score = 1000;
+          else if (nameLower.startsWith(lower)) score = 500;
+          else if (words.every((word) => nameLower.includes(word))) score = 100;
+          else return null;
+          score += Math.max(0, 50 - med.name.length);
+          return { med, score };
+        })
+        .filter(
+          (item): item is { med: Medication; score: number } => item !== null,
+        )
+        .sort((a, b) => b.score - a.score)
+        .slice(0, MAX_SUGGESTIONS)
+        .map((item) => item.med);
+      setSuggestions(scored);
+      setHighlightedIndex(-1);
       setIsSearching(false);
-      return;
-    }
-    const lower = query.toLowerCase();
-    const words = lower.split(/\s+/);
-    const scored = medications
-      .map((med) => {
-        const nameLower = med.name.toLowerCase();
-        let score = 0;
-        if (nameLower === lower) score = 1000;
-        else if (nameLower.startsWith(lower)) score = 500;
-        else if (words.every(word => nameLower.includes(word))) score = 100;
-        else return null;
-        score += Math.max(0, 50 - med.name.length);
-        return { med, score };
-      })
-      .filter((item): item is { med: Medication; score: number } => item !== null)
-      .sort((a, b) => b.score - a.score)
-      .slice(0, MAX_SUGGESTIONS)
-      .map(item => item.med);
-    setSuggestions(scored);
-    setHighlightedIndex(-1);
-    setIsSearching(false);
-  }, [medications]);
+    },
+    [medications],
+  );
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
@@ -235,7 +259,9 @@ const NewPrescriptionForm = ({
   };
 
   const handleRemoveMedication = (index: number) => {
-    setSelectedMedications((prev) => prev.filter((_, medIndex) => medIndex !== index));
+    setSelectedMedications((prev) =>
+      prev.filter((_, medIndex) => medIndex !== index),
+    );
   };
 
   const handleApplyTemplate = (templateId: string) => {
@@ -258,7 +284,10 @@ const NewPrescriptionForm = ({
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(event.target as Node)
+      ) {
         setSuggestions([]);
         setHighlightedIndex(-1);
       }
@@ -279,14 +308,25 @@ const NewPrescriptionForm = ({
     <div className="relative max-w-5xl mx-auto space-y-6">
       <Card className="border-border shadow-sm">
         <CardHeader className="pb-4">
+          <div className="flex items-center justify-between mb-4">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onClose}
+              className="gap-2 text-muted-foreground hover:text-primary transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Retour
+            </Button>
+          </div>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle className="text-lg flex items-center gap-2">
-                <Pill className="h-5 w-5 text-primary" />
-                Ajouter un médicament
+              <CardTitle className="text-xl flex items-center gap-2 text-primary">
+                <Pill className="h-6 w-6" />
+                Nouvelle Ordonnance
               </CardTitle>
               <CardDescription>
-                Recherchez et ajoutez des médicaments à l'ordonnance.
+                Recherchez et ajoutez des médicaments pour {patient?.first_name} {patient?.last_name}.
               </CardDescription>
             </div>
             <div className="flex flex-col items-end gap-1">
@@ -296,7 +336,8 @@ const NewPrescriptionForm = ({
                     variant="outline"
                     className={cn(
                       "h-9 justify-start text-left font-normal border-dashed",
-                      !isToday(prescriptionDate) && "border-amber-500 text-amber-600 bg-amber-50 hover:bg-amber-100"
+                      !isToday(prescriptionDate) &&
+                      "border-amber-500 text-amber-600 dark:text-amber-400 bg-amber-500/5 dark:bg-amber-500/10 hover:bg-amber-500/10 dark:hover:bg-amber-500/20",
                     )}
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
@@ -304,13 +345,27 @@ const NewPrescriptionForm = ({
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="end">
-                  <Calendar
-                    mode="single"
-                    selected={prescriptionDate}
-                    onSelect={(date) => date && setPrescriptionDate(date)}
-                    initialFocus
-                    locale={fr}
-                  />
+                  <div className="flex flex-col">
+                    <Calendar
+                      mode="single"
+                      selected={prescriptionDate}
+                      onSelect={(date) => date && setPrescriptionDate(date)}
+                      initialFocus
+                      locale={fr}
+                    />
+                    {!isToday(prescriptionDate) && (
+                      <div className="p-2 border-t">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="w-full text-xs h-8"
+                          onClick={() => setPrescriptionDate(new Date())}
+                        >
+                          Revenir à aujourd'hui
+                        </Button>
+                      </div>
+                    )}
+                  </div>
                 </PopoverContent>
               </Popover>
               {!isToday(prescriptionDate) && (
@@ -325,7 +380,9 @@ const NewPrescriptionForm = ({
             <div className="mt-4 flex items-center gap-4 p-3 bg-primary/5 border border-primary/10 rounded-lg">
               <ClipboardList className="h-5 w-5 text-primary" />
               <div className="flex-1 text-left">
-                <Label className="text-xs font-bold uppercase text-primary/70">Appliquer un modèle</Label>
+                <Label className="text-xs font-bold uppercase text-primary/70">
+                  Appliquer un modèle
+                </Label>
                 <Select onValueChange={handleApplyTemplate}>
                   <SelectTrigger className="w-full bg-background mt-1">
                     <SelectValue placeholder="Sélectionner un modèle..." />
@@ -344,7 +401,10 @@ const NewPrescriptionForm = ({
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end text-left">
-            <div ref={containerRef} className="md:col-span-4 relative space-y-2">
+            <div
+              ref={containerRef}
+              className="md:col-span-4 relative space-y-2"
+            >
               <Label>Médicament</Label>
               <Input
                 type="text"
@@ -358,18 +418,24 @@ const NewPrescriptionForm = ({
               {(suggestions.length > 0 || isSearching) && (
                 <div className="absolute z-50 w-full max-h-60 overflow-y-auto bg-popover border border-border rounded-md shadow-lg mt-1 text-left">
                   {isSearching ? (
-                    <div className="px-3 py-4 text-sm text-center text-muted-foreground">Recherche...</div>
+                    <div className="px-3 py-4 text-sm text-center text-muted-foreground">
+                      Recherche...
+                    </div>
                   ) : (
                     suggestions.map((med, index) => (
                       <div
                         key={`${med.name}-${index}`}
                         id={`suggestion-${index}`}
-                        className={`px-3 py-2 text-sm cursor-pointer hover:bg-accent hover:text-accent-foreground transition-colors ${index === highlightedIndex ? "bg-accent text-accent-foreground" : ""
+                        className={`px-3 py-2 text-sm cursor-pointer hover:bg-accent hover:text-accent-foreground transition-colors ${index === highlightedIndex
+                          ? "bg-accent text-accent-foreground"
+                          : ""
                           }`}
                         onMouseDown={() => handleSuggestionClick(med)}
                       >
                         <div className="font-medium">{med.name}</div>
-                        <div className="text-xs text-muted-foreground">{med.form} • {med.dosage}</div>
+                        <div className="text-xs text-muted-foreground">
+                          {med.form} • {med.dosage}
+                        </div>
                       </div>
                     ))
                   )}
@@ -409,7 +475,11 @@ const NewPrescriptionForm = ({
                   placeholder="Posologie..."
                   className="flex-1"
                 />
-                <Button onClick={handleAddMedication} disabled={inputValue.trim() === ""} size="icon">
+                <Button
+                  onClick={handleAddMedication}
+                  disabled={inputValue.trim() === ""}
+                  size="icon"
+                >
                   <Plus className="h-4 w-4" />
                 </Button>
               </div>
@@ -419,14 +489,23 @@ const NewPrescriptionForm = ({
       </Card>
 
       {Number(id) !== 0 && (
-        <div className={`rounded-lg border transition-all ${isPsychotropic ? "border-amber-400 bg-amber-50" : "border-border bg-card"}`}>
+        <div
+          className={`rounded-lg border transition-all ${isPsychotropic ? "border-amber-400/50 bg-amber-50/50 dark:bg-amber-950/20 dark:border-amber-900/50" : "border-border bg-card"}`}
+        >
           <div className="p-4 flex flex-row items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className={`p-1.5 rounded-full ${isPsychotropic ? "bg-amber-100 text-amber-600" : "bg-muted text-muted-foreground"}`}>
+              <div
+                className={`p-1.5 rounded-full ${isPsychotropic ? "bg-amber-100 text-amber-600 dark:bg-amber-900/40 dark:text-amber-400" : "bg-muted text-muted-foreground"}`}
+              >
                 <AlertTriangle className="h-4 w-4" />
               </div>
               <div className="space-y-0.5">
-                <Label htmlFor="psychotropic-switch" className="text-sm font-medium cursor-pointer">Traitement Psychotrope</Label>
+                <Label
+                  htmlFor="psychotropic-switch"
+                  className="text-sm font-medium cursor-pointer"
+                >
+                  Traitement Psychotrope
+                </Label>
               </div>
             </div>
             <Switch
@@ -445,14 +524,27 @@ const NewPrescriptionForm = ({
           </div>
           {isPsychotropic && (
             <div className="px-4 pb-4 pt-0 animate-in slide-in-from-top-2">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t border-amber-200/50">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t border-amber-200/50 dark:border-amber-800/50">
                 <div className="space-y-1.5">
-                  <Label className="text-xs text-muted-foreground">Numéro de prescription</Label>
-                  <Input value={psychotropicNumber} readOnly className="h-8 font-mono bg-white" />
+                  <Label className="text-xs text-muted-foreground">
+                    Numéro de série
+                  </Label>
+                  <Input
+                    value={psychotropicNumber}
+                    readOnly
+                    className="h-8 font-mono bg-white dark:bg-slate-950"
+                  />
                 </div>
                 <div className="space-y-1.5">
-                  <Label className="text-xs text-muted-foreground">Adresse du patient</Label>
-                  <Input value={patientAddress} onChange={(e) => setPatientAddress(e.target.value)} placeholder="Adresse complète" className="h-8 bg-white" />
+                  <Label className="text-xs text-muted-foreground">
+                    Adresse du patient
+                  </Label>
+                  <Input
+                    value={patientAddress}
+                    onChange={(e) => setPatientAddress(e.target.value)}
+                    placeholder="Adresse complète"
+                    className="h-8 bg-white dark:bg-slate-950"
+                  />
                 </div>
               </div>
             </div>
@@ -468,19 +560,28 @@ const NewPrescriptionForm = ({
           <CardContent>
             <div className="space-y-2">
               {selectedMedications.map((med, index) => (
-                <div key={index} className="flex items-center justify-between p-3 rounded-lg border bg-card group hover:bg-accent/50 transition-colors">
+                <div
+                  key={index}
+                  className="flex items-center justify-between p-3 rounded-lg border bg-card group hover:bg-accent/50 transition-colors"
+                >
                   <div className="space-y-1">
                     <div className="font-semibold flex items-center gap-2">
                       {med.medicineName}
                       {med.dosage && (
-                        <span className="text-xs font-normal px-2 py-0.5 rounded-full bg-muted text-muted-foreground">{med.dosage}</span>
+                        <span className="text-xs font-normal px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
+                          {med.dosage}
+                        </span>
                       )}
                     </div>
                     <div className="text-sm text-muted-foreground">
                       {med.form}
                       {med.quantity && ` • ${med.quantity}`}
                       {med.duration && ` • ${med.duration}`}
-                      {med.note && <span className="text-foreground italic ml-2">— {med.note}</span>}
+                      {med.note && (
+                        <span className="text-foreground italic ml-2">
+                          — {med.note}
+                        </span>
+                      )}
                     </div>
                   </div>
                   <Button
@@ -514,7 +615,11 @@ const NewPrescriptionForm = ({
           disabled={selectedMedications.length === 0}
         />
         {Number(id) !== 0 && (
-          <Button onClick={handleSave} size="lg" className="gap-2 min-w-[150px]">
+          <Button
+            onClick={handleSave}
+            size="lg"
+            className="gap-2 min-w-[150px]"
+          >
             <Save className="w-4 h-4" />
             Enregistrer
           </Button>

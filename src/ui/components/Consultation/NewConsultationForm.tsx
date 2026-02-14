@@ -19,6 +19,7 @@ import {
   Plus,
   Banknote,
   Check,
+  ArrowLeft,
 } from "lucide-react";
 import { Patient } from "../../type";
 import { toast } from "sonner";
@@ -188,16 +189,28 @@ function NewConsultationForm({
   }
 
   return (
-    <Card className="w-full max-w-4xl mx-auto border-none shadow-none">
-      <CardHeader className="pb-4 border-b mb-6">
-        <CardTitle className="flex items-center gap-3 text-2xl text-primary">
-          <Stethoscope className="w-8 h-8" />
-          Nouvelle Consultation
-        </CardTitle>
-        <p className="text-muted-foreground mt-1">
-          Remplissez les détails de la consultation pour {patient?.first_name}{" "}
-          {patient?.last_name}
-        </p>
+    <Card className="w-full max-w-5xl mx-auto border-none shadow-none text-left">
+      <CardHeader className="pb-6 border-b mb-6">
+        <div className="flex items-center gap-4">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onClose}
+            className="h-10 w-10 text-muted-foreground hover:text-primary transition-colors"
+          >
+            <ArrowLeft className="w-6 h-6" />
+          </Button>
+          <div>
+            <CardTitle className="flex items-center gap-3 text-2xl text-primary">
+              <Stethoscope className="w-8 h-8" />
+              Nouvelle Consultation
+            </CardTitle>
+            <p className="text-muted-foreground mt-1">
+              Remplissez les détails de la consultation pour {patient?.first_name}{" "}
+              {patient?.last_name}
+            </p>
+          </div>
+        </div>
       </CardHeader>
 
       <CardContent className="space-y-8">
@@ -260,10 +273,9 @@ function NewConsultationForm({
                           key={index}
                           className={`
                             relative flex items-center gap-2 px-3 py-2.5 text-sm rounded-md cursor-pointer transition-colors
-                            ${
-                              index === highlightedIndex
-                                ? "bg-accent/80 text-accent-foreground"
-                                : "hover:bg-accent/50 hover:text-accent-foreground"
+                            ${index === highlightedIndex
+                              ? "bg-accent/80 text-accent-foreground"
+                              : "hover:bg-accent/50 hover:text-accent-foreground"
                             }
                           `}
                           onClick={() =>

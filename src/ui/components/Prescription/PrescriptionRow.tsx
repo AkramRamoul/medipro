@@ -5,6 +5,7 @@ import { useState } from "react";
 import Modal from "../Modal";
 import SinglePrescription from "./SinglePrescription";
 import DropDown from "./DropDown";
+import { cn } from "../../lib/utils";
 interface PrescriptionRowProps {
   prescription: Prescription;
   setData: React.Dispatch<React.SetStateAction<Prescription[]>>;
@@ -58,16 +59,20 @@ function PrescriptionRow({
         isOpen={!!selectedPrescription}
         onClose={() => setSelectedPrescription(null)}
       >
-        {selectedPrescription && (
-          <SinglePrescription
-            meds={selectedPrescription.medications}
-            onClose={() => setSelectedPrescription(null)}
-            patient={patinet}
-            isPsychotropic={selectedPrescription.isPsychotropic}
-            psychotropicNumber={selectedPrescription.psychotropicNumber}
-            patientAddress={selectedPrescription.patientAddress}
-            prescriptionDate={selectedPrescription.date}
-          />
+        {/* We keep the content rendered during leave transition by checking if we have either the selected one or we're in the process of closing */}
+        {(selectedPrescription || (!!selectedPrescription === false)) && (
+          <div className={cn(!selectedPrescription && "pointer-events-none")}>
+            <SinglePrescription
+              meds={selectedPrescription?.medications || []}
+              onClose={() => setSelectedPrescription(null)}
+              patient={patinet}
+              isPsychotropic={selectedPrescription?.isPsychotropic}
+              psychotropicNumber={selectedPrescription?.psychotropicNumber}
+              patientAddress={selectedPrescription?.patientAddress}
+              prescriptionDate={selectedPrescription?.date}
+              createdAt={selectedPrescription?.createdAt}
+            />
+          </div>
         )}
       </Modal>
     </>

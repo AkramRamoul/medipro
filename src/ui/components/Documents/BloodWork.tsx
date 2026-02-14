@@ -25,6 +25,7 @@ import {
   FlaskConical,
   Search,
   AlertTriangle,
+  ArrowLeft,
 } from "lucide-react";
 import { format, isToday, parseISO } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -53,7 +54,7 @@ export function BloodWork({
     resolver: zodResolver(bloodWorkSchema),
     defaultValues: {
       patientName: `${patient.last_name} ${patient.first_name}`,
-      date: new Date().toISOString().split("T")[0],
+      date: format(new Date(), "yyyy-MM-dd"),
       results: [],
     },
   });
@@ -147,16 +148,28 @@ export function BloodWork({
   }
 
   return (
-    <Card className="w-full max-w-2xl mx-auto border-none shadow-none">
+    <Card className="w-full max-w-4xl mx-auto border-none shadow-none">
       <CardHeader className="pb-4 border-b mb-6">
-        <CardTitle className="flex items-center gap-3 text-xl text-primary">
-          <FlaskConical className="w-6 h-6" />
-          Demande de Bilan
-        </CardTitle>
-        <p className="text-muted-foreground mt-1">
-          Créez une nouvelle demande d'analyses pour {patient.first_name}{" "}
-          {patient.last_name}
-        </p>
+        <div className="flex items-center gap-4">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onClose}
+            className="h-9 w-9 text-muted-foreground hover:text-primary transition-colors"
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </Button>
+          <div>
+            <CardTitle className="flex items-center gap-3 text-xl text-primary">
+              <FlaskConical className="w-6 h-6" />
+              Demande de Bilan
+            </CardTitle>
+            <p className="text-muted-foreground mt-1">
+              Créez une nouvelle demande d'analyses pour {patient.first_name}{" "}
+              {patient.last_name}
+            </p>
+          </div>
+        </div>
       </CardHeader>
 
       <CardContent className="space-y-6">
@@ -185,7 +198,7 @@ export function BloodWork({
                 name="date"
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
-                    <FormLabel className="flex items-center gap-2 mb-1">
+                    <FormLabel className="flex items-center gap-2">
                       <CalendarIcon className="w-4 h-4 text-muted-foreground" />
                       Date
                     </FormLabel>
@@ -197,7 +210,7 @@ export function BloodWork({
                             className={cn(
                               "w-full pl-3 text-left font-normal h-10 rounded-xl",
                               !field.value && "text-muted-foreground",
-                              !isToday(parseISO(field.value)) && "border-amber-500 text-amber-600 bg-amber-50 hover:bg-amber-100"
+                              !isToday(parseISO(field.value)) && "border-amber-500 text-amber-600 dark:text-amber-400 bg-amber-500/5 dark:bg-amber-500/10 hover:bg-amber-500/10 dark:hover:bg-amber-500/20"
                             )}
                           >
                             {field.value ? (
@@ -210,16 +223,34 @@ export function BloodWork({
                         </FormControl>
                       </PopoverTrigger>
                       <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                          mode="single"
-                          selected={parseISO(field.value)}
-                          onSelect={(date) => field.onChange(date?.toISOString().split("T")[0])}
-                          disabled={(date) =>
-                            date > new Date() || date < new Date("1900-01-01")
-                          }
-                          initialFocus
-                          locale={fr}
-                        />
+                        <div className="flex flex-col">
+                          <Calendar
+                            mode="single"
+                            selected={parseISO(field.value)}
+                            onSelect={(date) => {
+                              if (date) {
+                                field.onChange(format(date, "yyyy-MM-dd"));
+                              }
+                            }}
+                            disabled={(date) =>
+                              date > new Date() || date < new Date("1900-01-01")
+                            }
+                            initialFocus
+                            locale={fr}
+                          />
+                          {!isToday(parseISO(field.value)) && (
+                            <div className="p-2 border-t">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="w-full text-xs h-8"
+                                onClick={() => field.onChange(format(new Date(), "yyyy-MM-dd"))}
+                              >
+                                Revenir à aujourd'hui
+                              </Button>
+                            </div>
+                          )}
+                        </div>
                       </PopoverContent>
                     </Popover>
                     {!isToday(parseISO(field.value)) && (
@@ -349,6 +380,6 @@ export function BloodWork({
           </form>
         </Form>
       </CardContent>
-    </Card>
+    </Card >
   );
 }

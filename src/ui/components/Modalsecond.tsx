@@ -39,22 +39,23 @@ const ModalV2: React.FC<ModalProps> = ({
             <Transition.Child
               as={Fragment}
               enter="ease-out duration-300"
-              enterFrom="opacity-0 translate-y-2 sm:scale-98"
+              enterFrom="opacity-0 translate-y-4 sm:scale-95"
               enterTo="opacity-100 translate-y-0 sm:scale-100"
               leave="ease-in duration-200"
               leaveFrom="opacity-100 translate-y-0 sm:scale-100"
-              leaveTo="opacity-0 translate-y-2 sm:scale-98"
+              leaveTo="opacity-0 translate-y-4 sm:scale-95"
             >
               <Dialog.Panel
                 className={cn(
                   `relative w-full rounded-2xl
                     max-h-[90vh] overflow-y-auto
+                    scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent
                     bg-background
                     border border-border/50
                     shadow-2xl
                     px-4 pb-4 pt-5
-                    sm:my-8 sm:max-w-lg sm:p-6
-                    transform-gpu`,
+                    sm:my-8 sm:max-w-lg sm:p-8
+                    will-change-transform`,
                   panelClassName,
                 )}
               >

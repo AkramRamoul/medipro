@@ -9,21 +9,24 @@ export function getPreloadPath() {
 }
 
 export function getMedsPath() {
-  return isDevelopment()
-    ? "public/meds.json"
-    : path.join(process.resourcesPath, "meds.json");
+  if (isDevelopment()) {
+    return path.join(app.getAppPath(), "public", "meds.json");
+  }
+  return path.join(process.resourcesPath, "meds.json");
 }
 
 export function getBilansPath() {
-  return isDevelopment()
-    ? "public/common_bilans.json"
-    : path.join(process.resourcesPath, "common_bilans.json");
+  if (isDevelopment()) {
+    return path.join(app.getAppPath(), "public", "common_bilans.json");
+  }
+  return path.join(app.getPath("userData"), "common_bilans.json");
 }
 
 export function getConsultationsPath() {
-  return isDevelopment()
-    ? "public/common_consultations.json"
-    : path.join(process.resourcesPath, "common_consultations.json");
+  if (isDevelopment()) {
+    return path.join(app.getAppPath(), "public", "common_consultations.json");
+  }
+  return path.join(app.getPath("userData"), "common_consultations.json");
 }
 
 export function getfontPath() {
