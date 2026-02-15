@@ -22,7 +22,12 @@ import {
   Trash2,
   Info,
   Hash,
-  Layout
+  Layout,
+  Type,
+  Eye,
+  EyeOff,
+  Minus,
+  SlidersHorizontal,
 } from "lucide-react";
 
 interface FormState {
@@ -39,6 +44,15 @@ interface FormState {
   city: string;
   accentColor?: string;
   fontFamily?: "serif" | "sans-serif";
+  doctorNameFontSize?: number;
+  specialtyFontSize?: number;
+  titleFontSize?: number;
+  bodyFontSize?: number;
+  logoSize?: number;
+  watermarkOpacity?: number;
+  dividerStyle?: "solid" | "dashed" | "double" | "none";
+  titleText?: string;
+  showInscriptionNumber?: boolean;
 }
 
 export function PrescriptionModelForm() {
@@ -56,6 +70,15 @@ export function PrescriptionModelForm() {
     city: "",
     accentColor: "#000000",
     fontFamily: "serif",
+    doctorNameFontSize: 14,
+    specialtyFontSize: 10,
+    titleFontSize: 18,
+    bodyFontSize: 12,
+    logoSize: 60,
+    watermarkOpacity: 10,
+    dividerStyle: "solid",
+    titleText: "ORDONNANCE",
+    showInscriptionNumber: true,
   });
 
   const [logoImage, setLogoImage] = useState<string | null>(null);
@@ -87,6 +110,15 @@ export function PrescriptionModelForm() {
         city: model.city || "",
         accentColor: model.accentColor || "#000000",
         fontFamily: model.fontFamily || "serif",
+        doctorNameFontSize: model.doctorNameFontSize ?? 14,
+        specialtyFontSize: model.specialtyFontSize ?? 10,
+        titleFontSize: model.titleFontSize ?? 18,
+        bodyFontSize: model.bodyFontSize ?? 12,
+        logoSize: model.logoSize ?? 60,
+        watermarkOpacity: model.watermarkOpacity ?? 10,
+        dividerStyle: model.dividerStyle || "solid",
+        titleText: model.titleText || "ORDONNANCE",
+        showInscriptionNumber: model.showInscriptionNumber ?? true,
       });
 
       try {
@@ -437,6 +469,135 @@ export function PrescriptionModelForm() {
                           Moderne (Sans)
                         </button>
                       </div>
+                    </div>
+                  </div>
+                </section>
+
+                {/* Layout & Sizing Section */}
+                <section className="space-y-4">
+                  <div className="flex items-center gap-2 pb-2 border-b border-muted">
+                    <SlidersHorizontal className="w-4 h-4 text-primary" />
+                    <h3 className="font-semibold text-sm uppercase tracking-wider">Mise en Page</h3>
+                  </div>
+
+                  {/* Font Sizes */}
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2">
+                      <Type className="w-3.5 h-3.5 text-muted-foreground" />
+                      <label className="text-sm font-medium">Tailles de police</label>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {([
+                        { key: "doctorNameFontSize" as const, label: "Nom du docteur", min: 10, max: 22 },
+                        { key: "specialtyFontSize" as const, label: "Spécialité", min: 8, max: 16 },
+                        { key: "titleFontSize" as const, label: "Titre (ORDONNANCE)", min: 14, max: 28 },
+                        { key: "bodyFontSize" as const, label: "Corps de texte", min: 8, max: 16 },
+                      ]).map(({ key, label, min, max }) => (
+                        <div key={key} className="space-y-1">
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs text-muted-foreground">{label}</span>
+                            <span className="text-xs font-mono font-semibold bg-muted px-1.5 py-0.5 rounded">{form[key]}px</span>
+                          </div>
+                          <input
+                            type="range"
+                            min={min}
+                            max={max}
+                            value={form[key]}
+                            onChange={(e) => setForm(f => ({ ...f, [key]: Number(e.target.value) }))}
+                            className="w-full h-1.5 bg-muted rounded-lg appearance-none cursor-pointer accent-primary"
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Logo & Watermark */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-1">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-muted-foreground">Taille du logo</span>
+                        <span className="text-xs font-mono font-semibold bg-muted px-1.5 py-0.5 rounded">{form.logoSize}px</span>
+                      </div>
+                      <input
+                        type="range"
+                        min={40}
+                        max={120}
+                        value={form.logoSize}
+                        onChange={(e) => setForm(f => ({ ...f, logoSize: Number(e.target.value) }))}
+                        className="w-full h-1.5 bg-muted rounded-lg appearance-none cursor-pointer accent-primary"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-muted-foreground">Opacité du filigrane</span>
+                        <span className="text-xs font-mono font-semibold bg-muted px-1.5 py-0.5 rounded">{form.watermarkOpacity}%</span>
+                      </div>
+                      <input
+                        type="range"
+                        min={0}
+                        max={20}
+                        value={form.watermarkOpacity}
+                        onChange={(e) => setForm(f => ({ ...f, watermarkOpacity: Number(e.target.value) }))}
+                        className="w-full h-1.5 bg-muted rounded-lg appearance-none cursor-pointer accent-primary"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Divider Style */}
+                  <div className="space-y-2">
+                    <label className="text-xs text-muted-foreground flex items-center gap-1">
+                      <Minus className="w-3 h-3" /> Style du séparateur
+                    </label>
+                    <div className="flex p-1 bg-muted rounded-lg w-full max-w-xs">
+                      {([
+                        { value: "solid" as const, label: "Continu" },
+                        { value: "dashed" as const, label: "Tirets" },
+                        { value: "double" as const, label: "Double" },
+                        { value: "none" as const, label: "Aucun" },
+                      ]).map(({ value, label }) => (
+                        <button
+                          key={value}
+                          type="button"
+                          onClick={() => setForm(f => ({ ...f, dividerStyle: value }))}
+                          className={`flex-1 py-1.5 px-2 text-xs font-medium rounded-md transition-all ${form.dividerStyle === value
+                              ? "bg-background shadow-sm text-foreground"
+                              : "text-muted-foreground hover:text-foreground"
+                            }`}
+                        >
+                          {label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Title Text & Show N° */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Texte du titre</label>
+                      <input
+                        type="text"
+                        value={form.titleText}
+                        onChange={(e) => setForm(f => ({ ...f, titleText: e.target.value }))}
+                        placeholder="ORDONNANCE"
+                        className="w-full p-2.5 border rounded-md bg-background text-foreground focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">N° d'ordre</label>
+                      <button
+                        type="button"
+                        onClick={() => setForm(f => ({ ...f, showInscriptionNumber: !f.showInscriptionNumber }))}
+                        className={`flex items-center gap-2 px-4 py-2.5 rounded-md border transition-all text-sm font-medium w-full justify-center ${form.showInscriptionNumber
+                            ? "bg-primary/10 border-primary/30 text-primary"
+                            : "bg-muted/50 border-muted text-muted-foreground"
+                          }`}
+                      >
+                        {form.showInscriptionNumber ? (
+                          <><Eye className="w-4 h-4" /> Visible sur l'ordonnance</>
+                        ) : (
+                          <><EyeOff className="w-4 h-4" /> Masqué sur l'ordonnance</>
+                        )}
+                      </button>
                     </div>
                   </div>
                 </section>

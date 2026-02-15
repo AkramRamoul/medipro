@@ -102,6 +102,15 @@ export const prescriptionModel = sqliteTable("prescription_model", {
   city: text("city").notNull(),
   accentColor: text("accent_color"),
   fontFamily: text("font_family"),
+  doctorNameFontSize: integer("doctor_name_font_size").default(14),
+  specialtyFontSize: integer("specialty_font_size").default(10),
+  titleFontSize: integer("title_font_size").default(18),
+  bodyFontSize: integer("body_font_size").default(12),
+  logoSize: integer("logo_size").default(60),
+  watermarkOpacity: integer("watermark_opacity").default(10),
+  dividerStyle: text("divider_style").default("solid"),
+  titleText: text("title_text").default("ORDONNANCE"),
+  showInscriptionNumber: integer("show_inscription_number", { mode: "boolean" }).default(true),
 });
 export const psychotropicCounters = sqliteTable("psychotropic_counters", {
   id: integer("id").primaryKey({ autoIncrement: true }),

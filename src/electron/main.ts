@@ -1176,6 +1176,15 @@ app.on("ready", () => {
         city,
         accentColor,
         fontFamily,
+        doctorNameFontSize,
+        specialtyFontSize,
+        titleFontSize,
+        bodyFontSize,
+        logoSize,
+        watermarkOpacity,
+        dividerStyle,
+        titleText,
+        showInscriptionNumber,
       } = formData;
 
       const servicesFr = services.map((s: any) => s.fr);
@@ -1195,6 +1204,15 @@ app.on("ready", () => {
         city,
         accentColor,
         fontFamily,
+        doctorNameFontSize,
+        specialtyFontSize,
+        titleFontSize,
+        bodyFontSize,
+        logoSize,
+        watermarkOpacity,
+        dividerStyle,
+        titleText,
+        showInscriptionNumber,
       };
 
       const existing = await db.select().from(prescriptionModel).limit(1);
