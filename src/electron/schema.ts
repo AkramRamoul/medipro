@@ -100,6 +100,8 @@ export const prescriptionModel = sqliteTable("prescription_model", {
   phoneNumber1: text("phone_number_1"),
   phoneNumber2: text("phone_number_2"),
   city: text("city").notNull(),
+  accentColor: text("accent_color"),
+  fontFamily: text("font_family"),
 });
 export const psychotropicCounters = sqliteTable("psychotropic_counters", {
   id: integer("id").primaryKey({ autoIncrement: true }),

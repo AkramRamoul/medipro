@@ -15,7 +15,11 @@ const EmptyPrescriptionPrintable: React.FC<EmptyPrescriptionPrintableProps> = ({
 
     const origin = typeof window !== "undefined" ? window.location.origin : "";
 
+    const accentColor = prescriptionModel.accentColor || "#000000";
+    const fontFamily = prescriptionModel.fontFamily === "sans-serif" ? "sans-serif" : "'Amiri', serif";
+
     const styles = `
+    @page { size: A5; margin: 0; }
     @font-face {
       font-family: 'Amiri';
       src: url('${origin}/fonts/Amiri-Regular.ttf') format('truetype');
@@ -28,23 +32,26 @@ const EmptyPrescriptionPrintable: React.FC<EmptyPrescriptionPrintableProps> = ({
       font-weight: bold;
       font-style: normal;
     }
-    body { font-family: 'Amiri', serif; font-size: 10px; margin: 0; padding: 10px 20px; }
-    .header { position: relative; min-height: 80px; display: flex; justify-content: space-between; align-items: flex-start; }
+    body { font-family: ${fontFamily}; font-size: 10px; margin: 0; padding: 10px 20px; }
+    .header { margin-bottom: 20px; position: relative; min-height: 100px; display: flex; justify-content: space-between; align-items: flex-start; }
     .header-left { text-align: left; width: 40%; }
     .header-right { text-align: right; width: 40%; direction: rtl; }
     .header-center { text-align: center; width: 20%; position: absolute; left: 40%; top: 0; }
     .logo { width: 60px; height: 60px; object-fit: contain; }
     .watermark { position: fixed; top: 25%; left: 25%; width: 50%; height: 50%; opacity: 0.1; z-index: -1; pointer-events: none; }
-    .doctor-name { font-weight: bold; font-size: 14px; }
-    .specialty { font-size: 10px; }
-    .service { font-size: 10px; }
-    .divider { border-bottom: 1px solid #666; width: 100%; }
+    .doctor-name { font-weight: bold; font-size: 14px; margin-bottom: 4px; color: ${accentColor}; }
+    .specialty { font-size: 10px; margin-bottom: 2px; color: #444; }
+    .service { font-size: 10px; color: #666; }
+    .divider { border-bottom: 1px solid #666; margin: 10px 0; width: 100%; }
     .patient-info { display: flex; justify-content: space-between; margin-top: 20px; margin-bottom: 20px; font-size: 12px; }
-    .patient-details { text-align: left; display: flex; flex-direction: column; gap: 5px; }
-    .document-info { text-align: right; width: 40%; }
-    .title { text-align: center; font-size: 18px; font-weight: bold; text-decoration: underline; }
+    .patient-details { text-align: left; }
+    .document-info { text-align: right; }
+    .title { text-align: center; font-size: 18px; font-weight: bold; text-decoration: underline; margin: 10px 0 20px 0; color: ${accentColor}; }
+    .medications { margin-top: 20px; font-size: 12px; }
+    .medication-item { margin-bottom: 12px; display: flex; flex-direction: column; }
+    .med-header { display: flex; justify-content: space-between; font-weight: bold; }
+    .med-note { margin-top: 2px; font-style: italic; color: #555; margin-left: 10px; }
     .footer { position: fixed; bottom: 20px; left: 0; right: 0; text-align: center; border-top: 1px solid #aaa; padding-top: 5px; font-size: 11px; }
-    .dots { letter-spacing: 2px; }
   `;
 
     return (
@@ -72,7 +79,7 @@ const EmptyPrescriptionPrintable: React.FC<EmptyPrescriptionPrintableProps> = ({
                     <div className="header-center">
                         {image && <img src={image} className="logo" alt="Logo" />}
                         <div style={{ marginTop: 5, fontSize: 10 }}>
-                            N° Inscription : {prescriptionModel.inscriptionNumber}
+                            N° Order : {prescriptionModel.inscriptionNumber}
                         </div>
                     </div>
 

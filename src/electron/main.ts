@@ -55,21 +55,21 @@ function setAppMenu(mainWindow: BrowserWindow) {
   const template: MenuItemConstructorOptions[] = [
     ...(isMac
       ? ([
-          {
-            label: app.name,
-            submenu: [
-              { role: "about", label: "À propos de DocRight" },
-              { type: "separator" },
-              { role: "services", label: "Services" },
-              { type: "separator" },
-              { role: "hide", label: "Masquer DocRight" },
-              { role: "hideOthers", label: "Masquer les autres" },
-              { role: "unhide", label: "Tout afficher" },
-              { type: "separator" },
-              { role: "quit", label: "Quitter DocRight" },
-            ],
-          },
-        ] as MenuItemConstructorOptions[])
+        {
+          label: app.name,
+          submenu: [
+            { role: "about", label: "À propos de DocRight" },
+            { type: "separator" },
+            { role: "services", label: "Services" },
+            { type: "separator" },
+            { role: "hide", label: "Masquer DocRight" },
+            { role: "hideOthers", label: "Masquer les autres" },
+            { role: "unhide", label: "Tout afficher" },
+            { type: "separator" },
+            { role: "quit", label: "Quitter DocRight" },
+          ],
+        },
+      ] as MenuItemConstructorOptions[])
       : []),
     {
       label: "Fichier",
@@ -223,6 +223,16 @@ app.on("ready", () => {
     },
   });
   openDB(dbUrl);
+
+  // Ensure new columns exist for prescription personalization
+  (async () => {
+    try {
+      await db.run(sql`ALTER TABLE prescription_model ADD COLUMN accent_color TEXT`);
+    } catch (e) { /* ignore if already exists */ }
+    try {
+      await db.run(sql`ALTER TABLE prescription_model ADD COLUMN font_family TEXT`);
+    } catch (e) { /* ignore if already exists */ }
+  })();
 
   win.maximize();
   win.show();
@@ -397,10 +407,10 @@ app.on("ready", () => {
               deviceName: "", // default printer
               margins: {
                 marginType: "custom",
-                top: 5,
-                bottom: 5,
-                left: 5,
-                right: 5,
+                top: 0,
+                bottom: 0,
+                left: 0,
+                right: 0,
               },
               pageSize: "A5",
             },
@@ -1164,6 +1174,8 @@ app.on("ready", () => {
         phoneNumber1,
         phoneNumber2,
         city,
+        accentColor,
+        fontFamily,
       } = formData;
 
       const servicesFr = services.map((s: any) => s.fr);
@@ -1181,6 +1193,8 @@ app.on("ready", () => {
         phoneNumber1,
         phoneNumber2,
         city,
+        accentColor,
+        fontFamily,
       };
 
       const existing = await db.select().from(prescriptionModel).limit(1);
@@ -1356,8 +1370,8 @@ app.on("ready", () => {
       const retentionRate =
         retentionStats.totalUniquePatients > 0
           ? (retentionStats.totalReturnPatients /
-              retentionStats.totalUniquePatients) *
-            100
+            retentionStats.totalUniquePatients) *
+          100
           : 0;
 
       return {

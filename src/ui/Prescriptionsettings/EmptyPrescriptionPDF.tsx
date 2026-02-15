@@ -16,6 +16,9 @@ Font.register({
   fonts: [{ src: AmiriRegular }, { src: AmiriBold, fontWeight: "bold" }],
 });
 
+// We'll use standard fonts for Sans-Serif as react-pdf doesn't have Inter by default unless registered.
+// For now, we'll stick to the registered Amiri or fallback to Helvetica for Sans.
+
 const styles = StyleSheet.create({
   page: {
     fontFamily: "Amiri",
@@ -86,12 +89,17 @@ const EmptyPrescriptionPDF = ({
     phoneNumber1?: string;
     phoneNumber2?: string;
     city: string;
+    accentColor?: string;
+    fontFamily?: "serif" | "sans-serif";
   };
   image: string | null;
 }) => {
   return (
     <Document>
-      <Page size={{ width: 419.53, height: 595.28 }} style={styles.page}>
+      <Page size={{ width: 419.53, height: 595.28 }} style={[
+        styles.page,
+        { fontFamily: prescriptionModel.fontFamily === "sans-serif" ? "Helvetica" : "Amiri" }
+      ]}>
         {image && (
           <Image
             src={image}
@@ -117,7 +125,7 @@ const EmptyPrescriptionPDF = ({
           }}
         >
           <View style={{ flex: 1.2, gap: 1 }}>
-            <Text style={styles.headerfr}>{prescriptionModel.nameFr}</Text>
+            <Text style={[styles.headerfr, { color: prescriptionModel.accentColor || "#000000" }]}>{prescriptionModel.nameFr}</Text>
             <Text style={styles.colLeft}>{prescriptionModel.specialtyFr}</Text>
             {(JSON.parse(prescriptionModel.servicesFr) as string[]).map(
               (srv, idx) => (
@@ -146,7 +154,7 @@ const EmptyPrescriptionPDF = ({
           )}
 
           <View style={{ flex: 1.2, gap: 2 }}>
-            <Text style={styles.headerar}>{prescriptionModel.nameAr}</Text>
+            <Text style={[styles.headerar, { color: prescriptionModel.accentColor || "#000000" }]}>{prescriptionModel.nameAr}</Text>
             <Text style={styles.colRight}>{prescriptionModel.specialtyAr}</Text>
             {(JSON.parse(prescriptionModel.servicesAr) as string[]).map(
               (srv, idx) => (
@@ -187,7 +195,7 @@ const EmptyPrescriptionPDF = ({
           </View>
         </View>
 
-        <Text style={styles.title}>ORDONNANCE</Text>
+        <Text style={[styles.title, { color: prescriptionModel.accentColor || "#000000" }]}>ORDONNANCE</Text>
 
         <View
           style={{

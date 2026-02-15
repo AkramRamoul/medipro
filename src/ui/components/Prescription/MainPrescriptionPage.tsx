@@ -84,17 +84,17 @@ function MainPrescriptionPage({
     const base =
       mode === "prescriptions"
         ? [
-            ...prescriptions.map((p) => ({
-              ...p,
-              kind: "prescription" as const,
-            })),
-            ...documents
-              .filter((d) => d.type === "blood")
-              .map((d) => ({ ...d, kind: "document" as const })),
-          ]
+          ...prescriptions.map((p) => ({
+            ...p,
+            kind: "prescription" as const,
+          })),
+          ...documents
+            .filter((d) => d.type === "blood")
+            .map((d) => ({ ...d, kind: "document" as const })),
+        ]
         : documents
-            .filter((d) => d.type !== "blood")
-            .map((d) => ({ ...d, kind: "document" as const }));
+          .filter((d) => d.type !== "blood")
+          .map((d) => ({ ...d, kind: "document" as const }));
 
     return base.sort((a, b) => {
       const getTime = (val: any) => {
