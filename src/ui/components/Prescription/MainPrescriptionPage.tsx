@@ -40,7 +40,11 @@ function MainPrescriptionPage({
   const [documents, setDocuments] = useState<Document[]>([]);
   const [viewingDocument, setViewingDocument] = useState<Document | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [selectedTemplateForEdit, setSelectedTemplateForEdit] = useState<any | null>(null);
+
+  const [selectedTemplateForEdit, setSelectedTemplateForEdit] = useState<
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    any | null
+  >(null);
 
   const [patient, setPatient] = useState<Patient | null>(null);
 
@@ -80,14 +84,17 @@ function MainPrescriptionPage({
     const base =
       mode === "prescriptions"
         ? [
-          ...prescriptions.map((p) => ({ ...p, kind: "prescription" as const })),
-          ...documents
-            .filter((d) => d.type === "blood")
-            .map((d) => ({ ...d, kind: "document" as const })),
-        ]
+            ...prescriptions.map((p) => ({
+              ...p,
+              kind: "prescription" as const,
+            })),
+            ...documents
+              .filter((d) => d.type === "blood")
+              .map((d) => ({ ...d, kind: "document" as const })),
+          ]
         : documents
-          .filter((d) => d.type !== "blood")
-          .map((d) => ({ ...d, kind: "document" as const }));
+            .filter((d) => d.type !== "blood")
+            .map((d) => ({ ...d, kind: "document" as const }));
 
     return base.sort((a, b) => {
       const getTime = (val: any) => {
@@ -101,7 +108,13 @@ function MainPrescriptionPage({
     });
   }, [prescriptions, documents, mode])();
 
-  if (isOpen && !viewingDocument && (docType === "PRESCRIPTION" || docType === "BLOOD_WORK" || selectedTemplateForEdit)) {
+  if (
+    isOpen &&
+    !viewingDocument &&
+    (docType === "PRESCRIPTION" ||
+      docType === "BLOOD_WORK" ||
+      selectedTemplateForEdit)
+  ) {
     return (
       <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
         {docType === "PRESCRIPTION" && patient && (
@@ -215,12 +228,23 @@ function MainPrescriptionPage({
             {allItems.length === 0 ? (
               <TableBody>
                 <TableRow className="hover:bg-transparent border-none">
-                  <TableCell colSpan={4} className="h-32 text-center text-muted-foreground">
+                  <TableCell
+                    colSpan={4}
+                    className="h-32 text-center text-muted-foreground"
+                  >
                     <div className="flex flex-col items-center justify-center gap-2">
                       <FileText className="w-8 h-8 opacity-20" />
-                      <p>Aucun(e) {mode === "prescriptions" ? "ordonnance ou bilan" : "lettre"} pour le moment.</p>
+                      <p>
+                        Aucun(e){" "}
+                        {mode === "prescriptions"
+                          ? "ordonnance ou bilan"
+                          : "lettre"}{" "}
+                        pour le moment.
+                      </p>
                       <p className="text-xs opacity-70">
-                        Sélectionnez un type de {mode === "prescriptions" ? "document" : "lettre"} ci-dessus pour commencer.
+                        Sélectionnez un type de{" "}
+                        {mode === "prescriptions" ? "document" : "lettre"}{" "}
+                        ci-dessus pour commencer.
                       </p>
                     </div>
                   </TableCell>
@@ -229,7 +253,10 @@ function MainPrescriptionPage({
             ) : (
               <TableBody>
                 {allItems
-                  .slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE)
+                  .slice(
+                    (currentPage - 1) * ITEMS_PER_PAGE,
+                    currentPage * ITEMS_PER_PAGE,
+                  )
                   .map((item, index) =>
                     item.kind === "prescription" ? (
                       <PrescriptionRow

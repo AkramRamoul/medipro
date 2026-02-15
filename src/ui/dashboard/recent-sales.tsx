@@ -19,14 +19,14 @@ export function RecentSales({
   return (
     <div className="space-y-4">
       {patients.length > 0 ? (
-        patients.map((patient, index) => {
+        patients.map((patient) => {
           const fullName = `${patient.firstName} ${patient.lastName}`;
           const initials =
             `${patient.firstName?.[0] || ""}${patient.lastName?.[0] || ""}`.toUpperCase();
           return (
             <div
               className="flex items-center hover:bg-gray-100 dark:hover:bg-gray-800 p-4 rounded-md cursor-pointer group transition-colors"
-              key={index}
+              key={patient.id}
               onClick={() => navigate(`/pat/${patient.id}`)}
             >
               <Avatar className="h-9 w-9 border-2 border-background shadow-sm">

@@ -1,19 +1,29 @@
+import React, { Suspense, useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
-import ConsultationForm from "../Consultation/MainConsultationPage";
 import { useParams } from "react-router-dom";
-import MainPrescriptionPage from "../Prescription/MainPrescriptionPage";
-import { EditPatientForm } from "./EditPatientForm";
-import TimeLine from "../Timeline/TimeLine";
 import { Button } from "../ui/button";
 import { Download, Loader2 } from "lucide-react";
 import { usePatientPdfExport } from "../../hooks/usePatientPdfExport";
-import { AppointmentTab } from "../Appointment/AppointmentTab";
-import { VitalSignsChart } from "./VitalSignsChart";
 import { VitalsTrendCard } from "./VitalsTrendCard";
+
+// Lazy load tab components
+const ConsultationForm = React.lazy(() => import("../Consultation/MainConsultationPage"));
+const MainPrescriptionPage = React.lazy(() => import("../Prescription/MainPrescriptionPage"));
+const EditPatientForm = React.lazy(() => import("./EditPatientForm").then(m => ({ default: m.EditPatientForm })));
+const TimeLine = React.lazy(() => import("../Timeline/TimeLine"));
+const AppointmentTab = React.lazy(() => import("../Appointment/AppointmentTab").then(m => ({ default: m.AppointmentTab })));
+const VitalSignsChart = React.lazy(() => import("./VitalSignsChart").then(m => ({ default: m.VitalSignsChart })));
+
+const TabLoading = () => (
+  <div className="flex items-center justify-center p-12 w-full">
+    <Loader2 className="h-8 w-8 animate-spin text-primary/50" />
+  </div>
+);
 
 function MainPage() {
   const { id } = useParams<{ id: string }>();
   const { exportPdf, isExporting } = usePatientPdfExport();
+  const [activeTab, setActiveTab] = useState("example");
 
   return (
     <div className="p-4 flex flex-col items-center">
@@ -42,7 +52,7 @@ function MainPage() {
         <VitalsTrendCard patientId={id!} />
       </div>
 
-      <Tabs defaultValue="example" className="w-full max-w-5xl">
+      <Tabs defaultValue="example" className="w-full max-w-5xl" onValueChange={setActiveTab}>
         <div className="mb-3">
           <TabsList className="w-full flex justify-center bg-muted rounded-lg h-auto p-1">
             <TabsTrigger
@@ -91,52 +101,49 @@ function MainPage() {
           </TabsList>
         </div>
 
-        <TabsContent
-          value="example"
-          className="bg-card text-card-foreground p-4 rounded-lg"
-        >
-          <EditPatientForm id={id!} />
-        </TabsContent>
-        <TabsContent
-          value="vitals"
-          className="bg-card text-card-foreground p-4 rounded-lg"
-        >
-          <VitalSignsChart patientId={id!} />
-        </TabsContent>
-        <TabsContent
-          value="account"
-          className="bg-card text-card-foreground p-4 rounded-lg"
-        >
-          <ConsultationForm id={id!} />
-        </TabsContent>
-        <TabsContent
-          value="prescriptions"
-          className="bg-card text-card-foreground p-4 rounded-lg"
-        >
-          <MainPrescriptionPage id={id!} mode="prescriptions" />
-        </TabsContent>
-        <TabsContent
-          value="letters"
-          className="bg-card text-card-foreground p-4 rounded-lg"
-        >
-          <MainPrescriptionPage id={id!} mode="letters" />
-        </TabsContent>
-        <TabsContent
-          value="timeline"
-          className="bg-card text-card-foreground p-4 rounded-lg"
-        >
-          <TimeLine id={id!} />
-        </TabsContent>
-
-        <TabsContent
-          value="rendezyous"
-          className="bg-card text-card-foreground p-4 rounded-lg"
-        >
-          <AppointmentTab patientId={id!} />
-        </TabsContent>
+        <div className="bg-card text-card-foreground p-4 rounded-lg min-h-[400px]">
+          <Suspense fallback={<TabLoading />}>
+            {activeTab === "example" && (
+              <TabsContent value="example" className="m-0 border-none p-0 shadow-none">
+                <EditPatientForm id={id!} />
+              </TabsContent>
+            )}
+            {activeTab === "vitals" && (
+              <TabsContent value="vitals" className="m-0 border-none p-0 shadow-none">
+                <VitalSignsChart patientId={id!} />
+              </TabsContent>
+            )}
+            {activeTab === "account" && (
+              <TabsContent value="account" className="m-0 border-none p-0 shadow-none">
+                <ConsultationForm id={id!} />
+              </TabsContent>
+            )}
+            {activeTab === "prescriptions" && (
+              <TabsContent value="prescriptions" className="m-0 border-none p-0 shadow-none">
+                <MainPrescriptionPage id={id!} mode="prescriptions" />
+              </TabsContent>
+            )}
+            {activeTab === "letters" && (
+              <TabsContent value="letters" className="m-0 border-none p-0 shadow-none">
+                <MainPrescriptionPage id={id!} mode="letters" />
+              </TabsContent>
+            )}
+            {activeTab === "timeline" && (
+              <TabsContent value="timeline" className="m-0 border-none p-0 shadow-none">
+                <TimeLine id={id!} />
+              </TabsContent>
+            )}
+            {activeTab === "rendezyous" && (
+              <TabsContent value="rendezyous" className="m-0 border-none p-0 shadow-none">
+                <AppointmentTab patientId={id!} />
+              </TabsContent>
+            )}
+          </Suspense>
+        </div>
       </Tabs>
     </div>
   );
 }
 
 export default MainPage;
+

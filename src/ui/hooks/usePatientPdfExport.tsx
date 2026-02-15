@@ -11,20 +11,20 @@ export function usePatientPdfExport() {
             // Wait for DB to settle (fix for stale data on immediate export)
             await new Promise((resolve) => setTimeout(resolve, 500));
 
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const patientArray: any = await window.electronAPI.getpatient(patientId);
-            const patient = patientArray[0];
+            // Fetch all required data in parallel
+            const [patientArray, consultations, prescriptions, timeline, documents] = await Promise.all([
+                window.electronAPI.getpatient(patientId),
+                window.electronAPI.getConsultations(patientId),
+                window.electronAPI.getPatientPrescriptions(patientId),
+                window.electronAPI.getPatientTimeline(patientId),
+                window.electronAPI.getPatientDocuments(patientId)
+            ]);
+
+            const patient = (patientArray as any)[0];
 
             if (!patient) {
                 throw new Error("Patient not found");
             }
-
-            const consultations =
-                await window.electronAPI.getConsultations(patientId);
-            const prescriptions =
-                await window.electronAPI.getPatientPrescriptions(patientId);
-            const timeline = await window.electronAPI.getPatientTimeline(patientId);
-            const documents = await window.electronAPI.getPatientDocuments(patientId);
 
             const blob = await pdf(
                 <PatientRecordPdf
@@ -35,6 +35,7 @@ export function usePatientPdfExport() {
                     documents={documents}
                 />
             ).toBlob();
+
 
             const buffer = await blob.arrayBuffer();
             const filename = `Dossier_${patient.first_name}_${patient.last_name}.pdf`;

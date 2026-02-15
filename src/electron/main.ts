@@ -55,21 +55,21 @@ function setAppMenu(mainWindow: BrowserWindow) {
   const template: MenuItemConstructorOptions[] = [
     ...(isMac
       ? ([
-        {
-          label: app.name,
-          submenu: [
-            { role: "about", label: "À propos de DocRight" },
-            { type: "separator" },
-            { role: "services", label: "Services" },
-            { type: "separator" },
-            { role: "hide", label: "Masquer DocRight" },
-            { role: "hideOthers", label: "Masquer les autres" },
-            { role: "unhide", label: "Tout afficher" },
-            { type: "separator" },
-            { role: "quit", label: "Quitter DocRight" },
-          ],
-        },
-      ] as MenuItemConstructorOptions[])
+          {
+            label: app.name,
+            submenu: [
+              { role: "about", label: "À propos de DocRight" },
+              { type: "separator" },
+              { role: "services", label: "Services" },
+              { type: "separator" },
+              { role: "hide", label: "Masquer DocRight" },
+              { role: "hideOthers", label: "Masquer les autres" },
+              { role: "unhide", label: "Tout afficher" },
+              { type: "separator" },
+              { role: "quit", label: "Quitter DocRight" },
+            ],
+          },
+        ] as MenuItemConstructorOptions[])
       : []),
     {
       label: "Fichier",
@@ -207,7 +207,10 @@ app.on("ready", () => {
           fs.chmodSync(targetPath, 0o666);
         }
       } catch (err) {
-        console.error(`Failed to initialize or set permissions for ${fileName}:`, err);
+        console.error(
+          `Failed to initialize or set permissions for ${fileName}:`,
+          err,
+        );
       }
     });
   }
@@ -686,6 +689,7 @@ app.on("ready", () => {
           );
           return { success: true };
         } catch (chmodError) {
+          console.error("Failed to change permissions:", chmodError);
           return {
             success: false,
             error: `Permission error: ${error.message}`,
@@ -737,6 +741,7 @@ app.on("ready", () => {
           );
           return { success: true };
         } catch (chmodError) {
+          console.error("Failed to change permissions:", chmodError);
           return {
             success: false,
             error: `Permission error: ${error.message}`,
@@ -1212,180 +1217,147 @@ app.on("ready", () => {
 
   ipcMain.handle("get-dashboard-stats", async () => {
     try {
-      const [consultationsThisMonth] = await db
-        .select({ count: sql<number>`count(*)` })
-        .from(consultations)
-        .where(
-          sql`strftime('%Y-%m', ${consultations.date}) = strftime('%Y-%m', CURRENT_TIMESTAMP)`,
-        );
-      const [consultationsLastMonth] = await db
-        .select({ count: sql<number>`count(*)` })
-        .from(consultations)
-        .where(
-          sql`
-      strftime('%Y-%m', ${consultations.date}) =
-      strftime('%Y-%m', date('now', '-1 month'))
-    `,
-        );
+      const [
+        [consultationsThisMonth],
+        [consultationsLastMonth],
+        [consultationsToday],
+        [prescriptionsThisMonth],
+        [earningsToday],
+        [earningsThisMonth],
+        [earningsLastMonth],
+        [expensesToday],
+        [expensesThisMonth],
+        [expensesLastMonth],
+        [totalPatients],
+        [appointmentsToday],
+        recentConsultations,
+        [patientsThisMonth],
+        [patientsLastMonth],
+        commonDiagnosesRaw,
+        busiestDaysRaw,
+        retentionStatsRaw,
+      ] = await Promise.all([
+        db
+          .select({ count: sql<number>`count(*)` })
+          .from(consultations)
+          .where(
+            sql`strftime('%Y-%m', ${consultations.date}) = strftime('%Y-%m', CURRENT_TIMESTAMP)`,
+          ),
+        db
+          .select({ count: sql<number>`count(*)` })
+          .from(consultations)
+          .where(
+            sql`strftime('%Y-%m', ${consultations.date}) = strftime('%Y-%m', date('now', '-1 month'))`,
+          ),
+        db
+          .select({ count: sql<number>`count(*)` })
+          .from(consultations)
+          .where(sql`date(${consultations.date}) = date('now')`),
+        db
+          .select({ count: sql<number>`count(*)` })
+          .from(prescriptions)
+          .where(
+            sql`strftime('%Y-%m', ${prescriptions.prescriptionDate}) = strftime('%Y-%m', CURRENT_TIMESTAMP)`,
+          ),
+        db
+          .select({ sum: sql<number>`sum(${consultations.amountPaid})` })
+          .from(consultations)
+          .where(sql`date(${consultations.date}) = date('now')`),
+        db
+          .select({ sum: sql<number>`sum(${consultations.amountPaid})` })
+          .from(consultations)
+          .where(
+            sql`strftime('%Y-%m', ${consultations.date}) = strftime('%Y-%m', CURRENT_TIMESTAMP)`,
+          ),
+        db
+          .select({ sum: sql<number>`sum(${consultations.amountPaid})` })
+          .from(consultations)
+          .where(
+            sql`strftime('%Y-%m', ${consultations.date}) = strftime('%Y-%m', date('now', '-1 month'))`,
+          ),
+        db
+          .select({ sum: sql<number>`sum(${expenses.amount})` })
+          .from(expenses)
+          .where(sql`date(${expenses.date}) = date('now')`),
+        db
+          .select({ sum: sql<number>`sum(${expenses.amount})` })
+          .from(expenses)
+          .where(
+            sql`strftime('%Y-%m', ${expenses.date}) = strftime('%Y-%m', CURRENT_TIMESTAMP)`,
+          ),
+        db
+          .select({ sum: sql<number>`sum(${expenses.amount})` })
+          .from(expenses)
+          .where(
+            sql`strftime('%Y-%m', ${expenses.date}) = strftime('%Y-%m', date('now', '-1 month'))`,
+          ),
+        db
+          .select({
+            count: sql<number>`count(DISTINCT ${consultations.patientId})`,
+          })
+          .from(consultations)
+          .where(sql`${consultations.date} >= date('now', '-12 months')`),
+        db
+          .select({ count: sql<number>`count(*)` })
+          .from(appointments)
+          .where(sql`date(${appointments.date}) = date('now')`),
+        db
+          .select({
+            id: patients.id,
+            firstName: patients.first_name,
+            lastName: patients.last_name,
+            reason: consultations.reason,
+            diagnosis: consultations.diagnosis,
+            date: consultations.date,
+          })
+          .from(consultations)
+          .innerJoin(patients, eq(consultations.patientId, patients.id))
+          .orderBy(sql`date(${consultations.date}) DESC`)
+          .limit(5),
+        db
+          .select({
+            count: sql<number>`count(DISTINCT ${consultations.patientId})`,
+          })
+          .from(consultations)
+          .where(
+            sql`strftime('%Y-%m', ${consultations.date}) = strftime('%Y-%m', CURRENT_TIMESTAMP)`,
+          ),
+        db
+          .select({
+            count: sql<number>`count(DISTINCT ${consultations.patientId})`,
+          })
+          .from(consultations)
+          .where(
+            sql`strftime('%Y-%m', ${consultations.date}) = strftime('%Y-%m', date('now', '-1 month'))`,
+          ),
+        db.all(
+          sql`SELECT ${consultations.diagnosis} as diagnosis, COUNT(*) as count FROM ${consultations} WHERE ${consultations.diagnosis} IS NOT NULL AND ${consultations.diagnosis} != '' AND ${consultations.date} >= date('now', '-3 months') GROUP BY ${consultations.diagnosis} ORDER BY count DESC LIMIT 5`,
+        ),
+        db.all(
+          sql`SELECT CASE CAST(strftime('%w', ${consultations.date}) AS INTEGER) WHEN 0 THEN 'Dimanche' WHEN 1 THEN 'Lundi' WHEN 2 THEN 'Mardi' WHEN 3 THEN 'Mercredi' WHEN 4 THEN 'Jeudi' WHEN 5 THEN 'Vendredi' WHEN 6 THEN 'Samedi' END as day, COUNT(*) as count FROM ${consultations} WHERE ${consultations.date} >= date('now', '-3 months') GROUP BY strftime('%w', ${consultations.date}) ORDER BY CAST(strftime('%w', ${consultations.date}) AS INTEGER)`,
+        ),
+        db.all(
+          sql`SELECT COUNT(DISTINCT patient_id) as totalUniquePatients, COUNT(DISTINCT CASE WHEN visit_count > 1 THEN patient_id END) as totalReturnPatients FROM (SELECT patient_id, COUNT(*) as visit_count FROM ${consultations} WHERE ${consultations.date} >= date('now', '-6 months') GROUP BY patient_id)`,
+        ),
+      ]);
 
-      const [consultationsToday] = await db
-        .select({ count: sql<number>`count(*)` })
-        .from(consultations)
-        .where(sql`date(${consultations.date}) = date('now')`);
-
-      const [prescriptionsThisMonth] = await db
-        .select({ count: sql<number>`count(*)` })
-        .from(prescriptions)
-        .where(
-          sql`strftime('%Y-%m', ${prescriptions.prescriptionDate}) = strftime('%Y-%m', CURRENT_TIMESTAMP)`,
-        );
-
-      const [earningsToday] = await db
-        .select({ sum: sql<number>`sum(${consultations.amountPaid})` })
-        .from(consultations)
-        .where(sql`date(${consultations.date}) = date('now')`);
-
-      const [earningsThisMonth] = await db
-        .select({ sum: sql<number>`sum(${consultations.amountPaid})` })
-        .from(consultations)
-        .where(
-          sql`strftime('%Y-%m', ${consultations.date}) = strftime('%Y-%m', CURRENT_TIMESTAMP)`,
-        );
-
-      const [earningsLastMonth] = await db
-        .select({ sum: sql<number>`sum(${consultations.amountPaid})` })
-        .from(consultations)
-        .where(
-          sql`strftime('%Y-%m', ${consultations.date}) = strftime('%Y-%m', date('now', '-1 month'))`,
-        );
-
-      const [expensesToday] = await db
-        .select({ sum: sql<number>`sum(${expenses.amount})` })
-        .from(expenses)
-        .where(sql`date(${expenses.date}) = date('now')`);
-
-      const [expensesThisMonth] = await db
-        .select({ sum: sql<number>`sum(${expenses.amount})` })
-        .from(expenses)
-        .where(
-          sql`strftime('%Y-%m', ${expenses.date}) = strftime('%Y-%m', CURRENT_TIMESTAMP)`,
-        );
-
-      const [expensesLastMonth] = await db
-        .select({ sum: sql<number>`sum(${expenses.amount})` })
-        .from(expenses)
-        .where(
-          sql`strftime('%Y-%m', ${expenses.date}) = strftime('%Y-%m', date('now', '-1 month'))`,
-        );
-
-      const [totalPatients] = await db
-        .select({
-          count: sql<number>`count(DISTINCT ${consultations.patientId})`,
-        })
-        .from(consultations)
-        .where(sql`${consultations.date} >= date('now', '-12 months')`);
-
-      const [appointmentsToday] = await db
-        .select({ count: sql<number>`count(*)` })
-        .from(appointments)
-        .where(sql`date(${appointments.date}) = date('now')`);
-
-      const recentConsultations = await db
-        .select({
-          id: patients.id,
-          firstName: patients.first_name,
-          lastName: patients.last_name,
-          reason: consultations.reason,
-          diagnosis: consultations.diagnosis,
-          date: consultations.date,
-        })
-        .from(consultations)
-        .innerJoin(patients, eq(consultations.patientId, patients.id))
-        .orderBy(sql`date(${consultations.date}) DESC`)
-        .limit(5);
-
-      const [patientsThisMonth] = await db
-        .select({
-          count: sql<number>`count(DISTINCT ${consultations.patientId})`,
-        })
-        .from(consultations)
-        .where(
-          sql`strftime('%Y-%m', ${consultations.date}) = strftime('%Y-%m', CURRENT_TIMESTAMP)`,
-        );
-
-      const [patientsLastMonth] = await db
-        .select({
-          count: sql<number>`count(DISTINCT ${consultations.patientId})`,
-        })
-        .from(consultations)
-        .where(
-          sql`strftime('%Y-%m', ${consultations.date}) = strftime('%Y-%m', date('now', '-1 month'))`,
-        );
-
-      // Most common diagnoses (last 3 months)
-      const commonDiagnosesRaw = await db.all(
-        sql`
-          SELECT 
-            ${consultations.diagnosis} as diagnosis,
-            COUNT(*) as count
-          FROM ${consultations}
-          WHERE ${consultations.diagnosis} IS NOT NULL 
-            AND ${consultations.diagnosis} != ''
-            AND ${consultations.date} >= date('now', '-3 months')
-          GROUP BY ${consultations.diagnosis}
-          ORDER BY count DESC
-          LIMIT 5
-        `,
-      );
       const commonDiagnoses = commonDiagnosesRaw as {
         diagnosis: string;
         count: number;
       }[];
-
-      // Busiest days of week
-      const busiestDaysRaw = await db.all(
-        sql`
-          SELECT 
-            CASE CAST(strftime('%w', ${consultations.date}) AS INTEGER)
-              WHEN 0 THEN 'Dimanche'
-              WHEN 1 THEN 'Lundi'
-              WHEN 2 THEN 'Mardi'
-              WHEN 3 THEN 'Mercredi'
-              WHEN 4 THEN 'Jeudi'
-              WHEN 5 THEN 'Vendredi'
-              WHEN 6 THEN 'Samedi'
-            END as day,
-            COUNT(*) as count
-          FROM ${consultations}
-          WHERE ${consultations.date} >= date('now', '-3 months')
-          GROUP BY strftime('%w', ${consultations.date})
-          ORDER BY CAST(strftime('%w', ${consultations.date}) AS INTEGER)
-        `,
-      );
       const busiestDays = busiestDaysRaw as { day: string; count: number }[];
-
-      // Patient retention rate (patients with multiple visits in last 6 months)
-      const [retentionStats] = (await db.all(
-        sql`
-          SELECT 
-            COUNT(DISTINCT patient_id) as totalUniquePatients,
-            COUNT(DISTINCT CASE WHEN visit_count > 1 THEN patient_id END) as totalReturnPatients
-          FROM (
-            SELECT 
-              patient_id,
-              COUNT(*) as visit_count
-            FROM ${consultations}
-            WHERE ${consultations.date} >= date('now', '-6 months')
-            GROUP BY patient_id
-          )
-        `,
-      )) as { totalUniquePatients: number; totalReturnPatients: number }[];
+      const retentionStats = (
+        retentionStatsRaw as {
+          totalUniquePatients: number;
+          totalReturnPatients: number;
+        }[]
+      )[0];
 
       const retentionRate =
         retentionStats.totalUniquePatients > 0
           ? (retentionStats.totalReturnPatients /
-            retentionStats.totalUniquePatients) *
-          100
+              retentionStats.totalUniquePatients) *
+            100
           : 0;
 
       return {
@@ -1406,7 +1378,7 @@ app.on("ready", () => {
         expensesLastMonth: expensesLastMonth.sum || 0,
         commonDiagnoses,
         busiestDays,
-        retentionRate: Math.round(retentionRate * 10) / 10, // Round to 1 decimal
+        retentionRate: Math.round(retentionRate * 10) / 10,
         totalReturnPatients: retentionStats.totalReturnPatients,
         totalUniquePatients: retentionStats.totalUniquePatients,
       };

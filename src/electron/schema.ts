@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
+import { sqliteTable, text, integer, index } from "drizzle-orm/sqlite-core";
 
 export const patients = sqliteTable("patients", {
   id: integer("id").primaryKey({ autoIncrement: true }),
@@ -17,7 +17,9 @@ export const patients = sqliteTable("patients", {
   notes: text("notes"),
   status: text("status").notNull().default("active"),
   createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
-});
+}, (table) => ({
+  nameIdx: index("patient_name_idx").on(table.first_name, table.last_name),
+}));
 
 export const consultations = sqliteTable("consultations", {
   id: integer("id").primaryKey({ autoIncrement: true }),
@@ -37,7 +39,10 @@ export const consultations = sqliteTable("consultations", {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     .$type<Record<string, any>>()
     .default(sql`'{}'`),
-});
+}, (table) => ({
+  patientIdIdx: index("consultation_patient_id_idx").on(table.patientId),
+  dateIdx: index("consultation_date_idx").on(table.date),
+}));
 
 export const customFields = sqliteTable("custom_fields", {
   id: integer("id").primaryKey({ autoIncrement: true }),
@@ -60,7 +65,10 @@ export const prescriptions = sqliteTable("prescriptions", {
   ),
   psychotropic_number: integer("psychotropic_number"),
   patient_address: text("patient_address"),
-});
+}, (table) => ({
+  patientIdIdx: index("prescription_patient_id_idx").on(table.patientId),
+  dateIdx: index("prescription_date_idx").on(table.prescriptionDate),
+}));
 
 export const prescriptionMedications = sqliteTable("prescription_medications", {
   id: integer("id").primaryKey({ autoIncrement: true }),
@@ -123,7 +131,10 @@ export const Document = sqliteTable("document", {
     .default(sql`'[]'`),
   documentDate: text("document_date").notNull().default(sql`CURRENT_TIMESTAMP`),
   createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
-});
+}, (table) => ({
+  patientIdIdx: index("document_patient_id_idx").on(table.patientId),
+  dateIdx: index("document_date_idx").on(table.documentDate),
+}));
 
 export const appointments = sqliteTable("appointments", {
   id: integer("id").primaryKey({ autoIncrement: true }),
@@ -134,7 +145,10 @@ export const appointments = sqliteTable("appointments", {
   title: text("title").notNull(),
   notes: text("notes"),
   status: text("status").notNull().default("scheduled"),
-});
+}, (table) => ({
+  patientIdIdx: index("appointment_patient_id_idx").on(table.patientId),
+  dateIdx: index("appointment_date_idx").on(table.date),
+}));
 
 export const prescriptionTemplates = sqliteTable("prescription_templates", {
   id: integer("id").primaryKey({ autoIncrement: true }),
@@ -175,7 +189,9 @@ export const expenses = sqliteTable("expenses", {
   amount: integer("amount").notNull(),
   category: text("category").notNull(), // 'supplies', 'rent', 'staff', 'other'
   date: text("date").default(sql`CURRENT_TIMESTAMP`),
-});
+}, (table) => ({
+  dateIdx: index("expense_date_idx").on(table.date),
+}));
 
 export type Expense = typeof expenses.$inferSelect;
 
