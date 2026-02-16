@@ -14,6 +14,8 @@ interface PrescriptionPrintableProps {
   prescriptionDate?: string | null;
 }
 
+const MEDS_PER_PAGE = 10;
+
 const PrescriptionPrintable: React.FC<PrescriptionPrintableProps> = ({
   patient,
   prescriptionModel,
@@ -50,6 +52,13 @@ const PrescriptionPrintable: React.FC<PrescriptionPrintableProps> = ({
   const titleText = prescriptionModel.titleText || "ORDONNANCE";
   const showInscriptionNumber = prescriptionModel.showInscriptionNumber ?? true;
 
+  // Split medications into chunks of MEDS_PER_PAGE
+  const medicationChunks: PrescriptionMed[][] = [];
+  for (let i = 0; i < medications.length; i += MEDS_PER_PAGE) {
+    medicationChunks.push(medications.slice(i, i + MEDS_PER_PAGE));
+  }
+  const totalPages = medicationChunks.length;
+
   const styles = `
     @page { size: A5; margin: 0; }
     @font-face {
@@ -64,7 +73,9 @@ const PrescriptionPrintable: React.FC<PrescriptionPrintableProps> = ({
       font-weight: bold;
       font-style: normal;
     }
-    body { font-family: ${fontFamily}; font-size: ${bodyFontSize}px; margin: 0; padding: 10px 20px; }
+    body { font-family: ${fontFamily}; font-size: ${bodyFontSize}px; margin: 0; padding: 0; }
+    .prescription-page { padding: 10px 20px; position: relative; }
+    .prescription-page + .prescription-page { page-break-before: always; }
     .header { margin-bottom: ${Math.max(20, logoSize * 0.35)}px; position: relative; min-height: ${Math.max(100, logoSize + 30)}px; display: flex; justify-content: space-between; align-items: flex-start; }
     .header-left { text-align: left; width: 40%; }
     .header-right { text-align: right; width: 40%; direction: rtl; }
@@ -79,12 +90,92 @@ const PrescriptionPrintable: React.FC<PrescriptionPrintableProps> = ({
     .patient-details { text-align: left; }
     .document-info { text-align: right; }
     .title { text-align: center; font-size: ${titleFontSize}px; font-weight: bold; text-decoration: underline; margin: 10px 0 20px 0; color: ${accentColor}; }
+    .page-indicator { text-align: center; font-size: 10px; color: #888; margin-top: -15px; margin-bottom: 10px; }
     .medications { margin-top: 20px; font-size: ${bodyFontSize}px; }
     .medication-item { margin-bottom: 12px; display: flex; flex-direction: column; }
     .med-header { display: flex; justify-content: space-between; font-weight: bold; }
     .med-note { margin-top: 2px; font-style: italic; color: #555; margin-left: 10px; }
     .footer { position: fixed; bottom: 20px; left: 0; right: 0; text-align: center; border-top: 1px solid #aaa; padding-top: 5px; font-size: 11px; }
   `;
+
+  const renderHeader = () => (
+    <>
+      <div className="header">
+        {/* Left Side (French) */}
+        <div className="header-left">
+          <div className="doctor-name">{prescriptionModel.nameFr}</div>
+          <div className="specialty">{prescriptionModel.specialtyFr}</div>
+          {servicesFr.map((srv: string, idx: number) => (
+            <div key={idx} className="service">
+              {srv}
+            </div>
+          ))}
+        </div>
+
+        {/* Center Logo */}
+        <div className="header-center">
+          {image && <img src={image} className="logo" alt="Logo" />}
+          {showInscriptionNumber && (
+            <div style={{ marginTop: 5, fontSize: 10 }}>
+              N° Order : {prescriptionModel.inscriptionNumber}
+            </div>
+          )}
+        </div>
+
+        {/* Right Side (Arabic) */}
+        <div className="header-right">
+          <div className="doctor-name">{prescriptionModel.nameAr}</div>
+          <div className="specialty">{prescriptionModel.specialtyAr}</div>
+          {servicesAr.map((srv: string, idx: number) => (
+            <div key={idx} className="service">
+              {srv}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="divider" />
+
+      <div className="patient-info">
+        <div className="patient-details">
+          <div>
+            <strong>Nom :</strong> {patient.first_name} {patient.last_name}
+          </div>
+          <div>
+            <strong>Âge :</strong> {patient.age} Ans
+          </div>
+          {isPsychotropic && patientAddress && (
+            <div>
+              <strong>Adresse :</strong> {patientAddress}
+            </div>
+          )}
+        </div>
+        <div className="document-info">
+          <div>
+            {prescriptionModel.city}, le : {formatDate(prescriptionDate ? new Date(prescriptionDate) : new Date())}
+          </div>
+          {isPsychotropic && psychotropicNumber && (
+            <div>
+              <strong>Numero de serie :</strong> {psychotropicNumber}
+            </div>
+          )}
+        </div>
+      </div>
+    </>
+  );
+
+  const renderFooter = () => (
+    <div className="footer">
+      <div>{prescriptionModel.address}</div>
+      {(prescriptionModel.phoneNumber1 || prescriptionModel.phoneNumber2) && (
+        <div>
+          {prescriptionModel.phoneNumber1 && `Tél. : ${prescriptionModel.phoneNumber1}`}
+          {prescriptionModel.phoneNumber1 && prescriptionModel.phoneNumber2 && " "}
+          {prescriptionModel.phoneNumber2 && `Mob. : ${prescriptionModel.phoneNumber2}`}
+        </div>
+      )}
+    </div>
+  );
 
   return (
     <html>
@@ -94,99 +185,39 @@ const PrescriptionPrintable: React.FC<PrescriptionPrintableProps> = ({
       <body>
         {image && <img src={image} className="watermark" alt="" />}
 
-        <div className="header">
-          {/* Left Side (French) */}
-          <div className="header-left">
-            <div className="doctor-name">{prescriptionModel.nameFr}</div>
-            <div className="specialty">{prescriptionModel.specialtyFr}</div>
-            {servicesFr.map((srv: string, idx: number) => (
-              <div key={idx} className="service">
-                {srv}
-              </div>
-            ))}
-          </div>
+        {medicationChunks.map((chunk, pageIndex) => (
+          <div key={pageIndex} className="prescription-page">
+            {renderHeader()}
 
-          {/* Center Logo */}
-          <div className="header-center">
-            {image && <img src={image} className="logo" alt="Logo" />}
-            {showInscriptionNumber && (
-              <div style={{ marginTop: 5, fontSize: 10 }}>
-                N° Order : {prescriptionModel.inscriptionNumber}
+            <div className="title">{titleText}</div>
+            {totalPages > 1 && (
+              <div className="page-indicator">
+                Page {pageIndex + 1} / {totalPages}
               </div>
             )}
+
+            <div className="medications">
+              {chunk.map((med, index) => (
+                <div key={index} className="medication-item">
+                  <div className="med-header">
+                    <span>
+                      {med.medicineName}
+                      {med.form ? ` ${med.form}` : ""}
+                      {med.dosage ? ` ${med.dosage}` : ""}
+                    </span>
+                    <span>
+                      {med.quantity ? `(${med.quantity})` : ""}
+                      {med.duration ? ` (${med.duration})` : ""}
+                    </span>
+                  </div>
+                  {med.note && <div className="med-note">{med.note}</div>}
+                </div>
+              ))}
+            </div>
+
+            {renderFooter()}
           </div>
-
-          {/* Right Side (Arabic) */}
-          <div className="header-right">
-            <div className="doctor-name">{prescriptionModel.nameAr}</div>
-            <div className="specialty">{prescriptionModel.specialtyAr}</div>
-            {servicesAr.map((srv: string, idx: number) => (
-              <div key={idx} className="service">
-                {srv}
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="divider" />
-
-        <div className="patient-info">
-          <div className="patient-details">
-            <div>
-              <strong>Nom :</strong> {patient.first_name} {patient.last_name}
-            </div>
-            <div>
-              <strong>Âge :</strong> {patient.age} Ans
-            </div>
-            {isPsychotropic && patientAddress && (
-              <div>
-                <strong>Adresse :</strong> {patientAddress}
-              </div>
-            )}
-          </div>
-          <div className="document-info">
-            <div>
-              {prescriptionModel.city}, le : {formatDate(prescriptionDate ? new Date(prescriptionDate) : new Date())}
-            </div>
-            {isPsychotropic && psychotropicNumber && (
-              <div>
-                <strong>Numero de serie :</strong> {psychotropicNumber}
-              </div>
-            )}
-          </div>
-        </div>
-
-        <div className="title">{titleText}</div>
-
-        <div className="medications">
-          {medications.map((med, index) => (
-            <div key={index} className="medication-item">
-              <div className="med-header">
-                <span>
-                  {med.medicineName}
-                  {med.form ? ` ${med.form}` : ""}
-                  {med.dosage ? ` ${med.dosage}` : ""}
-                </span>
-                <span>
-                  {med.quantity ? `(${med.quantity})` : ""}
-                  {med.duration ? ` (${med.duration})` : ""}
-                </span>
-              </div>
-              {med.note && <div className="med-note">{med.note}</div>}
-            </div>
-          ))}
-        </div>
-
-        <div className="footer">
-          <div>{prescriptionModel.address}</div>
-          {(prescriptionModel.phoneNumber1 || prescriptionModel.phoneNumber2) && (
-            <div>
-              {prescriptionModel.phoneNumber1 && `Tél. : ${prescriptionModel.phoneNumber1}`}
-              {prescriptionModel.phoneNumber1 && prescriptionModel.phoneNumber2 && " "}
-              {prescriptionModel.phoneNumber2 && `Mob. : ${prescriptionModel.phoneNumber2}`}
-            </div>
-          )}
-        </div>
+        ))}
       </body>
     </html>
   );
