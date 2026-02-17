@@ -13,6 +13,7 @@ const EditPatientForm = React.lazy(() => import("./EditPatientForm").then(m => (
 const TimeLine = React.lazy(() => import("../Timeline/TimeLine"));
 const AppointmentTab = React.lazy(() => import("../Appointment/AppointmentTab").then(m => ({ default: m.AppointmentTab })));
 const VitalSignsChart = React.lazy(() => import("./VitalSignsChart").then(m => ({ default: m.VitalSignsChart })));
+const LabResultsTab = React.lazy(() => import("./LabResultsTab").then(m => ({ default: m.LabResultsTab })));
 
 const TabLoading = () => (
   <div className="flex items-center justify-center p-12 w-full">
@@ -75,6 +76,12 @@ function MainPage() {
               Signes Vitaux
             </TabsTrigger>
             <TabsTrigger
+              value="labs"
+              className="flex-1 text-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+            >
+              Analyses
+            </TabsTrigger>
+            <TabsTrigger
               value="prescriptions"
               className="flex-1 text-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
             >
@@ -111,6 +118,11 @@ function MainPage() {
             {activeTab === "vitals" && (
               <TabsContent value="vitals" className="m-0 border-none p-0 shadow-none">
                 <VitalSignsChart patientId={id!} />
+              </TabsContent>
+            )}
+            {activeTab === "labs" && (
+              <TabsContent value="labs" className="m-0 border-none p-0 shadow-none">
+                <LabResultsTab patientId={id!} />
               </TabsContent>
             )}
             {activeTab === "account" && (

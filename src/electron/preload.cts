@@ -212,6 +212,18 @@ contextBridge.exposeInMainWorld("electronAPI", {
   getPatientVitals: async (patientId: number) => {
     return await ipcRenderer.invoke("get-patient-vitals", patientId);
   },
+  addLabPanel: async (data: unknown) => {
+    return await ipcRenderer.invoke("add-lab-panel", data);
+  },
+  getPatientLabResults: async (patientId: number) => {
+    return await ipcRenderer.invoke("get-patient-lab-results", patientId);
+  },
+  deleteLabPanel: async (panelId: string) => {
+    return await ipcRenderer.invoke("delete-lab-panel", panelId);
+  },
+  exportLabResultsExcel: async (patientId: number) => {
+    return await ipcRenderer.invoke("export-lab-results-excel", patientId);
+  },
   getExpenses: async () => {
     return await ipcRenderer.invoke("get-expenses");
   },

@@ -8,11 +8,12 @@ import {
   User,
   Archive,
   RefreshCcw,
+  FlaskConical,
 } from "lucide-react";
 
 interface TimelineEvent {
   date: string;
-  type: "Administrative" | "Consultation" | "Ordonnance" | "Document";
+  type: "Administrative" | "Consultation" | "Ordonnance" | "Document" | "Biologie";
   subType?: string;
   summary: string;
   details: string | null;
@@ -35,6 +36,17 @@ function TimeLine({ id }: { id: string }) {
       }
     };
     fetchTimeline();
+
+    const refetch = () => {
+      fetchTimeline();
+    };
+    window.addEventListener("consultations-updated", refetch);
+    window.addEventListener("lab-results-updated", refetch);
+
+    return () => {
+      window.removeEventListener("consultations-updated", refetch);
+      window.removeEventListener("lab-results-updated", refetch);
+    };
   }, [id]);
 
   if (loading) {
@@ -70,6 +82,8 @@ function TimeLine({ id }: { id: string }) {
     }
     if (type === "Document")
       return <FileText className="w-4 h-4 text-orange-500" />;
+    if (type === "Biologie")
+      return <FlaskConical className="w-4 h-4 text-teal-500" />;
     return <Activity className="w-4 h-4 text-gray-400" />;
   };
 

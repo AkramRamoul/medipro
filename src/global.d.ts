@@ -35,6 +35,25 @@ export interface VitalSignsData {
   weight?: string | null;
 }
 
+export interface LabResultEntry {
+  id: number;
+  testName: string;
+  value: number;
+  unit?: string | null;
+  referenceMin?: number | null;
+  referenceMax?: number | null;
+  status: "low" | "normal" | "high";
+}
+
+export interface LabPanel {
+  panelId: string;
+  patientId: number;
+  panelName: string;
+  measuredAt: string;
+  notes?: string | null;
+  entries: LabResultEntry[];
+}
+
 export interface IElectronAPI {
   addPatient: (data: unknown) => Promise<void>;
   getallpatients(): Patient[];
@@ -43,9 +62,13 @@ export interface IElectronAPI {
     { name: string; form: string; dosage: string }[]
   >;
   getBilans: () => Promise<{ name: string }[]>;
-  updateBilans: (bilans: { name: string }[]) => Promise<{ success: boolean; error?: string }>;
+  updateBilans: (
+    bilans: { name: string }[],
+  ) => Promise<{ success: boolean; error?: string }>;
   getCommonDiagnostics: () => Promise<{ name: string }[]>;
-  updateCommonDiagnostics: (diagnostics: { name: string }[]) => Promise<{ success: boolean; error?: string }>;
+  updateCommonDiagnostics: (
+    diagnostics: { name: string }[],
+  ) => Promise<{ success: boolean; error?: string }>;
   loadFonts: () => Promise<string>;
   addConsultation: (data: unknown) => Promise<void>;
   getConsultations(id: string): Consultation[];
@@ -81,7 +104,9 @@ export interface IElectronAPI {
     buffer: ArrayBuffer,
     filename: string,
   ) => Promise<{ success: boolean; filePath?: string; error?: string }>;
-  printHtml: (htmlContent: string) => Promise<{ success: boolean; error?: string }>;
+  printHtml: (
+    htmlContent: string,
+  ) => Promise<{ success: boolean; error?: string }>;
   generatePdf: (
     htmlContent: string,
     filename: string,
@@ -105,19 +130,26 @@ export interface IElectronAPI {
   createName: (nameFr: string) => Promise<{ success: boolean }>;
   getName: () => Promise<{ success: boolean; name: string }>;
   getNextPsychotropicNumber: () => Promise<number>;
-  createDocument: (data: unknown) => Promise<{ success: boolean; id?: number; error?: string }>;
+  createDocument: (
+    data: unknown,
+  ) => Promise<{ success: boolean; id?: number; error?: string }>;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getPatientDocuments: (id: string) => Promise<any[]>;
   deleteDocument: (id: string) => Promise<void>;
   backup: () => Promise<boolean>;
   restore: () => Promise<boolean>;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getPatientTimeline: (id: string) => Promise<any[]>;
-  addAppointment: (data: unknown) => Promise<{ success: boolean; error?: string }>;
+  addAppointment: (
+    data: unknown,
+  ) => Promise<{ success: boolean; error?: string }>;
   getAppointments: (patientId: string) => Promise<Appointment[]>;
-  getAllAppointments: () => Promise<(Appointment & { patientFirstName: string; patientLastName: string })[]>;
-  deleteAppointment: (id: number) => Promise<{ success: boolean; error?: string }>;
+  getAllAppointments: () => Promise<
+    (Appointment & { patientFirstName: string; patientLastName: string })[]
+  >;
+  deleteAppointment: (
+    id: number,
+  ) => Promise<{ success: boolean; error?: string }>;
 
   getStoredLicense: () => Promise<LicensePayload | undefined>;
   submitLicense: (key: string, payload: LicensePayload) => Promise<boolean>;
@@ -128,21 +160,63 @@ export interface IElectronAPI {
     machineId: string;
   }>;
   resetLicense: () => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getCustomFields: () => Promise<any[]>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   addCustomField: (data: any) => Promise<{ success: boolean; error?: string }>;
-  deleteCustomField: (id: number) => Promise<{ success: boolean; error?: string }>;
+  deleteCustomField: (
+    id: number,
+  ) => Promise<{ success: boolean; error?: string }>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getPrescriptionTemplates: () => Promise<any[]>;
-  addPrescriptionTemplate: (data: any) => Promise<{ success: boolean; error?: string }>;
-  deletePrescriptionTemplate: (id: number) => Promise<{ success: boolean; error?: string }>;
+  addPrescriptionTemplate: (
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    data: any,
+  ) => Promise<{ success: boolean; error?: string }>;
+  deletePrescriptionTemplate: (
+    id: number,
+  ) => Promise<{ success: boolean; error?: string }>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getDocumentTemplates: () => Promise<any[]>;
-  addDocumentTemplate: (data: any) => Promise<{ success: boolean; error?: string }>;
-  updateDocumentTemplate: (data: any) => Promise<{ success: boolean; error?: string }>;
-  deleteDocumentTemplate: (id: number) => Promise<{ success: boolean; error?: string }>;
+  addDocumentTemplate: (
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    data: any,
+  ) => Promise<{ success: boolean; error?: string }>;
+  updateDocumentTemplate: (
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    data: any,
+  ) => Promise<{ success: boolean; error?: string }>;
+  deleteDocumentTemplate: (
+    id: number,
+  ) => Promise<{ success: boolean; error?: string }>;
   getPatientVitals: (patientId: number) => Promise<VitalSignsData[]>;
+  addLabPanel: (data: {
+    patientId: number;
+    panelName: string;
+    measuredAt?: string;
+    notes?: string;
+    entries: Array<{
+      testName: string;
+      value: number | string;
+      unit?: string;
+      referenceMin?: number | string | null;
+      referenceMax?: number | string | null;
+    }>;
+  }) => Promise<{ success: boolean; panelId?: string; error?: string }>;
+  getPatientLabResults: (patientId: number) => Promise<LabPanel[]>;
+  deleteLabPanel: (
+    panelId: string,
+  ) => Promise<{ success: boolean; error?: string }>;
+  exportLabResultsExcel: (patientId: number) => Promise<{
+    success: boolean;
+    filePath?: string;
+    error?: string;
+  }>;
   getExpenses: () => Promise<Expense[]>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   addExpense: (data: any) => Promise<{ success: boolean; error?: string }>;
   deleteExpense: (id: number) => Promise<{ success: boolean; error?: string }>;
-
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   globalSearch: (query: string) => Promise<any[]>;
 }
 
@@ -153,8 +227,6 @@ export interface Expense {
   category: string;
   date: string;
 }
-
-
 
 declare global {
   interface Window {

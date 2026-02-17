@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { sqliteTable, text, integer, index } from "drizzle-orm/sqlite-core";
+import { sqliteTable, text, integer, index, real } from "drizzle-orm/sqlite-core";
 
 export const patients = sqliteTable("patients", {
   id: integer("id").primaryKey({ autoIncrement: true }),
@@ -205,6 +205,26 @@ export const expenses = sqliteTable("expenses", {
 }));
 
 export type Expense = typeof expenses.$inferSelect;
+export const labResults = sqliteTable("lab_results", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  panelId: text("panel_id").notNull(),
+  patientId: integer("patient_id")
+    .notNull()
+    .references(() => patients.id, { onDelete: "cascade" }),
+  panelName: text("panel_name").notNull(),
+  testName: text("test_name").notNull(),
+  value: real("value").notNull(),
+  unit: text("unit"),
+  referenceMin: real("reference_min"),
+  referenceMax: real("reference_max"),
+  status: text("status").notNull().default("normal"),
+  notes: text("notes"),
+  measuredAt: text("measured_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+}, (table) => ({
+  patientDateIdx: index("lab_results_patient_date_idx").on(table.patientId, table.measuredAt),
+  panelIdx: index("lab_results_panel_idx").on(table.panelId),
+}));
 
 export type PrescriptionMed = typeof prescriptionMedications.$inferSelect;
 export type NewPrescriptionMed = typeof prescriptionMedications.$inferInsert;
@@ -213,3 +233,4 @@ export type document = typeof Document.$inferSelect;
 export type Prescription = typeof prescriptions.$inferSelect;
 export type Appointment = typeof appointments.$inferSelect;
 export type DocumentTemplate = typeof documentTemplates.$inferSelect;
+export type LabResult = typeof labResults.$inferSelect;

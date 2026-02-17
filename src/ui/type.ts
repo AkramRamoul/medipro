@@ -71,6 +71,25 @@ export type VitalSignsData = {
   weight?: string | null;
 };
 
+export type LabResultEntry = {
+  id: number;
+  testName: string;
+  value: number;
+  unit?: string | null;
+  referenceMin?: number | null;
+  referenceMax?: number | null;
+  status: "low" | "normal" | "high";
+};
+
+export type LabPanel = {
+  panelId: string;
+  patientId: number;
+  panelName: string;
+  measuredAt: string;
+  notes?: string | null;
+  entries: LabResultEntry[];
+};
+
 export interface Prescription {
   id: number;
   isPsychotropic?: boolean;

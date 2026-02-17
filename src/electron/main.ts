@@ -41,6 +41,7 @@ import {
   prescriptionTemplateMedications,
   documentTemplates,
   expenses,
+  labResults,
 } from "./schema.js";
 import { restoreDatabase } from "./restore.js";
 import { backupDatabase } from "./bdBackup.js";
@@ -232,6 +233,30 @@ app.on("ready", () => {
     try {
       await db.run(sql`ALTER TABLE prescription_model ADD COLUMN font_family TEXT`);
     } catch (e) { /* ignore if already exists */ }
+    try {
+      await db.run(sql`
+        CREATE TABLE IF NOT EXISTS lab_results (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          panel_id TEXT NOT NULL,
+          patient_id INTEGER NOT NULL,
+          panel_name TEXT NOT NULL,
+          test_name TEXT NOT NULL,
+          value REAL NOT NULL,
+          unit TEXT,
+          reference_min REAL,
+          reference_max REAL,
+          status TEXT NOT NULL DEFAULT 'normal',
+          notes TEXT,
+          measured_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+          created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+          FOREIGN KEY (patient_id) REFERENCES patients(id) ON DELETE CASCADE
+        )
+      `);
+      await db.run(sql`CREATE INDEX IF NOT EXISTS lab_results_patient_date_idx ON lab_results (patient_id, measured_at)`);
+      await db.run(sql`CREATE INDEX IF NOT EXISTS lab_results_panel_idx ON lab_results (panel_id)`);
+    } catch (e) {
+      console.error("Failed to ensure lab_results table exists:", e);
+    }
   })();
 
   win.maximize();
@@ -762,6 +787,20 @@ app.on("ready", () => {
     }
   });
 
+  const inferLabStatus = (
+    value: number,
+    referenceMin?: number | null,
+    referenceMax?: number | null,
+  ) => {
+    if (referenceMin !== null && referenceMin !== undefined && value < referenceMin) {
+      return "low";
+    }
+    if (referenceMax !== null && referenceMax !== undefined && value > referenceMax) {
+      return "high";
+    }
+    return "normal";
+  };
+
   ipcMain.handle("add-consultation", async (_, data) => {
     const { vitals, ...rest } = data;
 
@@ -886,6 +925,22 @@ app.on("ready", () => {
         .from(Document)
         .where(eq(Document.patientId, patientId));
 
+      const patientLabResults = await db
+        .select({
+          panelId: labResults.panelId,
+          panelName: labResults.panelName,
+          testName: labResults.testName,
+          value: labResults.value,
+          unit: labResults.unit,
+          referenceMin: labResults.referenceMin,
+          referenceMax: labResults.referenceMax,
+          status: labResults.status,
+          measuredAt: labResults.measuredAt,
+        })
+        .from(labResults)
+        .where(eq(labResults.patientId, patientId))
+        .orderBy(desc(labResults.measuredAt));
+
       const prescriptionsMap = new Map();
       patientPrescriptions.forEach((row) => {
         if (!prescriptionsMap.has(row.id)) {
@@ -976,6 +1031,49 @@ app.on("ready", () => {
             details: details,
           });
         });
+
+      const groupedLabPanels = new Map();
+      patientLabResults.forEach((row) => {
+        if (!groupedLabPanels.has(row.panelId)) {
+          groupedLabPanels.set(row.panelId, {
+            panelName: row.panelName,
+            measuredAt: row.measuredAt,
+            entries: [],
+          });
+        }
+        groupedLabPanels.get(row.panelId).entries.push(row);
+      });
+
+      Array.from(groupedLabPanels.values()).forEach((panel: any) => {
+        const abnormalEntries = panel.entries.filter(
+          (entry: any) => entry.status === "high" || entry.status === "low",
+        );
+        const summary = `${panel.panelName} (${panel.entries.length} paramètre${panel.entries.length > 1 ? "s" : ""})`;
+        const details = panel.entries
+          .map((entry: any) => {
+            const range =
+              entry.referenceMin !== null && entry.referenceMax !== null
+                ? ` [${entry.referenceMin} - ${entry.referenceMax}]`
+                : "";
+            const statusTag =
+              entry.status === "high"
+                ? " (élevé)"
+                : entry.status === "low"
+                  ? " (bas)"
+                  : "";
+            return `${entry.testName}: ${entry.value}${entry.unit ? ` ${entry.unit}` : ""}${range}${statusTag}`;
+          })
+          .join("\n");
+
+        events.push({
+          date: panel.measuredAt || "",
+          type: "Biologie",
+          summary,
+          details: abnormalEntries.length > 0
+            ? `Anomalies: ${abnormalEntries.length}\n${details}`
+            : details,
+        });
+      });
 
       events.sort(
         (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
@@ -1968,6 +2066,235 @@ app.on("ready", () => {
     } catch (error) {
       console.error("Error fetching patient vitals:", error);
       return [];
+    }
+  });
+
+  ipcMain.handle("add-lab-panel", async (_, data) => {
+    try {
+      const {
+        patientId,
+        panelName,
+        measuredAt,
+        notes,
+        entries,
+      }: {
+        patientId: number;
+        panelName: string;
+        measuredAt?: string;
+        notes?: string;
+        entries: Array<{
+          testName: string;
+          value: number | string;
+          unit?: string;
+          referenceMin?: number | string | null;
+          referenceMax?: number | string | null;
+        }>;
+      } = data;
+
+      if (!patientId || !panelName || !Array.isArray(entries) || entries.length === 0) {
+        return { success: false, error: "Invalid lab panel payload" };
+      }
+
+      const panelId = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+      const panelDate = measuredAt || new Date().toISOString();
+
+      const sanitizedEntries = entries
+        .map((entry) => {
+          const numericValue = Number(entry.value);
+          const referenceMin =
+            entry.referenceMin === "" || entry.referenceMin === null || entry.referenceMin === undefined
+              ? null
+              : Number(entry.referenceMin);
+          const referenceMax =
+            entry.referenceMax === "" || entry.referenceMax === null || entry.referenceMax === undefined
+              ? null
+              : Number(entry.referenceMax);
+
+          return {
+            testName: entry.testName?.trim(),
+            value: numericValue,
+            unit: entry.unit?.trim() || null,
+            referenceMin,
+            referenceMax,
+          };
+        })
+        .filter(
+          (entry) =>
+            entry.testName &&
+            Number.isFinite(entry.value) &&
+            (entry.referenceMin === null || Number.isFinite(entry.referenceMin)) &&
+            (entry.referenceMax === null || Number.isFinite(entry.referenceMax)),
+        );
+
+      if (sanitizedEntries.length === 0) {
+        return { success: false, error: "No valid lab entries" };
+      }
+
+      await db.insert(labResults).values(
+        sanitizedEntries.map((entry) => ({
+          panelId,
+          patientId,
+          panelName: panelName.trim(),
+          testName: entry.testName,
+          value: entry.value,
+          unit: entry.unit,
+          referenceMin: entry.referenceMin,
+          referenceMax: entry.referenceMax,
+          status: inferLabStatus(entry.value, entry.referenceMin, entry.referenceMax),
+          notes: notes?.trim() || null,
+          measuredAt: panelDate,
+          createdAt: new Date().toISOString(),
+        })),
+      );
+
+      return { success: true, panelId };
+    } catch (error) {
+      console.error("Failed to add lab panel:", error);
+      return { success: false, error: (error as Error).message };
+    }
+  });
+
+  ipcMain.handle("get-patient-lab-results", async (_, patientId) => {
+    try {
+      const rows = await db
+        .select()
+        .from(labResults)
+        .where(eq(labResults.patientId, patientId))
+        .orderBy(desc(labResults.measuredAt), desc(labResults.createdAt));
+
+      const grouped = new Map();
+
+      rows.forEach((row) => {
+        if (!grouped.has(row.panelId)) {
+          grouped.set(row.panelId, {
+            panelId: row.panelId,
+            patientId: row.patientId,
+            panelName: row.panelName,
+            measuredAt: row.measuredAt,
+            notes: row.notes,
+            entries: [],
+          });
+        }
+        grouped.get(row.panelId).entries.push({
+          id: row.id,
+          testName: row.testName,
+          value: row.value,
+          unit: row.unit,
+          referenceMin: row.referenceMin,
+          referenceMax: row.referenceMax,
+          status: row.status,
+        });
+      });
+
+      return Array.from(grouped.values());
+    } catch (error) {
+      console.error("Failed to fetch lab results:", error);
+      return [];
+    }
+  });
+
+  ipcMain.handle("delete-lab-panel", async (_, panelId: string) => {
+    try {
+      await db.delete(labResults).where(eq(labResults.panelId, panelId));
+      return { success: true };
+    } catch (error) {
+      console.error("Failed to delete lab panel:", error);
+      return { success: false, error: (error as Error).message };
+    }
+  });
+
+  ipcMain.handle("export-lab-results-excel", async (_, patientId: number) => {
+    try {
+      const [patient] = await db
+        .select({
+          firstName: patients.first_name,
+          lastName: patients.last_name,
+        })
+        .from(patients)
+        .where(eq(patients.id, patientId))
+        .limit(1);
+
+      const rows = await db
+        .select({
+          panelName: labResults.panelName,
+          measuredAt: labResults.measuredAt,
+          testName: labResults.testName,
+          value: labResults.value,
+          unit: labResults.unit,
+          referenceMin: labResults.referenceMin,
+          referenceMax: labResults.referenceMax,
+          status: labResults.status,
+          notes: labResults.notes,
+        })
+        .from(labResults)
+        .where(eq(labResults.patientId, patientId))
+        .orderBy(desc(labResults.measuredAt), labResults.panelName, labResults.testName);
+
+      if (rows.length === 0) {
+        return { success: false, error: "Aucun resultat biologique a exporter" };
+      }
+
+      const safePatientName = `${patient?.firstName || "patient"}_${patient?.lastName || patientId}`
+        .replace(/[^\w\-]+/g, "_");
+
+      const { canceled, filePath } = await dialog.showSaveDialog({
+        title: "Exporter les resultats biologiques (Excel)",
+        defaultPath: `lab-results-${safePatientName}-${Date.now()}.csv`,
+        filters: [{ name: "Excel CSV", extensions: ["csv"] }],
+      });
+
+      if (canceled || !filePath) {
+        return { success: false, error: "Cancelled" };
+      }
+
+      const escapeCsv = (value: unknown) => {
+        if (value === null || value === undefined) return "";
+        const str = String(value).replace(/"/g, "\"\"");
+        return `"${str}"`;
+      };
+
+      const statusToFrench = (status: string) => {
+        if (status === "low") return "Bas";
+        if (status === "high") return "Eleve";
+        return "Normal";
+      };
+
+      const header = [
+        "Panel",
+        "Date prelevement",
+        "Test",
+        "Valeur",
+        "Unite",
+        "Reference min",
+        "Reference max",
+        "Statut",
+        "Notes",
+      ];
+
+      const csvLines = [
+        header.map(escapeCsv).join(","),
+        ...rows.map((row) =>
+          [
+            row.panelName,
+            row.measuredAt ? new Date(row.measuredAt).toLocaleString("fr-FR") : "",
+            row.testName,
+            row.value,
+            row.unit || "",
+            row.referenceMin ?? "",
+            row.referenceMax ?? "",
+            statusToFrench(row.status),
+            row.notes || "",
+          ]
+            .map(escapeCsv)
+            .join(","),
+        ),
+      ];
+
+      fs.writeFileSync(filePath, `\uFEFF${csvLines.join("\n")}`, "utf-8");
+      return { success: true, filePath };
+    } catch (error) {
+      console.error("Failed to export lab results:", error);
+      return { success: false, error: (error as Error).message };
     }
   });
 
