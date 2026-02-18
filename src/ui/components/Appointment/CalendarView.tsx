@@ -46,7 +46,9 @@ export function CalendarView() {
     const fetchAppointments = useCallback(async () => {
         setIsLoading(true);
         try {
-            const all = await window.electronAPI.getAllAppointments();
+            const response = await fetch("http://localhost:3000/api/appointments");
+            if (!response.ok) throw new Error("Failed to fetch appointments");
+            const all = await response.json();
             const formattedEvents = all.map((apt: any) => ({
                 id: apt.id,
                 title: `${apt.patientFirstName} ${apt.patientLastName} - ${apt.title} `,

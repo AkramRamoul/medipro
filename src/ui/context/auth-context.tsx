@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
+import api from "../axios";
 
 const AuthContext = createContext<{
   isAuthed: boolean;
@@ -6,7 +7,7 @@ const AuthContext = createContext<{
   loading: boolean;
 }>({
   isAuthed: false,
-  setAuthed: () => {},
+  setAuthed: () => { },
   loading: true,
 });
 
@@ -16,16 +17,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const init = async () => {
-      const exists = await window.electronAPI.checkPasswordExists();
+      try {
+        const { data } = await api.get('/users/check-password-exists');
 
-      if (exists) {
-        localStorage.removeItem("isAuthed");
-        setAuthedState(false);
-      } else {
+        if (data.exists) {
+          localStorage.removeItem("isAuthed");
+          setAuthedState(false);
+        } else {
+          setAuthedState(true);
+        }
+      } catch (error) {
+        console.error("Auth init failed:", error);
+        // Default to authed if check fails (user can set password later)
         setAuthedState(true);
+      } finally {
+        setLoading(false);
       }
-
-      setLoading(false);
     };
 
     init();

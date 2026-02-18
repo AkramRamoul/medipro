@@ -4,6 +4,7 @@ import { LineChart, Line, ResponsiveContainer } from "recharts";
 import { TrendingUp, TrendingDown, Minus, Activity } from "lucide-react";
 import { VitalSignsData } from "../../type";
 import { VITALS_CONFIG } from "../../lib/vitals-config";
+import api from "../../axios";
 
 interface VitalsTrendCardProps {
     patientId: string;
@@ -119,7 +120,7 @@ export function VitalsTrendCard({ patientId }: VitalsTrendCardProps) {
     const fetchVitals = useCallback(async () => {
         try {
             setLoading(true);
-            const data = await window.electronAPI.getPatientVitals(Number(patientId));
+            const { data } = await api.get(`/consultations/patient/${patientId}/vitals`);
             setVitalsData(data);
         } catch (error) {
             console.error("Failed to fetch vital signs:", error);

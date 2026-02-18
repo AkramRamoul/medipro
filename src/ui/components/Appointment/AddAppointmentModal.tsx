@@ -34,13 +34,21 @@ export function AddAppointmentModal({
       // We store the date exactly as entered (local time) to avoid UTC shifts
       const dateString = `${date}T${timePart}`;
 
-      await window.electronAPI.addAppointment({
-        patientId: Number(patientId),
-        title,
-        date: dateString,
-        notes,
-        status: "scheduled",
+      const response = await fetch("http://localhost:3000/api/appointments", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          patientId: Number(patientId),
+          title,
+          date: dateString,
+          notes,
+          status: "scheduled",
+        }),
       });
+
+      if (!response.ok) throw new Error("Failed to add appointment");
 
       onSuccess();
       onClose();

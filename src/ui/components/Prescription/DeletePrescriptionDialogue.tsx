@@ -12,6 +12,7 @@ import {
 } from "../../components/ui/alert-dialog";
 import { useState } from "react";
 import { toast } from "sonner";
+import api from "../../axios";
 
 interface DeleteDialogueProps {
   priscriptionId: string;
@@ -31,8 +32,7 @@ function DeleteDialogue({
   const handleDelete = () => {
     setIsDeleting(true);
 
-    window.electronAPI
-      .deletePrescription(priscriptionId) // ✅ Fixed typo
+    api.post("/prescriptions/delete-prescription", { id: priscriptionId })
       .then(() => {
         setData((prev) =>
           prev.filter((item) => item.id !== Number(priscriptionId))

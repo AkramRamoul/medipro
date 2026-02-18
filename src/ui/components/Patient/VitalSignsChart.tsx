@@ -4,6 +4,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsi
 import { Activity } from "lucide-react";
 import { VitalSignsData } from "../../type";
 import { VITALS_CONFIG } from "../../lib/vitals-config";
+import api from "../../axios";
 
 interface VitalSignsChartProps {
     patientId: string;
@@ -16,7 +17,7 @@ export function VitalSignsChart({ patientId }: VitalSignsChartProps) {
     const fetchVitals = useCallback(async () => {
         try {
             setLoading(true);
-            const data = await window.electronAPI.getPatientVitals(Number(patientId));
+            const { data } = await api.get(`/consultations/patient/${patientId}/vitals`);
             setVitalsData(data);
         } catch (error) {
             console.error("Failed to fetch vital signs:", error);

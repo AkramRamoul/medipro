@@ -26,10 +26,11 @@ import {
   DialogTitle,
 } from "../components/ui/dialog";
 import { useLocation } from "react-router-dom";
+import api from "../axios";
 
 async function getData(): Promise<PrescriptionWithPatient[]> {
   try {
-    return await window.electronAPI.getAllPrescriptions();
+    return await api.get("/prescriptions");
   } catch (error) {
     console.error("Failed to fetch prescriptions:", error);
     return [];
@@ -49,7 +50,8 @@ function Prescriptions() {
   const fetchData = async () => {
     setIsLoading(true);
     const prescriptions = await getData();
-    setData(prescriptions);
+    // @ts-ignore
+    setData(prescriptions.data);
     setIsLoading(false);
   };
 

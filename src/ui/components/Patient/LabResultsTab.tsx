@@ -25,6 +25,7 @@ import {
   TableRow,
 } from "../ui/table";
 import { Textarea } from "../ui/textarea";
+import api from "../../axios";
 import type { LabPanel } from "../../type";
 
 interface LabResultsTabProps {
@@ -76,7 +77,7 @@ export function LabResultsTab({ patientId }: LabResultsTabProps) {
   const fetchPanels = useCallback(async () => {
     try {
       setLoading(true);
-      const data = await window.electronAPI.getPatientLabResults(Number(patientId));
+      const { data } = await api.get(`/patients/${patientId}/lab-results`);
       setPanels(data);
     } catch (error) {
       console.error("Failed to fetch lab panels:", error);
@@ -220,7 +221,7 @@ export function LabResultsTab({ patientId }: LabResultsTabProps) {
       const measuredDate = measuredAt
         ? new Date(measuredAt).toISOString()
         : new Date().toISOString();
-      const result = await window.electronAPI.addLabPanel({
+      const { data: result } = await api.post('/patients/lab-panel', {
         patientId: Number(patientId),
         panelName: panelName.trim(),
         measuredAt: measuredDate,
@@ -251,7 +252,7 @@ export function LabResultsTab({ patientId }: LabResultsTabProps) {
 
   const handleDeletePanel = async (panelId: string) => {
     try {
-      const result = await window.electronAPI.deleteLabPanel(panelId);
+      const { data: result } = await api.delete(`/patients/lab-panel/${panelId}`);
       if (!result.success) {
         toast.error(result.error || "Impossible de supprimer le panel");
         return;
@@ -272,7 +273,7 @@ export function LabResultsTab({ patientId }: LabResultsTabProps) {
   const handleExportExcel = async () => {
     try {
       setExporting(true);
-      const result = await window.electronAPI.exportLabResultsExcel(Number(patientId));
+      const { data: result } = await api.get(`/patients/${patientId}/lab-export`);
       if (!result.success) {
         if (result.error !== "Cancelled") {
           toast.error(result.error || "Export impossible");

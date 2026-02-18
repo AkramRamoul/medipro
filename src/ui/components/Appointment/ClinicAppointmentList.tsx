@@ -18,7 +18,9 @@ export function ClinicAppointmentList() {
 
   useEffect(() => {
     const fetchAppointments = async () => {
-      const all = await window.electronAPI.getAllAppointments();
+      const response = await fetch("http://localhost:3000/api/appointments");
+      if (!response.ok) throw new Error("Failed to fetch appointments");
+      const all = await response.json();
 
       const now = new Date();
 
@@ -28,24 +30,24 @@ export function ClinicAppointmentList() {
         return d;
       }
 
-      const today = all.filter((a) => isToday(new Date(a.date)));
+      const today = all.filter((a: any) => isToday(new Date(a.date)));
 
       const next14Days = endOfDay(new Date());
       next14Days.setDate(next14Days.getDate() + 14);
 
-      const upcoming = all.filter((a) => {
+      const upcoming = all.filter((a: any) => {
         const d = new Date(a.date);
         return d > endOfDay(now) && d <= next14Days;
       });
 
       setTodayList(
         today.sort(
-          (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
+          (a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime(),
         ),
       );
       setWeekList(
         upcoming.sort(
-          (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
+          (a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime(),
         ),
       );
     };
@@ -55,7 +57,9 @@ export function ClinicAppointmentList() {
   const handleDelete = async (e: React.MouseEvent, id: number) => {
     e.stopPropagation();
     if (confirm("Supprimer ce rendez-vous ?")) {
-      await window.electronAPI.deleteAppointment(id);
+      await fetch(`http://localhost:3000/api/appointments/${id}`, {
+        method: "DELETE",
+      });
       window.location.reload();
     }
   };

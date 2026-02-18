@@ -8,6 +8,7 @@ import Pagination from "../Pagination";
 import { Card, CardHeader, CardTitle } from "../ui/card";
 import { Stethoscope, Plus } from "lucide-react";
 import ModalV2 from "../Modalsecond";
+import api from "../../axios";
 
 function ConsultationForm({ id }: { id: string }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -18,7 +19,7 @@ function ConsultationForm({ id }: { id: string }) {
 
   const fetchConsultations = useCallback(async () => {
     try {
-      const data = await window.electronAPI.getConsultations(id);
+      const { data } = await api.get(`/consultations/patient/${id}`);
       setConsultations(data);
     } catch (error) {
       console.error("Error fetching consultations:", error);
@@ -96,7 +97,7 @@ function ConsultationForm({ id }: { id: string }) {
                   consultation={cons}
                   onClick={() => setOpenConsultationId(cons.id.toString())}
                   onDelete={async () => {
-                    await window.electronAPI.deleteCosultaion(cons.id.toString());
+                    await api.delete(`/consultations/${cons.id}`);
                     fetchConsultations();
                     window.dispatchEvent(
                       new CustomEvent("patient-vitals-updated", {

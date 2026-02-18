@@ -13,6 +13,7 @@ import {
 } from "../components/ui/alert-dialog";
 import { useState } from "react";
 import { toast } from "sonner";
+import api from "../axios";
 
 interface DeleteDialogueProps {
   consultationId: string;
@@ -27,8 +28,7 @@ function DeleteDialogue({ consultationId, setData }: DeleteDialogueProps) {
   const handleDelete = () => {
     setIsDeleting(true);
 
-    window.electronAPI
-      .deleteCosultaion(consultationId)
+    api.delete(`/consultation/${consultationId}`)
       .then(() => {
         setData((prev) =>
           prev.filter((item) => item.id !== Number(consultationId)),

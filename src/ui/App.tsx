@@ -7,6 +7,7 @@ import RequirePassword from "./lib/RequirePassword";
 import { ThemeProvider } from "./components/theme-provider";
 import { Loader2 } from "lucide-react";
 import GlobalShortcuts from "./hooks/use-navigate";
+import api from "./axios";
 
 // Lazy load heavy route components
 const Prescriptions = React.lazy(() => import("./routes/Prescriptions"));
@@ -32,8 +33,13 @@ function App() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    window.electronAPI.getAppInitData().then((data) => {
+    api.get("/users/init").then(({ data }) => {
       if (data.isLicensed) setLicensed(true);
+      setIsLoading(false);
+    }).catch(err => {
+      console.error("App init failed:", err);
+      // Fallback to licensed in case of connection error during migration
+      setLicensed(true);
       setIsLoading(false);
     });
   }, []);

@@ -20,7 +20,8 @@ const PrintButton = ({ model, image }: any) => {
       );
 
       const fullHtml = `<!DOCTYPE html>${htmlContent}`;
-      const result = await window.electronAPI.printHtml(fullHtml);
+      const { printHtml } = await import("../lib/print-utils");
+      const result = await printHtml(fullHtml);
 
       if (result.success) {
         toast.success("Impression lancée !");

@@ -23,7 +23,7 @@ import {
 import DeleteDialogue from "../components/DeleteDialogue";
 import { Card, CardHeader, CardTitle } from "../components/ui/card";
 import ModalV2 from "../components/Modalsecond";
-
+import api from "../axios";
 function Page() {
   const [data, setData] = useState<ConsultationWithPatient[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -37,8 +37,8 @@ function Page() {
   const fetchConsultations = useCallback(async () => {
     try {
       setIsLoading(true);
-      const data = await window.electronAPI.getAllConsultations();
-      setData(data);
+      const data = await api.get("/consultations");
+      setData(data.data);
       setIsLoading(false);
     } catch (error) {
       console.error("Error fetching consultations:", error);

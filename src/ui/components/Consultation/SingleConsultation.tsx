@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 import { Consultation } from "../../type";
 import { toast } from "sonner";
+import api from "../../axios";
 
 
 export default function SingleConsultation({
@@ -54,7 +55,7 @@ export default function SingleConsultation({
     if (id) {
       const fetchData = async () => {
         try {
-          const [consultationData] = await window.electronAPI.getConsultation(id);
+          const { data: consultationData } = await api.get(`/consultations/${id}`);
           setConsultation(consultationData);
           if (consultationData) {
             setReason(consultationData.reason || "");
@@ -77,7 +78,7 @@ export default function SingleConsultation({
             setCustomFieldValues(consultationData.customFields || {});
           }
 
-          const fieldConfigs = await window.electronAPI.getCustomFields();
+          const { data: fieldConfigs } = await api.get('/consultations/settings/custom-fields');
           setCustomFieldConfigs(fieldConfigs);
         } catch (error) {
           console.error("Error fetching consultation data:", error);
@@ -108,13 +109,7 @@ export default function SingleConsultation({
       };
 
       try {
-        await window.electronAPI.editConsultation(updatedConsultation);
-        window.dispatchEvent(
-          new CustomEvent("patient-vitals-updated", {
-            detail: { patientId: Number(consultation.patientId) },
-          }),
-        );
-        window.dispatchEvent(new Event("consultations-updated"));
+        await api.put(`/consultations/${consultation.id}`, updatedConsultation);
         toast.success("Consultation mise à jour avec succès !");
         onClose();
       } catch (error) {
@@ -124,7 +119,7 @@ export default function SingleConsultation({
     }
   };
 
-  if (loading) {
+  if (loading || !consultation) {
     return (
       <div className="flex items-center justify-center py-10">
         <Loader2 className="animate-spin text-muted-foreground w-6 h-6" />

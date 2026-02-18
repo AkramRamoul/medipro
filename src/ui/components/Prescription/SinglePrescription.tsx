@@ -229,7 +229,6 @@ function SinglePrescription({
             <PrintButton
               prescription={meds}
               patient={patient}
-              window={window}
               isPsychotropic={isPsychotropic}
               psychotropicNumber={psychotropicNumber}
               patientAddress={patientAddress}

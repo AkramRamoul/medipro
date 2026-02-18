@@ -24,6 +24,7 @@ import {
 import { Patient } from "../../type";
 import { toast } from "sonner";
 import { Separator } from "../ui/separator";
+import api from "../../axios";
 
 function NewConsultationForm({
   id,
@@ -65,27 +66,25 @@ function NewConsultationForm({
   useEffect(() => {
     if (!id) return;
 
-    window.electronAPI
-      /* eslint-disable @typescript-eslint/no-explicit-any */
-      .getpatient(id)
-      .then((data: any) => {
-        setPatient(data?.[0] ?? null);
+    api.get(`/patients/${id}`)
+      .then(({ data }) => {
+        setPatient(data);
       })
       .catch(console.error)
       .finally(() => setLoading(false));
 
-    window.electronAPI.getCustomFields().then((fields) => {
-      setCustomFieldConfigs(fields);
-      const initialValues: Record<string, any> = {};
-      fields.forEach((f: any) => {
-        initialValues[f.name] = "";
+    api.get('/consultations/settings/custom-fields')
+      .then(({ data: fields }) => {
+        setCustomFieldConfigs(fields);
+        const initialValues: Record<string, any> = {};
+        fields.forEach((f: any) => {
+          initialValues[f.name] = "";
+        });
+        setCustomFieldValues(initialValues);
       });
-      setCustomFieldValues(initialValues);
-    });
 
-    window.electronAPI
-      .getCommonDiagnostics()
-      .then(setAllDiagnostics)
+    api.get('/consultations/diagnostics/common')
+      .then(({ data }) => setAllDiagnostics(data))
       .catch(console.error);
   }, [id]);
 
@@ -164,13 +163,7 @@ function NewConsultationForm({
     };
 
     try {
-      await window.electronAPI.addConsultation(consultationData);
-      window.dispatchEvent(
-        new CustomEvent("patient-vitals-updated", {
-          detail: { patientId: Number(id) },
-        }),
-      );
-      window.dispatchEvent(new Event("consultations-updated"));
+      await api.post('/consultations', consultationData);
       toast.success("Consultation enregistrée avec succès !");
       refreshConsultations();
       onClose();

@@ -16,6 +16,7 @@ import { cn } from "../../lib/utils";
 import { Card, CardHeader, CardTitle } from "../ui/card";
 import Editor from "../Editor/Editor";
 import { Patient } from "../../type";
+import api from "../../axios";
 
 interface DocumentTemplate {
     id: number;
@@ -51,8 +52,8 @@ const NewDocumentFromTemplate: React.FC<NewDocumentFromTemplateProps> = ({
     useEffect(() => {
         const fetchTemplates = async () => {
             try {
-                const result = await window.electronAPI.getDocumentTemplates();
-                setTemplates(result);
+                const { data } = await api.get('/documents/templates/all');
+                setTemplates(data);
             } catch (error) {
                 toast.error("Erreur lors du chargement des modèles");
             } finally {
@@ -117,7 +118,7 @@ const NewDocumentFromTemplate: React.FC<NewDocumentFromTemplateProps> = ({
         if (!selectedTemplate) return;
 
         try {
-            const result = await window.electronAPI.createDocument({
+            const { data: result } = await api.post('/documents', {
                 patientId: patient.id,
                 type: "template",
                 content: editedContent,
@@ -125,12 +126,12 @@ const NewDocumentFromTemplate: React.FC<NewDocumentFromTemplateProps> = ({
                 documentDate: documentDate.toISOString(),
             });
 
-            if (result.success) {
+            if (result.id) {
                 toast.success("Document enregistré avec succès");
                 refreshDocuments();
                 onClose();
             } else {
-                toast.error(result.error || "Erreur lors de l'enregistrement");
+                toast.error("Erreur lors de l'enregistrement");
             }
         } catch (error) {
             toast.error("Une erreur est survenue");

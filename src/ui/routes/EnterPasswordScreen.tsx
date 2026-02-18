@@ -13,6 +13,7 @@ import { Input } from "../components/ui/input";
 import { Button } from "../components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/auth-context";
+import api from "../axios";
 
 const schema = z.object({
   password: z.string().min(1, { message: "Password is required." }),
@@ -29,7 +30,7 @@ export function EnterPasswordScreen() {
   const { setAuthed } = useAuth();
 
   async function onSubmit(data: FormValues) {
-    const result = await window.electronAPI.checkPassword(data.password);
+    const result = await api.post("/users/check-password", { password: data.password });
     if (result) {
       localStorage.setItem("isAuthed", "true");
       setAuthed(true);

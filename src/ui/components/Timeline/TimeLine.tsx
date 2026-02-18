@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import api from "../../axios";
 import {
   Calendar,
   FileText,
@@ -27,7 +28,7 @@ function TimeLine({ id }: { id: string }) {
     const fetchTimeline = async () => {
       try {
         setLoading(true);
-        const data = await window.electronAPI.getPatientTimeline(id);
+        const { data } = await api.get(`/patients/${id}/timeline`);
         setEvents(data);
       } catch (error) {
         console.error("Failed to fetch timeline:", error);

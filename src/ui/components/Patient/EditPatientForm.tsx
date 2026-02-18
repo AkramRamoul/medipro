@@ -25,6 +25,7 @@ import { Textarea } from "../ui/textarea";
 import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import api from "../../axios";
 
 const patientSchema = z.object({
   first_name: z.string().min(2, "Le nom doit comporter au moins 2 caractères"),
@@ -72,13 +73,10 @@ export function EditPatientForm({ id }: { id: string }) {
 
   useEffect(() => {
     if (id) {
-      window.electronAPI
-        .getpatient(id)
-        /* eslint-disable  @typescript-eslint/no-explicit-any */
-        .then((data: any) => {
-          const patientData = data[0] ? { ...data[0] } : null;
-          if (patientData) {
-            reset(patientData);
+      api.get(`/patients/${id}`)
+        .then(({ data }) => {
+          if (data) {
+            reset(data);
           }
         })
         .catch((error: Error) =>
@@ -90,11 +88,8 @@ export function EditPatientForm({ id }: { id: string }) {
 
   const handleSave = async (data: PatientData) => {
     try {
-      const updatedData = { id, ...data };
-
-      await window.electronAPI.editPatient(updatedData);
-
-      toast.success("Patient mis à jour avec succès !");
+      await api.put(`/patients/${id}`, data);
+      toast.success("Patient mis à jour avec succès !");
     } catch (error) {
       console.error("Error updating patient:", error);
       toast.error("Échec de la mise à jour du patient. Veuillez réessayer.");

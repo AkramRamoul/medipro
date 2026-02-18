@@ -37,6 +37,7 @@ import { fr } from "date-fns/locale";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Calendar } from "../ui/calendar";
 import { cn } from "../../lib/utils";
+import api from "../../axios";
 
 interface Medication {
   id?: number;
@@ -81,7 +82,7 @@ const NewPrescriptionForm = ({
 
   const fetchMedications = async () => {
     try {
-      const meds = await window.electronAPI.getMedications();
+      const { data: meds } = await api.get('/prescriptions/medications');
       setMedications(meds);
     } catch (err) {
       console.error("Failed to load medications:", err);
@@ -90,7 +91,7 @@ const NewPrescriptionForm = ({
 
   const fetchTemplates = async () => {
     try {
-      const data = await window.electronAPI.getPrescriptionTemplates();
+      const { data } = await api.get('/prescriptions/templates');
       setTemplates(data);
     } catch (err) {
       console.error("Failed to load templates:", err);
@@ -157,8 +158,7 @@ const NewPrescriptionForm = ({
       prescriptionDate: prescriptionDate.toISOString(),
     };
     try {
-      const response =
-        await window.electronAPI.addFullPrescription(prescriptionData);
+      const { data: response } = await api.post('/prescriptions', prescriptionData);
       if (response.success) {
         if (response.psychotropic_number) {
           setPsychotropicNumber(response.psychotropic_number.toString());
@@ -176,8 +176,8 @@ const NewPrescriptionForm = ({
 
   const fetchPsychotropicNumber = async () => {
     try {
-      const number = await window.electronAPI.getNextPsychotropicNumber();
-      setPsychotropicNumber(number.toString());
+      const { data } = await api.get('/prescriptions/next-psychotropic');
+      setPsychotropicNumber(data.nextNumber.toString());
     } catch (err) {
       toast.error("Échec du chargement du numéro psychotrope");
       console.error(err);

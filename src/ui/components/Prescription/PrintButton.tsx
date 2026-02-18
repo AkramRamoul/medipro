@@ -4,10 +4,10 @@ import { Printer } from "lucide-react";
 import { DropdownMenuItem } from "../ui/dropdown-menu";
 import { PrescriptionMed } from "../../../electron/schema";
 import { toast } from "sonner";
+import api from "../../axios";
 
 const PrintButton = ({
   patient,
-  window,
   prescription,
   isPsychotropic,
   psychotropicNumber,
@@ -26,31 +26,35 @@ const PrintButton = ({
   const [image, setImage] = useState<string | null>(null);
   useEffect(() => {
     const getImage = async () => {
-      const result = await window.electronAPI.getImage();
-      if (result.success) {
-        setImage(result.image);
-      } else {
-        console.error("Error fetching image:", result.error);
+      try {
+        const { data } = await api.get("/settings/logo");
+        if (data.success) {
+          setImage(data.image);
+        }
+      } catch (error) {
+        console.error("Error fetching image:", error);
       }
     };
     getImage();
-  }, [window.electronAPI]);
+  }, []);
 
   useEffect(() => {
     const fetchModel = async () => {
-      const data = await window.electronAPI.getPrescriptionModel();
-      if (data.success) {
-        setPrescriptionModel(data.model);
-      } else {
-        console.error("❌ Failed to fetch model:", data.error);
+      try {
+        const { data } = await api.get("/settings/prescription-model");
+        if (data.success) {
+          setPrescriptionModel(data.model);
+        }
+      } catch (error) {
+        console.error("❌ Failed to fetch model:", error);
       }
     };
     fetchModel();
-  }, [window.electronAPI]);
+  }, []);
 
   const handlePrint = async () => {
     if (!prescriptionModel) {
-      toast.error("Le modèle de prescription n'est pas encore chargé.");
+      toast("Le modèle de prescription n'est pas encore chargé.");
       return;
     }
 
@@ -72,7 +76,8 @@ const PrintButton = ({
       );
 
       const fullHtml = `<!DOCTYPE html>${htmlContent}`;
-      const result = await window.electronAPI.printHtml(fullHtml);
+      const { printHtml } = await import("../../lib/print-utils");
+      const result = await printHtml(fullHtml);
 
       if (result.success) {
         toast.success("Impression lancée !");

@@ -2,11 +2,12 @@ import { type Patient } from "../components/Home/colums";
 import { useState, useEffect } from "react";
 import { Loader2 } from "lucide-react";
 import PatientsTable from "../components/Patients/Table";
+import api from "../axios";
 
 async function getData(): Promise<Patient[]> {
   try {
-    const result = await window.electronAPI.getallpatients();
-    return result;
+    const result = await api.get("/patients");
+    return result.data;
   } catch (error) {
     console.error("Failed to fetch patients in component:", error);
     return [];
@@ -20,7 +21,7 @@ interface HomeProps {
 export function Home({ showAll = false }: HomeProps) {
   const [data, setData] = useState<Patient[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [name, setName] = useState("");
+  // const [name, setName] = useState("");
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
@@ -32,13 +33,13 @@ export function Home({ showAll = false }: HomeProps) {
     fetchData();
   }, []);
 
-  useEffect(() => {
-    const getName = async () => {
-      const result = await window.electronAPI.getName();
-      setName(result.name);
-    };
-    getName();
-  }, [data]);
+  // useEffect(() => {
+  //   const getName = async () => {
+  //     const result = await window.electronAPI.getName();
+  //     setName(result.name);
+  //   };
+  //   getName();
+  // }, [data]);
 
   const handlePatientArchived = (
     id: string,

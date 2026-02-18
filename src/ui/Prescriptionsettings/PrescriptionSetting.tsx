@@ -29,6 +29,7 @@ import {
   Minus,
   SlidersHorizontal,
 } from "lucide-react";
+import api from "../axios";
 
 interface FormState {
   nameFr: string;
@@ -85,56 +86,53 @@ export function PrescriptionModelForm() {
   const [services, setServices] = useState([{ fr: "", ar: "" }]);
 
   const fetchImage = async () => {
-    const result = await window.electronAPI.getImage();
-    if (result.success && result.image) {
-      setLogoImage(result.image);
+    try {
+      const { data } = await api.get('/settings/logo');
+      if (data.success && data.image) {
+        setLogoImage(data.image);
+      }
+    } catch (error) {
+      console.error("Error fetching logo:", error);
     }
   };
 
   const fetchModel = async () => {
-    const result = await window.electronAPI.getPrescriptionModel();
-    if (result.success && result.model) {
-      const model = result.model;
+    try {
+      const { data } = await api.get('/settings/prescription-model');
+      if (data.success && data.model) {
+        const model = data.model;
 
-      setForm({
-        nameFr: model.nameFr || "",
-        nameAr: model.nameAr || "",
-        specialtyFr: model.specialtyFr || "",
-        specialtyAr: model.specialtyAr || "",
-        servicesFr: model.servicesFr || "",
-        servicesAr: model.servicesAr || "",
-        inscriptionNumber: model.inscriptionNumber || "",
-        address: model.address || "",
-        phoneNumber1: model.phoneNumber1 || "",
-        phoneNumber2: model.phoneNumber2 || "",
-        city: model.city || "",
-        accentColor: model.accentColor || "#000000",
-        fontFamily: model.fontFamily || "serif",
-        doctorNameFontSize: model.doctorNameFontSize ?? 14,
-        specialtyFontSize: model.specialtyFontSize ?? 10,
-        titleFontSize: model.titleFontSize ?? 18,
-        bodyFontSize: model.bodyFontSize ?? 12,
-        logoSize: model.logoSize ?? 60,
-        watermarkOpacity: model.watermarkOpacity ?? 10,
-        dividerStyle: model.dividerStyle || "solid",
-        titleText: model.titleText || "ORDONNANCE",
-        showInscriptionNumber: model.showInscriptionNumber ?? true,
-      });
+        setForm({
+          nameFr: model.nameFr || "",
+          nameAr: model.nameAr || "",
+          specialtyFr: model.specialtyFr || "",
+          specialtyAr: model.specialtyAr || "",
+          servicesFr: model.servicesFr || "",
+          servicesAr: model.servicesAr || "",
+          inscriptionNumber: model.inscriptionNumber || "",
+          address: model.address || "",
+          phoneNumber1: model.phoneNumber1 || "",
+          phoneNumber2: model.phoneNumber2 || "",
+          city: model.city || "",
+          accentColor: model.accentColor || "#000000",
+          fontFamily: model.fontFamily || "serif",
+          doctorNameFontSize: model.doctorNameFontSize ?? 14,
+          specialtyFontSize: model.specialtyFontSize ?? 10,
+          titleFontSize: model.titleFontSize ?? 18,
+          bodyFontSize: model.bodyFontSize ?? 12,
+          logoSize: model.logoSize ?? 60,
+          watermarkOpacity: model.watermarkOpacity ?? 10,
+          dividerStyle: model.dividerStyle || "solid",
+          titleText: model.titleText || "ORDONNANCE",
+          showInscriptionNumber: model.showInscriptionNumber ?? true,
+        });
 
-      try {
-        const fr = JSON.parse(model.servicesFr || "[]");
-        const ar = JSON.parse(model.servicesAr || "[]");
-        const parsed = fr.map((frService: string, idx: number) => ({
-          fr: frService,
-          ar: ar[idx] || "",
-        }));
-
-        if (parsed.length > 0) {
-          setServices(parsed);
+        if (model.services) {
+          setServices(model.services);
         }
-      } catch (err) {
-        console.warn("Couldn't parse services:", err);
       }
+    } catch (error) {
+      console.error("Error fetching model:", error);
     }
   };
 
@@ -193,14 +191,23 @@ export function PrescriptionModelForm() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const payload = { ...form, services };
-    const result = await window.electronAPI.savePrescriptionModel(payload);
-    if (result.success) {
-      toast.success("Modèle enregistré avec succès !");
-      setForm((prev) => ({
-        ...prev,
-        ...result.model,
-      }));
-      setServices(result.model.services);
+    try {
+      const { data: result } = await api.post('/settings/prescription-model', payload);
+      if (result.success) {
+        toast.success("Modèle enregistré avec succès !");
+        // No need to spread result.model if the API returns just success
+        // But if it does return the model, we can update it
+        if (result.model) {
+          setForm((prev) => ({
+            ...prev,
+            ...result.model,
+          }));
+          setServices(result.model.services);
+        }
+      }
+    } catch (error) {
+      console.error("Error saving model:", error);
+      toast.error("Erreur lors de l'enregistrement");
     }
   };
 
@@ -560,8 +567,8 @@ export function PrescriptionModelForm() {
                           type="button"
                           onClick={() => setForm(f => ({ ...f, dividerStyle: value }))}
                           className={`flex-1 py-1.5 px-2 text-xs font-medium rounded-md transition-all ${form.dividerStyle === value
-                              ? "bg-background shadow-sm text-foreground"
-                              : "text-muted-foreground hover:text-foreground"
+                            ? "bg-background shadow-sm text-foreground"
+                            : "text-muted-foreground hover:text-foreground"
                             }`}
                         >
                           {label}
@@ -588,8 +595,8 @@ export function PrescriptionModelForm() {
                         type="button"
                         onClick={() => setForm(f => ({ ...f, showInscriptionNumber: !f.showInscriptionNumber }))}
                         className={`flex items-center gap-2 px-4 py-2.5 rounded-md border transition-all text-sm font-medium w-full justify-center ${form.showInscriptionNumber
-                            ? "bg-primary/10 border-primary/30 text-primary"
-                            : "bg-muted/50 border-muted text-muted-foreground"
+                          ? "bg-primary/10 border-primary/30 text-primary"
+                          : "bg-muted/50 border-muted text-muted-foreground"
                           }`}
                       >
                         {form.showInscriptionNumber ? (

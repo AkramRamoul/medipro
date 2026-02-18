@@ -21,6 +21,7 @@ import { Pill, FileText, Clock, Calendar } from "lucide-react";
 import ModalV2 from "../Modalsecond";
 import Pagination from "../Pagination";
 import { Button } from "../ui/button";
+import api from "../../axios";
 
 const ITEMS_PER_PAGE = 8;
 
@@ -50,9 +51,9 @@ function MainPrescriptionPage({
 
   const fetchPrescriptions = useCallback(async () => {
     try {
-      const presData = await window.electronAPI.getPatientPrescriptions(id);
+      const { data: presData } = await api.get(`/prescriptions/patient/${id}`);
       setPrescriptions(presData);
-      const docData = await window.electronAPI.getPatientDocuments(id);
+      const { data: docData } = await api.get(`/documents/patient/${id}`);
       setDocuments(docData);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -65,14 +66,9 @@ function MainPrescriptionPage({
 
   useEffect(() => {
     if (id) {
-      window.electronAPI
-        .getpatient(id)
-        /* eslint-disable  @typescript-eslint/no-explicit-any */
-        .then((data: any) => {
-          const extractedPatient = data[0]
-            ? { ...data[0], createdAt: data.createdAt }
-            : null;
-          setPatient(extractedPatient);
+      api.get(`/patients/${id}`)
+        .then(({ data }) => {
+          setPatient(data);
         })
         .catch((error: Error) =>
           console.error("Error fetching patient:", error),

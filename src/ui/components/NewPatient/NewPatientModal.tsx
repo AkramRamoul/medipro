@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import Modal from "../Modal";
 import { AddPatientForm } from "./Form";
 import { toast } from "sonner";
+import api from "../../axios";
 
 type Patient = {
   first_name: string;
@@ -21,7 +22,7 @@ function NewPatientModal({ isOpen, onClose }: NewPatientModalProps) {
 
   const handleSave = async (data: Patient) => {
     try {
-      const newPatientId = await window.electronAPI.addPatient(data);
+      const newPatientId = await api.post("/patients/add-patient", data);
       window.dispatchEvent(new Event("patients-updated"));
       toast.success("Patient enregistré avec succès !");
       onClose();

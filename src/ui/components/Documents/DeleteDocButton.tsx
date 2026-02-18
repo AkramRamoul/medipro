@@ -12,6 +12,7 @@ import {
   AlertDialogCancel,
 } from "../ui/alert-dialog";
 import { useState } from "react";
+import api from "../../axios";
 
 interface DeleteDialogueProps {
   docId: string;
@@ -26,8 +27,7 @@ function DeleteDocButton({ docId, children, setData }: DeleteDialogueProps) {
   const handleDelete = () => {
     setIsDeleting(true);
 
-    window.electronAPI
-      .deleteDocument(docId)
+    api.delete(`/document/${docId}`)
       .then(() => {
         setData((prev) => prev.filter((item) => item.id !== Number(docId)));
         toast.success("Document supprimée avec succès");

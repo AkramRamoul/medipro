@@ -13,6 +13,7 @@ import {
   SelectValue,
 } from "../ui/select";
 import Editor from "../Editor/Editor";
+import api from "../../axios";
 
 interface DocumentTemplate {
   id: number;
@@ -31,8 +32,8 @@ const DocumentTemplatesSettings: React.FC = () => {
   const fetchTemplates = async () => {
     setIsLoading(true);
     try {
-      const result = await window.electronAPI.getDocumentTemplates();
-      setTemplates(result);
+      const { data } = await api.get('/documents/templates/all');
+      setTemplates(data);
     } catch (error) {
       console.error("Erreur lors du chargement des modèles:", error);
       toast.error("Erreur lors du chargement des modèles");
@@ -62,10 +63,11 @@ const DocumentTemplatesSettings: React.FC = () => {
     try {
       let result;
       if (editingTemplate.id) {
-        result =
-          await window.electronAPI.updateDocumentTemplate(editingTemplate);
+        const { data } = await api.put(`/documents/templates/${editingTemplate.id}`, editingTemplate);
+        result = data;
       } else {
-        result = await window.electronAPI.addDocumentTemplate(editingTemplate);
+        const { data } = await api.post('/documents/templates', editingTemplate);
+        result = data;
       }
 
       if (result.success) {
@@ -86,7 +88,7 @@ const DocumentTemplatesSettings: React.FC = () => {
       return;
 
     try {
-      const result = await window.electronAPI.deleteDocumentTemplate(id);
+      const { data: result } = await api.delete(`/documents/templates/${id}`);
       if (result.success) {
         toast.success("Modèle supprimé");
         fetchTemplates();

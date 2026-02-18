@@ -64,6 +64,7 @@ import {
   PopoverTrigger,
 } from "../ui/popover"
 import { DateRange } from "react-day-picker"
+import api from "../../axios";
 
 function PatientsTable({
   patients,
@@ -189,14 +190,14 @@ function PatientsTable({
 
     try {
       if (confirmDialog.action === "delete") {
-        await window.electronAPI.deletePatient(confirmDialog.id);
+        await api.post("/patients/delete-patient", { id: confirmDialog.id });
         window.dispatchEvent(new Event("patients-updated"));
         onPatientArchived(confirmDialog.id, "deleted");
       } else {
         const newStatus =
           confirmDialog.action === "archive" ? "archived" : "active";
 
-        await window.electronAPI.editPatient({
+        await api.post("/patients/edit-patient", {
           id: confirmDialog.id,
           status: newStatus,
         });

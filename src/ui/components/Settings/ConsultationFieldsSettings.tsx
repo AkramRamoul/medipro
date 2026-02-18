@@ -21,6 +21,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { toast } from "sonner";
 import { Trash2, Plus } from "lucide-react";
+import api from "../../axios";
 
 const fieldSchema = z.object({
   label: z.string().min(1, "Le libellé est requis"),
@@ -51,7 +52,7 @@ const ConsultationFieldsSettings: React.FC = () => {
   const fetchFields = async () => {
     setIsLoading(true);
     try {
-      const result = await window.electronAPI.getCustomFields();
+      const { data: result } = await api.get('/consultations/settings/custom-fields');
       setFields(result);
     } catch (error) {
       toast.error("Erreur lors du chargement des champs");
@@ -67,7 +68,7 @@ const ConsultationFieldsSettings: React.FC = () => {
   const onSubmit = async (values: FieldFormValues) => {
     try {
       const name = values.label.toLowerCase().replace(/\s+/g, "_");
-      const result = await window.electronAPI.addCustomField({
+      const { data: result } = await api.post('/consultations/settings/custom-fields', {
         ...values,
         name,
       });
@@ -85,7 +86,7 @@ const ConsultationFieldsSettings: React.FC = () => {
 
   const handleDelete = async (id: number) => {
     try {
-      const result = await window.electronAPI.deleteCustomField(id);
+      const { data: result } = await api.delete(`/consultations/settings/custom-fields/${id}`);
       if (result.success) {
         toast.success("Champ supprimé");
         fetchFields();

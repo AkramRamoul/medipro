@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
+import api from "../../axios";
 
 type LicensePayload = {
   expiry: string;
@@ -28,9 +29,9 @@ export default function LicenseScreen({ onSuccess }: LicenseScreenProps) {
   const [copied, setCopied] = useState<boolean>(false);
 
   async function getmachineId() {
-    const data = await window.electronAPI.getMachineId();
-    setData(data);
-    return data;
+    const { data } = await api.get("/users/machine-id");
+    setData(data.id);
+    return data.id;
   }
 
   useEffect(() => {
@@ -44,11 +45,18 @@ export default function LicenseScreen({ onSuccess }: LicenseScreenProps) {
 
   async function handleSubmit() {
     setStatus("checking");
-    await new Promise((resolve) => setTimeout(resolve, 0));
-    const isValid = await window.electronAPI.submitLicense(key, payload);
-    setStatus(isValid ? "valid" : "invalid");
-    if (isValid) {
-      setTimeout(() => onSuccess(), 0);
+    try {
+      const { data: result } = await api.post("/users/license-submit", {
+        key,
+        payload,
+      });
+      setStatus(result.isValid ? "valid" : "invalid");
+      if (result.isValid) {
+        setTimeout(() => onSuccess(), 0);
+      }
+    } catch (error) {
+      console.error("License submission failed:", error);
+      setStatus("invalid");
     }
   }
 
@@ -141,12 +149,11 @@ export default function LicenseScreen({ onSuccess }: LicenseScreenProps) {
               onClick={handleSubmit}
               disabled={!key || status === "checking"}
               className={`w-full h-12 text-sm font-semibold rounded-xl transition-all shadow-md hover:shadow-lg disabled:opacity-70 disabled:shadow-none
-                ${
-                  status === "valid"
-                    ? "bg-green-600 hover:bg-green-700 ring-green-500"
-                    : status === "invalid"
-                      ? "bg-red-600 hover:bg-red-700 ring-red-500"
-                      : "bg-blue-600 hover:bg-blue-700 ring-blue-500"
+                ${status === "valid"
+                  ? "bg-green-600 hover:bg-green-700 ring-green-500"
+                  : status === "invalid"
+                    ? "bg-red-600 hover:bg-red-700 ring-red-500"
+                    : "bg-blue-600 hover:bg-blue-700 ring-blue-500"
                 }`}
             >
               {status === "checking" ? (

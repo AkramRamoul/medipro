@@ -48,7 +48,9 @@ export function GlobalAddAppointmentModal({
     // Load patients on mount
     useEffect(() => {
         const loadPatients = async () => {
-            const all = await window.electronAPI.getallpatients();
+            const response = await fetch("http://localhost:3000/api/patients");
+            if (!response.ok) throw new Error("Failed to fetch patients");
+            const all = await response.json();
             setPatients(all);
         };
         if (isOpen) {
@@ -76,13 +78,21 @@ export function GlobalAddAppointmentModal({
             const timePart = time ? time : "00:00";
             const dateString = `${date}T${timePart}`;
 
-            await window.electronAPI.addAppointment({
-                patientId: Number(selectedPatientId),
-                title,
-                date: dateString,
-                notes,
-                status: "scheduled",
+            const response = await fetch("http://localhost:3000/api/appointments", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    patientId: Number(selectedPatientId),
+                    title,
+                    date: dateString,
+                    notes,
+                    status: "scheduled",
+                }),
             });
+
+            if (!response.ok) throw new Error("Failed to add appointment");
 
             onSuccess();
             onClose();

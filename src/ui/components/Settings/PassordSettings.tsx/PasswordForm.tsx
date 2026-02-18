@@ -24,6 +24,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "../../../components/ui/dialog";
+import api from "../../../axios";
 
 const createSchema = z
   .object({
@@ -75,14 +76,15 @@ export function PasswordForm() {
     setIsRemoving(true);
     try {
       const result =
-        await window.electronAPI.removePassword(removePasswordValue);
-      if (result.success) {
+        await api.post("/users/remove-password", { password: removePasswordValue });
+
+      if (result.data.success) {
         toast.success("Mot de passe supprimé avec succès");
         setIsRemoveOpen(false);
         setRemovePasswordValue("");
         await status.refetch();
       } else {
-        toast.error(result.message || "Erreur lors de la suppression");
+        toast.error(result.data.message || "Erreur lors de la suppression");
       }
     } catch (error) {
       console.error(error);
@@ -96,7 +98,7 @@ export function PasswordForm() {
     setSubmitting(true);
     try {
       if (status.status === "not-exists") {
-        await window.electronAPI.createPassword(data.password);
+        await api.post("/users/create-password", { password: data.password });
         toast.success("Mot de passe créé avec succès");
         form.reset({
           password: "",
@@ -104,12 +106,12 @@ export function PasswordForm() {
         });
         await status.refetch();
       } else {
-        const success = await window.electronAPI.changePassword(
-          (data as UpdatePasswordFormValues).oldPassword,
-          data.password,
-        );
+        const success = await api.post("/users/change-password", {
+          oldPassword: (data as UpdatePasswordFormValues).oldPassword,
+          password: data.password,
+        });
 
-        if (success.success) {
+        if (success.data.success) {
           toast.success("Mot de passe mis à jour avec succès");
           form.reset({
             oldPassword: "",

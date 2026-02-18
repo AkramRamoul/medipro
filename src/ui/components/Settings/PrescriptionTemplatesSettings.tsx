@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { Trash2, Plus, Save } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Separator } from "../ui/separator";
+import api from "../../axios";
 
 interface Medication {
   id?: number;
@@ -55,8 +56,8 @@ const PrescriptionTemplatesSettings: React.FC = () => {
   const fetchTemplates = async () => {
     setIsLoading(true);
     try {
-      const result = await window.electronAPI.getPrescriptionTemplates();
-      setTemplates(result);
+      const { data } = await api.get('/prescriptions/templates');
+      setTemplates(data);
     } catch (error) {
       console.error("Failed to load templates:", error);
       toast.error("Erreur lors du chargement des modèles");
@@ -67,7 +68,7 @@ const PrescriptionTemplatesSettings: React.FC = () => {
 
   const fetchMedications = async () => {
     try {
-      const meds = await window.electronAPI.getMedications();
+      const { data: meds } = await api.get('/prescriptions/medications');
       setMedications(meds);
     } catch (err) {
       console.error("Failed to load medications:", err);
@@ -161,7 +162,7 @@ const PrescriptionTemplatesSettings: React.FC = () => {
     }
 
     try {
-      const result = await window.electronAPI.addPrescriptionTemplate({
+      const { data: result } = await api.post('/prescriptions/templates', {
         name: templateName,
         medications: selectedMeds,
       });
@@ -181,7 +182,7 @@ const PrescriptionTemplatesSettings: React.FC = () => {
 
   const handleDeleteTemplate = async (id: number) => {
     try {
-      const result = await window.electronAPI.deletePrescriptionTemplate(id);
+      const { data: result } = await api.delete(`/prescriptions/templates/${id}`);
       if (result.success) {
         toast.success("Modèle supprimé");
         fetchTemplates();

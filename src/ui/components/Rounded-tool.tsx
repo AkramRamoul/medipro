@@ -8,6 +8,7 @@ import { FileDropzone } from "./File-DropZone";
 import { UploadBox } from "./Upload-Box";
 import { toast } from "sonner";
 import { Button } from "./ui/button";
+import api from "../axios";
 
 interface ImageRendererProps {
   imageContent: string;
@@ -47,7 +48,7 @@ function RoundedToolCore(props: {
     try {
       if (!imageContent) return;
 
-      const result = await window.electronAPI.uploadImage(imageContent);
+      const { data: result } = await api.post('/settings/logo', { image: imageContent });
 
       if (result.success) {
         setUploadSuccess(true);
