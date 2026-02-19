@@ -143,6 +143,14 @@ export const customFields = sqliteTable("custom_fields", {
     isActive: integer("is_active", { mode: "boolean" }).default(true),
 });
 
+export const users = sqliteTable("users", {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    email: text("email").notNull().unique(),
+    password: text("password").notNull(),
+    role: text("role", { enum: ["doctor", "receptionist", "admin"] }).notNull(),
+    createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
+});
+
 export const auth = sqliteTable("auth", {
     id: integer("id").primaryKey(),
     passwordHash: text("password_hash").notNull(),

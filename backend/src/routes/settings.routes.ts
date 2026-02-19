@@ -1,10 +1,14 @@
 import { Router } from 'express';
 import { settingsService } from '../services/settings.service';
+import { authorize } from '../middleware/role.middleware';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
 
 const router = Router();
+
+// Only doctors and admins can manage settings
+router.use(authorize(['doctor', 'admin']));
 
 // Configure multer for database restoration
 const storage = multer.diskStorage({

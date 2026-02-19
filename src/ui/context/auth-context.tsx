@@ -1,55 +1,79 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import api from "../axios";
 
-const AuthContext = createContext<{
+export interface User {
+  id: number;
+  email: string;
+  role: 'doctor' | 'receptionist' | 'admin';
+}
+
+interface AuthContextType {
+  user: User | null;
+  token: string | null;
   isAuthed: boolean;
-  setAuthed: (authed: boolean) => void;
+  login: (token: string, user: User) => void;
+  logout: () => void;
   loading: boolean;
-}>({
+}
+
+const AuthContext = createContext<AuthContextType>({
+  user: null,
+  token: null,
   isAuthed: false,
-  setAuthed: () => { },
+  login: () => { },
+  logout: () => { },
   loading: true,
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [isAuthed, setAuthedState] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+
+  const login = (newToken: string, newUser: User) => {
+    localStorage.setItem("token", newToken);
+    setToken(newToken);
+    setUser(newUser);
+  };
+
+  const logout = () => {
+    localStorage.removeItem("token");
+    setToken(null);
+    setUser(null);
+  };
 
   useEffect(() => {
     const init = async () => {
-      try {
-        const { data } = await api.get('/users/check-password-exists');
-
-        if (data.exists) {
-          // Check if user was previously authenticated in this session
-          const savedAuth = localStorage.getItem("isAuthed");
-          if (savedAuth === "true") {
-            setAuthedState(true);
+      const savedToken = localStorage.getItem("token");
+      if (savedToken) {
+        try {
+          const { data } = await api.get('/auth/me');
+          if (data.success) {
+            setUser(data.user);
+            setToken(savedToken);
           } else {
-            setAuthedState(false);
+            logout();
           }
-        } else {
-          setAuthedState(true);
+        } catch (error) {
+          console.error("Auth init failed:", error);
+          logout();
         }
-      } catch (error) {
-        console.error("Auth init failed:", error);
-        // Default to authed if check fails (user can set password later)
-        setAuthedState(true);
-      } finally {
-        setLoading(false);
       }
+      setLoading(false);
     };
 
     init();
   }, []);
 
-  const setAuthed = (authed: boolean) => {
-    localStorage.setItem("isAuthed", String(authed));
-    setAuthedState(authed);
-  };
-
   return (
-    <AuthContext.Provider value={{ isAuthed, setAuthed, loading }}>
+    <AuthContext.Provider value={{
+      user,
+      token,
+      isAuthed: !!user,
+      login,
+      logout,
+      loading
+    }}>
       {!loading && children}
     </AuthContext.Provider>
   );

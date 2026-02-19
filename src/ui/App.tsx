@@ -16,7 +16,7 @@ const Home = React.lazy(() => import("./routes/Home"));
 const MainPage = React.lazy(() => import("./components/Patient/MainPage"));
 const DashboardPage = React.lazy(() => import("./dashboard/Page"));
 const Page = React.lazy(() => import("./routes/Consultations"));
-const EnterPasswordScreen = React.lazy(() => import("./routes/EnterPasswordScreen").then(m => ({ default: m.EnterPasswordScreen })));
+const LoginPage = React.lazy(() => import("./routes/EnterPasswordScreen"));
 const PrescriptionModelForm = React.lazy(() => import("./Prescriptionsettings/PrescriptionSetting").then(m => ({ default: m.PrescriptionModelForm })));
 const MainAppointmentPage = React.lazy(() => import("./components/Appointment/MainAppointmentPage"));
 const ExpensesPage = React.lazy(() => import("./expenses/Page"));
@@ -52,7 +52,7 @@ function App() {
         <Router>
           <Suspense fallback={<LoadingFallback />}>
             <Routes>
-              <Route path="/enter-password" element={<EnterPasswordScreen />} />
+              <Route path="/login" element={<LoginPage />} />
               <Route
                 path="/"
                 element={

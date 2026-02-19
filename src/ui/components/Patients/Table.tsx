@@ -65,7 +65,7 @@ import {
 } from "../ui/popover"
 import { DateRange } from "react-day-picker"
 import api from "../../axios";
-
+import { useAuth } from "../../context/auth-context";
 function PatientsTable({
   patients,
   onPatientArchived,
@@ -78,6 +78,8 @@ function PatientsTable({
   ) => void;
   disableDateFilter?: boolean;
 }) {
+  const { user } = useAuth();
+  const isMedical = user?.role === "doctor" || user?.role === "admin";
   const [query, setQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [sortKey, setSortKey] = useState<
@@ -495,45 +497,49 @@ function PatientsTable({
                                 Exporter (PDF)
                               </DropdownMenuItem>
 
-                              {!isArchived ? (
-                                <DropdownMenuItem
-                                  onClick={() =>
-                                    setConfirmDialog({
-                                      id: patient.id,
-                                      action: "archive",
-                                    })
-                                  }
-                                >
-                                  <Archive className="mr-2 h-4 w-4" />
-                                  Archiver
-                                </DropdownMenuItem>
-                              ) : (
-                                <DropdownMenuItem
-                                  onClick={() =>
-                                    setConfirmDialog({
-                                      id: patient.id,
-                                      action: "unarchive",
-                                    })
-                                  }
-                                >
-                                  <Undo2 className="mr-2 h-4 w-4" />
-                                  Désarchiver
-                                </DropdownMenuItem>
-                              )}
+                              {isMedical && (
+                                <>
+                                  {!isArchived ? (
+                                    <DropdownMenuItem
+                                      onClick={() =>
+                                        setConfirmDialog({
+                                          id: patient.id,
+                                          action: "archive",
+                                        })
+                                      }
+                                    >
+                                      <Archive className="mr-2 h-4 w-4" />
+                                      Archiver
+                                    </DropdownMenuItem>
+                                  ) : (
+                                    <DropdownMenuItem
+                                      onClick={() =>
+                                        setConfirmDialog({
+                                          id: patient.id,
+                                          action: "unarchive",
+                                        })
+                                      }
+                                    >
+                                      <Undo2 className="mr-2 h-4 w-4" />
+                                      Désarchiver
+                                    </DropdownMenuItem>
+                                  )}
 
-                              <DropdownMenuSeparator />
-                              <DropdownMenuItem
-                                className="text-destructive focus:text-destructive"
-                                onClick={() =>
-                                  setConfirmDialog({
-                                    id: patient.id,
-                                    action: "delete",
-                                  })
-                                }
-                              >
-                                <Trash className="mr-2 h-4 w-4" />
-                                Supprimer
-                              </DropdownMenuItem>
+                                  <DropdownMenuSeparator />
+                                  <DropdownMenuItem
+                                    className="text-destructive focus:text-destructive"
+                                    onClick={() =>
+                                      setConfirmDialog({
+                                        id: patient.id,
+                                        action: "delete",
+                                      })
+                                    }
+                                  >
+                                    <Trash className="mr-2 h-4 w-4" />
+                                    Supprimer
+                                  </DropdownMenuItem>
+                                </>
+                              )}
                             </DropdownMenuContent>
                           </DropdownMenu>
                         </TableCell>

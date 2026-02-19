@@ -9,33 +9,22 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { useAuth } from "../context/auth-context";
 import { useNavigate } from "react-router-dom";
-import { usePasswordStatus } from "../hooks/usePasswordStatus";
-import { toast } from "sonner";
 
 export function NavSecondary({
   ...props
 }: {} & React.ComponentPropsWithoutRef<typeof SidebarMenu>) {
-  const { setAuthed } = useAuth();
+  const { logout } = useAuth();
   const navigate = useNavigate();
 
-  const { refetch } = usePasswordStatus();
-
-  async function handleLock() {
-    const updatedStatus = await refetch();
-    if (updatedStatus === "not-exists") {
-      toast.warning("Aucun mot de passe n'a encore été défini.");
-      return;
-    }
-
-    setAuthed(false);
-    localStorage.removeItem("isAuthed");
-    navigate("/enter-password");
+  function handleLogout() {
+    logout();
+    navigate("/login");
   }
 
   return (
     <SidebarMenu {...props}>
       <SidebarMenuItem>
-        <SidebarMenuButton onClick={handleLock} tooltip="Déconnexion">
+        <SidebarMenuButton onClick={handleLogout} tooltip="Déconnexion">
           <Lock />
           <span>Déconnexion</span>
         </SidebarMenuButton>

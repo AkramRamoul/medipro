@@ -23,22 +23,26 @@ import {
   SidebarMenuItem,
 } from "../components/ui/sidebar";
 import { NavSecondary } from "./Nav-secondary";
-
-const items = [
-  { title: "Tableau de bord", url: "/", icon: ChartColumnIncreasing },
-  { title: "Accueil", url: "/patients", icon: Home },
-  { title: "Tous les patients", url: "/all-patients", icon: Users },
-  { title: "Rendez-vous", url: "/appointments", icon: Calendar },
-  { title: "Consultations", url: "/consultations", icon: Clipboard },
-  { title: "Ordonnances", url: "/prescriptions", icon: PillBottle },
-  { title: "Dépenses", url: "/expenses", icon: Wallet },
-  { title: "Modèle Ordonnance ", url: "/Ordonnance", icon: FilePen },
-  { title: "Paramètres", url: "/settings", icon: SettingsIcon },
-];
+import { useAuth } from "../context/auth-context";
 
 export function AppSidebar() {
   const location = useLocation();
   const currentPath = location.pathname;
+  const { user } = useAuth();
+
+  const allItems = [
+    { title: "Tableau de bord", url: "/", icon: ChartColumnIncreasing, roles: ["admin", "doctor"] },
+    { title: "Accueil", url: "/patients", icon: Home, roles: ["admin", "doctor", "receptionist"] },
+    { title: "Tous les patients", url: "/all-patients", icon: Users, roles: ["admin", "doctor", "receptionist"] },
+    { title: "Rendez-vous", url: "/appointments", icon: Calendar, roles: ["admin", "doctor", "receptionist"] },
+    { title: "Consultations", url: "/consultations", icon: Clipboard, roles: ["admin", "doctor"] },
+    { title: "Ordonnances", url: "/prescriptions", icon: PillBottle, roles: ["admin", "doctor"] },
+    { title: "Dépenses", url: "/expenses", icon: Wallet, roles: ["admin", "doctor"] },
+    { title: "Modèle Ordonnance ", url: "/Ordonnance", icon: FilePen, roles: ["admin", "doctor"] },
+    { title: "Paramètres", url: "/settings", icon: SettingsIcon, roles: ["admin", "doctor"] },
+  ];
+
+  const items = allItems.filter(item => item.roles.includes(user?.role || ""));
 
   return (
     <Sidebar className="h-screen text-black" collapsible='icon'>

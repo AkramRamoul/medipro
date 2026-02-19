@@ -8,6 +8,9 @@ import settingsRoutes from './settings.routes';
 import appointmentRoutes from './appointment.routes';
 
 import expenseRoutes from './expense.routes';
+import authRoutes from './auth.routes';
+import { authMiddleware } from '../middleware/auth.middleware';
+import { authorize } from '../middleware/role.middleware';
 
 const router = Router();
 
@@ -19,14 +22,17 @@ router.get('/health', (req, res) => {
     });
 });
 
-// Entity routes
-router.use('/patients', patientRoutes);
-router.use('/consultations', consultationRoutes);
-router.use('/prescriptions', prescriptionRoutes);
+// Auth routes (some are public, middleware handled inside authRoutes)
+router.use('/auth', authRoutes);
+
+// Protected entity routes
+router.use('/patients', authMiddleware, patientRoutes);
+router.use('/consultations', authMiddleware, consultationRoutes);
+router.use('/prescriptions', authMiddleware, prescriptionRoutes);
 router.use('/users', userRoutes);
-router.use('/documents', documentRoutes);
-router.use('/settings', settingsRoutes);
-router.use('/appointments', appointmentRoutes);
-router.use('/expenses', expenseRoutes);
+router.use('/documents', authMiddleware, documentRoutes);
+router.use('/settings', authMiddleware, settingsRoutes);
+router.use('/appointments', authMiddleware, appointmentRoutes);
+router.use('/expenses', authMiddleware, expenseRoutes);
 
 export default router;

@@ -1,6 +1,5 @@
-import { Navigate } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/auth-context";
-import { usePasswordStatus } from "../hooks/usePasswordStatus";
 
 export default function RequirePassword({
   children,
@@ -8,13 +7,13 @@ export default function RequirePassword({
   children: React.JSX.Element;
 }) {
   const { isAuthed, loading } = useAuth();
-  const passwordStatus = usePasswordStatus();
+  const location = useLocation();
 
-  if (loading || passwordStatus.status === "loading") return null;
+  if (loading) return null;
 
-  return passwordStatus.status === "exists" && !isAuthed ? (
-    <Navigate to="/enter-password" replace />
-  ) : (
-    children
-  );
+  if (!isAuthed) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  return children;
 }

@@ -1,7 +1,11 @@
 import { Router } from 'express';
 import { expenseService } from '../services/expense.service';
+import { authorize } from '../middleware/role.middleware';
 
 const router = Router();
+
+// Apply authorize to all routes - only doctors and admins can manage expenses
+router.use(authorize(['doctor', 'admin']));
 
 // Get all expenses
 router.get('/', async (req, res, next) => {

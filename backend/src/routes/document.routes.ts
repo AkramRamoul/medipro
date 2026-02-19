@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { documentService } from '../services/document.service';
+import { authorize } from '../middleware/role.middleware';
 
 const router = Router();
 
@@ -21,7 +22,7 @@ router.get('/:id', async (req, res, next) => {
     }
 });
 
-router.post('/', async (req, res, next) => {
+router.post('/', authorize(['doctor', 'admin']), async (req, res, next) => {
     try {
         const id = await documentService.create(req.body);
         res.status(201).json({ id });
@@ -30,7 +31,7 @@ router.post('/', async (req, res, next) => {
     }
 });
 
-router.delete('/:id', async (req, res, next) => {
+router.delete('/:id', authorize(['doctor', 'admin']), async (req, res, next) => {
     try {
         const result = await documentService.delete(Number(req.params.id));
         res.json(result);
@@ -58,7 +59,7 @@ router.get('/templates/:id', async (req, res, next) => {
     }
 });
 
-router.post('/templates', async (req, res, next) => {
+router.post('/templates', authorize(['doctor', 'admin']), async (req, res, next) => {
     try {
         const result = await documentService.createTemplate(req.body);
         res.status(201).json(result);
@@ -67,7 +68,7 @@ router.post('/templates', async (req, res, next) => {
     }
 });
 
-router.put('/templates/:id', async (req, res, next) => {
+router.put('/templates/:id', authorize(['doctor', 'admin']), async (req, res, next) => {
     try {
         const result = await documentService.updateTemplate(Number(req.params.id), req.body);
         res.json(result);
@@ -76,7 +77,7 @@ router.put('/templates/:id', async (req, res, next) => {
     }
 });
 
-router.delete('/templates/:id', async (req, res, next) => {
+router.delete('/templates/:id', authorize(['doctor', 'admin']), async (req, res, next) => {
     try {
         const result = await documentService.deleteTemplate(Number(req.params.id));
         res.json(result);

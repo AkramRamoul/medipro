@@ -1,0 +1,119 @@
+import { Router } from 'express';
+import { userService } from '../services/user.service';
+import { authService } from '../services/auth.service';
+import { z } from 'zod';
+import { authMiddleware } from '../middleware/auth.middleware';
+import { authorize } from '../middleware/role.middleware';
+
+const router = Router();
+
+const loginSchema = z.object({
+    email: z.string().email(),
+    password: z.string(),
+});
+
+const registerSchema = z.object({
+    email: z.string().email(),
+    password: z.string().min(6),
+    role: z.enum(['doctor', 'receptionist', 'admin']),
+});
+
+// Login route
+router.post('/login', async (req, res, next) => {
+    try {
+        const { email, password } = loginSchema.parse(req.body);
+        const user = await userService.findByEmail(email);
+
+        if (!user || !(await require('bcryptjs').compare(password, user.password))) {
+            return res.status(401).json({ success: false, message: 'Invalid credentials' });
+        }
+
+        const token = authService.generateToken({
+            userId: user.id,
+            email: user.email,
+            role: user.role,
+        });
+
+        res.json({
+            success: true,
+            token,
+            user: {
+                id: user.id,
+                email: user.email,
+                role: user.role,
+            }
+        });
+    } catch (error) {
+        next(error);
+    }
+});
+
+// Register route (Admin only)
+router.post('/register', authMiddleware, authorize(['admin']), async (req, res, next) => {
+    try {
+        const data = registerSchema.parse(req.body);
+
+        const existing = await userService.findByEmail(data.email);
+        if (existing) {
+            return res.status(400).json({ success: false, message: 'User already exists' });
+        }
+
+        const newUser = await userService.createUser(data);
+        res.status(201).json({
+            success: true,
+            user: {
+                id: newUser.id,
+                email: newUser.email,
+                role: newUser.role,
+            }
+        });
+    } catch (error) {
+        next(error);
+    }
+});
+
+// Bootstrap route (Only works if no users exist)
+router.post('/bootstrap', async (req, res, next) => {
+    try {
+        const users = await userService.getAllUsers();
+        if (users.length > 0) {
+            return res.status(403).json({ success: false, message: 'Bootstrap already completed' });
+        }
+
+        const data = registerSchema.parse(req.body);
+        const newUser = await userService.createUser({
+            ...data,
+            role: 'admin' // Force admin for bootstrap
+        });
+
+        res.status(201).json({
+            success: true,
+            user: {
+                id: newUser.id,
+                email: newUser.email,
+                role: newUser.role,
+            }
+        });
+    } catch (error) {
+        next(error);
+    }
+});
+
+// Get available accounts for login selection (Public - excludes admins)
+router.get('/accounts', async (req, res, next) => {
+    try {
+        const users = await userService.getAllUsers();
+        res.json(users
+            .filter(u => u.role !== 'admin')
+            .map(u => ({
+                id: u.id,
+                email: u.email,
+                role: u.role
+            }))
+        );
+    } catch (error) {
+        next(error);
+    }
+});
+
+export default router;

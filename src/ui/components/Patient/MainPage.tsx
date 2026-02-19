@@ -5,6 +5,7 @@ import { Button } from "../ui/button";
 import { Download, Loader2 } from "lucide-react";
 import { usePatientPdfExport } from "../../hooks/usePatientPdfExport";
 import { VitalsTrendCard } from "./VitalsTrendCard";
+import { useAuth } from "../../context/auth-context";
 
 // Lazy load tab components
 const ConsultationForm = React.lazy(() => import("../Consultation/MainConsultationPage"));
@@ -25,6 +26,9 @@ function MainPage() {
   const { id } = useParams<{ id: string }>();
   const { exportPdf, isExporting } = usePatientPdfExport();
   const [activeTab, setActiveTab] = useState("example");
+  const { user } = useAuth();
+
+  const isMedical = user?.role === "doctor" || user?.role === "admin";
 
   return (
     <div className="p-4 flex flex-col items-center">
@@ -63,12 +67,14 @@ function MainPage() {
               Détails du patient
             </TabsTrigger>
 
-            <TabsTrigger
-              value="account"
-              className="flex-1 text-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-            >
-              Consultation
-            </TabsTrigger>
+            {isMedical && (
+              <TabsTrigger
+                value="account"
+                className="flex-1 text-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+              >
+                Consultation
+              </TabsTrigger>
+            )}
             <TabsTrigger
               value="vitals"
               className="flex-1 text-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
@@ -81,18 +87,22 @@ function MainPage() {
             >
               Analyses
             </TabsTrigger>
-            <TabsTrigger
-              value="prescriptions"
-              className="flex-1 text-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-            >
-              Ordonnances & Bilans
-            </TabsTrigger>
-            <TabsTrigger
-              value="letters"
-              className="flex-1 text-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-            >
-              Lettres
-            </TabsTrigger>
+            {isMedical && (
+              <TabsTrigger
+                value="prescriptions"
+                className="flex-1 text-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+              >
+                Ordonnances & Bilans
+              </TabsTrigger>
+            )}
+            {isMedical && (
+              <TabsTrigger
+                value="letters"
+                className="flex-1 text-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+              >
+                Lettres
+              </TabsTrigger>
+            )}
             <TabsTrigger
               value="timeline"
               className="flex-1 text-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
@@ -125,17 +135,17 @@ function MainPage() {
                 <LabResultsTab patientId={id!} />
               </TabsContent>
             )}
-            {activeTab === "account" && (
+            {activeTab === "account" && isMedical && (
               <TabsContent value="account" className="m-0 border-none p-0 shadow-none">
                 <ConsultationForm id={id!} />
               </TabsContent>
             )}
-            {activeTab === "prescriptions" && (
+            {activeTab === "prescriptions" && isMedical && (
               <TabsContent value="prescriptions" className="m-0 border-none p-0 shadow-none">
                 <MainPrescriptionPage id={id!} mode="prescriptions" />
               </TabsContent>
             )}
-            {activeTab === "letters" && (
+            {activeTab === "letters" && isMedical && (
               <TabsContent value="letters" className="m-0 border-none p-0 shadow-none">
                 <MainPrescriptionPage id={id!} mode="letters" />
               </TabsContent>

@@ -1,7 +1,7 @@
 import { db } from '../db';
-import { auth, licenses } from '../db/schema';
+import { users, auth, licenses } from '../db/schema';
 import { eq } from 'drizzle-orm';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import { machineIdSync } from 'node-machine-id';
 import base32Decode from 'base32-decode';
 import crypto from 'crypto';
@@ -9,6 +9,37 @@ import fs from 'fs';
 import path from 'path';
 
 export class UserService {
+    // New RBAC Methods
+    async findByEmail(email: string) {
+        const [user] = await db.select().from(users).where(eq(users.email, email));
+        return user;
+    }
+
+    async findById(id: number) {
+        const [user] = await db.select().from(users).where(eq(users.id, id));
+        return user;
+    }
+
+    async createUser(data: any) {
+        const hashedPassword = await bcrypt.hash(data.password, 10);
+        const [newUser] = await db.insert(users).values({
+            email: data.email,
+            password: hashedPassword,
+            role: data.role,
+        }).returning();
+        return newUser;
+    }
+
+    async getAllUsers() {
+        return await db.select().from(users);
+    }
+
+    async deleteUser(id: number) {
+        await db.delete(users).where(eq(users.id, id));
+        return { success: true };
+    }
+
+    // Legacy Support & License Logic
     async checkPasswordExists() {
         const result = await db.select().from(auth).limit(1);
         return result.length > 0 && !!result[0].passwordHash;
@@ -60,20 +91,20 @@ export class UserService {
         return { success: true };
     }
 
-    // License implementation
     async getMachineId() {
         try {
             return machineIdSync();
         } catch (error) {
             console.error("Failed to get machine ID:", error);
-            return "WEB_SERVER_ID"; // Fallback
+            return "WEB_SERVER_ID";
         }
     }
 
     private getPublicKey() {
         const pubPath = path.resolve(process.cwd(), '..', 'public', 'public.pem');
         if (!fs.existsSync(pubPath)) {
-            throw new Error(`Public key not found at ${pubPath}`);
+            // Check if it's in a different relative path or just return placeholder
+            return "";
         }
         return fs.readFileSync(pubPath, 'utf8');
     }
@@ -86,6 +117,8 @@ export class UserService {
     async validateLicense(key: string, payload: { expiry: string; machineId: string }) {
         try {
             const publicKey = this.getPublicKey();
+            if (!publicKey) return false;
+
             const cleanedKey = key.replace(/-/g, "").toUpperCase();
             const signature = Buffer.from(base32Decode(cleanedKey, "RFC4648"));
 
@@ -98,7 +131,6 @@ export class UserService {
             const isValid = crypto.verify("sha256", data, publicKey, signature);
 
             if (isValid) {
-                // Save valid license to DB
                 const existing = await db.select().from(licenses).limit(1);
                 if (existing.length === 0) {
                     await db.insert(licenses).values({ key, payload });

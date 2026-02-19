@@ -7,13 +7,20 @@ import path from 'path';
 const sqlite = new Database(path.resolve(process.cwd(), env.DATABASE_PATH));
 sqlite.pragma('journal_mode = WAL');
 
-// Ensure the licenses table exists (temporary fix for missing table)
+// Ensure the licenses and users tables exist (temporary fix for missing table)
 sqlite.exec(`
     CREATE TABLE IF NOT EXISTS licenses (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         key TEXT NOT NULL,
         payload TEXT NOT NULL
-    )
+    );
+    CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        email TEXT NOT NULL UNIQUE,
+        password TEXT NOT NULL,
+        role TEXT NOT NULL,
+        created_at TEXT DEFAULT CURRENT_TIMESTAMP
+    );
 `);
 
 export const db = drizzle(sqlite);

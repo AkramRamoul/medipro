@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { consultationService } from '../services/consultation.service';
+import { authorize } from '../middleware/role.middleware';
 
 const router = Router();
 
@@ -34,7 +35,7 @@ router.get('/diagnostics/common', async (req, res, next) => {
 });
 
 // Update common diagnostics
-router.post('/diagnostics/common', async (req, res, next) => {
+router.post('/diagnostics/common', authorize(['doctor', 'admin']), async (req, res, next) => {
     try {
         const result = await consultationService.updateCommonDiagnostics(req.body);
         res.json(result);
@@ -54,7 +55,7 @@ router.get('/bilans/common', async (req, res, next) => {
 });
 
 // Update common bilans
-router.post('/bilans/common', async (req, res, next) => {
+router.post('/bilans/common', authorize(['doctor', 'admin']), async (req, res, next) => {
     try {
         const result = await consultationService.updateBilans(req.body);
         res.json(result);
@@ -74,7 +75,7 @@ router.get('/settings/custom-fields', async (req, res, next) => {
 });
 
 // Create custom field definition
-router.post('/settings/custom-fields', async (req, res, next) => {
+router.post('/settings/custom-fields', authorize(['doctor', 'admin']), async (req, res, next) => {
     try {
         const result = await consultationService.createCustomFieldDefinitions(req.body);
         res.json(result);
@@ -84,7 +85,7 @@ router.post('/settings/custom-fields', async (req, res, next) => {
 });
 
 // Delete custom field definition
-router.delete('/settings/custom-fields/:id', async (req, res, next) => {
+router.delete('/settings/custom-fields/:id', authorize(['doctor', 'admin']), async (req, res, next) => {
     try {
         const result = await consultationService.deleteCustomFieldDefinition(Number(req.params.id));
         res.json(result);
@@ -134,7 +135,7 @@ router.get('/:id', async (req, res, next) => {
 });
 
 // Create consultation
-router.post('/', async (req, res, next) => {
+router.post('/', authorize(['doctor', 'admin']), async (req, res, next) => {
     try {
         const result = await consultationService.create(req.body);
         res.status(201).json(result);
@@ -144,7 +145,7 @@ router.post('/', async (req, res, next) => {
 });
 
 // Update consultation
-router.put('/:id', async (req, res, next) => {
+router.put('/:id', authorize(['doctor', 'admin']), async (req, res, next) => {
     try {
         const result = await consultationService.update(Number(req.params.id), req.body);
         res.json(result);
@@ -154,7 +155,7 @@ router.put('/:id', async (req, res, next) => {
 });
 
 // Delete consultation
-router.delete('/:id', async (req, res, next) => {
+router.delete('/:id', authorize(['doctor', 'admin']), async (req, res, next) => {
     try {
         const result = await consultationService.delete(Number(req.params.id));
         res.json(result);

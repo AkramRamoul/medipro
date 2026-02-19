@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { prescriptionService } from '../services/prescription.service';
+import { authorize } from '../middleware/role.middleware';
 
 const router = Router();
 
@@ -64,7 +65,7 @@ router.get('/:id', async (req, res, next) => {
 });
 
 // Create prescription
-router.post('/', async (req, res, next) => {
+router.post('/', authorize(['doctor', 'admin']), async (req, res, next) => {
     try {
         const result = await prescriptionService.create(req.body);
         res.status(201).json(result);
@@ -74,7 +75,7 @@ router.post('/', async (req, res, next) => {
 });
 
 // Create prescription template
-router.post('/templates', async (req, res, next) => {
+router.post('/templates', authorize(['doctor', 'admin']), async (req, res, next) => {
     try {
         const result = await prescriptionService.createTemplate(req.body);
         res.status(201).json(result);
@@ -84,7 +85,7 @@ router.post('/templates', async (req, res, next) => {
 });
 
 // Delete prescription
-router.delete('/:id', async (req, res, next) => {
+router.delete('/:id', authorize(['doctor', 'admin']), async (req, res, next) => {
     try {
         const result = await prescriptionService.delete(Number(req.params.id));
         res.json(result);
@@ -94,7 +95,7 @@ router.delete('/:id', async (req, res, next) => {
 });
 
 // Delete prescription template
-router.delete('/templates/:id', async (req, res, next) => {
+router.delete('/templates/:id', authorize(['doctor', 'admin']), async (req, res, next) => {
     try {
         const result = await prescriptionService.deleteTemplate(Number(req.params.id));
         res.json(result);

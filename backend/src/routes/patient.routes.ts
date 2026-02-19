@@ -1,9 +1,14 @@
 import { Router } from 'express';
 import { patientService } from '../services/patient.service';
+import { authMiddleware } from '../middleware/auth.middleware';
+import { authorize } from '../middleware/role.middleware';
 
 const router = Router();
 
-// Search patients
+// Apply authMiddleware to all routes in this file
+router.use(authMiddleware);
+
+// Search patients (All roles)
 router.get('/search', async (req, res, next) => {
     try {
         const query = req.query.q as string;
@@ -14,7 +19,7 @@ router.get('/search', async (req, res, next) => {
     }
 });
 
-// Get all patients
+// Get all patients (All roles)
 router.get('/', async (req, res, next) => {
     try {
         const patients = await patientService.getAll();
@@ -24,7 +29,7 @@ router.get('/', async (req, res, next) => {
     }
 });
 
-// Get patient timeline
+// Get patient timeline (All roles)
 router.get('/:id/timeline', async (req, res, next) => {
     try {
         const timeline = await patientService.getTimeline(Number(req.params.id));
@@ -34,7 +39,7 @@ router.get('/:id/timeline', async (req, res, next) => {
     }
 });
 
-// Get patient by id
+// Get patient by id (All roles)
 router.get('/:id', async (req, res, next) => {
     try {
         const patient = await patientService.getById(Number(req.params.id));
@@ -44,8 +49,8 @@ router.get('/:id', async (req, res, next) => {
     }
 });
 
-// Create patient
-router.post('/', async (req, res, next) => {
+// Create patient (Receptionist and Doctor)
+router.post('/', authorize(['receptionist', 'doctor', 'admin']), async (req, res, next) => {
     try {
         const patientId = await patientService.create(req.body);
         res.status(201).json({ id: patientId });
@@ -54,8 +59,8 @@ router.post('/', async (req, res, next) => {
     }
 });
 
-// Update patient
-router.put('/:id', async (req, res, next) => {
+// Update patient (Receptionist and Doctor)
+router.put('/:id', authorize(['receptionist', 'doctor', 'admin']), async (req, res, next) => {
     try {
         const result = await patientService.update(Number(req.params.id), req.body);
         res.json(result);
@@ -64,8 +69,8 @@ router.put('/:id', async (req, res, next) => {
     }
 });
 
-// Delete patient (soft delete)
-router.delete('/:id', async (req, res, next) => {
+// Delete patient (Doctor and Admin)
+router.delete('/:id', authorize(['doctor', 'admin']), async (req, res, next) => {
     try {
         const result = await patientService.delete(Number(req.params.id));
         res.json(result);
@@ -74,7 +79,7 @@ router.delete('/:id', async (req, res, next) => {
     }
 });
 
-// Lab results
+// Lab results (All roles)
 router.get('/:id/lab-results', async (req, res, next) => {
     try {
         const results = await patientService.getLabResults(Number(req.params.id));
@@ -84,7 +89,7 @@ router.get('/:id/lab-results', async (req, res, next) => {
     }
 });
 
-router.post('/lab-panel', async (req, res, next) => {
+router.post('/lab-panel', authorize(['receptionist', 'doctor', 'admin']), async (req, res, next) => {
     try {
         const result = await patientService.addLabPanel(req.body);
         res.json(result);
@@ -93,7 +98,7 @@ router.post('/lab-panel', async (req, res, next) => {
     }
 });
 
-router.delete('/lab-panel/:panelId', async (req, res, next) => {
+router.delete('/lab-panel/:panelId', authorize(['doctor', 'admin']), async (req, res, next) => {
     try {
         const result = await patientService.deleteLabPanel(req.params.panelId);
         res.json(result);
