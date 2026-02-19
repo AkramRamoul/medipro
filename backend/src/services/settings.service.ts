@@ -1,8 +1,10 @@
-import { db } from '../db';
+import { db, sqlite } from '../db';
 import { prescriptionModel, image } from '../db/schema';
 import { eq } from 'drizzle-orm';
 import fs from 'fs';
 import path from 'path';
+import { env } from '../config/env';
+import Database from 'better-sqlite3';
 
 export class SettingsService {
     async getPrescriptionModel() {
@@ -83,6 +85,50 @@ export class SettingsService {
         await db.insert(image).values({ imagePath: filepath });
 
         return { success: true, path: filepath };
+    }
+
+    async backup() {
+        const backupDir = path.join(process.cwd(), 'backups');
+        if (!fs.existsSync(backupDir)) {
+            fs.mkdirSync(backupDir, { recursive: true });
+        }
+
+        const filename = `backup_${Date.now()}.db`;
+        const filepath = path.join(backupDir, filename);
+
+        await sqlite.backup(filepath);
+        return filepath;
+    }
+
+    async restore(backupFilePath: string) {
+        // To restore safely while keeping the connection open:
+        // 1. Open the backup file as a new database
+        // 2. Use backup() from the backup instance to the current instance
+        const tempDb = new Database(backupFilePath);
+        try {
+            // Restore into the current active database file
+            const targetPath = path.resolve(process.cwd(), env.DATABASE_PATH);
+            await tempDb.backup(targetPath);
+
+            return { success: true };
+        } catch (error: any) {
+            console.error('Restore error detail:', {
+                message: error.message,
+                code: error.code,
+                stack: error.stack
+            });
+            throw error;
+        } finally {
+            tempDb.close();
+            // Clean up the uploaded temporary file AFTER closing the connection
+            if (fs.existsSync(backupFilePath)) {
+                try {
+                    fs.unlinkSync(backupFilePath);
+                } catch (unlinkError) {
+                    console.error('Failed to delete temporary backup file:', unlinkError);
+                }
+            }
+        }
     }
 }
 

@@ -35,8 +35,8 @@ export function PatientRetention({
                 </div>
             </CardHeader>
             <CardContent>
-                <div className={`text-4xl font-bold ${getRetentionColor(retentionRate)}`}>
-                    {retentionRate.toFixed(1)}%
+                <div className={`text-4xl font-bold ${getRetentionColor(retentionRate || 0)}`}>
+                    {(retentionRate || 0).toFixed(1)}%
                 </div>
                 <p className="text-xs text-muted-foreground mt-2">
                     6 derniers mois

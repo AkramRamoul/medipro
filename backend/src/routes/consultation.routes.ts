@@ -33,11 +33,61 @@ router.get('/diagnostics/common', async (req, res, next) => {
     }
 });
 
+// Update common diagnostics
+router.post('/diagnostics/common', async (req, res, next) => {
+    try {
+        const result = await consultationService.updateCommonDiagnostics(req.body);
+        res.json(result);
+    } catch (error) {
+        next(error);
+    }
+});
+
+// Get common bilans
+router.get('/bilans/common', async (req, res, next) => {
+    try {
+        const bilans = await consultationService.getBilans();
+        res.json(bilans);
+    } catch (error) {
+        next(error);
+    }
+});
+
+// Update common bilans
+router.post('/bilans/common', async (req, res, next) => {
+    try {
+        const result = await consultationService.updateBilans(req.body);
+        res.json(result);
+    } catch (error) {
+        next(error);
+    }
+});
+
 // Get custom field definitions
 router.get('/settings/custom-fields', async (req, res, next) => {
     try {
         const fields = await consultationService.getCustomFieldDefinitions();
         res.json(fields);
+    } catch (error) {
+        next(error);
+    }
+});
+
+// Create custom field definition
+router.post('/settings/custom-fields', async (req, res, next) => {
+    try {
+        const result = await consultationService.createCustomFieldDefinitions(req.body);
+        res.json(result);
+    } catch (error) {
+        next(error);
+    }
+});
+
+// Delete custom field definition
+router.delete('/settings/custom-fields/:id', async (req, res, next) => {
+    try {
+        const result = await consultationService.deleteCustomFieldDefinition(Number(req.params.id));
+        res.json(result);
     } catch (error) {
         next(error);
     }

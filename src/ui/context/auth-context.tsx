@@ -21,8 +21,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const { data } = await api.get('/users/check-password-exists');
 
         if (data.exists) {
-          localStorage.removeItem("isAuthed");
-          setAuthedState(false);
+          // Check if user was previously authenticated in this session
+          const savedAuth = localStorage.getItem("isAuthed");
+          if (savedAuth === "true") {
+            setAuthedState(true);
+          } else {
+            setAuthedState(false);
+          }
         } else {
           setAuthedState(true);
         }

@@ -3,6 +3,7 @@ import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { toast } from "sonner";
 import { Trash2, Plus, Search, Loader2 } from "lucide-react";
+import api from "../../axios";
 
 interface DiagnosticItem {
     name: string;
@@ -18,8 +19,8 @@ const DiagnosticListSettings: React.FC = () => {
     const fetchDiagnostics = async () => {
         setIsLoading(true);
         try {
-            const result = await window.electronAPI.getCommonDiagnostics();
-            setDiagnostics(result);
+            const response = await api.get("/consultations/diagnostics/common");
+            setDiagnostics(response.data);
         } catch (error) {
             toast.error("Erreur lors du chargement des diagnostics");
         } finally {
@@ -56,11 +57,11 @@ const DiagnosticListSettings: React.FC = () => {
     const handleSave = async () => {
         setIsSaving(true);
         try {
-            const result = await window.electronAPI.updateCommonDiagnostics(diagnostics);
-            if (result.success) {
+            const response = await api.post("/consultations/diagnostics/common", diagnostics);
+            if (response.data.success) {
                 toast.success("Liste des diagnostics mise à jour avec succès");
             } else {
-                toast.error("Erreur lors de l'enregistrement : " + result.error);
+                toast.error("Erreur lors de l'enregistrement : " + response.data.error);
             }
         } catch (error) {
             toast.error("Une erreur est survenue lors de l'enregistrement");

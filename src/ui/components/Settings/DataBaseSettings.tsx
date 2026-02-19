@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { DatabaseBackup, RotateCcw, Loader2, Info } from "lucide-react";
 import { Button } from "../ui/button";
 import {
@@ -9,19 +9,29 @@ import {
   CardTitle,
 } from "../ui/card";
 import { toast } from "sonner";
+import api from "../../axios";
 
 export default function DatabaseSettings() {
   const [loading, setLoading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   async function handleBackup() {
     setLoading(true);
     try {
-      const success = await window.electronAPI.backup();
-      if (success) {
-        toast.success("Sauvegarde effectuée");
-      } else {
-        toast.info("Sauvegarde annulée");
-      }
+      const response = await api.get("/settings/backup", {
+        responseType: 'blob'
+      });
+
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `backup_${new Date().toISOString().split('T')[0]}.db`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+
+      toast.success("Sauvegarde effectuée");
     } catch (error) {
       console.error(error);
       toast.error("Erreur lors de la sauvegarde");
@@ -30,25 +40,42 @@ export default function DatabaseSettings() {
     }
   }
 
-  async function handleRestore() {
+  async function handleRestore(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
     const confirmed = confirm(
       "La restauration d'une sauvegarde remplacera les données actuelles. Continuer ?",
     );
-    if (!confirmed) return;
+    if (!confirmed) {
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      return;
+    }
 
     setLoading(true);
     try {
-      const success = await window.electronAPI.restore();
-      if (success) {
-        toast.success("Restauration effectuée");
+      const formData = new FormData();
+      formData.append('database', file);
+
+      const response = await api.post("/settings/restore", formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+
+      if (response.data.success) {
+        toast.success("Restauration effectuée. L'application va redémarrer.");
+        // Reload the app to pick up new database state
+        setTimeout(() => window.location.reload(), 2000);
       } else {
-        toast.info("Restauration annulée");
+        toast.error("Échec de la restauration");
       }
     } catch (error) {
       console.error(error);
       toast.error("Erreur lors de la restauration");
     } finally {
       setLoading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
     }
   }
 
@@ -84,8 +111,15 @@ export default function DatabaseSettings() {
               Sauvegarder la base de données
             </Button>
 
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleRestore}
+              accept=".db"
+              className="hidden"
+            />
             <Button
-              onClick={handleRestore}
+              onClick={() => fileInputRef.current?.click()}
               disabled={loading}
               className="w-full sm:w-auto bg-red-600 hover:bg-red-700 text-white"
             >

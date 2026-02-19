@@ -36,6 +36,7 @@ import { Label } from "../components/ui/label";
 import { PlusCircle, Trash2, Wallet, Receipt } from "lucide-react";
 import { toast } from "sonner";
 import { Expense } from "../type";
+import api from "../axios";
 
 export default function ExpensesPage() {
     const [expenses, setExpenses] = useState<Expense[]>([]);
@@ -50,8 +51,8 @@ export default function ExpensesPage() {
     const fetchExpenses = async () => {
         try {
             setIsLoading(true);
-            const data = await window.electronAPI.getExpenses();
-            setExpenses(data);
+            const response = await api.get("/expenses");
+            setExpenses(response.data);
         } catch (error) {
             console.error("Failed to fetch expenses:", error);
             toast.error("Erreur lors du chargement des dépenses");
@@ -77,7 +78,7 @@ export default function ExpensesPage() {
                 return;
             }
 
-            await window.electronAPI.addExpense({
+            await api.post("/expenses", {
                 description: newExpense.description,
                 amount,
                 category: newExpense.category,
@@ -95,7 +96,7 @@ export default function ExpensesPage() {
 
     const handleDeleteExpense = async (id: number) => {
         try {
-            await window.electronAPI.deleteExpense(id);
+            await api.delete(`/expenses/${id}`);
             toast.success("Dépense supprimée");
             fetchExpenses();
         } catch (error) {

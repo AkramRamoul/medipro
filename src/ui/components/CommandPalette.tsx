@@ -20,6 +20,7 @@ import {
     CommandShortcut,
 } from "./ui/command";
 import { SearchResult } from "../type";
+import api from "../axios";
 
 export function CommandPalette() {
     const [open, setOpen] = React.useState(false);
@@ -55,8 +56,8 @@ export function CommandPalette() {
 
             setLoading(true);
             try {
-                const data = await window.electronAPI.globalSearch(query);
-                setResults(data);
+                const response = await api.get(`/patients/search?q=${query}`);
+                setResults(response.data);
             } catch (error) {
                 console.error("Search failed:", error);
             } finally {

@@ -22,9 +22,10 @@ function NewPatientModal({ isOpen, onClose }: NewPatientModalProps) {
 
   const handleSave = async (data: Patient) => {
     try {
-      const newPatientId = await api.post("/patients/add-patient", data);
+      const response = await api.post("/patients", data);
+      const newPatientId = response.data.id;
       window.dispatchEvent(new Event("patients-updated"));
-      toast.success("Patient enregistré avec succès !");
+      toast.success("Patient enregistré avec succès !");
       onClose();
 
       navigate(`/pat/${newPatientId}`);

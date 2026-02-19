@@ -34,6 +34,7 @@ import { Calendar } from "../ui/calendar";
 import { cn } from "../../lib/utils";
 import { Patient } from "../../type";
 import { Separator } from "../ui/separator";
+import api from "../../axios";
 
 const bloodWorkSchema = z.object({
   patientName: z.string().min(2),
@@ -66,7 +67,9 @@ export function BloodWork({
   const suggestionsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    window.electronAPI.getBilans().then(setAllBilans).catch(console.error);
+    api.get("/consultations/bilans/common")
+      .then((res) => setAllBilans(res.data))
+      .catch(console.error);
     const handleClickOutside = (event: MouseEvent) => {
       if (suggestionsRef.current && !suggestionsRef.current.contains(event.target as Node)) {
         setSuggestions([]);
@@ -134,7 +137,7 @@ export function BloodWork({
 
   async function onSubmit(values: z.infer<typeof bloodWorkSchema>) {
     try {
-      await window.electronAPI.createDocument({
+      await api.post("/documents", {
         patientId: patient.id,
         type: "blood",
         content: values,

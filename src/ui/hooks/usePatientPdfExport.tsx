@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { pdf } from "@react-pdf/renderer";
 import PatientRecordPdf from "../components/Patients/PatientRecordPdf";
+import api from "../axios";
 
 export function usePatientPdfExport() {
     const [isExporting, setIsExporting] = useState(false);
@@ -8,19 +9,20 @@ export function usePatientPdfExport() {
     const exportPdf = async (patientId: string) => {
         setIsExporting(true);
         try {
-            // Wait for DB to settle (fix for stale data on immediate export)
-            await new Promise((resolve) => setTimeout(resolve, 500));
-
-            // Fetch all required data in parallel
-            const [patientArray, consultations, prescriptions, timeline, documents] = await Promise.all([
-                window.electronAPI.getpatient(patientId),
-                window.electronAPI.getConsultations(patientId),
-                window.electronAPI.getPatientPrescriptions(patientId),
-                window.electronAPI.getPatientTimeline(patientId),
-                window.electronAPI.getPatientDocuments(patientId)
+            // Fetch all required data in parallel using the backend API
+            const [
+                { data: patient },
+                { data: consultations },
+                { data: prescriptions },
+                { data: timeline },
+                { data: documents }
+            ] = await Promise.all([
+                api.get(`/patients/${patientId}`),
+                api.get(`/consultations/patient/${patientId}`),
+                api.get(`/prescriptions/patient/${patientId}`),
+                api.get(`/patients/${patientId}/timeline`),
+                api.get(`/documents/patient/${patientId}`)
             ]);
-
-            const patient = (patientArray as any)[0];
 
             if (!patient) {
                 throw new Error("Patient not found");
@@ -36,16 +38,17 @@ export function usePatientPdfExport() {
                 />
             ).toBlob();
 
+            // Create a temporary link to download the PDF
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `Dossier_${patient.first_name}_${patient.last_name}.pdf`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
 
-            const buffer = await blob.arrayBuffer();
-            const filename = `Dossier_${patient.first_name}_${patient.last_name}.pdf`;
-
-            const result = await window.electronAPI.savePdf(buffer, filename);
-
-            if (result.success) {
-                return true;
-            }
-            return false;
+            return true;
         } catch (error) {
             console.error("Failed to export PDF:", error);
             return false;

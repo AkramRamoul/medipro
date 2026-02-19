@@ -32,7 +32,7 @@ export class ConsultationService {
     }
 
     async getById(id: number) {
-        const result = await db
+        const [result] = await db
             .select()
             .from(consultations)
             .where(eq(consultations.id, id));
@@ -113,6 +113,9 @@ export class ConsultationService {
             recentConsultations,
             [patientsThisMonth],
             [patientsLastMonth],
+            commonDiagnoses,
+            busiestDays,
+            allPatientsConsultations,
         ] = await Promise.all([
             db
                 .select({ count: sql<number>`count(*)` })
@@ -137,33 +140,33 @@ export class ConsultationService {
                     sql`strftime('%Y-%m', ${prescriptions.prescriptionDate}) = strftime('%Y-%m', CURRENT_TIMESTAMP)`,
                 ),
             db
-                .select({ sum: sql<number>`sum(${consultations.amountPaid})` })
+                .select({ sum: sql<number>`COALESCE(sum(${consultations.amountPaid}), 0)` })
                 .from(consultations)
                 .where(sql`date(${consultations.date}) = date('now')`),
             db
-                .select({ sum: sql<number>`sum(${consultations.amountPaid})` })
+                .select({ sum: sql<number>`COALESCE(sum(${consultations.amountPaid}), 0)` })
                 .from(consultations)
                 .where(
                     sql`strftime('%Y-%m', ${consultations.date}) = strftime('%Y-%m', CURRENT_TIMESTAMP)`,
                 ),
             db
-                .select({ sum: sql<number>`sum(${consultations.amountPaid})` })
+                .select({ sum: sql<number>`COALESCE(sum(${consultations.amountPaid}), 0)` })
                 .from(consultations)
                 .where(
                     sql`strftime('%Y-%m', ${consultations.date}) = strftime('%Y-%m', date('now', '-1 month'))`,
                 ),
             db
-                .select({ sum: sql<number>`sum(${expenses.amount})` })
+                .select({ sum: sql<number>`COALESCE(sum(${expenses.amount}), 0)` })
                 .from(expenses)
                 .where(sql`date(${expenses.date}) = date('now')`),
             db
-                .select({ sum: sql<number>`sum(${expenses.amount})` })
+                .select({ sum: sql<number>`COALESCE(sum(${expenses.amount}), 0)` })
                 .from(expenses)
                 .where(
                     sql`strftime('%Y-%m', ${expenses.date}) = strftime('%Y-%m', CURRENT_TIMESTAMP)`,
                 ),
             db
-                .select({ sum: sql<number>`sum(${expenses.amount})` })
+                .select({ sum: sql<number>`COALESCE(sum(${expenses.amount}), 0)` })
                 .from(expenses)
                 .where(
                     sql`strftime('%Y-%m', ${expenses.date}) = strftime('%Y-%m', date('now', '-1 month'))`,
@@ -207,7 +210,34 @@ export class ConsultationService {
                 .where(
                     sql`strftime('%Y-%m', ${consultations.date}) = strftime('%Y-%m', date('now', '-1 month'))`,
                 ),
+            this.getDashboardDiagnoses(),
+            db.select({
+                day: sql<string>`case cast(strftime('%w', ${consultations.date}) as integer) 
+                    when 0 then 'Dimanche' 
+                    when 1 then 'Lundi' 
+                    when 2 then 'Mardi' 
+                    when 3 then 'Mercredi' 
+                    when 4 then 'Jeudi' 
+                    when 5 then 'Vendredi' 
+                    when 6 then 'Samedi' end`,
+                count: sql<number>`count(*)`
+            })
+                .from(consultations)
+                .groupBy(sql`strftime('%w', ${consultations.date})`)
+                .orderBy(desc(sql`count(*)`)),
+            db.select({
+                patientId: consultations.patientId,
+                count: sql<number>`count(*)`
+            })
+                .from(consultations)
+                .groupBy(consultations.patientId)
         ]);
+
+        const totalUniquePatientsCount = allPatientsConsultations.length;
+        const totalReturnPatientsCount = allPatientsConsultations.filter(p => p.count > 1).length;
+        const retentionRate = totalUniquePatientsCount > 0
+            ? (totalReturnPatientsCount / totalUniquePatientsCount) * 100
+            : 0;
 
         // Simplified stats for now, can add more complex SQL queries if needed
         return {
@@ -226,6 +256,11 @@ export class ConsultationService {
             expensesToday: expensesToday.sum || 0,
             expensesThisMonth: expensesThisMonth.sum || 0,
             expensesLastMonth: expensesLastMonth.sum || 0,
+            commonDiagnoses: commonDiagnoses.slice(0, 5),
+            busiestDays: busiestDays.slice(0, 7),
+            retentionRate,
+            totalReturnPatients: totalReturnPatientsCount,
+            totalUniquePatients: totalUniquePatientsCount,
         };
     }
 
@@ -267,16 +302,61 @@ export class ConsultationService {
             return JSON.parse(data);
         } catch (error) {
             console.error("Failed to read common_consultations.json:", error);
-            // Fallback to DB if file fails
-            const result = await db
-                .select({ name: consultations.diagnosis })
-                .from(consultations)
-                .where(isNotNull(consultations.diagnosis))
-                .groupBy(consultations.diagnosis)
-                .orderBy(sql`COUNT(*) DESC`)
-                .limit(20);
-            return result;
+            return [];
         }
+    }
+
+    async updateCommonDiagnostics(diagnostics: any[]) {
+        const consultationsPath = path.join(process.cwd(), '..', 'public', 'common_consultations.json');
+        try {
+            fs.writeFileSync(consultationsPath, JSON.stringify(diagnostics, null, 4), 'utf-8');
+            return { success: true };
+        } catch (error) {
+            console.error("Failed to write common_consultations.json:", error);
+            return { success: false, error: "Failed to update diagnostics" };
+        }
+    }
+
+    async getBilans() {
+        const bilansPath = path.join(process.cwd(), '..', 'public', 'common_bilans.json');
+        try {
+            const data = fs.readFileSync(bilansPath, 'utf-8');
+            return JSON.parse(data);
+        } catch (error) {
+            console.error("Failed to read common_bilans.json:", error);
+            return [];
+        }
+    }
+
+    async updateBilans(bilans: any[]) {
+        const bilansPath = path.join(process.cwd(), '..', 'public', 'common_bilans.json');
+        try {
+            fs.writeFileSync(bilansPath, JSON.stringify(bilans, null, 4), 'utf-8');
+            return { success: true };
+        } catch (error) {
+            console.error("Failed to write common_bilans.json:", error);
+            return { success: false, error: "Failed to update bilans" };
+        }
+    }
+
+    async getDashboardDiagnoses() {
+        const result = await db
+            .select({
+                diagnosis: consultations.diagnosis,
+                count: sql<number>`count(*)`,
+            })
+            .from(consultations)
+            .where(
+                and(
+                    isNotNull(consultations.diagnosis),
+                    sql`${consultations.diagnosis} != ''`,
+                    sql`${consultations.date} >= date('now', '-3 months')`,
+                ),
+            )
+            .groupBy(consultations.diagnosis)
+            .orderBy(sql`count(*) DESC`)
+            .limit(5);
+        return result;
     }
 
     async getCustomFieldDefinitions() {
@@ -285,6 +365,23 @@ export class ConsultationService {
             .from(customFields)
             .where(eq(customFields.isActive, true));
         return result;
+    }
+    async createCustomFieldDefinitions(data: any) {
+        const [result] = await db
+            .insert(customFields)
+            .values({
+                name: data.name,
+                type: data.type,
+                label: data.label,
+                isActive: true,
+            })
+            .returning({ id: customFields.id });
+        return { success: true, id: result.id };
+    }
+
+    async deleteCustomFieldDefinition(id: number) {
+        await db.delete(customFields).where(eq(customFields.id, id));
+        return { success: true };
     }
 }
 

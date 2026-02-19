@@ -166,6 +166,12 @@ function NewConsultationForm({
       await api.post('/consultations', consultationData);
       toast.success("Consultation enregistrée avec succès !");
       refreshConsultations();
+      window.dispatchEvent(
+        new CustomEvent("patient-vitals-updated", {
+          detail: { patientId: Number(id) },
+        }),
+      );
+      window.dispatchEvent(new Event("consultations-updated"));
       onClose();
     } catch (error) {
       console.error(error);

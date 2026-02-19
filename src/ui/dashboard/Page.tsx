@@ -13,6 +13,7 @@ import { BusiestDays } from "./BusiestDays";
 import { PatientRetention } from "./PatientRetention";
 import { DashboardStats } from "../type";
 import { Activity, Users, Calendar, TrendingUp } from "lucide-react";
+import api from "../axios";
 
 export default function DashboardPage() {
   const [stats, setStats] = useState<DashboardStats>({
@@ -40,16 +41,17 @@ export default function DashboardPage() {
 
   const fetchDashboardStats = async () => {
     try {
-      const data = await window.electronAPI.getDashboardStats();
-      setStats({
+      const { data } = await api.get("/consultations/stats");
+      setStats((prev) => ({
+        ...prev,
         ...data,
-        recentConsultations: data.recentConsultations.map(
+        recentConsultations: (data.recentConsultations || []).map(
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (consultation: any) => ({
             ...consultation,
           }),
         ),
-      });
+      }));
     } catch (error) {
       console.error("Error fetching dashboard stats:", error);
     }

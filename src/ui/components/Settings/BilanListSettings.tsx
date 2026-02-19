@@ -3,6 +3,7 @@ import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { toast } from "sonner";
 import { Trash2, Plus, Search, Loader2 } from "lucide-react";
+import api from "../../axios";
 
 interface Bilan {
     name: string;
@@ -18,8 +19,8 @@ const BilanListSettings: React.FC = () => {
     const fetchBilans = async () => {
         setIsLoading(true);
         try {
-            const result = await window.electronAPI.getBilans();
-            setBilans(result);
+            const response = await api.get("/consultations/bilans/common");
+            setBilans(response.data);
         } catch (error) {
             toast.error("Erreur lors du chargement des bilans");
         } finally {
@@ -56,11 +57,11 @@ const BilanListSettings: React.FC = () => {
     const handleSave = async () => {
         setIsSaving(true);
         try {
-            const result = await window.electronAPI.updateBilans(bilans);
-            if (result.success) {
+            const response = await api.post("/consultations/bilans/common", bilans);
+            if (response.data.success) {
                 toast.success("Liste des bilans mise à jour avec succès");
             } else {
-                toast.error("Erreur lors de l'enregistrement : " + result.error);
+                toast.error("Erreur lors de l'enregistrement : " + response.data.error);
             }
         } catch (error) {
             toast.error("Une erreur est survenue lors de l'enregistrement");

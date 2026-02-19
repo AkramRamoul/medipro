@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from "recharts";
 import { monthlyPatients } from "../type";
+import api from "../axios";
 
 async function getData(): Promise<monthlyPatients[]> {
   try {
-    const result = await window.electronAPI.getMonthlyPatients();
-    return result.data;
+    const { data } = await api.get("/consultations/monthly-patients");
+    return data;
   } catch (error) {
     console.error("Failed to fetch patients in component:", error);
     return [];
@@ -25,16 +26,7 @@ export function Overview() {
   }, [fetchData]);
 
   useEffect(() => {
-    const handleUpdated = () => {
-      fetchData();
-    };
-
-    window.addEventListener("patients-updated", handleUpdated);
-    window.addEventListener("consultations-updated", handleUpdated);
-    return () => {
-      window.removeEventListener("patients-updated", handleUpdated);
-      window.removeEventListener("consultations-updated", handleUpdated);
-    };
+    // Relying on mount for data fetch
   }, [fetchData]);
   console.log(data);
   return (

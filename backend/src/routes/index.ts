@@ -7,6 +7,8 @@ import documentRoutes from './document.routes';
 import settingsRoutes from './settings.routes';
 import appointmentRoutes from './appointment.routes';
 
+import expenseRoutes from './expense.routes';
+
 const router = Router();
 
 // Health check route
@@ -25,5 +27,6 @@ router.use('/users', userRoutes);
 router.use('/documents', documentRoutes);
 router.use('/settings', settingsRoutes);
 router.use('/appointments', appointmentRoutes);
+router.use('/expenses', expenseRoutes);
 
 export default router;
