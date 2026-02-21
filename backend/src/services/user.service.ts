@@ -101,9 +101,15 @@ export class UserService {
     }
 
     private getPublicKey() {
-        const pubPath = path.resolve(process.cwd(), '..', 'public', 'public.pem');
+        const isPackaged = process.env.IS_PACKAGED_ELECTRON === 'true';
+        const pubPath = isPackaged
+            ? path.join(process.env.RESOURCES_PATH || '', 'public.pem')
+            : path.resolve(process.cwd(), '..', 'public', 'public.pem');
+
+        console.log(`[Backend] Looking for public.pem at: ${pubPath}`);
+
         if (!fs.existsSync(pubPath)) {
-            // Check if it's in a different relative path or just return placeholder
+            console.error(`[Backend] public.pem NOT FOUND at: ${pubPath}`);
             return "";
         }
         return fs.readFileSync(pubPath, 'utf8');

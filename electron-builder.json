@@ -6,10 +6,21 @@
   "files": [
     "dist-electron/**",
     "dist-react/**",
+    "backend/**",
+    "backend/node_modules/**",
+    "node_modules/**",
+    "package.json",
     "!**/*.map",
     "!**/*.md",
     "!**/test/**",
     "!**/__tests__/**"
+  ],
+  "asarUnpack": [
+    "backend/**",
+    "node_modules/@libsql/**",
+    "node_modules/libsql/**",
+    "node_modules/@neon-rs/**",
+    "node_modules/detect-libc/**"
   ],
   "extraResources": [
     {

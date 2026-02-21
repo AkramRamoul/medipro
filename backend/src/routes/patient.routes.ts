@@ -100,7 +100,7 @@ router.post('/lab-panel', authorize(['receptionist', 'doctor', 'admin']), async 
 
 router.delete('/lab-panel/:panelId', authorize(['doctor', 'admin']), async (req, res, next) => {
     try {
-        const result = await patientService.deleteLabPanel(req.params.panelId);
+        const result = await patientService.deleteLabPanel(req.params.panelId as string);
         res.json(result);
     } catch (error) {
         next(error);

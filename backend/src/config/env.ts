@@ -2,7 +2,12 @@ import dotenv from 'dotenv';
 import path from 'path';
 
 // Load environment variables from .env file
-dotenv.config({ path: path.join(__dirname, '../../.env') });
+const isBundled = (process as any).pkg !== undefined || process.env.CAXA !== undefined || process.env.IS_PACKAGED_ELECTRON === 'true';
+const projectRoot = isBundled
+    ? __dirname // Extraction directory
+    : path.join(__dirname, '../../');
+
+dotenv.config({ path: path.join(projectRoot, '.env') });
 
 interface Env {
     PORT: number;
@@ -15,8 +20,8 @@ interface Env {
 
 const getEnv = (): Env => {
     const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3001;
-    const NODE_ENV = process.env.NODE_ENV || 'development';
-    const DATABASE_PATH = process.env.DATABASE_PATH || '../database.db';
+    const NODE_ENV = process.env.NODE_ENV || 'production';
+    const DATABASE_PATH = process.env.DATABASE_PATH || (isBundled ? path.join(path.dirname(process.execPath), 'database.db') : '../database.db');
     const CORS_ORIGIN = process.env.CORS_ORIGIN || '*';
     const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-key-change-it';
     const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '1d';
