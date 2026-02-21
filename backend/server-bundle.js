@@ -116403,7 +116403,7 @@ process.on("unhandledRejection", (reason) => {
   process.exit(1);
 });
 var startServer = async () => {
-  const server = app_default.listen(env.PORT, () => {
+  const server = app_default.listen(env.PORT, "0.0.0.0", () => {
     console.log(`[Server] Running in ${env.NODE_ENV} mode on port ${env.PORT}`);
     console.log(`[Server] Database: ${env.DATABASE_PATH}`);
     console.log(`[Server] Health check: http://localhost:${env.PORT}/api/health`);
