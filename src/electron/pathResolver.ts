@@ -12,7 +12,7 @@ export function getMedsPath() {
   if (isDevelopment()) {
     return path.join(app.getAppPath(), "public", "meds.json");
   }
-  return path.join(process.resourcesPath, "meds.json");
+  return path.join(app.getPath("userData"), "meds.json");
 }
 
 export function getBilansPath() {

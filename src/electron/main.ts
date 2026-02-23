@@ -55,8 +55,34 @@ const { machineIdSync } = pkg;
 let mainWindow: BrowserWindow | null = null;
 let backendProcess: any = null;
 
+function initializeAssets() {
+  const isBundled = app.isPackaged;
+  if (!isBundled) return;
+
+  const userDataPath = app.getPath("userData");
+  const assets = ["common_bilans.json", "common_consultations.json", "meds.json"];
+
+  assets.forEach((asset) => {
+    const destPath = path.join(userDataPath, asset);
+    if (!fs.existsSync(destPath)) {
+      const srcPath = path.join(process.resourcesPath, asset);
+      if (fs.existsSync(srcPath)) {
+        try {
+          fs.copyFileSync(srcPath, destPath);
+          console.log(`[Electron] Asset initialized: ${asset}`);
+        } catch (err) {
+          console.error(`[Electron] Failed to initialize asset ${asset}:`, err);
+        }
+      } else {
+        console.warn(`[Electron] Asset source NOT FOUND: ${srcPath}`);
+      }
+    }
+  });
+}
+
 function startBackend() {
   const isBundled = app.isPackaged;
+  initializeAssets();
   const backendPath = isBundled
     ? path.join(process.resourcesPath, "app.asar.unpacked", "backend", "server-bundle.js")
     : path.join(app.getAppPath(), "backend", "server-bundle.js");
@@ -83,6 +109,7 @@ function startBackend() {
         BACKEND_LOG_FILE: logFilePath,
         IS_PACKAGED_ELECTRON: isBundled ? "true" : "false",
         RESOURCES_PATH: process.resourcesPath,
+        USER_DATA_PATH: app.getPath("userData"),
         DATABASE_PATH: isBundled
           ? path.join(app.getPath("userData"), "database.db")
           : path.join(app.getAppPath(), "database.db")

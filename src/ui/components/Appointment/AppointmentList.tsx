@@ -8,6 +8,7 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import { Button } from "../ui/button";
+import api from "../../axios";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -36,9 +37,8 @@ export function AppointmentList({
 
   useEffect(() => {
     const fetchAppointments = async () => {
-      const response = await fetch(`http://localhost:3000/api/appointments/patient/${patientId}`);
-      if (!response.ok) throw new Error("Failed to fetch appointments");
-      const all: any[] = await response.json();
+      const response = await api.get(`/appointments/patient/${patientId}`);
+      const all: any[] = response.data;
       const now = new Date();
       const today = startOfDay(now);
 
@@ -61,9 +61,7 @@ export function AppointmentList({
 
   const confirmDelete = async () => {
     if (deleteId) {
-      await fetch(`http://localhost:3000/api/appointments/${deleteId}`, {
-        method: "DELETE",
-      });
+      await api.delete(`/appointments/${deleteId}`);
       window.location.reload();
     }
     setDeleteId(null);

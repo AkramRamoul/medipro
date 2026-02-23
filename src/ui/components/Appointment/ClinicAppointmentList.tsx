@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { Button } from "../ui/button";
 import { useNavigate } from "react-router-dom";
+import api from "../../axios";
 
 export function ClinicAppointmentList() {
   const [todayList, setTodayList] = useState<any[]>([]);
@@ -18,9 +19,8 @@ export function ClinicAppointmentList() {
 
   useEffect(() => {
     const fetchAppointments = async () => {
-      const response = await fetch("http://localhost:3000/api/appointments");
-      if (!response.ok) throw new Error("Failed to fetch appointments");
-      const all = await response.json();
+      const response = await api.get("/appointments");
+      const all = response.data;
 
       const now = new Date();
 
@@ -57,9 +57,7 @@ export function ClinicAppointmentList() {
   const handleDelete = async (e: React.MouseEvent, id: number) => {
     e.stopPropagation();
     if (confirm("Supprimer ce rendez-vous ?")) {
-      await fetch(`http://localhost:3000/api/appointments/${id}`, {
-        method: "DELETE",
-      });
+      await api.delete(`/appointments/${id}`);
       window.location.reload();
     }
   };

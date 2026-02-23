@@ -5,6 +5,7 @@ import { Label } from "../ui/label";
 import { Textarea } from "../ui/textarea";
 import { useState } from "react";
 import { Loader2, Calendar, Clock, FileText } from "lucide-react";
+import api from "../../axios";
 
 interface AddAppointmentModalProps {
   isOpen: boolean;
@@ -34,21 +35,13 @@ export function AddAppointmentModal({
       // We store the date exactly as entered (local time) to avoid UTC shifts
       const dateString = `${date}T${timePart}`;
 
-      const response = await fetch("http://localhost:3000/api/appointments", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          patientId: Number(patientId),
-          title,
-          date: dateString,
-          notes,
-          status: "scheduled",
-        }),
+      await api.post("/appointments", {
+        patientId: Number(patientId),
+        title,
+        date: dateString,
+        notes,
+        status: "scheduled",
       });
-
-      if (!response.ok) throw new Error("Failed to add appointment");
 
       onSuccess();
       onClose();

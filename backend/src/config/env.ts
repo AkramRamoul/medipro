@@ -16,6 +16,7 @@ interface Env {
     CORS_ORIGIN: string;
     JWT_SECRET: string;
     JWT_EXPIRES_IN: string;
+    USER_DATA_PATH?: string;
 }
 
 const getEnv = (): Env => {
@@ -25,6 +26,7 @@ const getEnv = (): Env => {
     const CORS_ORIGIN = process.env.CORS_ORIGIN || '*';
     const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-key-change-it';
     const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '1d';
+    const USER_DATA_PATH = process.env.USER_DATA_PATH;
 
     return {
         PORT,
@@ -33,6 +35,7 @@ const getEnv = (): Env => {
         CORS_ORIGIN,
         JWT_SECRET,
         JWT_EXPIRES_IN,
+        USER_DATA_PATH,
     };
 };
 

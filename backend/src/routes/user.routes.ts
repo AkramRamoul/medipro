@@ -24,6 +24,15 @@ router.get('/machine-id', async (req, res, next) => {
     }
 });
 
+router.get('/check-password-exists', async (req, res, next) => {
+    try {
+        const exists = await userService.checkPasswordExists();
+        res.json({ exists });
+    } catch (error) {
+        next(error);
+    }
+});
+
 router.post('/license-submit', async (req, res, next) => {
     try {
         const { key, payload } = req.body;

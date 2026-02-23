@@ -261,7 +261,7 @@ function Prescriptions() {
       >
         <DialogContent
           className={cn(
-            "p-0 transition-all duration-300",
+            "p-0 transition-all duration-300 max-h-[90vh] overflow-y-auto",
             newPrescriptionStep === 1 ? "sm:max-w-xl" : "sm:max-w-6xl",
           )}
         >

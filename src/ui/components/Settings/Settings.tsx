@@ -1,6 +1,5 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import DatabaseSettings from "./DataBaseSettings";
-import { PasswordForm } from "./PassordSettings.tsx/PasswordForm";
 import ConsultationFieldsSettings from "./ConsultationFieldsSettings";
 import PrescriptionTemplatesSettings from "./PrescriptionTemplatesSettings";
 import DocumentTemplatesSettings from "./DocumentTemplatesSettings";
@@ -13,18 +12,13 @@ function Settings() {
   const { user } = useAuth();
   const isAdmin = user?.role === "admin";
   const isMedical = user?.role === "doctor" || user?.role === "admin";
+  const defaultTab = isAdmin ? "users" : "backup";
 
   return (
     <div className="p-4 flex justify-center bg-background">
-      <Tabs defaultValue="password" className="w-full max-w-5xl">
+      <Tabs defaultValue={defaultTab} className="w-full max-w-5xl">
         {/* Tab Headers */}
         <TabsList className="w-full flex justify-center bg-muted rounded-lg overflow-hidden flex-wrap h-auto">
-          <TabsTrigger
-            value="password"
-            className="flex-1 text-muted-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground min-w-[100px]"
-          >
-            Sécurité
-          </TabsTrigger>
           {isAdmin && (
             <TabsTrigger
               value="users"
@@ -76,12 +70,6 @@ function Settings() {
         </TabsList>
 
         {/* Tab Contents */}
-        <TabsContent
-          value="password"
-          className="text-center text-foreground mt-6"
-        >
-          <PasswordForm />
-        </TabsContent>
         {isAdmin && (
           <TabsContent
             value="users"

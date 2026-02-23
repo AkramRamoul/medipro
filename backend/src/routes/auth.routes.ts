@@ -109,6 +109,26 @@ router.post('/bootstrap', async (req, res, next) => {
     }
 });
 
+// Get current user data
+router.get('/me', authMiddleware, async (req, res, next) => {
+    try {
+        const user = await userService.findById(req.user!.userId);
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'User not found' });
+        }
+        res.json({
+            success: true,
+            user: {
+                id: user.id,
+                email: user.email,
+                role: user.role,
+            }
+        });
+    } catch (error) {
+        next(error);
+    }
+});
+
 // Get available accounts for login selection (Public - excludes admins)
 router.get('/accounts', async (req, res, next) => {
     try {

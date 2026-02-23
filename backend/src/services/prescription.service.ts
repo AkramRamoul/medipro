@@ -252,9 +252,17 @@ export class PrescriptionService {
         return latestNumber + 1;
     }
 
+    private getAssetPath(filename: string) {
+        if (process.env.IS_PACKAGED_ELECTRON === 'true' && process.env.RESOURCES_PATH) {
+            return path.join(process.env.RESOURCES_PATH, filename);
+        }
+        return path.join(process.cwd(), '..', 'public', filename);
+    }
+
     async getMedications() {
-        const medsPath = path.join(process.cwd(), '..', 'public', 'meds.json');
+        const medsPath = this.getAssetPath('meds.json');
         try {
+            if (!fs.existsSync(medsPath)) return [];
             const data = fs.readFileSync(medsPath, 'utf-8');
             const rawMedications = JSON.parse(data);
             return rawMedications.map((med: any) => ({

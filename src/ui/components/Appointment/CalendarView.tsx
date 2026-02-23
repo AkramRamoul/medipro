@@ -5,6 +5,7 @@ import "react-big-calendar/lib/css/react-big-calendar.css";
 import { useState, useEffect, useCallback } from "react";
 import { GlobalAddAppointmentModal } from "./GlobalAddAppointmentModal";
 import { Loader2 } from "lucide-react";
+import api from "../../axios";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -46,9 +47,8 @@ export function CalendarView() {
     const fetchAppointments = useCallback(async () => {
         setIsLoading(true);
         try {
-            const response = await fetch("http://localhost:3000/api/appointments");
-            if (!response.ok) throw new Error("Failed to fetch appointments");
-            const all = await response.json();
+            const response = await api.get("/appointments");
+            const all = response.data;
             const formattedEvents = all.map((apt: any) => ({
                 id: apt.id,
                 title: `${apt.patientFirstName} ${apt.patientLastName} - ${apt.title} `,

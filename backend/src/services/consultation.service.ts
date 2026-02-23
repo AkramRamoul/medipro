@@ -3,6 +3,7 @@ import { consultations, patients, expenses, prescriptions, appointments, customF
 import { eq, sql, desc, and, isNotNull } from 'drizzle-orm';
 import fs from 'fs';
 import path from 'path';
+import { env } from '../config/env';
 
 export class ConsultationService {
     async getAll() {
@@ -295,9 +296,20 @@ export class ConsultationService {
         });
     }
 
+    private getAssetPath(filename: string) {
+        if (env.USER_DATA_PATH) {
+            return path.join(env.USER_DATA_PATH, filename);
+        }
+        if (process.env.IS_PACKAGED_ELECTRON === 'true' && process.env.RESOURCES_PATH) {
+            return path.join(process.env.RESOURCES_PATH, filename);
+        }
+        return path.join(process.cwd(), '..', 'public', filename);
+    }
+
     async getCommonDiagnostics() {
-        const consultationsPath = path.join(process.cwd(), '..', 'public', 'common_consultations.json');
+        const consultationsPath = this.getAssetPath('common_consultations.json');
         try {
+            if (!fs.existsSync(consultationsPath)) return [];
             const data = fs.readFileSync(consultationsPath, 'utf-8');
             return JSON.parse(data);
         } catch (error) {
@@ -307,7 +319,7 @@ export class ConsultationService {
     }
 
     async updateCommonDiagnostics(diagnostics: any[]) {
-        const consultationsPath = path.join(process.cwd(), '..', 'public', 'common_consultations.json');
+        const consultationsPath = this.getAssetPath('common_consultations.json');
         try {
             fs.writeFileSync(consultationsPath, JSON.stringify(diagnostics, null, 4), 'utf-8');
             return { success: true };
@@ -318,8 +330,9 @@ export class ConsultationService {
     }
 
     async getBilans() {
-        const bilansPath = path.join(process.cwd(), '..', 'public', 'common_bilans.json');
+        const bilansPath = this.getAssetPath('common_bilans.json');
         try {
+            if (!fs.existsSync(bilansPath)) return [];
             const data = fs.readFileSync(bilansPath, 'utf-8');
             return JSON.parse(data);
         } catch (error) {
@@ -329,7 +342,7 @@ export class ConsultationService {
     }
 
     async updateBilans(bilans: any[]) {
-        const bilansPath = path.join(process.cwd(), '..', 'public', 'common_bilans.json');
+        const bilansPath = this.getAssetPath('common_bilans.json');
         try {
             fs.writeFileSync(bilansPath, JSON.stringify(bilans, null, 4), 'utf-8');
             return { success: true };

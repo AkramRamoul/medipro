@@ -10,6 +10,7 @@ import { Label } from "../ui/label";
 import { Textarea } from "../ui/textarea";
 import { useState, useEffect } from "react";
 import { Loader2, Calendar, Clock, FileText, UserSearch, User } from "lucide-react";
+import api from "../../axios";
 import {
     Command,
     CommandEmpty,
@@ -48,9 +49,8 @@ export function GlobalAddAppointmentModal({
     // Load patients on mount
     useEffect(() => {
         const loadPatients = async () => {
-            const response = await fetch("http://localhost:3000/api/patients");
-            if (!response.ok) throw new Error("Failed to fetch patients");
-            const all = await response.json();
+            const response = await api.get("/patients");
+            const all = response.data;
             setPatients(all);
         };
         if (isOpen) {
@@ -78,21 +78,13 @@ export function GlobalAddAppointmentModal({
             const timePart = time ? time : "00:00";
             const dateString = `${date}T${timePart}`;
 
-            const response = await fetch("http://localhost:3000/api/appointments", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    patientId: Number(selectedPatientId),
-                    title,
-                    date: dateString,
-                    notes,
-                    status: "scheduled",
-                }),
+            await api.post("/appointments", {
+                patientId: Number(selectedPatientId),
+                title,
+                date: dateString,
+                notes,
+                status: "scheduled",
             });
-
-            if (!response.ok) throw new Error("Failed to add appointment");
 
             onSuccess();
             onClose();
