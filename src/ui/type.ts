@@ -31,6 +31,7 @@ export type Consultation = {
   customFields?: Record<string, any>;
   amountPaid?: number;
   date: string;
+  status?: "in_progress" | "completed";
 };
 
 export type DashboardStats = {
@@ -128,6 +129,7 @@ export type ConsultationWithPatient = {
   temperature?: string;
   weight?: string;
   customFields?: Record<string, any>;
+  status?: "in_progress" | "completed";
   patient: {
     id: number;
     first_name: string;

@@ -50,10 +50,11 @@ export class ConsultationService {
     }
 
     async create(data: any) {
-        const { vitals, ...rest } = data;
+        const { vitals, appointmentId, ...rest } = data;
 
-        await db.insert(consultations).values({
+        const [result] = await db.insert(consultations).values({
             ...rest,
+            appointmentId: appointmentId ? Number(appointmentId) : null,
             bloodPressure:
                 vitals?.bpSystolic && vitals?.bpDiastolic
                     ? `${vitals.bpSystolic}/${vitals.bpDiastolic}`
@@ -63,9 +64,29 @@ export class ConsultationService {
             amountPaid: data.amountPaid ? Math.round(Number(data.amountPaid)) : null,
             customFields: data.customFields || {},
             date: data.date || new Date().toISOString(),
-        });
+            status: data.status || "completed", // Default to completed when saved from form
+        }).returning({ id: consultations.id });
 
-        return { success: true };
+        if (appointmentId) {
+            await db.update(appointments).set({ status: 'checked_in' }).where(eq(appointments.id, Number(appointmentId)));
+        }
+
+        return { success: true, id: result.id };
+    }
+
+    async startConsultation(patientId: number, appointmentId: number, reason: string) {
+        const [result] = await db.insert(consultations).values({
+            patientId,
+            appointmentId,
+            reason,
+            diagnosis: '',
+            status: 'in_progress',
+            date: new Date().toISOString(),
+        }).returning({ id: consultations.id });
+
+        await db.update(appointments).set({ status: 'checked_in' }).where(eq(appointments.id, appointmentId));
+
+        return { success: true, id: result.id };
     }
 
     async update(id: number, data: any) {

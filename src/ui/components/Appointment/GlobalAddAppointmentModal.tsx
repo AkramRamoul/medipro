@@ -82,6 +82,7 @@ export function GlobalAddAppointmentModal({
                 patientId: Number(selectedPatientId),
                 title,
                 date: dateString,
+                time: timePart,
                 notes,
                 status: "scheduled",
             });

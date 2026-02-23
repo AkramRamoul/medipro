@@ -12,7 +12,8 @@ import api from "./axios";
 // Lazy load heavy route components
 const Prescriptions = React.lazy(() => import("./routes/Prescriptions"));
 const Settings = React.lazy(() => import("./components/Settings/Settings"));
-const Home = React.lazy(() => import("./routes/Home"));
+const Today = React.lazy(() => import("./routes/Today"));
+const Patients = React.lazy(() => import("./routes/Patients"));
 const MainPage = React.lazy(() => import("./components/Patient/MainPage"));
 const DashboardPage = React.lazy(() => import("./dashboard/Page"));
 const Page = React.lazy(() => import("./routes/Consultations"));
@@ -66,8 +67,8 @@ function App() {
                 <Route path="/consultations" element={<Page />} />
                 <Route path="/settings" element={<Settings />} />
                 <Route path="/pat/:id" element={<MainPage />} />
-                <Route path="/patients" element={<Home showAll={false} />} />
-                <Route path="/all-patients" element={<Home showAll={true} />} />
+                <Route path="/patients" element={<Today />} />
+                <Route path="/all-patients" element={<Patients />} />
                 <Route path="/Ordonnance" element={<PrescriptionModelForm />} />
                 <Route path="/appointments" element={<MainAppointmentPage />} />
                 <Route path="/expenses" element={<ExpensesPage />} />

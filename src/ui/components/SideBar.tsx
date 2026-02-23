@@ -8,7 +8,7 @@ import {
   Calendar,
   Users,
   Wallet,
-  Home,
+  CalendarCheck,
 } from "lucide-react";
 
 import {
@@ -32,7 +32,7 @@ export function AppSidebar() {
 
   const allItems = [
     { title: "Tableau de bord", url: "/", icon: ChartColumnIncreasing, roles: ["admin", "doctor"] },
-    { title: "Accueil", url: "/patients", icon: Home, roles: ["admin", "doctor", "receptionist"] },
+    { title: "Aujourd'hui", url: "/patients", icon: CalendarCheck, roles: ["admin", "doctor", "receptionist"] },
     { title: "Tous les patients", url: "/all-patients", icon: Users, roles: ["admin", "doctor", "receptionist"] },
     { title: "Rendez-vous", url: "/appointments", icon: Calendar, roles: ["admin", "doctor", "receptionist"] },
     { title: "Consultations", url: "/consultations", icon: Clipboard, roles: ["admin", "doctor"] },
@@ -85,8 +85,6 @@ export function AppSidebar() {
             </SidebarGroupContent>
           </SidebarGroup>
         </div>
-
-        {/* Secondary Section */}
       </SidebarContent>
 
       <SidebarFooter>

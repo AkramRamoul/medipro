@@ -39,6 +39,7 @@ export function AddAppointmentModal({
         patientId: Number(patientId),
         title,
         date: dateString,
+        time: timePart,
         notes,
         status: "scheduled",
       });

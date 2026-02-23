@@ -53,7 +53,9 @@ const initDb = async () => {
                 glucose TEXT,
                 weight TEXT,
                 amount_paid INTEGER,
-                custom_fields TEXT DEFAULT '{}'
+                custom_fields TEXT DEFAULT '{}',
+                appointment_id INTEGER REFERENCES appointments(id) ON DELETE SET NULL,
+                status TEXT NOT NULL DEFAULT 'in_progress'
             );`,
             `CREATE TABLE IF NOT EXISTS prescriptions (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -102,6 +104,7 @@ const initDb = async () => {
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 patient_id INTEGER NOT NULL REFERENCES patients(id) ON DELETE CASCADE,
                 date TEXT NOT NULL,
+                time TEXT,
                 title TEXT NOT NULL,
                 notes TEXT,
                 status TEXT NOT NULL DEFAULT 'scheduled'

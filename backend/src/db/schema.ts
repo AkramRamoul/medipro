@@ -38,6 +38,9 @@ export const consultations = sqliteTable("consultations", {
     customFields: text("custom_fields", { mode: "json" })
         .$type<Record<string, any>>()
         .default(sql`'{}'`),
+    appointmentId: integer("appointment_id")
+        .references(() => appointments.id, { onDelete: "set null" }),
+    status: text("status").notNull().default("in_progress"),
 }, (table) => ({
     patientIdIdx: index("consultation_patient_id_idx").on(table.patientId),
     dateIdx: index("consultation_date_idx").on(table.date),
@@ -117,6 +120,7 @@ export const appointments = sqliteTable("appointments", {
         .notNull()
         .references(() => patients.id, { onDelete: "cascade" }),
     date: text("date").notNull(),
+    time: text("time"),
     title: text("title").notNull(),
     notes: text("notes"),
     status: text("status").notNull().default("scheduled"),

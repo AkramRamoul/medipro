@@ -65,6 +65,12 @@ export function ConsultationCard({ consultation, onClick, onDelete }: Consultati
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <Calendar className="h-3.5 w-3.5" />
                     <span className="font-medium">{formattedDate}</span>
+                    {consultation.status && (
+                        <Badge variant={consultation.status === 'completed' ? 'secondary' : 'outline'} className={`ml-2 text-[10px] px-1.5 py-0 ${consultation.status === 'in_progress' ? "animate-pulse border-blue-500 text-blue-500" : ""
+                            }`}>
+                            {consultation.status === 'completed' ? 'Terminée' : 'En cours'}
+                        </Badge>
+                    )}
                 </div>
 
                 <div

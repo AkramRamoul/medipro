@@ -13,6 +13,16 @@ router.get('/', async (req, res, next) => {
     }
 });
 
+// Get today's appointments
+router.get('/today', async (req, res, next) => {
+    try {
+        const result = await appointmentService.getTodayAppointments();
+        res.json(result);
+    } catch (error) {
+        next(error);
+    }
+});
+
 // Get appointments by patient ID
 router.get('/patient/:patientId', async (req, res, next) => {
     try {

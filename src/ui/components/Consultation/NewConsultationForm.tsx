@@ -55,6 +55,9 @@ function NewConsultationForm({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     Record<string, any>
   >({});
+  const [existingConsultationId, setExistingConsultationId] = useState<number | null>(null);
+  const [isResuming, setIsResuming] = useState(false);
+  const [linkedAppointmentId, setLinkedAppointmentId] = useState<number | null>(null);
 
   const [allDiagnostics, setAllDiagnostics] = useState<{ name: string }[]>([]);
   const [diagnosticSuggestions, setDiagnosticSuggestions] = useState<
@@ -82,6 +85,52 @@ function NewConsultationForm({
         });
         setCustomFieldValues(initialValues);
       });
+
+    // Check for existing in-progress consultation for today
+    api.get(`/consultations/patient/${id}`)
+      .then(({ data: consultations }: { data: any[] }) => {
+        const today = new Date().toISOString().split('T')[0];
+        const inProgress = consultations.find(c =>
+          c.status === 'in_progress' &&
+          c.date.startsWith(today)
+        );
+
+        if (inProgress) {
+          setExistingConsultationId(inProgress.id);
+          setIsResuming(true);
+          setReason(inProgress.reason || "");
+          setSymptoms(inProgress.symptoms || "");
+          setDiagnosis(inProgress.diagnosis || "");
+          setNotes(inProgress.notes || "");
+          if (inProgress.bloodPressure) {
+            const [sys, dia] = inProgress.bloodPressure.split('/');
+            setBpSystolic(sys || "");
+            setBpDiastolic(dia || "");
+          }
+          setGlucose(inProgress.glucose?.toString() || "");
+          setWeight(inProgress.weight?.toString() || "");
+          if (inProgress.customFields) {
+            setCustomFieldValues(inProgress.customFields);
+          }
+          setAmountPaid(inProgress.amountPaid?.toString() || "");
+          toast.info("Reprise de la consultation en cours...");
+        } else {
+          // If no in-progress consultation, check for a checked_in appointment today
+          api.get(`/appointments/patient/${id}`)
+            .then(({ data: appointments }: { data: any[] }) => {
+              const todayApt = appointments.find(a =>
+                a.status === 'checked_in' &&
+                a.date === today &&
+                !a.consultation // Ensure no consultation exists yet
+              );
+              if (todayApt) {
+                setLinkedAppointmentId(todayApt.id);
+                setReason(todayApt.title || "");
+              }
+            });
+        }
+      })
+      .catch(console.error);
 
     api.get('/consultations/diagnostics/common')
       .then(({ data }) => setAllDiagnostics(data))
@@ -160,10 +209,16 @@ function NewConsultationForm({
       },
       amountPaid: amountPaid ? Math.round(Number(amountPaid)) : null,
       customFields: customFieldValues,
+      status: "completed",
+      appointmentId: linkedAppointmentId
     };
 
     try {
-      await api.post('/consultations', consultationData);
+      if (existingConsultationId) {
+        await api.put(`/consultations/${existingConsultationId}`, consultationData);
+      } else {
+        await api.post('/consultations', consultationData);
+      }
       toast.success("Consultation enregistrée avec succès !");
       refreshConsultations();
       window.dispatchEvent(
@@ -202,7 +257,7 @@ function NewConsultationForm({
           <div>
             <CardTitle className="flex items-center gap-3 text-2xl text-primary">
               <Stethoscope className="w-8 h-8" />
-              Nouvelle Consultation
+              {isResuming ? "Terminer la Consultation" : "Nouvelle Consultation"}
             </CardTitle>
             <p className="text-muted-foreground mt-1">
               Remplissez les détails de la consultation pour {patient?.first_name}{" "}

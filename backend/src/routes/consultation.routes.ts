@@ -144,6 +144,16 @@ router.post('/', authorize(['doctor', 'admin']), async (req, res, next) => {
     }
 });
 
+router.post('/start', async (req, res, next) => {
+    try {
+        const { patientId, appointmentId, reason } = req.body;
+        const result = await consultationService.startConsultation(Number(patientId), Number(appointmentId), reason);
+        res.status(201).json(result);
+    } catch (error) {
+        next(error);
+    }
+});
+
 // Update consultation
 router.put('/:id', authorize(['doctor', 'admin']), async (req, res, next) => {
     try {
