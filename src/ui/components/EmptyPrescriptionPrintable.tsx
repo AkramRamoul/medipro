@@ -28,6 +28,8 @@ const EmptyPrescriptionPrintable: React.FC<EmptyPrescriptionPrintableProps> = ({
     const dividerStyle = prescriptionModel.dividerStyle || "solid";
     const titleText = prescriptionModel.titleText || "ORDONNANCE";
     const showInscriptionNumber = prescriptionModel.showInscriptionNumber ?? true;
+    const layout = prescriptionModel.layoutTemplate || "standard";
+    const langMode = prescriptionModel.languageMode || "bilingual";
 
     const styles = `
     @page { size: A5; margin: 0; }
@@ -43,27 +45,57 @@ const EmptyPrescriptionPrintable: React.FC<EmptyPrescriptionPrintableProps> = ({
       font-weight: bold;
       font-style: normal;
     }
-    body { font-family: ${fontFamily}; font-size: ${bodyFontSize}px; margin: 0; padding: 10px 20px; }
-    .header { margin-bottom: ${Math.max(20, logoSize * 0.35)}px; position: relative; min-height: ${Math.max(100, logoSize + 30)}px; display: flex; justify-content: space-between; align-items: flex-start; }
-    .header-left { text-align: left; width: 40%; }
-    .header-right { text-align: right; width: 40%; direction: rtl; }
-    .header-center { text-align: center; width: 20%; position: absolute; left: 40%; top: 0; }
+    body { font-family: ${fontFamily}; font-size: ${bodyFontSize}px; margin: 0; padding: 10px 20px; color: black; }
+    .header { margin-bottom: 10px; position: relative; min-height: ${Math.max(80, logoSize + 20)}px; width: 100%; }
+    .header-content { display: flex; justify-content: space-between; align-items: flex-start; width: 100%; }
+    .header-left { text-align: left; width: ${langMode === "fr" ? "100%" : "40%"}; }
+    .header-right { text-align: right; width: ${langMode === "ar" ? "100%" : "40%"}; direction: rtl; }
+    .header-center { text-align: center; width: 20%; flex-shrink: 0; }
+    .logo-container { display: flex; flex-direction: column; align-items: center; justify-content: center; }
     .logo { width: ${logoSize}px; height: ${logoSize}px; object-fit: contain; }
     .watermark { position: fixed; top: 25%; left: 25%; width: 50%; height: 50%; opacity: ${watermarkOpacity}; z-index: -1; pointer-events: none; }
     .doctor-name { font-weight: bold; font-size: ${doctorNameFontSize}px; margin-bottom: 4px; color: ${accentColor}; }
-    .specialty { font-size: ${specialtyFontSize}px; margin-bottom: 2px; color: #444; }
-    .service { font-size: ${specialtyFontSize}px; color: #666; }
-    .divider { ${dividerStyle === "none" ? "border: none;" : dividerStyle === "double" ? `border-bottom: 3px double #666;` : `border-bottom: 1px ${dividerStyle} #666;`} margin: 10px 0; width: 100%; }
-    .patient-info { display: flex; justify-content: space-between; margin-top: 20px; margin-bottom: 20px; font-size: ${bodyFontSize}px; }
-    .patient-details { text-align: left; }
-    .document-info { text-align: right; }
-    .title { text-align: center; font-size: ${titleFontSize}px; font-weight: bold; text-decoration: underline; margin: 10px 0 20px 0; color: ${accentColor}; }
-    .medications { margin-top: 20px; font-size: ${bodyFontSize}px; }
-    .medication-item { margin-bottom: 12px; display: flex; flex-direction: column; }
-    .med-header { display: flex; justify-content: space-between; font-weight: bold; }
-    .med-note { margin-top: 2px; font-style: italic; color: #555; margin-left: 10px; }
-    .footer { position: fixed; bottom: 20px; left: 0; right: 0; text-align: center; border-top: 1px solid #aaa; padding-top: 5px; font-size: 11px; }
+    .specialty { font-size: ${specialtyFontSize}px; margin-bottom: 2px; color: #333; }
+    .service { font-size: ${specialtyFontSize * 0.9}px; color: #555; }
+    .divider { ${dividerStyle === "none" ? "border: none;" : dividerStyle === "double" ? `border-bottom: 3px double #999;` : `border-bottom: 1px ${dividerStyle} #999;`} margin: 8px 0; width: 100%; }
+    .patient-info { display: flex; justify-content: space-between; margin-top: 15px; margin-bottom: 15px; font-size: ${bodyFontSize}px; }
+    .patient-info.rtl { flex-direction: row-reverse; }
+    .title { text-align: center; font-size: ${titleFontSize}px; font-weight: bold; text-decoration: underline; margin: 20px 0; color: ${accentColor}; }
+    .footer { position: fixed; bottom: 20px; left: 0; right: 0; text-align: center; border-top: 1px solid #ccc; padding-top: 5px; font-size: 10px; color: #666; }
+    .inscription { font-size: 8px; margin-top: 2px; }
+    .absolute-center-logo { position: absolute; left: 50%; transform: translateX(-50%); top: 0; }
   `;
+
+    const renderFrench = () => (
+        <div className="header-left">
+            <div className="doctor-name">{prescriptionModel.nameFr}</div>
+            <div className="specialty">{prescriptionModel.specialtyFr}</div>
+            {servicesFr.map((srv: string, idx: number) => (
+                srv && <div key={idx} className="service">{srv}</div>
+            ))}
+        </div>
+    );
+
+    const renderArabic = () => (
+        <div className="header-right">
+            <div className="doctor-name">{prescriptionModel.nameAr}</div>
+            <div className="specialty">{prescriptionModel.specialtyAr}</div>
+            {servicesAr.map((srv: string, idx: number) => (
+                srv && <div key={idx} className="service">{srv}</div>
+            ))}
+        </div>
+    );
+
+    const renderLogo = (isCentered = false) => (
+        <div className={isCentered ? "logo-container" : "header-center"}>
+            <div className="logo-container">
+                {image ? <img src={image} className="logo" alt="Logo" /> : <div style={{ width: logoSize, height: logoSize }} />}
+                {showInscriptionNumber && (
+                    <div className="inscription">N° Ordre : {prescriptionModel.inscriptionNumber}</div>
+                )}
+            </div>
+        </div>
+    );
 
     return (
         <html>
@@ -74,55 +106,54 @@ const EmptyPrescriptionPrintable: React.FC<EmptyPrescriptionPrintableProps> = ({
                 {image && <img src={image} className="watermark" alt="" />}
 
                 <div className="header">
-                    {/* Left Side (French) */}
-                    <div className="header-left">
-                        <div className="doctor-name">{prescriptionModel.nameFr}</div>
-                        <div className="specialty">{prescriptionModel.specialtyFr}</div>
-                        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                        {servicesFr.map((srv: string, idx: number) => (
-                            <div key={idx} className="service">
-                                {srv}
-                            </div>
-                        ))}
-                    </div>
+                    {layout === "standard" && (
+                        <div className="header-content">
+                            {(langMode === "fr" || langMode === "bilingual") && renderFrench()}
+                            {langMode === "bilingual" && renderLogo()}
+                            {(langMode === "ar" || langMode === "bilingual") && renderArabic()}
+                            {langMode !== "bilingual" && (
+                                <div className="absolute-center-logo">
+                                    {renderLogo(true)}
+                                </div>
+                            )}
+                        </div>
+                    )}
 
-                    {/* Center Logo */}
-                    <div className="header-center">
-                        {image && <img src={image} className="logo" alt="Logo" />}
-                        {showInscriptionNumber && (
-                            <div style={{ marginTop: 5, fontSize: 10 }}>
-                                N° Order : {prescriptionModel.inscriptionNumber}
+                    {layout === "logo-left" && (
+                        <div className="header-content">
+                            {renderLogo()}
+                            <div style={{ flex: 1, display: 'flex', justifyContent: 'space-between', paddingLeft: 20 }}>
+                                {(langMode === "fr" || langMode === "bilingual") && renderFrench()}
+                                {(langMode === "ar" || langMode === "bilingual") && renderArabic()}
                             </div>
-                        )}
-                    </div>
+                        </div>
+                    )}
 
-                    {/* Right Side (Arabic) */}
-                    <div className="header-right">
-                        <div className="doctor-name">{prescriptionModel.nameAr}</div>
-                        <div className="specialty">{prescriptionModel.specialtyAr}</div>
-                        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                        {servicesAr.map((srv: string, idx: number) => (
-                            <div key={idx} className="service">
-                                {srv}
+                    {layout === "logo-right" && (
+                        <div className="header-content">
+                            <div style={{ flex: 1, display: 'flex', justifyContent: 'space-between', paddingRight: 20 }}>
+                                {(langMode === "fr" || langMode === "bilingual") && renderFrench()}
+                                {(langMode === "ar" || langMode === "bilingual") && renderArabic()}
                             </div>
-                        ))}
-                    </div>
+                            {renderLogo()}
+                        </div>
+                    )}
                 </div>
 
                 <div className="divider" />
 
-                <div className="patient-info">
+                <div className={`patient-info ${langMode === "ar" ? "rtl" : ""}`}>
                     <div className="patient-details">
                         <div>
-                            <strong>Nom :</strong> <span className="dots">.....................</span>
+                            <strong>{langMode === "ar" ? "الاسم :" : "Nom :"}</strong> .............................
                         </div>
                         <div>
-                            <strong>Âge :</strong> <span className="dots">...........</span>
+                            <strong>{langMode === "ar" ? "السن :" : "Âge :"}</strong> ...........
                         </div>
                     </div>
                     <div className="document-info">
                         <div>
-                            {prescriptionModel.city}, le : <span className="dots">...........</span>
+                            {prescriptionModel.city}, {langMode === "ar" ? "في :" : "le :"} .................
                         </div>
                     </div>
                 </div>
@@ -134,7 +165,7 @@ const EmptyPrescriptionPrintable: React.FC<EmptyPrescriptionPrintableProps> = ({
                     {(prescriptionModel.phoneNumber1 || prescriptionModel.phoneNumber2) && (
                         <div>
                             {prescriptionModel.phoneNumber1 && `Tél. : ${prescriptionModel.phoneNumber1}`}
-                            {prescriptionModel.phoneNumber1 && prescriptionModel.phoneNumber2 && " "}
+                            {prescriptionModel.phoneNumber1 && prescriptionModel.phoneNumber2 && " | "}
                             {prescriptionModel.phoneNumber2 && `Mob. : ${prescriptionModel.phoneNumber2}`}
                         </div>
                     )}

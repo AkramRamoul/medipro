@@ -114,6 +114,8 @@ export const prescriptionModel = sqliteTable("prescription_model", {
   dividerStyle: text("divider_style").default("solid"),
   titleText: text("title_text").default("ORDONNANCE"),
   showInscriptionNumber: integer("show_inscription_number", { mode: "boolean" }).default(true),
+  layoutTemplate: text("layout_template").default("standard"),
+  languageMode: text("language_mode").default("bilingual"), // 'bilingual', 'fr', 'ar'
 });
 export const psychotropicCounters = sqliteTable("psychotropic_counters", {
   id: integer("id").primaryKey({ autoIncrement: true }),
