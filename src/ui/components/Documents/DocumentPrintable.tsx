@@ -1,3 +1,6 @@
+//doc printable
+
+
 import React from "react";
 
 interface DocumentPrintableProps {
@@ -44,6 +47,18 @@ const DocumentPrintable: React.FC<DocumentPrintableProps> = ({
 
     const origin = typeof window !== "undefined" ? window.location.origin : "";
 
+    const accentColor = prescriptionModel.accentColor || "#000000";
+    const fontFamily = prescriptionModel.fontFamily === "sans-serif" ? "sans-serif" : "'Amiri', serif";
+    const doctorNameFontSize = prescriptionModel.doctorNameFontSize ?? 14;
+    const specialtyFontSize = prescriptionModel.specialtyFontSize ?? 10;
+    const titleFontSize = prescriptionModel.titleFontSize ?? 16;
+    const bodyFontSize = prescriptionModel.bodyFontSize ?? 11;
+    const logoSize = prescriptionModel.logoSize ?? 60;
+    const watermarkOpacity = (prescriptionModel.watermarkOpacity ?? 10) / 100;
+    const dividerStyle = prescriptionModel.dividerStyle || "solid";
+    const showInscriptionNumber = prescriptionModel.showInscriptionNumber ?? true;
+    const templateLayout: string = prescriptionModel.templateLayout || "bilingual";
+
     const styles = `
     @font-face {
       font-family: 'Amiri';
@@ -57,26 +72,106 @@ const DocumentPrintable: React.FC<DocumentPrintableProps> = ({
       font-weight: bold;
       font-style: normal;
     }
-    body { font-family: 'Amiri', serif; font-size: 11px; margin: 0; padding: 10px 20px; }
-    .header { margin-bottom: 20px; position: relative; min-height: 80px; display: flex; justify-content: space-between; align-items: flex-start; }
+    body { font-family: ${fontFamily}; font-size: ${bodyFontSize}px; margin: 0; padding: 10px 20px; }
+    /* Bilingual (default) */
+    .header { margin-bottom: ${Math.max(20, logoSize * 0.35)}px; position: relative; min-height: ${Math.max(80, logoSize + 20)}px; display: flex; justify-content: space-between; align-items: flex-start; }
     .header-left { text-align: left; width: 40%; }
     .header-right { text-align: right; width: 40%; direction: rtl; }
     .header-center { text-align: center; width: 20%; position: absolute; left: 40%; top: 0; }
-    .logo { width: 60px; height: 60px; object-fit: contain; }
-    .watermark { position: fixed; top: 25%; left: 25%; width: 50%; height: 50%; opacity: 0.1; z-index: -1; pointer-events: none; }
-    .doctor-name { font-weight: bold; font-size: 14px; margin-bottom: 4px; }
-    .specialty { font-size: 10px; margin-bottom: 2px; }
-    .service { font-size: 10px; }
-    .divider { border-bottom: 1px solid #666; margin: 10px 0; width: 100%; }
-    .patient-info { display: flex; justify-content: space-between; margin-top: 20px; margin-bottom: 20px; font-size: 12px; }
+    /* Single-lang side-by-side */
+    .header-single { margin-bottom: ${Math.max(20, logoSize * 0.35)}px; min-height: ${Math.max(80, logoSize + 20)}px; display: flex; justify-content: space-between; align-items: flex-start; }
+    .col-fr { text-align: left; flex: 1; }
+    .col-ar { text-align: right; direction: rtl; flex: 1; }
+    .col-logo-side { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; flex-shrink: 0; width: ${logoSize + 20}px; }
+    /* Letterhead panel (fr-logo-left / ar-logo-right) */
+    .header-panel { display: flex; align-items: stretch; margin-bottom: ${Math.max(20, logoSize * 0.35)}px; min-height: ${Math.max(80, logoSize + 20)}px; }
+    .panel-logo-left { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 8px; border-right: 2px solid ${accentColor}; flex-shrink: 0; width: ${logoSize + 20}px; }
+    .panel-logo-right { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 8px; border-left: 2px solid ${accentColor}; flex-shrink: 0; width: ${logoSize + 20}px; }
+    .panel-text-fr { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 8px 12px; text-align: left; }
+    .panel-text-ar { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 8px 12px; text-align: right; direction: rtl; }
+    .logo { width: ${logoSize}px; height: ${logoSize}px; object-fit: contain; }
+    .watermark { position: fixed; top: 25%; left: 25%; width: 50%; height: 50%; opacity: ${watermarkOpacity}; z-index: -1; pointer-events: none; }
+    .doctor-name { font-weight: bold; font-size: ${doctorNameFontSize}px; margin-bottom: 4px; color: ${accentColor}; }
+    .specialty { font-size: ${specialtyFontSize}px; margin-bottom: 2px; color: #444; }
+    .service { font-size: ${specialtyFontSize}px; color: #666; }
+    .divider { ${dividerStyle === "none" ? "border: none;" : dividerStyle === "double" ? `border-bottom: 3px double #666;` : `border-bottom: 1px ${dividerStyle} #666;`} margin: 10px 0; width: 100%; }
+    .patient-info { display: flex; justify-content: space-between; margin-top: 20px; margin-bottom: 20px; font-size: ${bodyFontSize}px; }
     .patient-details { text-align: left; display: flex; flex-direction: column; gap: 5px; }
     .document-info { text-align: right; display: flex; flex-direction: column; gap: 5px; }
-    .title { text-align: center; font-size: 16px; font-weight: bold; text-decoration: underline; margin: 10px 0 20px 0; }
-    .content { margin-top: 15px; font-size: 12px; line-height: 1.6; }
+    .title { text-align: center; font-size: ${titleFontSize}px; font-weight: bold; text-decoration: underline; margin: 10px 0 20px 0; color: ${accentColor}; }
+    .content { margin-top: 15px; font-size: ${bodyFontSize}px; line-height: 1.6; }
     .footer { position: fixed; bottom: 20px; left: 0; right: 0; text-align: center; border-top: 1px solid #aaa; padding-top: 5px; font-size: 9px; }
     .bold { font-weight: bold; }
     .underline { text-decoration: underline; }
   `;
+
+    // Sub-content reused across templates
+    const frContent = (
+        <>
+            <div className="doctor-name">{prescriptionModel.nameFr}</div>
+            <div className="specialty">{prescriptionModel.specialtyFr}</div>
+            {servicesFr.map((srv: string, idx: number) => <div key={idx} className="service">{srv}</div>)}
+        </>
+    );
+    const arContent = (
+        <>
+            <div className="doctor-name">{prescriptionModel.nameAr}</div>
+            <div className="specialty">{prescriptionModel.specialtyAr}</div>
+            {servicesAr.map((srv: string, idx: number) => <div key={idx} className="service">{srv}</div>)}
+        </>
+    );
+    const logoContent = (
+        <>
+            {image && <img src={image} className="logo" alt="Logo" />}
+            {showInscriptionNumber && (
+                <div style={{ marginTop: 5, fontSize: 9, textAlign: "center", color: accentColor }}>
+                    N° Inscription : {prescriptionModel.inscriptionNumber}
+                </div>
+            )}
+        </>
+    );
+
+    const renderHeader = () => {
+        switch (templateLayout) {
+            case "fr-only":
+                return (
+                    <div className="header-single">
+                        <div className="col-fr">{frContent}</div>
+                        <div className="col-logo-side">{logoContent}</div>
+                    </div>
+                );
+            case "ar-only":
+                return (
+                    <div className="header-single">
+                        <div className="col-logo-side">{logoContent}</div>
+                        <div className="col-ar">{arContent}</div>
+                    </div>
+                );
+            case "fr-logo-left":
+                return (
+                    <div className="header-panel">
+                        <div className="panel-logo-left">{logoContent}</div>
+                        <div className="panel-text-fr">{frContent}</div>
+                    </div>
+                );
+            case "ar-logo-right":
+                return (
+                    <div className="header-panel">
+                        <div className="panel-text-ar">{arContent}</div>
+                        <div className="panel-logo-right">{logoContent}</div>
+                    </div>
+                );
+            case "bilingual":
+            default:
+                return (
+                    <div className="header">
+                        <div className="header-left">{frContent}</div>
+                        <div className="header-center">{logoContent}</div>
+                        <div className="header-right">{arContent}</div>
+                    </div>
+                );
+        }
+    };
 
     return (
         <html>
@@ -86,39 +181,7 @@ const DocumentPrintable: React.FC<DocumentPrintableProps> = ({
             <body>
                 {image && <img src={image} className="watermark" alt="" />}
 
-                <div className="header">
-                    {/* Left Side (French) */}
-                    <div className="header-left">
-                        <div className="doctor-name">{prescriptionModel.nameFr}</div>
-                        <div className="specialty">{prescriptionModel.specialtyFr}</div>
-                        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                        {servicesFr.map((srv: string, idx: number) => (
-                            <div key={idx} className="service">
-                                {srv}
-                            </div>
-                        ))}
-                    </div>
-
-                    {/* Center Logo */}
-                    <div className="header-center">
-                        {image && <img src={image} className="logo" alt="Logo" />}
-                        <div style={{ marginTop: 5, fontSize: 10 }}>
-                            N° Inscription : {prescriptionModel.inscriptionNumber}
-                        </div>
-                    </div>
-
-                    {/* Right Side (Arabic) */}
-                    <div className="header-right">
-                        <div className="doctor-name">{prescriptionModel.nameAr}</div>
-                        <div className="specialty">{prescriptionModel.specialtyAr}</div>
-                        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                        {servicesAr.map((srv: string, idx: number) => (
-                            <div key={idx} className="service">
-                                {srv}
-                            </div>
-                        ))}
-                    </div>
-                </div>
+                {renderHeader()}
 
                 <div className="divider" />
 

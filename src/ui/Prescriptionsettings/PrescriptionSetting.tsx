@@ -1,5 +1,7 @@
-import { useEffect, useState } from "react";
+//psettinss
+import React, { useEffect, useState } from "react";
 import { useFileUploader } from "../hooks/use-file-uploader";
+import api from "../axios";
 import { toast } from "sonner";
 import { Button } from "../components/ui/button";
 import { FileDropzone } from "../components/File-DropZone";
@@ -28,11 +30,15 @@ import {
   EyeOff,
   Minus,
   SlidersHorizontal,
-  Globe,
-  Languages,
-  Check,
+  LayoutTemplate,
 } from "lucide-react";
-import api from "../axios";
+
+export type TemplateLayout =
+  | "bilingual"
+  | "fr-only"
+  | "ar-only"
+  | "fr-logo-left"
+  | "ar-logo-right";
 
 interface FormState {
   nameFr: string;
@@ -57,8 +63,7 @@ interface FormState {
   dividerStyle?: "solid" | "dashed" | "double" | "none";
   titleText?: string;
   showInscriptionNumber?: boolean;
-  layoutTemplate?: string;
-  languageMode?: "bilingual" | "fr" | "ar";
+  templateLayout?: TemplateLayout;
 }
 
 export function PrescriptionModelForm() {
@@ -85,8 +90,7 @@ export function PrescriptionModelForm() {
     dividerStyle: "solid",
     titleText: "ORDONNANCE",
     showInscriptionNumber: true,
-    layoutTemplate: "standard",
-    languageMode: "bilingual",
+    templateLayout: "bilingual",
   });
 
   const [logoImage, setLogoImage] = useState<string | null>(null);
@@ -94,20 +98,20 @@ export function PrescriptionModelForm() {
 
   const fetchImage = async () => {
     try {
-      const { data } = await api.get('/settings/logo');
+      const { data } = await api.get("/settings/logo");
       if (data.success && data.image) {
         setLogoImage(data.image);
       }
     } catch (error) {
-      console.error("Error fetching logo:", error);
+      console.error("Error fetching image:", error);
     }
   };
 
   const fetchModel = async () => {
     try {
-      const { data } = await api.get('/settings/prescription-model');
-      if (data.success && data.model) {
-        const model = data.model;
+      const { data: result } = await api.get("/settings/prescription-model");
+      if (result.success && result.model) {
+        const model = result.model;
 
         setForm({
           nameFr: model.nameFr || "",
@@ -132,16 +136,26 @@ export function PrescriptionModelForm() {
           dividerStyle: model.dividerStyle || "solid",
           titleText: model.titleText || "ORDONNANCE",
           showInscriptionNumber: model.showInscriptionNumber ?? true,
-          layoutTemplate: model.layoutTemplate || "standard",
-          languageMode: model.languageMode || "bilingual",
+          templateLayout: model.templateLayout || "bilingual",
         });
 
-        if (model.services) {
-          setServices(model.services);
+        try {
+          const fr = JSON.parse(model.servicesFr || "[]");
+          const ar = JSON.parse(model.servicesAr || "[]");
+          const parsed = fr.map((frService: string, idx: number) => ({
+            fr: frService,
+            ar: ar[idx] || "",
+          }));
+
+          if (parsed.length > 0) {
+            setServices(parsed);
+          }
+        } catch (err) {
+          console.warn("Couldn't parse services:", err);
         }
       }
     } catch (error) {
-      console.error("Error fetching model:", error);
+      console.error("Error fetching prescription model:", error);
     }
   };
 
@@ -199,26 +213,112 @@ export function PrescriptionModelForm() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const payload = { ...form, services };
     try {
-      const { data: result } = await api.post('/settings/prescription-model', payload);
+      const payload = { ...form, services };
+      const { data: result } = await api.post("/settings/prescription-model", payload);
       if (result.success) {
         toast.success("Modèle enregistré avec succès !");
-        // No need to spread result.model if the API returns just success
-        // But if it does return the model, we can update it
-        if (result.model) {
-          setForm((prev) => ({
-            ...prev,
-            ...result.model,
-          }));
-          setServices(result.model.services);
-        }
+        setForm((prev) => ({
+          ...prev,
+          ...result.model,
+        }));
+        setServices(result.model.services);
+      } else {
+        toast.error(result.error || "Erreur lors de l'enregistrement");
       }
     } catch (error) {
-      console.error("Error saving model:", error);
-      toast.error("Erreur lors de l'enregistrement");
+      console.error("Error saving prescription model:", error);
+      toast.error("Erreur lors de l'enregistrement du modèle");
     }
   };
+
+  // Template layout options meta
+  const TEMPLATES: { id: TemplateLayout; label: string; desc: string; preview: React.ReactNode }[] = [
+    {
+      id: "bilingual",
+      label: "Bilingue",
+      desc: "FR + Logo + AR",
+      preview: (
+        <div className="flex items-start gap-0.5 text-[6px] leading-tight w-full">
+          <div className="flex-1 text-left space-y-0.5">
+            <div className="bg-current rounded-sm h-1 w-8" />
+            <div className="bg-current opacity-50 rounded-sm h-0.5 w-6" />
+          </div>
+          <div className="w-4 flex flex-col items-center">
+            <div className="w-3 h-3 rounded-full border border-current opacity-60" />
+          </div>
+          <div className="flex-1 text-right space-y-0.5">
+            <div className="bg-current rounded-sm h-1 w-8 ml-auto" />
+            <div className="bg-current opacity-50 rounded-sm h-0.5 w-6 ml-auto" />
+          </div>
+        </div>
+      ),
+    },
+    {
+      id: "fr-only",
+      label: "Français",
+      desc: "FR + Logo à droite",
+      preview: (
+        <div className="flex items-start gap-1 text-[6px] leading-tight w-full">
+          <div className="flex-1 text-left space-y-0.5">
+            <div className="bg-current rounded-sm h-1 w-10" />
+            <div className="bg-current opacity-50 rounded-sm h-0.5 w-7" />
+          </div>
+          <div className="w-4 flex flex-col items-center">
+            <div className="w-3 h-3 rounded-full border border-current opacity-60" />
+          </div>
+        </div>
+      ),
+    },
+    {
+      id: "ar-only",
+      label: "Arabe",
+      desc: "Logo à gauche + AR",
+      preview: (
+        <div className="flex items-start gap-1 text-[6px] leading-tight w-full">
+          <div className="w-4 flex flex-col items-center">
+            <div className="w-3 h-3 rounded-full border border-current opacity-60" />
+          </div>
+          <div className="flex-1 text-right space-y-0.5">
+            <div className="bg-current rounded-sm h-1 w-10 ml-auto" />
+            <div className="bg-current opacity-50 rounded-sm h-0.5 w-7 ml-auto" />
+          </div>
+        </div>
+      ),
+    },
+    {
+      id: "fr-logo-left",
+      label: "FR – Logo gauche",
+      desc: "Logo à gauche + FR",
+      preview: (
+        <div className="flex items-start gap-1 text-[6px] leading-tight w-full">
+          <div className="w-4 flex flex-col items-center">
+            <div className="w-3 h-3 rounded-full border border-current opacity-60" />
+          </div>
+          <div className="flex-1 text-left space-y-0.5">
+            <div className="bg-current rounded-sm h-1 w-10" />
+            <div className="bg-current opacity-50 rounded-sm h-0.5 w-7" />
+          </div>
+        </div>
+      ),
+    },
+    {
+      id: "ar-logo-right",
+      label: "AR – Logo droite",
+      desc: "AR + Logo à droite",
+      preview: (
+        <div className="flex items-start gap-1 text-[6px] leading-tight w-full">
+          <div className="flex-1 text-right space-y-0.5">
+            <div className="bg-current rounded-sm h-1 w-10 ml-auto" />
+            <div className="bg-current opacity-50 rounded-sm h-0.5 w-7 ml-auto" />
+          </div>
+          <div className="w-4 flex flex-col items-center">
+            <div className="w-3 h-3 rounded-full border border-current opacity-60" />
+          </div>
+        </div>
+      ),
+    },
+  ];
 
   return (
     <div className="container mx-auto py-8 px-4">
@@ -239,108 +339,34 @@ export function PrescriptionModelForm() {
             </CardHeader>
             <CardContent className="pt-6">
               <form onSubmit={handleSubmit} className="space-y-8">
-                {/* Template & Language Section — TOP OF FORM */}
-                <section className="space-y-5">
-                  <div className="flex items-center gap-2 pb-2 border-b border-primary/20">
-                    <Globe className="w-4 h-4 text-primary" />
-                    <h3 className="font-semibold text-sm uppercase tracking-wider">Modèle et Langue</h3>
-                  </div>
 
-                  {/* Language Mode */}
-                  <div className="space-y-3">
-                    <label className="text-sm font-medium flex items-center gap-2">
-                      <Languages className="w-4 h-4 text-primary" /> Mode de Langue
-                    </label>
-                    <div className="grid grid-cols-3 gap-2">
-                      {[
-                        { id: "fr" as const, label: "Français", desc: "Français uniquement" },
-                        { id: "ar" as const, label: "العربية", desc: "Arabe uniquement" },
-                        { id: "bilingual" as const, label: "Bilingue", desc: "Français + Arabe" },
-                      ].map((lang) => (
-                        <button
-                          key={lang.id}
-                          type="button"
-                          onClick={() => setForm(f => ({ ...f, languageMode: lang.id }))}
-                          className={`relative flex flex-col items-center gap-1 p-3 rounded-lg border-2 transition-all text-sm font-medium ${form.languageMode === lang.id
-                              ? "bg-primary/10 border-primary text-primary shadow-md"
-                              : "bg-muted/20 border-muted text-muted-foreground hover:bg-muted/40 hover:border-muted-foreground/30"
-                            }`}
-                        >
-                          {form.languageMode === lang.id && (
-                            <div className="absolute top-1.5 right-1.5 w-4 h-4 rounded-full bg-primary flex items-center justify-center">
-                              <Check className="w-2.5 h-2.5 text-white" />
-                            </div>
-                          )}
-                          <span className="text-base font-bold">{lang.label}</span>
-                          <span className="text-[10px] text-muted-foreground">{lang.desc}</span>
-                        </button>
-                      ))}
-                    </div>
+                {/* Template Layout Selector */}
+                <section className="space-y-4">
+                  <div className="flex items-center gap-2 pb-2 border-b border-muted">
+                    <LayoutTemplate className="w-4 h-4 text-primary" />
+                    <h3 className="font-semibold text-sm uppercase tracking-wider">Modèle de mise en page</h3>
                   </div>
-
-                  {/* Layout Template */}
-                  <div className="space-y-3">
-                    <label className="text-sm font-medium flex items-center gap-2">
-                      <Layout className="w-4 h-4 text-primary" /> Disposition du Logo
-                    </label>
-                    <div className="grid grid-cols-3 gap-3">
-                      {[
-                        { id: "standard", label: "Centré" },
-                        { id: "logo-left", label: "Gauche" },
-                        { id: "logo-right", label: "Droite" },
-                      ].map((tmpl) => (
-                        <button
-                          key={tmpl.id}
-                          type="button"
-                          onClick={() => setForm(f => ({ ...f, layoutTemplate: tmpl.id }))}
-                          className={`relative flex flex-col items-center gap-1.5 p-3 rounded-lg border-2 transition-all text-xs font-medium ${form.layoutTemplate === tmpl.id
-                              ? "bg-primary/10 border-primary text-primary shadow-md"
-                              : "bg-muted/20 border-muted text-muted-foreground hover:bg-muted/40 hover:border-muted-foreground/30"
-                            }`}
-                        >
-                          {form.layoutTemplate === tmpl.id && (
-                            <div className="absolute top-1.5 right-1.5 w-4 h-4 rounded-full bg-primary flex items-center justify-center">
-                              <Check className="w-2.5 h-2.5 text-white" />
-                            </div>
-                          )}
-                          {/* Mini preview thumbnail */}
-                          <div className="w-full h-12 bg-muted/40 rounded relative overflow-hidden border border-muted">
-                            {/* Logo dot */}
-                            {tmpl.id === "standard" && <div className="absolute top-1.5 left-1/2 -translate-x-1/2 w-4 h-4 bg-primary/50 rounded-full" />}
-                            {tmpl.id === "logo-left" && <div className="absolute top-1.5 left-1.5 w-4 h-4 bg-primary/50 rounded-full" />}
-                            {tmpl.id === "logo-right" && <div className="absolute top-1.5 right-1.5 w-4 h-4 bg-primary/50 rounded-full" />}
-                            {/* Text lines */}
-                            {tmpl.id === "standard" && (
-                              <>
-                                <div className="absolute top-2 left-1 w-6 space-y-0.5">
-                                  <div className="h-[2px] bg-gray-400 rounded" />
-                                  <div className="h-[2px] bg-gray-300 rounded w-4" />
-                                </div>
-                                <div className="absolute top-2 right-1 w-6 space-y-0.5">
-                                  <div className="h-[2px] bg-gray-400 rounded" />
-                                  <div className="h-[2px] bg-gray-300 rounded w-4 ml-auto" />
-                                </div>
-                              </>
-                            )}
-                            {tmpl.id === "logo-left" && (
-                              <div className="absolute top-2 left-8 right-1 space-y-0.5">
-                                <div className="h-[2px] bg-gray-400 rounded w-full" />
-                                <div className="h-[2px] bg-gray-300 rounded w-3/4" />
-                              </div>
-                            )}
-                            {tmpl.id === "logo-right" && (
-                              <div className="absolute top-2 left-1 right-8 space-y-0.5">
-                                <div className="h-[2px] bg-gray-400 rounded w-full" />
-                                <div className="h-[2px] bg-gray-300 rounded w-3/4" />
-                              </div>
-                            )}
-                            {/* Divider */}
-                            <div className="absolute bottom-2 left-1 right-1 h-[1px] bg-gray-300" />
-                          </div>
-                          <span>{tmpl.label}</span>
-                        </button>
-                      ))}
-                    </div>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    {TEMPLATES.map((tpl) => (
+                      <button
+                        key={tpl.id}
+                        type="button"
+                        onClick={() => setForm(f => ({ ...f, templateLayout: tpl.id }))}
+                        className={`flex flex-col gap-2 p-3 rounded-lg border-2 transition-all text-left ${form.templateLayout === tpl.id
+                          ? "border-primary bg-primary/5 text-primary"
+                          : "border-muted bg-muted/20 text-muted-foreground hover:border-primary/40 hover:text-foreground"
+                          }`}
+                      >
+                        {/* Mini layout diagram */}
+                        <div className="w-full h-8 bg-background rounded border flex items-center px-2 py-1">
+                          {tpl.preview}
+                        </div>
+                        <div>
+                          <div className="text-xs font-semibold leading-tight">{tpl.label}</div>
+                          <div className="text-[10px] opacity-70 leading-tight">{tpl.desc}</div>
+                        </div>
+                      </button>
+                    ))}
                   </div>
                 </section>
 
@@ -350,64 +376,56 @@ export function PrescriptionModelForm() {
                     <User className="w-4 h-4 text-primary" />
                     <h3 className="font-semibold text-sm uppercase tracking-wider">Informations du Docteur</h3>
                   </div>
-                  <div className={`grid gap-4 ${form.languageMode === "bilingual" ? "grid-cols-1 md:grid-cols-2" : "grid-cols-1"}`}>
-                    {(form.languageMode === "fr" || form.languageMode === "bilingual") && (
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium">Nom (Français)</label>
-                        <input
-                          placeholder="Dr. Nom Prénom"
-                          type="text"
-                          name="nameFr"
-                          value={form.nameFr}
-                          onChange={handleChange}
-                          className="w-full p-2.5 border rounded-md bg-background text-foreground focus:ring-2 focus:ring-primary/20 outline-none transition-all"
-                        />
-                      </div>
-                    )}
-                    {(form.languageMode === "ar" || form.languageMode === "bilingual") && (
-                      <div className="space-y-2 text-right" dir="rtl">
-                        <label className="text-sm font-medium">اسم الطبيب</label>
-                        <input
-                          type="text"
-                          maxLength={50}
-                          name="nameAr"
-                          placeholder="الدكتور(ة) اسم الطبيب"
-                          value={form.nameAr}
-                          onChange={handleChange}
-                          className="w-full p-2.5 border rounded-md bg-background text-foreground focus:ring-2 focus:ring-primary/20 outline-none transition-all"
-                        />
-                      </div>
-                    )}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Nom (Français)</label>
+                      <input
+                        placeholder="Dr. Nom Prénom"
+                        type="text"
+                        name="nameFr"
+                        value={form.nameFr}
+                        onChange={handleChange}
+                        className="w-full p-2.5 border rounded-md bg-background text-foreground focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                      />
+                    </div>
+                    <div className="space-y-2 text-right" dir="rtl">
+                      <label className="text-sm font-medium">اسم الطبيب</label>
+                      <input
+                        type="text"
+                        maxLength={50}
+                        name="nameAr"
+                        placeholder="الدكتور(ة) اسم الطبيب"
+                        value={form.nameAr}
+                        onChange={handleChange}
+                        className="w-full p-2.5 border rounded-md bg-background text-foreground focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                      />
+                    </div>
                   </div>
 
-                  <div className={`grid gap-4 text-xs ${form.languageMode === "bilingual" ? "grid-cols-1 md:grid-cols-2" : "grid-cols-1"}`}>
-                    {(form.languageMode === "fr" || form.languageMode === "bilingual") && (
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium">Spécialité (Français)</label>
-                        <input
-                          maxLength={50}
-                          type="text"
-                          placeholder="Ex: Dermatologue"
-                          name="specialtyFr"
-                          value={form.specialtyFr}
-                          onChange={handleChange}
-                          className="w-full p-2.5 border rounded-md bg-background text-foreground focus:ring-2 focus:ring-primary/20 outline-none transition-all"
-                        />
-                      </div>
-                    )}
-                    {(form.languageMode === "ar" || form.languageMode === "bilingual") && (
-                      <div className="space-y-2 text-right" dir="rtl">
-                        <label className="text-sm font-medium">التخصص</label>
-                        <input
-                          type="text"
-                          name="specialtyAr"
-                          placeholder="مثال: أمراض الجلد"
-                          value={form.specialtyAr}
-                          onChange={handleChange}
-                          className="w-full p-2.5 border rounded-md bg-background text-foreground focus:ring-2 focus:ring-primary/20 outline-none transition-all"
-                        />
-                      </div>
-                    )}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Spécialité (Français)</label>
+                      <input
+                        maxLength={50}
+                        type="text"
+                        placeholder="Ex: Dermatologue"
+                        name="specialtyFr"
+                        value={form.specialtyFr}
+                        onChange={handleChange}
+                        className="w-full p-2.5 border rounded-md bg-background text-foreground focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                      />
+                    </div>
+                    <div className="space-y-2 text-right" dir="rtl">
+                      <label className="text-sm font-medium">التخصص</label>
+                      <input
+                        type="text"
+                        name="specialtyAr"
+                        placeholder="مثال: أمراض الجلد"
+                        value={form.specialtyAr}
+                        onChange={handleChange}
+                        className="w-full p-2.5 border rounded-md bg-background text-foreground focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                      />
+                    </div>
                   </div>
                 </section>
 
@@ -445,26 +463,22 @@ export function PrescriptionModelForm() {
                             <Trash2 className="w-4 h-4" />
                           </button>
                         )}
-                        <div className={`grid gap-4 ${form.languageMode === "bilingual" ? "grid-cols-1 md:grid-cols-2" : "grid-cols-1"}`}>
-                          {(form.languageMode === "fr" || form.languageMode === "bilingual") && (
-                            <textarea
-                              placeholder="Service (FR)"
-                              value={service.fr}
-                              onChange={(e) => handleServiceChange(index, "fr", e.target.value)}
-                              className="w-full p-2 border rounded-md bg-background text-sm resize-none"
-                              rows={2}
-                            />
-                          )}
-                          {(form.languageMode === "ar" || form.languageMode === "bilingual") && (
-                            <textarea
-                              placeholder="الخدمة (AR)"
-                              value={service.ar}
-                              onChange={(e) => handleServiceChange(index, "ar", e.target.value)}
-                              className="w-full p-2 border rounded-md bg-background text-sm text-right resize-none"
-                              rows={2}
-                              dir="rtl"
-                            />
-                          )}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <textarea
+                            placeholder="Service (FR)"
+                            value={service.fr}
+                            onChange={(e) => handleServiceChange(index, "fr", e.target.value)}
+                            className="w-full p-2 border rounded-md bg-background text-sm resize-none"
+                            rows={2}
+                          />
+                          <textarea
+                            placeholder="الخدمة (AR)"
+                            value={service.ar}
+                            onChange={(e) => handleServiceChange(index, "ar", e.target.value)}
+                            className="w-full p-2 border rounded-md bg-background text-sm text-right resize-none"
+                            rows={2}
+                            dir="rtl"
+                          />
                         </div>
                       </div>
                     ))}
@@ -480,23 +494,9 @@ export function PrescriptionModelForm() {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <label className="text-sm font-medium flex items-center gap-1">
-                          <Hash className="w-3 h-3" /> N° d'ordre
-                        </label>
-                        <button
-                          type="button"
-                          onClick={() => setForm(f => ({ ...f, showInscriptionNumber: !f.showInscriptionNumber }))}
-                          className="p-1 hover:bg-muted rounded-md transition-colors"
-                          title={form.showInscriptionNumber ? "Masquer sur l'impression" : "Afficher sur l'impression"}
-                        >
-                          {form.showInscriptionNumber ? (
-                            <Eye className="w-4 h-4 text-primary" />
-                          ) : (
-                            <EyeOff className="w-4 h-4 text-muted-foreground" />
-                          )}
-                        </button>
-                      </div>
+                      <label className="text-sm font-medium flex items-center gap-1">
+                        <Hash className="w-3 h-3" /> N° d'ordre
+                      </label>
                       <input
                         type="text"
                         name="inscriptionNumber"
@@ -729,10 +729,25 @@ export function PrescriptionModelForm() {
                         className="w-full p-2.5 border rounded-md bg-background text-foreground focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                       />
                     </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">N° d'ordre</label>
+                      <button
+                        type="button"
+                        onClick={() => setForm(f => ({ ...f, showInscriptionNumber: !f.showInscriptionNumber }))}
+                        className={`flex items-center gap-2 px-4 py-2.5 rounded-md border transition-all text-sm font-medium w-full justify-center ${form.showInscriptionNumber
+                          ? "bg-primary/10 border-primary/30 text-primary"
+                          : "bg-muted/50 border-muted text-muted-foreground"
+                          }`}
+                      >
+                        {form.showInscriptionNumber ? (
+                          <><Eye className="w-4 h-4" /> Visible sur l'ordonnance</>
+                        ) : (
+                          <><EyeOff className="w-4 h-4" /> Masqué sur l'ordonnance</>
+                        )}
+                      </button>
+                    </div>
                   </div>
                 </section>
-
-                {/* Old template section removed — now at top of form */}
 
                 <div className="flex gap-4 pt-4">
                   <Button type="submit" className="flex-1 h-11 text-lg font-semibold">
