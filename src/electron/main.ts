@@ -24,7 +24,7 @@ function initializeAssets() {
   if (!isBundled) return;
 
   const userDataPath = app.getPath("userData");
-  const assets = ["common_bilans.json", "common_consultations.json", "meds.json"];
+  const assets = ["common_bilans.json", "common_consultations.json", "meds.json", "database.db"];
 
   assets.forEach((asset) => {
     const destPath = path.join(userDataPath, asset);
@@ -33,6 +33,8 @@ function initializeAssets() {
       if (fs.existsSync(srcPath)) {
         try {
           fs.copyFileSync(srcPath, destPath);
+          // Ensure writable (remove read-only attribute if copied)
+          fs.chmodSync(destPath, 0o666);
           console.log(`[Electron] Asset initialized: ${asset}`);
         } catch (err) {
           console.error(`[Electron] Failed to initialize asset ${asset}:`, err);

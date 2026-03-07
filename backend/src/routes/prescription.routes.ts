@@ -5,7 +5,7 @@ import { authorize } from '../middleware/role.middleware';
 const router = Router();
 
 // Get all prescriptions
-router.get('/', async (req, res, next) => {
+router.get('/', authorize('VIEW_PRESCRIPTIONS'), async (req, res, next) => {
     try {
         const prescriptions = await prescriptionService.getAll();
         res.json(prescriptions);
@@ -15,7 +15,7 @@ router.get('/', async (req, res, next) => {
 });
 
 // Get all medications
-router.get('/medications', async (req, res, next) => {
+router.get('/medications', authorize('VIEW_PRESCRIPTIONS'), async (req, res, next) => {
     try {
         const medications = await prescriptionService.getMedications();
         res.json(medications);
@@ -25,7 +25,7 @@ router.get('/medications', async (req, res, next) => {
 });
 
 // Get next psychotropic number
-router.get('/next-psychotropic', async (req, res, next) => {
+router.get('/next-psychotropic', authorize('CREATE_PRESCRIPTIONS'), async (req, res, next) => {
     try {
         const nextNumber = await prescriptionService.getNextPsychotropicNumber();
         res.json({ nextNumber });
@@ -35,7 +35,7 @@ router.get('/next-psychotropic', async (req, res, next) => {
 });
 
 // Get prescription templates
-router.get('/templates', async (req, res, next) => {
+router.get('/templates', authorize('VIEW_PRESCRIPTIONS'), async (req, res, next) => {
     try {
         const templates = await prescriptionService.getTemplates();
         res.json(templates);
@@ -45,7 +45,7 @@ router.get('/templates', async (req, res, next) => {
 });
 
 // Get prescriptions for a specific patient
-router.get('/patient/:patientId', async (req, res, next) => {
+router.get('/patient/:patientId', authorize('VIEW_PRESCRIPTIONS'), async (req, res, next) => {
     try {
         const prescriptions = await prescriptionService.getByPatientId(Number(req.params.patientId));
         res.json(prescriptions);
@@ -55,7 +55,7 @@ router.get('/patient/:patientId', async (req, res, next) => {
 });
 
 // Get prescription by id
-router.get('/:id', async (req, res, next) => {
+router.get('/:id', authorize('VIEW_PRESCRIPTIONS'), async (req, res, next) => {
     try {
         const prescription = await prescriptionService.getById(Number(req.params.id));
         res.json(prescription);
@@ -65,7 +65,7 @@ router.get('/:id', async (req, res, next) => {
 });
 
 // Create prescription
-router.post('/', authorize(['doctor', 'admin']), async (req, res, next) => {
+router.post('/', authorize('CREATE_PRESCRIPTIONS'), async (req, res, next) => {
     try {
         const result = await prescriptionService.create(req.body);
         res.status(201).json(result);
@@ -75,7 +75,7 @@ router.post('/', authorize(['doctor', 'admin']), async (req, res, next) => {
 });
 
 // Create prescription template
-router.post('/templates', authorize(['doctor', 'admin']), async (req, res, next) => {
+router.post('/templates', authorize('MANAGE_SETTINGS'), async (req, res, next) => {
     try {
         const result = await prescriptionService.createTemplate(req.body);
         res.status(201).json(result);
@@ -85,7 +85,7 @@ router.post('/templates', authorize(['doctor', 'admin']), async (req, res, next)
 });
 
 // Delete prescription
-router.delete('/:id', authorize(['doctor', 'admin']), async (req, res, next) => {
+router.delete('/:id', authorize('CREATE_PRESCRIPTIONS'), async (req, res, next) => {
     try {
         const result = await prescriptionService.delete(Number(req.params.id));
         res.json(result);
@@ -95,7 +95,7 @@ router.delete('/:id', authorize(['doctor', 'admin']), async (req, res, next) => 
 });
 
 // Delete prescription template
-router.delete('/templates/:id', authorize(['doctor', 'admin']), async (req, res, next) => {
+router.delete('/templates/:id', authorize('MANAGE_SETTINGS'), async (req, res, next) => {
     try {
         const result = await prescriptionService.deleteTemplate(Number(req.params.id));
         res.json(result);

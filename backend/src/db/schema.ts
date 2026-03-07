@@ -195,7 +195,7 @@ export const documentTemplates = sqliteTable("document_templates", {
     id: integer("id").primaryKey({ autoIncrement: true }),
     name: text("name").notNull(),
     type: text("type", {
-        enum: ["work_stop", "medical_certificate", "chronic_disease", "custom"],
+        enum: ["work_stop", "medical_certificate", "chronic_disease", "referral", "exam_request", "custom"],
     }).notNull(),
     content: text("content").notNull(),
     isDefault: integer("is_default", { mode: "boolean" }).default(false),

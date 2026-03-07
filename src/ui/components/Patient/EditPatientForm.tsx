@@ -26,6 +26,7 @@ import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import api from "../../axios";
+import { useAuth } from "../../context/auth-context";
 
 const patientSchema = z.object({
   first_name: z.string().min(2, "Le nom doit comporter au moins 2 caractères"),
@@ -46,6 +47,8 @@ type PatientData = z.infer<typeof patientSchema>;
 
 export function EditPatientForm({ id }: { id: string }) {
   const [loading, setLoading] = useState(true);
+  const { can } = useAuth();
+  const canEditMedical = can("EDIT_MEDICAL_RECORDS");
 
   const {
     register,
@@ -251,26 +254,30 @@ export function EditPatientForm({ id }: { id: string }) {
             </div>
           </div>
 
-          {/* Antécédents médicaux, Allergies, Remarques */}
-          <div className="grid gap-2">
-            <Label htmlFor="medicalHistory">
-              Antécédents médicaux
-            </Label>
-            <Textarea
-              {...register("medicalHistory")}
-              id="medicalHistory"
-              placeholder="Entrer les antécédents médicaux"
-            />
-          </div>
+          {canEditMedical && (
+            <>
+              {/* Antécédents médicaux, Allergies, Remarques */}
+              <div className="grid gap-2">
+                <Label htmlFor="medicalHistory">
+                  Antécédents médicaux
+                </Label>
+                <Textarea
+                  {...register("medicalHistory")}
+                  id="medicalHistory"
+                  placeholder="Entrer les antécédents médicaux"
+                />
+              </div>
 
-          <Label htmlFor="allergies">Allergies</Label>
-          <Textarea
-            {...register("allergies")}
-            placeholder="Entrer les allergies"
-          />
+              <Label htmlFor="allergies">Allergies</Label>
+              <Textarea
+                {...register("allergies")}
+                placeholder="Entrer les allergies"
+              />
 
-          <Label htmlFor="notes">Remarques</Label>
-          <Textarea {...register("notes")} placeholder="Autres remarques" />
+              <Label htmlFor="notes">Remarques</Label>
+              <Textarea {...register("notes")} placeholder="Autres remarques" />
+            </>
+          )}
         </CardContent>
 
         <CardFooter className="justify-end">

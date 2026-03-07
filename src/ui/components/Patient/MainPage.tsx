@@ -26,9 +26,9 @@ function MainPage() {
   const { id } = useParams<{ id: string }>();
   const { exportPdf, isExporting } = usePatientPdfExport();
   const [activeTab, setActiveTab] = useState("example");
-  const { user } = useAuth();
+  const { can } = useAuth();
 
-  const isMedical = user?.role === "doctor" || user?.role === "admin";
+  const isMedical = can("VIEW_MEDICAL_RECORDS");
 
   return (
     <div className="p-4 flex flex-col items-center">

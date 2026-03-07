@@ -23,26 +23,26 @@ import {
   SidebarMenuItem,
 } from "../components/ui/sidebar";
 import { NavSecondary } from "./Nav-secondary";
-import { useAuth } from "../context/auth-context";
+import { useAuth, Permission } from "../context/auth-context";
 
 export function AppSidebar() {
   const location = useLocation();
   const currentPath = location.pathname;
-  const { user } = useAuth();
+  const { can } = useAuth();
 
   const allItems = [
-    { title: "Tableau de bord", url: "/", icon: ChartColumnIncreasing, roles: ["admin", "doctor"] },
-    { title: "Aujourd'hui", url: "/patients", icon: CalendarCheck, roles: ["admin", "doctor", "receptionist"] },
-    { title: "Tous les patients", url: "/all-patients", icon: Users, roles: ["admin", "doctor", "receptionist"] },
-    { title: "Rendez-vous", url: "/appointments", icon: Calendar, roles: ["admin", "doctor", "receptionist"] },
-    { title: "Consultations", url: "/consultations", icon: Clipboard, roles: ["admin", "doctor"] },
-    { title: "Ordonnances", url: "/prescriptions", icon: PillBottle, roles: ["admin", "doctor"] },
-    { title: "Dépenses", url: "/expenses", icon: Wallet, roles: ["admin", "doctor"] },
-    { title: "Modèle Ordonnance ", url: "/Ordonnance", icon: FilePen, roles: ["admin", "doctor"] },
-    { title: "Paramètres", url: "/settings", icon: SettingsIcon, roles: ["admin", "doctor"] },
+    { title: "Tableau de bord", url: "/", icon: ChartColumnIncreasing, permission: "VIEW_DASHBOARD_STATS" as Permission },
+    { title: "Aujourd'hui", url: "/patients", icon: CalendarCheck, permission: "VIEW_PATIENTS" as Permission },
+    { title: "Tous les patients", url: "/all-patients", icon: Users, permission: "VIEW_PATIENTS" as Permission },
+    { title: "Rendez-vous", url: "/appointments", icon: Calendar, permission: "VIEW_PATIENTS" as Permission },
+    { title: "Consultations", url: "/consultations", icon: Clipboard, permission: "VIEW_MEDICAL_RECORDS" as Permission },
+    { title: "Ordonnances", url: "/prescriptions", icon: PillBottle, permission: "VIEW_PRESCRIPTIONS" as Permission },
+    { title: "Dépenses", url: "/expenses", icon: Wallet, permission: "VIEW_EXPENSES" as Permission },
+    { title: "Modèle Ordonnance ", url: "/Ordonnance", icon: FilePen, permission: "MANAGE_SETTINGS" as Permission },
+    { title: "Paramètres", url: "/settings", icon: SettingsIcon, permission: "MANAGE_SETTINGS" as Permission },
   ];
 
-  const items = allItems.filter(item => item.roles.includes(user?.role || ""));
+  const items = allItems.filter(item => can(item.permission));
 
   return (
     <Sidebar className="h-screen text-black" collapsible='icon'>

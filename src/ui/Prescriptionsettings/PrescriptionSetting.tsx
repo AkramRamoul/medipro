@@ -218,11 +218,15 @@ export function PrescriptionModelForm() {
       const { data: result } = await api.post("/settings/prescription-model", payload);
       if (result.success) {
         toast.success("Modèle enregistré avec succès !");
-        setForm((prev) => ({
-          ...prev,
-          ...result.model,
-        }));
-        setServices(result.model.services);
+        if (result.model) {
+          setForm((prev) => ({
+            ...prev,
+            ...result.model,
+          }));
+          if (result.model.services) {
+            setServices(result.model.services);
+          }
+        }
       } else {
         toast.error(result.error || "Erreur lors de l'enregistrement");
       }

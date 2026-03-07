@@ -45,7 +45,9 @@ export class SettingsService {
         } else {
             await db.update(prescriptionModel).set(modelData).where(eq(prescriptionModel.id, existing[0].id));
         }
-        return { success: true };
+
+        const updatedModel = await this.getPrescriptionModel();
+        return { success: true, model: updatedModel };
     }
 
     async getLogo() {

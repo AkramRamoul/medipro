@@ -4,9 +4,26 @@ import { eq, sql, desc, and, isNotNull } from 'drizzle-orm';
 import fs from 'fs';
 import path from 'path';
 import { env } from '../config/env';
+import { Role, hasPermission } from '../middleware/role.middleware';
 
 export class ConsultationService {
-    async getAll() {
+    private maskConsultation(c: any, role: Role) {
+        if (hasPermission(role, 'VIEW_MEDICAL_RECORDS')) {
+            return c;
+        }
+
+        // Mask sensitive medical fields
+        return {
+            ...c,
+            reason: c.reason ? '[SENSITIVE]' : c.reason,
+            diagnosis: c.diagnosis ? '[SENSITIVE]' : c.diagnosis,
+            notes: c.notes ? '[SENSITIVE]' : c.notes,
+            symptoms: c.symptoms ? '[SENSITIVE]' : c.symptoms,
+            customFields: {}, // Hide clinical custom fields
+        };
+    }
+
+    async getAll(role?: Role) {
         const result = await db
             .select({
                 id: consultations.id,
@@ -29,24 +46,29 @@ export class ConsultationService {
             .leftJoin(patients, eq(consultations.patientId, patients.id))
             .orderBy(desc(consultations.date));
 
-        return result;
+        if (!role) return result;
+        return result.map(c => this.maskConsultation(c, role));
     }
 
-    async getById(id: number) {
+    async getById(id: number, role?: Role) {
         const [result] = await db
             .select()
             .from(consultations)
             .where(eq(consultations.id, id));
-        return result;
+
+        if (!result || !role) return result;
+        return this.maskConsultation(result, role);
     }
 
-    async getByPatientId(patientId: number) {
+    async getByPatientId(patientId: number, role?: Role) {
         const result = await db
             .select()
             .from(consultations)
             .where(eq(consultations.patientId, patientId))
             .orderBy(desc(consultations.date));
-        return result;
+
+        if (!role) return result;
+        return result.map(c => this.maskConsultation(c, role));
     }
 
     async create(data: any) {

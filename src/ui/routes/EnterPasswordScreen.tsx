@@ -156,7 +156,7 @@ export default function LoginPage() {
             <div className="p-2.5 bg-white/10 backdrop-blur-md rounded-xl border border-white/20">
               <Activity className="h-8 w-8 text-blue-400" />
             </div>
-            <h2 className="text-3xl font-bold tracking-tight">DocManager</h2>
+            <h2 className="text-3xl font-bold tracking-tight">DocRight</h2>
           </div>
         </div>
 

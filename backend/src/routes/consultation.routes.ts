@@ -5,7 +5,7 @@ import { authorize } from '../middleware/role.middleware';
 const router = Router();
 
 // Get dashboard stats
-router.get('/stats', async (req, res, next) => {
+router.get('/stats', authorize('VIEW_DASHBOARD_STATS'), async (req, res, next) => {
     try {
         const stats = await consultationService.getDashboardStats();
         res.json(stats);
@@ -35,7 +35,7 @@ router.get('/diagnostics/common', async (req, res, next) => {
 });
 
 // Update common diagnostics
-router.post('/diagnostics/common', authorize(['doctor', 'admin']), async (req, res, next) => {
+router.post('/diagnostics/common', authorize('MANAGE_SETTINGS'), async (req, res, next) => {
     try {
         const result = await consultationService.updateCommonDiagnostics(req.body);
         res.json(result);
@@ -55,7 +55,7 @@ router.get('/bilans/common', async (req, res, next) => {
 });
 
 // Update common bilans
-router.post('/bilans/common', authorize(['doctor', 'admin']), async (req, res, next) => {
+router.post('/bilans/common', authorize('MANAGE_SETTINGS'), async (req, res, next) => {
     try {
         const result = await consultationService.updateBilans(req.body);
         res.json(result);
@@ -75,7 +75,7 @@ router.get('/settings/custom-fields', async (req, res, next) => {
 });
 
 // Create custom field definition
-router.post('/settings/custom-fields', authorize(['doctor', 'admin']), async (req, res, next) => {
+router.post('/settings/custom-fields', authorize('MANAGE_SETTINGS'), async (req, res, next) => {
     try {
         const result = await consultationService.createCustomFieldDefinitions(req.body);
         res.json(result);
@@ -85,7 +85,7 @@ router.post('/settings/custom-fields', authorize(['doctor', 'admin']), async (re
 });
 
 // Delete custom field definition
-router.delete('/settings/custom-fields/:id', authorize(['doctor', 'admin']), async (req, res, next) => {
+router.delete('/settings/custom-fields/:id', authorize('MANAGE_SETTINGS'), async (req, res, next) => {
     try {
         const result = await consultationService.deleteCustomFieldDefinition(Number(req.params.id));
         res.json(result);
@@ -95,9 +95,9 @@ router.delete('/settings/custom-fields/:id', authorize(['doctor', 'admin']), asy
 });
 
 // Get all consultations
-router.get('/', async (req, res, next) => {
+router.get('/', authorize('VIEW_PATIENTS'), async (req, res, next) => {
     try {
-        const consultations = await consultationService.getAll();
+        const consultations = await consultationService.getAll(req.user!.role as any);
         res.json(consultations);
     } catch (error) {
         next(error);
@@ -105,7 +105,7 @@ router.get('/', async (req, res, next) => {
 });
 
 // Get patient vitals from consultations
-router.get('/patient/:patientId/vitals', async (req, res, next) => {
+router.get('/patient/:patientId/vitals', authorize('VIEW_PATIENTS'), async (req, res, next) => {
     try {
         const vitals = await consultationService.getVitals(Number(req.params.patientId));
         res.json(vitals);
@@ -115,9 +115,9 @@ router.get('/patient/:patientId/vitals', async (req, res, next) => {
 });
 
 // Get consultations for a specific patient
-router.get('/patient/:patientId', async (req, res, next) => {
+router.get('/patient/:patientId', authorize('VIEW_PATIENTS'), async (req, res, next) => {
     try {
-        const consultations = await consultationService.getByPatientId(Number(req.params.patientId));
+        const consultations = await consultationService.getByPatientId(Number(req.params.patientId), req.user!.role as any);
         res.json(consultations);
     } catch (error) {
         next(error);
@@ -125,9 +125,9 @@ router.get('/patient/:patientId', async (req, res, next) => {
 });
 
 // Get consultation by id
-router.get('/:id', async (req, res, next) => {
+router.get('/:id', authorize('VIEW_PATIENTS'), async (req, res, next) => {
     try {
-        const consultation = await consultationService.getById(Number(req.params.id));
+        const consultation = await consultationService.getById(Number(req.params.id), req.user!.role as any);
         res.json(consultation);
     } catch (error) {
         next(error);
@@ -135,7 +135,7 @@ router.get('/:id', async (req, res, next) => {
 });
 
 // Create consultation
-router.post('/', authorize(['doctor', 'admin']), async (req, res, next) => {
+router.post('/', authorize('EDIT_MEDICAL_RECORDS'), async (req, res, next) => {
     try {
         const result = await consultationService.create(req.body);
         res.status(201).json(result);
@@ -144,7 +144,7 @@ router.post('/', authorize(['doctor', 'admin']), async (req, res, next) => {
     }
 });
 
-router.post('/start', async (req, res, next) => {
+router.post('/start', authorize('EDIT_MEDICAL_RECORDS'), async (req, res, next) => {
     try {
         const { patientId, appointmentId, reason } = req.body;
         const result = await consultationService.startConsultation(Number(patientId), Number(appointmentId), reason);
@@ -155,7 +155,7 @@ router.post('/start', async (req, res, next) => {
 });
 
 // Update consultation
-router.put('/:id', authorize(['doctor', 'admin']), async (req, res, next) => {
+router.put('/:id', authorize('EDIT_MEDICAL_RECORDS'), async (req, res, next) => {
     try {
         const result = await consultationService.update(Number(req.params.id), req.body);
         res.json(result);
@@ -165,7 +165,7 @@ router.put('/:id', authorize(['doctor', 'admin']), async (req, res, next) => {
 });
 
 // Delete consultation
-router.delete('/:id', authorize(['doctor', 'admin']), async (req, res, next) => {
+router.delete('/:id', authorize('EDIT_MEDICAL_RECORDS'), async (req, res, next) => {
     try {
         const result = await consultationService.delete(Number(req.params.id));
         res.json(result);

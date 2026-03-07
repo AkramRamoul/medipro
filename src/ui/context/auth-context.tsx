@@ -1,11 +1,42 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import api from "../axios";
 
+export type Role = 'doctor' | 'receptionist' | 'admin';
+
+export type Permission =
+  | 'VIEW_DASHBOARD_STATS'
+  | 'MANAGE_USERS'
+  | 'VIEW_PATIENTS'
+  | 'EDIT_PATIENTS'
+  | 'VIEW_MEDICAL_RECORDS'
+  | 'EDIT_MEDICAL_RECORDS'
+  | 'VIEW_PRESCRIPTIONS'
+  | 'CREATE_PRESCRIPTIONS'
+  | 'VIEW_EXPENSES'
+  | 'MANAGE_EXPENSES'
+  | 'MANAGE_SETTINGS';
+
 export interface User {
   id: number;
   email: string;
-  role: 'doctor' | 'receptionist' | 'admin';
+  role: Role;
 }
+
+const RolePermissions: Record<Role, Permission[]> = {
+  admin: [
+    'VIEW_DASHBOARD_STATS', 'MANAGE_USERS', 'VIEW_PATIENTS', 'EDIT_PATIENTS',
+    'VIEW_MEDICAL_RECORDS', 'EDIT_MEDICAL_RECORDS', 'VIEW_PRESCRIPTIONS',
+    'CREATE_PRESCRIPTIONS', 'VIEW_EXPENSES', 'MANAGE_EXPENSES', 'MANAGE_SETTINGS'
+  ],
+  doctor: [
+    'VIEW_DASHBOARD_STATS', 'VIEW_PATIENTS', 'EDIT_PATIENTS',
+    'VIEW_MEDICAL_RECORDS', 'EDIT_MEDICAL_RECORDS', 'VIEW_PRESCRIPTIONS',
+    'CREATE_PRESCRIPTIONS', 'VIEW_EXPENSES', 'MANAGE_SETTINGS'
+  ],
+  receptionist: [
+    'VIEW_PATIENTS', 'EDIT_PATIENTS'
+  ]
+};
 
 interface AuthContextType {
   user: User | null;
@@ -14,6 +45,7 @@ interface AuthContextType {
   login: (token: string, user: User) => void;
   logout: () => void;
   loading: boolean;
+  can: (permission: Permission) => boolean;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -23,6 +55,7 @@ const AuthContext = createContext<AuthContextType>({
   login: () => { },
   logout: () => { },
   loading: true,
+  can: () => false,
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -65,6 +98,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     init();
   }, []);
 
+  const can = (permission: Permission): boolean => {
+    if (!user) return false;
+    return RolePermissions[user.role].includes(permission);
+  };
+
   return (
     <AuthContext.Provider value={{
       user,
@@ -72,7 +110,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       isAuthed: !!user,
       login,
       logout,
-      loading
+      loading,
+      can
     }}>
       {!loading && children}
     </AuthContext.Provider>
