@@ -70,6 +70,69 @@ function HelpComponent() {
 
           <hr className="border-muted" />
 
+          {/* Raccourcis Clavier */}
+          <div>
+            <h3 className="text-lg font-semibold">Raccourcis Clavier</h3>
+            <div className="flex flex-col space-y-2 text-sm mt-2">
+              <div className="flex justify-between items-center">
+                <span className="text-muted-foreground">Palette de commandes</span>
+                <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100">
+                  <span className="text-xs">⌘</span>K
+                </kbd>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-muted-foreground">Tableau de bord</span>
+                <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100">
+                  <span className="text-xs">⌘</span>D
+                </kbd>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-muted-foreground">Tous les patients</span>
+                <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100">
+                  <span className="text-xs">⌘</span>P
+                </kbd>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-muted-foreground">Consultations</span>
+                <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100">
+                  <span className="text-xs">⌘</span>C
+                </kbd>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-muted-foreground">Rendez-vous</span>
+                <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100">
+                  <span className="text-xs">⌘</span>R
+                </kbd>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-muted-foreground">Dépenses</span>
+                <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100">
+                  <span className="text-xs">⌘</span>E
+                </kbd>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-muted-foreground">Nouvelle Ordonnance</span>
+                <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100">
+                  <span className="text-xs">⌘</span>N
+                </kbd>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-muted-foreground">Changer le thème</span>
+                <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100">
+                  <span className="text-xs">⌘</span>T
+                </kbd>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-muted-foreground">Paramètres</span>
+                <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100">
+                  <span className="text-xs">⌘</span>S
+                </kbd>
+              </div>
+            </div>
+          </div>
+
+          <hr className="border-muted" />
+
           {/* App Info */}
           <div className="text-sm space-y-1">
             <div>
