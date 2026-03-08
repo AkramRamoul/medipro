@@ -35,7 +35,24 @@ export class UserService {
     }
 
     async deleteUser(id: number) {
+        // Prevent deleting the last admin
+        const userToDelete = await this.findById(id);
+        if (userToDelete?.role === 'admin') {
+            const allUsers = await this.getAllUsers();
+            const adminCount = allUsers.filter(u => u.role === 'admin').length;
+            if (adminCount <= 1) {
+                throw new Error("Cannot delete the last admin account");
+            }
+        }
+
         await db.delete(users).where(eq(users.id, id));
+        return { success: true };
+    }
+
+    async updateUserRole(id: number, newRole: "doctor" | "receptionist" | "admin") {
+        await db.update(users)
+            .set({ role: newRole })
+            .where(eq(users.id, id));
         return { success: true };
     }
 

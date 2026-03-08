@@ -9,10 +9,11 @@ import {
 } from "../ui/table";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
-import { Trash2, Loader2 } from "lucide-react";
+import { Trash2, Loader2, Edit2, CheckCircle2, XCircle } from "lucide-react";
 import api from "../../axios";
 import { toast } from "sonner";
 import { AddUserModal } from "./AddUserModal";
+import { useAuth } from "../../context/auth-context";
 import {
     Card,
     CardContent,
@@ -20,9 +21,6 @@ import {
     CardHeader,
     CardTitle,
 } from "../ui/card";
-import {
-    CheckCircle2,
-} from "lucide-react";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -38,11 +36,12 @@ import {
 interface User {
     id: number;
     email: string;
-    role: string;
+    role: "admin" | "doctor" | "receptionist";
     created_at: string;
 }
 
 export default function UserManagement() {
+    const { user: currentUser } = useAuth();
     const [users, setUsers] = useState<User[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -68,9 +67,29 @@ export default function UserManagement() {
             await api.delete(`/users/${userId}`);
             toast.success("Utilisateur supprimé");
             setUsers(users.filter((u) => u.id !== userId));
-        } catch (error) {
+        } catch (error: any) {
             console.error("Failed to delete user:", error);
-            toast.error("Erreur lors de la suppression");
+            // Default error if backend message is unavailable
+            let errorMessage = "Erreur lors de la suppression";
+            if (error.response?.data?.message) {
+                errorMessage = error.response.data.message;
+            }
+            toast.error(errorMessage);
+        }
+    };
+
+    const handleRoleChange = async (userId: number, newRole: string) => {
+        try {
+            await api.patch(`/users/${userId}/role`, { role: newRole });
+            toast.success("Rôle mis à jour");
+            setUsers(users.map(u => u.id === userId ? { ...u, role: newRole as User["role"] } : u));
+        } catch (error: any) {
+            console.error("Failed to update role:", error);
+            let errorMessage = "Erreur lors de la mise à jour";
+            if (error.response?.data?.message) {
+                errorMessage = error.response.data.message;
+            }
+            toast.error(errorMessage);
         }
     };
 
@@ -86,6 +105,61 @@ export default function UserManagement() {
                 return <Badge variant="outline">{role}</Badge>;
         }
     };
+
+    const EditableRoleBadge = ({ user }: { user: User }) => {
+        const [isEditing, setIsEditing] = useState(false);
+        const [tempRole, setTempRole] = useState(user.role);
+
+        if (!isEditing || user.id === currentUser?.id) {
+            return (
+                <div
+                    className={`flex items-center gap-2 ${user.id !== currentUser?.id ? 'cursor-pointer hover:opacity-80' : ''}`}
+                    onClick={() => {
+                        if (user.id !== currentUser?.id) setIsEditing(true);
+                    }}
+                    title={user.id !== currentUser?.id ? "Cliquez pour modifier" : "Vous ne pouvez pas modifier votre propre rôle"}
+                >
+                    {getRoleBadge(user.role)}
+                    {user.id !== currentUser?.id && <Edit2 className="h-3 w-3 text-muted-foreground hidden group-hover:block" />}
+                </div>
+            )
+        }
+
+        return (
+            <div className="flex items-center gap-2">
+                <select
+                    title="Sélectionner le Rôle"
+                    className="flex h-8 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                    value={tempRole}
+                    onChange={(e) => setTempRole(e.target.value as User["role"])}
+                    autoFocus
+                >
+                    <option value="admin">Administrateur</option>
+                    <option value="doctor">Docteur</option>
+                    <option value="receptionist">Réceptionniste</option>
+                </select>
+                <div className="flex items-center gap-1">
+                    <button
+                        title="Enregistrer"
+                        className="text-green-600 hover:text-green-700 hover:bg-green-50 p-1 rounded"
+                        onClick={() => {
+                            if (tempRole !== user.role) handleRoleChange(user.id, tempRole);
+                            setIsEditing(false);
+                        }}
+                    >
+                        <CheckCircle2 className="h-4 w-4" />
+                    </button>
+                    <button
+                        title="Annuler"
+                        className="text-destructive hover:text-red-700 hover:bg-red-50 p-1 rounded"
+                        onClick={() => setIsEditing(false)}
+                    >
+                        <XCircle className="h-4 w-4" />
+                    </button>
+                </div>
+            </div>
+        )
+    }
 
     const permissionsInfo = [
         {
@@ -170,9 +244,14 @@ export default function UserManagement() {
                                 </TableRow>
                             ) : (
                                 users.map((user) => (
-                                    <TableRow key={user.id}>
-                                        <TableCell className="font-medium text-left">{user.email}</TableCell>
-                                        <TableCell className="text-left">{getRoleBadge(user.role)}</TableCell>
+                                    <TableRow key={user.id} className="group">
+                                        <TableCell className="font-medium text-left">
+                                            {user.email}
+                                            {user.id === currentUser?.id && <Badge variant="outline" className="ml-2 text-[10px] h-4 px-1 py-0 border-primary text-primary">Vous</Badge>}
+                                        </TableCell>
+                                        <TableCell className="text-left w-64">
+                                            <EditableRoleBadge user={user} />
+                                        </TableCell>
                                         <TableCell className="text-left">
                                             {new Date(user.created_at).toLocaleDateString("fr-FR", {
                                                 day: "2-digit",
@@ -184,9 +263,11 @@ export default function UserManagement() {
                                             <AlertDialog>
                                                 <AlertDialogTrigger asChild>
                                                     <Button
+                                                        title="Supprimer"
                                                         variant="ghost"
                                                         size="icon"
                                                         className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                                                        disabled={user.id === currentUser?.id}
                                                     >
                                                         <Trash2 className="h-4 w-4" />
                                                     </Button>

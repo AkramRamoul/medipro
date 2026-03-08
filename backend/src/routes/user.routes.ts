@@ -57,8 +57,21 @@ router.delete('/:id', authMiddleware, authorize(['admin']), async (req, res, nex
     try {
         const result = await userService.deleteUser(parseInt(req.params.id as string, 10));
         res.json(result);
-    } catch (error) {
-        next(error);
+    } catch (error: any) {
+        res.status(400).json({ success: false, message: error.message || "Failed to delete user" });
+    }
+});
+
+router.patch('/:id/role', authMiddleware, authorize(['admin']), async (req, res, next) => {
+    try {
+        const { role } = req.body;
+        if (!['doctor', 'receptionist', 'admin'].includes(role)) {
+            return res.status(400).json({ success: false, message: 'Invalid role' });
+        }
+        const result = await userService.updateUserRole(parseInt(req.params.id as string, 10), role);
+        res.json(result);
+    } catch (error: any) {
+        res.status(400).json({ success: false, message: error.message || "Failed to update role" });
     }
 });
 

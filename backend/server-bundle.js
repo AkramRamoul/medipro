@@ -41158,7 +41158,7 @@ var init_schema = __esm({
       id: integer("id").primaryKey({ autoIncrement: true }),
       name: text("name").notNull(),
       type: text("type", {
-        enum: ["work_stop", "medical_certificate", "chronic_disease", "custom"]
+        enum: ["work_stop", "medical_certificate", "chronic_disease", "referral", "exam_request", "custom"]
       }).notNull(),
       content: text("content").notNull(),
       isDefault: integer("is_default", { mode: "boolean" }).default(false),
@@ -69791,8 +69791,6 @@ var seedInitialData = async () => {
           isDefault: true,
           content: `
         <div style="font-family: Arial, sans-serif;">
-          <h2 style="text-align: center; text-decoration: underline;">CERTIFICAT MEDICAL</h2>
-          <br/>
           <p>Je soussign\xE9, Docteur <strong>[Nom du Docteur]</strong>, certifie avoir examin\xE9 ce jour le nomm\xE9 (e) :</p>
           <p style="margin-left: 20px;"><strong>[Nom du Patient]</strong></p>
           <p>L'examen clinique ce jour ne r\xE9v\xE8le aucun signe clinique apparent de contre-indication \xE0 la pratique d'une activit\xE9 physique et sportive.</p>
@@ -69807,8 +69805,6 @@ var seedInitialData = async () => {
           isDefault: true,
           content: `
         <div style="font-family: Arial, sans-serif;">
-          <h2 style="text-align: center; text-decoration: underline;">AVIS D'ARRET DE TRAVAIL</h2>
-          <br/>
           <p>Je soussign\xE9, Docteur <strong>[Nom du Docteur]</strong>, certifie avoir examin\xE9 ce jour :</p>
           <p style="margin-left: 20px;"><strong>[Nom du Patient]</strong></p>
           <p>Son \xE9tat de sant\xE9 justifie un arr\xEAt de travail de : <strong>......... jours</strong></p>
@@ -69819,13 +69815,11 @@ var seedInitialData = async () => {
       `
         },
         {
-          name: "Lettre de Liaison",
-          type: "custom",
+          name: "Lettre d'Orientation / R\xE9f\xE9rence",
+          type: "referral",
           isDefault: true,
           content: `
         <div style="font-family: Arial, sans-serif;">
-          <h2 style="text-align: center;">LETTRE DE LIAISON</h2>
-          <br/>
           <p>Cher confr\xE8re,</p>
           <p>Je vous adresse mon patient <strong>[Nom du Patient]</strong> pour :</p>
           <p>....................................................................................</p>
@@ -69833,6 +69827,39 @@ var seedInitialData = async () => {
           <p>Merci pour votre collaboration.</p>
           <p style="text-align: right;">Bien confraternellement,</p>
           <p style="text-align: right;">Dr. <strong>[Nom du Docteur]</strong></p>
+        </div>
+      `
+        },
+        {
+          name: "Maladie Chronique",
+          type: "chronic_disease",
+          isDefault: true,
+          content: `
+        <div style="font-family: Arial, sans-serif;">
+          <p>Je soussign\xE9, Docteur <strong>[Nom du Docteur]</strong>, certifie que l'\xE9tat de sant\xE9 du patient :</p>
+          <p style="margin-left: 20px;"><strong>[Nom du Patient]</strong></p>
+          <p>n\xE9(e) le <strong>[Date de Naissance]</strong>, n\xE9cessite un suivi r\xE9gulier pour une affection de longue dur\xE9e :</p>
+          <p>....................................................................................</p>
+          <br/>
+          <p style="text-align: right;">Fait \xE0 [Ville], le [Date]</p>
+        </div>
+      `
+        },
+        {
+          name: "Demande d\u2019Examens",
+          type: "exam_request",
+          isDefault: true,
+          content: `
+        <div style="font-family: Arial, sans-serif;">
+          <p>Patient : <strong>[Nom du Patient]</strong></p>
+          <br/>
+          <p>Pri\xE8re de pratiquer les examens suivants :</p>
+          <p>....................................................................................</p>
+          <br/>
+          <p>Renseigements cliniques :</p>
+          <p>....................................................................................</p>
+          <br/>
+          <p style="text-align: right;">Fait \xE0 [Ville], le [Date]</p>
         </div>
       `
         }
@@ -69851,19 +69878,10 @@ var seedInitialData = async () => {
       console.log("\u{1F331} Seeding default prescription templates...");
       const pTemplates = [
         {
-          name: "Bilan de Routine",
-          meds: [
-            { medicineName: "FNS", dosage: "A jeun", form: "Analyse" },
-            { medicineName: "Glyc\xE9mie \xE0 jeun", dosage: "A jeun", form: "Analyse" },
-            { medicineName: "Ur\xE9e / Cr\xE9atinine", dosage: "A jeun", form: "Analyse" },
-            { medicineName: "Bilan Lipidique", dosage: "A jeun", form: "Analyse" }
-          ]
-        },
-        {
           name: "Traitement Symptomatique Grippe",
           meds: [
-            { medicineName: "Parac\xE9tamol 1g", dosage: "1cp x 3 / j", duration: "5 jours", quantity: "1 bte", form: "Comprim\xE9" },
-            { medicineName: "Vitamine C 1000mg", dosage: "1cp / j", duration: "10 jours", quantity: "1 bte", form: "Comprim\xE9 Eff." }
+            { medicineName: "Parac\xE9tamol", dosage: "1g", duration: "", quantity: "1 bte", form: "Comprim\xE9" },
+            { medicineName: "Vitamine C", dosage: "1g", duration: "", quantity: "1 bte", form: "Comprim\xE9." }
           ]
         }
       ];
@@ -71151,7 +71169,19 @@ var UserService = class {
     return await db.select().from(users);
   }
   async deleteUser(id) {
+    const userToDelete = await this.findById(id);
+    if (userToDelete?.role === "admin") {
+      const allUsers = await this.getAllUsers();
+      const adminCount = allUsers.filter((u) => u.role === "admin").length;
+      if (adminCount <= 1) {
+        throw new Error("Cannot delete the last admin account");
+      }
+    }
     await db.delete(users).where(eq(users.id, id));
+    return { success: true };
+  }
+  async updateUserRole(id, newRole) {
+    await db.update(users).set({ role: newRole }).where(eq(users.id, id));
     return { success: true };
   }
   // Legacy Support & License Logic
@@ -71306,7 +71336,19 @@ router4.delete("/:id", authMiddleware, authorize(["admin"]), async (req, res, ne
     const result = await userService.deleteUser(parseInt(req.params.id, 10));
     res.json(result);
   } catch (error48) {
-    next(error48);
+    res.status(400).json({ success: false, message: error48.message || "Failed to delete user" });
+  }
+});
+router4.patch("/:id/role", authMiddleware, authorize(["admin"]), async (req, res, next) => {
+  try {
+    const { role } = req.body;
+    if (!["doctor", "receptionist", "admin"].includes(role)) {
+      return res.status(400).json({ success: false, message: "Invalid role" });
+    }
+    const result = await userService.updateUserRole(parseInt(req.params.id, 10), role);
+    res.json(result);
+  } catch (error48) {
+    res.status(400).json({ success: false, message: error48.message || "Failed to update role" });
   }
 });
 router4.post("/change-password", authMiddleware, async (req, res, next) => {
@@ -71494,7 +71536,8 @@ var SettingsService = class {
     } else {
       await db.update(prescriptionModel).set(modelData).where(eq(prescriptionModel.id, existing[0].id));
     }
-    return { success: true };
+    const updatedModel = await this.getPrescriptionModel();
+    return { success: true, model: updatedModel };
   }
   async getLogo() {
     const [logo] = await db.select().from(image).limit(1);
