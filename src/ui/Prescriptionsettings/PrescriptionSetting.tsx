@@ -1,4 +1,3 @@
-//psettinss
 import React, { useEffect, useState, useCallback } from "react";
 import { useFileUploader } from "../hooks/use-file-uploader";
 import api from "../axios";

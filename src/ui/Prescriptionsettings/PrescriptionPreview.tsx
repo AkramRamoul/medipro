@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { ZoomIn, ZoomOut, RotateCcw } from "lucide-react";
-import type { TemplateLayout } from "./PrescriptionSetting";
+import type { TemplateLayout } from "./types";
 
 interface PrescriptionPreviewProps {
     form: {
