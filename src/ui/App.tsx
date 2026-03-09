@@ -1,4 +1,4 @@
-import { HashRouter as Router, Routes, Route } from "react-router-dom";
+import { HashRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import React, { Suspense, useEffect, useState } from "react";
 import Layout from "./routes/Layout";
 import { Toaster } from "sonner";
@@ -8,6 +8,13 @@ import { ThemeProvider } from "./components/theme-provider";
 import { Loader2 } from "lucide-react";
 import GlobalShortcuts from "./hooks/use-navigate";
 import api from "./axios";
+import { useAuth } from "./context/auth-context";
+
+function RoleBasedIndex() {
+  const { user } = useAuth();
+  if (user?.role === "receptionist") return <Navigate to="/patients" replace />;
+  return <DashboardPage />;
+}
 
 // Lazy load heavy route components
 const Prescriptions = React.lazy(() => import("./routes/Prescriptions"));
@@ -62,7 +69,7 @@ function App() {
                   </RequirePassword>
                 }
               >
-                <Route index element={<DashboardPage />} />
+                <Route index element={<RoleBasedIndex />} />
                 <Route path="/prescriptions" element={<Prescriptions />} />
                 <Route path="/consultations" element={<Page />} />
                 <Route path="/settings" element={<Settings />} />

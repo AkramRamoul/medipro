@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
     Loader2,
     CalendarClock,
@@ -8,7 +8,10 @@ import {
     Play,
     Eye,
     XCircle,
-    Plus
+    Plus,
+    RefreshCw,
+    PauseCircle,
+    UserPlus,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
 import {
@@ -25,6 +28,7 @@ import api from "../axios";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { GlobalAddAppointmentModal } from "../components/Appointment/GlobalAddAppointmentModal";
+import NewPatientModal from "../components/NewPatient/NewPatientModal";
 
 interface Appointment {
     id: number;
@@ -43,27 +47,57 @@ interface Appointment {
     };
 }
 
+const REFRESH_INTERVAL = 30_000; // 30 seconds
+
 export function Today() {
     const [appointments, setAppointments] = useState<Appointment[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+    const [isNewPatientOpen, setIsNewPatientOpen] = useState(false);
+    const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+    const [autoRefresh, setAutoRefresh] = useState(true);
+    const [secondsAgo, setSecondsAgo] = useState(0);
     const navigate = useNavigate();
+    const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-    const fetchTodayData = async () => {
-        setIsLoading(true);
+    const fetchTodayData = async (silent = false) => {
+        if (!silent) setIsLoading(true);
         try {
             const response = await api.get("/appointments/today");
             setAppointments(response.data);
+            setLastUpdated(new Date());
+            setSecondsAgo(0);
         } catch (error) {
             console.error("Failed to fetch today's appointments:", error);
             toast.error("Erreur lors de la récupération des rendez-vous.");
         } finally {
-            setIsLoading(false);
+            if (!silent) setIsLoading(false);
         }
     };
 
+    // Initial fetch
     useEffect(() => {
         fetchTodayData();
+    }, []);
+
+    // Auto-refresh polling
+    useEffect(() => {
+        if (autoRefresh) {
+            intervalRef.current = setInterval(() => {
+                fetchTodayData(true);
+            }, REFRESH_INTERVAL);
+        }
+        return () => {
+            if (intervalRef.current) clearInterval(intervalRef.current);
+        };
+    }, [autoRefresh]);
+
+    // "X seconds ago" ticker
+    useEffect(() => {
+        const ticker = setInterval(() => {
+            setSecondsAgo(s => s + 1);
+        }, 1000);
+        return () => clearInterval(ticker);
     }, []);
 
     const handleStartCheckIn = async (appointment: Appointment) => {
@@ -130,7 +164,7 @@ export function Today() {
 
     return (
         <div className="h-full flex-1 flex-col space-y-6 p-4 md:p-8 flex bg-background text-foreground transition-colors overflow-auto">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between flex-wrap gap-4">
                 <div>
                     <h2 className="text-3xl font-bold tracking-tight flex items-center gap-2">
                         <CalendarClock className="h-8 w-8 text-primary" />
@@ -140,10 +174,51 @@ export function Today() {
                         Gérez votre flux opérationnel quotidien.
                     </p>
                 </div>
-                <Button onClick={() => setIsAddModalOpen(true)} className="gap-2">
-                    <Plus className="h-4 w-4" />
-                    Nouveau Rendez-vous
-                </Button>
+                <div className="flex items-center gap-3">
+                    {/* Live indicator */}
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        {autoRefresh && (
+                            <span className="relative flex h-2 w-2">
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+                            </span>
+                        )}
+                        {lastUpdated && (
+                            <span>
+                                {secondsAgo < 5
+                                    ? "À l'instant"
+                                    : `Il y a ${secondsAgo}s`}
+                            </span>
+                        )}
+                        <button
+                            type="button"
+                            onClick={() => fetchTodayData(true)}
+                            className="p-1 rounded hover:bg-muted transition-colors"
+                            title="Actualiser maintenant"
+                        >
+                            <RefreshCw className="h-3.5 w-3.5" />
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setAutoRefresh(r => !r)}
+                            className={`p-1 rounded transition-colors ${autoRefresh
+                                ? "hover:bg-muted text-muted-foreground"
+                                : "text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-900/20"
+                                }`}
+                            title={autoRefresh ? "Mettre en pause" : "Reprendre l'actualisation"}
+                        >
+                            <PauseCircle className="h-3.5 w-3.5" />
+                        </button>
+                    </div>
+                    <Button variant="outline" onClick={() => setIsNewPatientOpen(true)} className="gap-2">
+                        <UserPlus className="h-4 w-4" />
+                        Nouveau Patient
+                    </Button>
+                    <Button onClick={() => setIsAddModalOpen(true)} className="gap-2">
+                        <Plus className="h-4 w-4" />
+                        Nouveau Rendez-vous
+                    </Button>
+                </div>
             </div>
 
             {/* Summary Cards */}
@@ -290,6 +365,10 @@ export function Today() {
                 isOpen={isAddModalOpen}
                 onClose={() => setIsAddModalOpen(false)}
                 onSuccess={fetchTodayData}
+            />
+            <NewPatientModal
+                isOpen={isNewPatientOpen}
+                onClose={() => setIsNewPatientOpen(false)}
             />
         </div>
     );
