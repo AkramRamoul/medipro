@@ -31,6 +31,8 @@ import {
   ClipboardList,
   Calendar as CalendarIcon,
   ArrowLeft,
+  Pencil,
+  Check,
 } from "lucide-react";
 import { format, isToday } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -75,6 +77,7 @@ const NewPrescriptionForm = ({
   const [note, setNote] = useState<string>("");
   const [templates, setTemplates] = useState<any[]>([]);
   const [prescriptionDate, setPrescriptionDate] = useState<Date>(new Date());
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -202,12 +205,54 @@ const NewPrescriptionForm = ({
       duration: duration || null,
       note: note || null,
     };
-    setSelectedMedications((prev) => [...prev, medicationWithExtras]);
+    if (editingIndex !== null) {
+      setSelectedMedications((prev) =>
+        prev.map((m, i) => (i === editingIndex ? medicationWithExtras : m)),
+      );
+      setEditingIndex(null);
+    } else {
+      setSelectedMedications((prev) => [...prev, medicationWithExtras]);
+    }
     setSelectedMedication(null);
     setInputValue("");
     setQuantity("");
     setDuration("");
     setNote("");
+  };
+
+  const handleEditMedication = (index: number) => {
+    const med = selectedMedications[index];
+    setEditingIndex(index);
+    setInputValue(med.medicineName);
+    setQuantity(med.quantity || "");
+    setDuration(med.duration || "");
+    setNote(med.note || "");
+    // Try to match against the medications list for dosage/form
+    const match = medications.find(
+      (m) => m.name.toLowerCase() === med.medicineName.toLowerCase(),
+    );
+    setSelectedMedication(
+      match
+        ? match
+        : {
+          name: med.medicineName,
+          form: med.form || "",
+          dosage: med.dosage || "",
+        },
+    );
+    setSuggestions([]);
+    // Scroll to top of form
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleCancelEdit = () => {
+    setEditingIndex(null);
+    setSelectedMedication(null);
+    setInputValue("");
+    setQuantity("");
+    setDuration("");
+    setNote("");
+    setSuggestions([]);
   };
 
   const searchMedications = useCallback(
@@ -400,6 +445,21 @@ const NewPrescriptionForm = ({
           )}
         </CardHeader>
         <CardContent>
+          {editingIndex !== null && (
+            <div className="mb-4 flex items-center gap-2 px-3 py-2 rounded-md bg-primary/10 border border-primary/30 text-sm text-primary font-medium">
+              <Pencil className="h-3.5 w-3.5" />
+              Modification du médicament n°{editingIndex + 1}
+              <Button
+                variant="ghost"
+                size="sm"
+                className="ml-auto h-6 px-2 text-xs text-muted-foreground hover:text-foreground"
+                onClick={handleCancelEdit}
+              >
+                <X className="h-3 w-3 mr-1" />
+                Annuler
+              </Button>
+            </div>
+          )}
           <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end text-left">
             <div
               ref={containerRef}
@@ -474,13 +534,24 @@ const NewPrescriptionForm = ({
                   onChange={(e) => setNote(e.target.value)}
                   placeholder="Posologie..."
                   className="flex-1"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && inputValue.trim() !== "") {
+                      handleAddMedication();
+                    }
+                  }}
                 />
                 <Button
                   onClick={handleAddMedication}
                   disabled={inputValue.trim() === ""}
                   size="icon"
+                  variant={editingIndex !== null ? "default" : "default"}
+                  title={editingIndex !== null ? "Confirmer la modification" : "Ajouter"}
                 >
-                  <Plus className="h-4 w-4" />
+                  {editingIndex !== null ? (
+                    <Check className="h-4 w-4" />
+                  ) : (
+                    <Plus className="h-4 w-4" />
+                  )}
                 </Button>
               </div>
             </div>
@@ -562,10 +633,18 @@ const NewPrescriptionForm = ({
               {selectedMedications.map((med, index) => (
                 <div
                   key={index}
-                  className="flex items-center justify-between p-3 rounded-lg border bg-card group hover:bg-accent/50 transition-colors"
+                  className={`flex items-center justify-between p-3 rounded-lg border transition-colors group ${editingIndex === index
+                    ? "border-primary/60 bg-primary/5 ring-1 ring-primary/30"
+                    : "bg-card hover:bg-accent/50 border-border"
+                    }`}
                 >
-                  <div className="space-y-1">
+                  <div className="space-y-1 flex-1">
                     <div className="font-semibold flex items-center gap-2">
+                      {editingIndex === index && (
+                        <span className="inline-flex items-center gap-1 text-xs font-medium text-primary">
+                          <Pencil className="h-3 w-3" />
+                        </span>
+                      )}
                       {med.medicineName}
                       {med.dosage && (
                         <span className="text-xs font-normal px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
@@ -584,14 +663,31 @@ const NewPrescriptionForm = ({
                       )}
                     </div>
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 opacity-0 group-hover:opacity-100"
-                    onClick={() => handleRemoveMedication(index)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
+                  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    {editingIndex !== index && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-muted-foreground hover:text-primary hover:bg-primary/10"
+                        onClick={() => handleEditMedication(index)}
+                        title="Modifier"
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                    )}
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                      onClick={() => {
+                        if (editingIndex === index) handleCancelEdit();
+                        handleRemoveMedication(index);
+                      }}
+                      title="Supprimer"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
               ))}
             </div>
@@ -607,7 +703,6 @@ const NewPrescriptionForm = ({
         <PrintButton
           prescription={selectedMedications}
           patient={patient}
-          window={window}
           isPsychotropic={isPsychotropic}
           psychotropicNumber={Number(psychotropicNumber)}
           patientAddress={patientAddress}
