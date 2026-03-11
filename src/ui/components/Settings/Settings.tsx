@@ -4,6 +4,7 @@ import ConsultationFieldsSettings from "./ConsultationFieldsSettings";
 import PrescriptionTemplatesSettings from "./PrescriptionTemplatesSettings";
 import DocumentTemplatesSettings from "./DocumentTemplatesSettings";
 import BilanListSettings from "./BilanListSettings";
+import BilanTemplatesSettings from "./BilanTemplatesSettings";
 import DiagnosticListSettings from "./ConsultationListSettings";
 import UserManagement from "./UserManagement";
 import { useAuth } from "../../context/auth-context";
@@ -57,7 +58,13 @@ function Settings() {
                 value="bilans"
                 className="flex-1 text-muted-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground min-w-[100px]"
               >
-                Bilans
+                Catalogue Bilans
+              </TabsTrigger>
+              <TabsTrigger
+                value="bilan-templates"
+                className="flex-1 text-muted-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground min-w-[100px]"
+              >
+                Modèles Bilans
               </TabsTrigger>
               <TabsTrigger
                 value="diagnostics"
@@ -109,6 +116,12 @@ function Settings() {
               className="text-center text-foreground mt-6"
             >
               <BilanListSettings />
+            </TabsContent>
+            <TabsContent
+              value="bilan-templates"
+              className="text-center text-foreground mt-6"
+            >
+              <BilanTemplatesSettings />
             </TabsContent>
             <TabsContent
               value="diagnostics"

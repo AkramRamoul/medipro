@@ -395,6 +395,29 @@ export class ConsultationService {
         }
     }
 
+    async getBilanTemplates() {
+        const templatesPath = this.getAssetPath('bilan_templates.json');
+        try {
+            if (!fs.existsSync(templatesPath)) return [];
+            const data = fs.readFileSync(templatesPath, 'utf-8');
+            return JSON.parse(data);
+        } catch (error) {
+            console.error("Failed to read bilan_templates.json:", error);
+            return [];
+        }
+    }
+
+    async updateBilanTemplates(templates: any[]) {
+        const templatesPath = this.getAssetPath('bilan_templates.json');
+        try {
+            fs.writeFileSync(templatesPath, JSON.stringify(templates, null, 4), 'utf-8');
+            return { success: true };
+        } catch (error) {
+            console.error("Failed to write bilan_templates.json:", error);
+            return { success: false, error: "Failed to update bilan templates" };
+        }
+    }
+
     async getDashboardDiagnoses() {
         const result = await db
             .select({

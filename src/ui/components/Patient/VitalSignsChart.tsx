@@ -95,6 +95,8 @@ export function VitalSignsChart({ patientId }: VitalSignsChartProps) {
         return null;
     };
 
+    const hasData = bpData.length > 0 || weightData.length > 0 || glucoseData.length > 0;
+
     if (loading) {
         return (
             <div className="flex items-center justify-center py-12">
@@ -106,17 +108,19 @@ export function VitalSignsChart({ patientId }: VitalSignsChartProps) {
         );
     }
 
-    if (vitalsData.length === 0) {
+    if (!hasData) {
         return (
-            <div className="flex flex-col items-center justify-center py-16 text-center">
-                <div className="bg-muted/50 p-6 rounded-full mb-4">
-                    <Activity className="h-12 w-12 text-muted-foreground" />
-                </div>
-                <h3 className="text-lg font-semibold text-foreground mb-2">Aucune donnée disponible</h3>
-                <p className="text-sm text-muted-foreground max-w-md">
-                    Les signes vitaux seront enregistrés lors des consultations et affichés ici pour suivre l'évolution du patient.
-                </p>
-            </div>
+            <Card className="border border-dashed shadow-sm">
+                <CardContent className="flex flex-col items-center justify-center py-12 text-center">
+                    <div className="bg-primary/10 p-4 rounded-full mb-4">
+                        <Activity className="h-8 w-8 text-primary" />
+                    </div>
+                    <CardTitle className="text-xl mb-2">Aucune donnée de signes vitaux</CardTitle>
+                    <CardDescription className="max-w-md">
+                        Les signes vitaux (tension, poids, glycémie) enregistrés lors des consultations apparaîtront ici sous forme de graphiques pour visualiser l'évolution du patient.
+                    </CardDescription>
+                </CardContent>
+            </Card>
         );
     }
 

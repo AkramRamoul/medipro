@@ -1,10 +1,24 @@
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback, memo } from "react";
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { toast } from "sonner";
 import { Patient } from "../../type";
 import PrintButton from "../PrintButton";
-import { PrescriptionMed } from "../../../electron/schema";
 import { Switch } from "../ui/switch";
 import { Label } from "../ui/label";
 import {
@@ -14,6 +28,14 @@ import {
   CardHeader,
   CardTitle,
 } from "../ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "../ui/dialog";
 import {
   Select,
   SelectContent,
@@ -33,6 +55,7 @@ import {
   ArrowLeft,
   Pencil,
   Check,
+  GripVertical,
 } from "lucide-react";
 import { format, isToday } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -51,6 +74,106 @@ interface Medication {
   note?: string;
 }
 
+type MedItem = import("../../../electron/schema").PrescriptionMed & { uid: string };
+
+// ─── Sortable medication row ───────────────────────────────────────────────
+const SortableMedItem = memo(function SortableMedItem({
+  med,
+  index,
+  editingIndex,
+  onEdit,
+  onRemove,
+}: {
+  med: MedItem;
+  index: number;
+  editingIndex: number | null;
+  onEdit: (i: number) => void;
+  onRemove: (i: number) => void;
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
+    useSortable({ id: med.uid });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+    zIndex: isDragging ? 50 : undefined,
+  };
+
+  const isEditing = editingIndex === index;
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`flex items-center gap-2 p-3 rounded-lg border transition-colors group ${isEditing
+        ? "border-primary/60 bg-primary/5 ring-1 ring-primary/30"
+        : "bg-card hover:bg-accent/50 border-border"
+        } ${isDragging ? "shadow-lg" : ""}`}
+    >
+      {/* Drag handle */}
+      <button
+        {...attributes}
+        {...listeners}
+        className="cursor-grab active:cursor-grabbing text-muted-foreground/40 hover:text-muted-foreground transition-colors touch-none p-0.5 rounded"
+        tabIndex={-1}
+        aria-label="Réorganiser"
+      >
+        <GripVertical className="h-4 w-4" />
+      </button>
+
+      {/* Content */}
+      <div className="space-y-1 flex-1 min-w-0">
+        <div className="font-semibold flex items-center gap-2">
+          {isEditing && (
+            <span className="inline-flex items-center gap-1 text-xs font-medium text-primary">
+              <Pencil className="h-3 w-3" />
+            </span>
+          )}
+          {med.medicineName}
+          {med.dosage && (
+            <span className="text-xs font-normal px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
+              {med.dosage}
+            </span>
+          )}
+        </div>
+        <div className="text-sm text-muted-foreground">
+          {med.form}
+          {med.quantity && ` • ${med.quantity}`}
+          {med.duration && ` • ${med.duration}`}
+          {med.note && (
+            <span className="text-foreground italic ml-2">— {med.note}</span>
+          )}
+        </div>
+      </div>
+
+      {/* Action buttons */}
+      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+        {!isEditing && (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="text-muted-foreground hover:text-primary hover:bg-primary/10"
+            onClick={() => onEdit(index)}
+            title="Modifier"
+          >
+            <Pencil className="h-4 w-4" />
+          </Button>
+        )}
+        <Button
+          variant="ghost"
+          size="icon"
+          className="text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+          onClick={() => onRemove(index)}
+          title="Supprimer"
+        >
+          <Trash2 className="h-4 w-4" />
+        </Button>
+      </div>
+    </div>
+  );
+});
+
 const NewPrescriptionForm = ({
   id,
   onClose,
@@ -65,10 +188,7 @@ const NewPrescriptionForm = ({
   const [medications, setMedications] = useState<Medication[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [suggestions, setSuggestions] = useState<Medication[]>([]);
-  const [isSearching, setIsSearching] = useState(false);
-  const [selectedMedications, setSelectedMedications] = useState<
-    PrescriptionMed[]
-  >([]);
+  const [selectedMedications, setSelectedMedications] = useState<MedItem[]>([]);
   const [selectedMedication, setSelectedMedication] =
     useState<Medication | null>(null);
   const [highlightedIndex, setHighlightedIndex] = useState<number>(-1);
@@ -79,8 +199,11 @@ const NewPrescriptionForm = ({
   const [prescriptionDate, setPrescriptionDate] = useState<Date>(new Date());
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
 
+  // Template Save State
+  const [isTemplateDialogOpen, setIsTemplateDialogOpen] = useState(false);
+  const [newTemplateName, setNewTemplateName] = useState("");
+
   const containerRef = useRef<HTMLDivElement>(null);
-  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const MAX_SUGGESTIONS = 50;
 
   const fetchMedications = async () => {
@@ -195,7 +318,11 @@ const NewPrescriptionForm = ({
       toast.error("Le nom du médicament ne peut pas être vide.");
       return;
     }
-    const medicationWithExtras: PrescriptionMed = {
+    const medicationWithExtras: MedItem = {
+      uid:
+        editingIndex !== null
+          ? selectedMedications[editingIndex].uid
+          : crypto.randomUUID(),
       id: selectedMedication?.id || 0,
       prescriptionId: 0,
       medicineName: medName,
@@ -220,7 +347,29 @@ const NewPrescriptionForm = ({
     setNote("");
   };
 
-  const handleEditMedication = (index: number) => {
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    setSelectedMedications((items) => {
+      const oldIndex = items.findIndex((m) => m.uid === active.id);
+      const newIndex = items.findIndex((m) => m.uid === over.id);
+      // Keep editingIndex in sync after reorder
+      if (editingIndex !== null) {
+        if (editingIndex === oldIndex) setEditingIndex(newIndex);
+        else if (oldIndex < editingIndex && newIndex >= editingIndex)
+          setEditingIndex((i) => i! - 1);
+        else if (oldIndex > editingIndex && newIndex <= editingIndex)
+          setEditingIndex((i) => i! + 1);
+      }
+      return arrayMove(items, oldIndex, newIndex);
+    });
+  };
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+  );
+
+  const handleEditMedication = useCallback((index: number) => {
     const med = selectedMedications[index];
     setEditingIndex(index);
     setInputValue(med.medicineName);
@@ -243,9 +392,9 @@ const NewPrescriptionForm = ({
     setSuggestions([]);
     // Scroll to top of form
     window.scrollTo({ top: 0, behavior: "smooth" });
-  };
+  }, [selectedMedications, medications]);
 
-  const handleCancelEdit = () => {
+  const handleCancelEdit = useCallback(() => {
     setEditingIndex(null);
     setSelectedMedication(null);
     setInputValue("");
@@ -253,13 +402,12 @@ const NewPrescriptionForm = ({
     setDuration("");
     setNote("");
     setSuggestions([]);
-  };
+  }, []);
 
   const searchMedications = useCallback(
     (query: string) => {
       if (query.trim() === "") {
         setSuggestions([]);
-        setIsSearching(false);
         return;
       }
       const lower = query.toLowerCase();
@@ -283,7 +431,6 @@ const NewPrescriptionForm = ({
         .map((item) => item.med);
       setSuggestions(scored);
       setHighlightedIndex(-1);
-      setIsSearching(false);
     },
     [medications],
   );
@@ -292,9 +439,7 @@ const NewPrescriptionForm = ({
     const value = event.target.value;
     setInputValue(value);
     setSelectedMedication(null);
-    setIsSearching(true);
-    if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
-    searchTimeoutRef.current = setTimeout(() => searchMedications(value), 300);
+    searchMedications(value);
   };
 
   const handleSuggestionClick = (medication: Medication) => {
@@ -303,16 +448,24 @@ const NewPrescriptionForm = ({
     setSuggestions([]);
   };
 
-  const handleRemoveMedication = (index: number) => {
+  const handleRemoveMedication = useCallback((index: number) => {
     setSelectedMedications((prev) =>
       prev.filter((_, medIndex) => medIndex !== index),
     );
-  };
+  }, []);
+
+  const handleRemoveMedItem = useCallback((index: number) => {
+    if (editingIndex === index) {
+      handleCancelEdit();
+    }
+    handleRemoveMedication(index);
+  }, [editingIndex, handleCancelEdit, handleRemoveMedication]);
 
   const handleApplyTemplate = (templateId: string) => {
     const template = templates.find((t) => t.id.toString() === templateId);
     if (template) {
-      const newMeds = template.medications.map((m: any) => ({
+      const newMeds: MedItem[] = template.medications.map((m: any) => ({
+        uid: crypto.randomUUID(),
         id: 0,
         prescriptionId: 0,
         medicineName: m.medicineName,
@@ -324,6 +477,46 @@ const NewPrescriptionForm = ({
       }));
       setSelectedMedications((prev) => [...prev, ...newMeds]);
       toast.success(`Modèle "${template.name}" appliqué`);
+    }
+  };
+
+  const handleSaveAsTemplate = async () => {
+    if (!newTemplateName.trim()) {
+      toast.error("Le nom du modèle est requis");
+      return;
+    }
+    if (selectedMedications.length === 0) {
+      toast.error("Ajoutez au moins un médicament au modèle");
+      return;
+    }
+
+    try {
+      // Map back to the DTO expected by the backend
+      const templateMedications = selectedMedications.map(med => ({
+        medicineName: med.medicineName,
+        dosage: med.dosage,
+        form: med.form,
+        quantity: med.quantity,
+        duration: med.duration,
+        note: med.note
+      }));
+
+      const { data: result } = await api.post('/prescriptions/templates', {
+        name: newTemplateName.trim(),
+        medications: templateMedications,
+      });
+
+      if (result.success) {
+        toast.success("Modèle enregistré avec succès !");
+        setIsTemplateDialogOpen(false);
+        setNewTemplateName("");
+        fetchTemplates(); // Refresh the dropdown
+      } else {
+        toast.error("Erreur lors de l'enregistrement du modèle");
+      }
+    } catch (error) {
+      console.error("Save template error:", error);
+      toast.error("Une erreur est survenue lors de l'enregistrement");
     }
   };
 
@@ -342,11 +535,7 @@ const NewPrescriptionForm = ({
   }, []);
 
   useEffect(() => {
-    fetchMedications();
-    fetchTemplates();
-    return () => {
-      if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
-    };
+    Promise.all([fetchMedications(), fetchTemplates()]);
   }, []);
 
   return (
@@ -475,30 +664,24 @@ const NewPrescriptionForm = ({
                 className="w-full"
                 autoFocus
               />
-              {(suggestions.length > 0 || isSearching) && (
+              {suggestions.length > 0 && (
                 <div className="absolute z-50 w-full max-h-60 overflow-y-auto bg-popover border border-border rounded-md shadow-lg mt-1 text-left">
-                  {isSearching ? (
-                    <div className="px-3 py-4 text-sm text-center text-muted-foreground">
-                      Recherche...
-                    </div>
-                  ) : (
-                    suggestions.map((med, index) => (
-                      <div
-                        key={`${med.name}-${index}`}
-                        id={`suggestion-${index}`}
-                        className={`px-3 py-2 text-sm cursor-pointer hover:bg-accent hover:text-accent-foreground transition-colors ${index === highlightedIndex
-                          ? "bg-accent text-accent-foreground"
-                          : ""
-                          }`}
-                        onMouseDown={() => handleSuggestionClick(med)}
-                      >
-                        <div className="font-medium">{med.name}</div>
-                        <div className="text-xs text-muted-foreground">
-                          {med.form} • {med.dosage}
-                        </div>
+                  {suggestions.map((med, index) => (
+                    <div
+                      key={`${med.name}-${index}`}
+                      id={`suggestion-${index}`}
+                      className={`px-3 py-2 text-sm cursor-pointer hover:bg-accent hover:text-accent-foreground transition-colors ${index === highlightedIndex
+                        ? "bg-accent text-accent-foreground"
+                        : ""
+                        }`}
+                      onMouseDown={() => handleSuggestionClick(med)}
+                    >
+                      <div className="font-medium">{med.name}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {med.form} • {med.dosage}
                       </div>
-                    ))
-                  )}
+                    </div>
+                  ))}
                 </div>
               )}
             </div>
@@ -516,7 +699,22 @@ const NewPrescriptionForm = ({
               />
             </div>
             <div className="md:col-span-3 space-y-2">
-              <Label>Durée</Label>
+              <div className="flex justify-between items-center">
+                <Label>Durée</Label>
+                <div className="flex gap-1">
+                  {["3j", "5j", "7j", "10j", "1 mois"].map((preset) => (
+                    <button
+                      key={preset}
+                      type="button"
+                      onClick={() => setDuration(preset)}
+                      className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground hover:bg-primary/20 hover:text-primary transition-colors border border-transparent hover:border-primary/30"
+                      tabIndex={-1}
+                    >
+                      {preset}
+                    </button>
+                  ))}
+                </div>
+              </div>
               <Input
                 type="text"
                 value={duration}
@@ -526,7 +724,22 @@ const NewPrescriptionForm = ({
               />
             </div>
             <div className="md:col-span-3 space-y-2">
-              <Label>Note</Label>
+              <div className="flex justify-between items-center">
+                <Label>Note</Label>
+                <div className="flex gap-1">
+                  {["1×/j", "2×/j", "3×/j"].map((preset) => (
+                    <button
+                      key={preset}
+                      type="button"
+                      onClick={() => setNote((prev) => prev ? `${prev}, ${preset}` : preset)}
+                      className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground hover:bg-primary/20 hover:text-primary transition-colors border border-transparent hover:border-primary/30"
+                      tabIndex={-1}
+                    >
+                      {preset}
+                    </button>
+                  ))}
+                </div>
+              </div>
               <div className="flex gap-2">
                 <Input
                   type="text"
@@ -626,80 +839,60 @@ const NewPrescriptionForm = ({
       {selectedMedications.length > 0 && (
         <Card className="text-left">
           <CardHeader>
-            <CardTitle className="text-lg">Médicaments Prescrits</CardTitle>
+            <CardTitle className="text-lg flex items-center gap-2">
+              Médicaments Prescrits
+              {selectedMedications.length > 1 && (
+                <span className="text-xs font-normal text-muted-foreground flex items-center gap-1">
+                  <GripVertical className="h-3.5 w-3.5" />
+                  Glissez pour réorganiser
+                </span>
+              )}
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-2">
-              {selectedMedications.map((med, index) => (
-                <div
-                  key={index}
-                  className={`flex items-center justify-between p-3 rounded-lg border transition-colors group ${editingIndex === index
-                    ? "border-primary/60 bg-primary/5 ring-1 ring-primary/30"
-                    : "bg-card hover:bg-accent/50 border-border"
-                    }`}
-                >
-                  <div className="space-y-1 flex-1">
-                    <div className="font-semibold flex items-center gap-2">
-                      {editingIndex === index && (
-                        <span className="inline-flex items-center gap-1 text-xs font-medium text-primary">
-                          <Pencil className="h-3 w-3" />
-                        </span>
-                      )}
-                      {med.medicineName}
-                      {med.dosage && (
-                        <span className="text-xs font-normal px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
-                          {med.dosage}
-                        </span>
-                      )}
-                    </div>
-                    <div className="text-sm text-muted-foreground">
-                      {med.form}
-                      {med.quantity && ` • ${med.quantity}`}
-                      {med.duration && ` • ${med.duration}`}
-                      {med.note && (
-                        <span className="text-foreground italic ml-2">
-                          — {med.note}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    {editingIndex !== index && (
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="text-muted-foreground hover:text-primary hover:bg-primary/10"
-                        onClick={() => handleEditMedication(index)}
-                        title="Modifier"
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                    )}
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-                      onClick={() => {
-                        if (editingIndex === index) handleCancelEdit();
-                        handleRemoveMedication(index);
-                      }}
-                      title="Supprimer"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleDragEnd}
+            >
+              <SortableContext
+                items={selectedMedications.map((m) => m.uid)}
+                strategy={verticalListSortingStrategy}
+              >
+                <div className="space-y-2">
+                  {selectedMedications.map((med, index) => (
+                    <SortableMedItem
+                      key={med.uid}
+                      med={med}
+                      index={index}
+                      editingIndex={editingIndex}
+                      onEdit={handleEditMedication}
+                      onRemove={handleRemoveMedItem}
+                    />
+                  ))}
                 </div>
-              ))}
-            </div>
+              </SortableContext>
+            </DndContext>
           </CardContent>
         </Card>
       )}
 
       <div className="flex justify-end gap-3 pt-4 border-t">
-        <Button onClick={onClose} variant="outline" size="lg">
+        <Button onClick={onClose} variant="ghost" size="lg">
           <X className="w-4 h-4" />
           Annuler
         </Button>
+        {selectedMedications.length > 0 && (
+          <Button
+            onClick={() => setIsTemplateDialogOpen(true)}
+            variant="outline"
+            size="lg"
+            className="flex-1 max-w-[200px]"
+          >
+            <Save className="w-4 h-4 text-muted-foreground mr-1" />
+            Sauvegarder modèle
+          </Button>
+        )}
         <PrintButton
           prescription={selectedMedications}
           patient={patient}
@@ -714,12 +907,50 @@ const NewPrescriptionForm = ({
             onClick={handleSave}
             size="lg"
             className="gap-2 min-w-[150px]"
+            disabled={selectedMedications.length === 0}
           >
             <Save className="w-4 h-4" />
             Enregistrer
           </Button>
         )}
       </div>
+
+      <Dialog open={isTemplateDialogOpen} onOpenChange={setIsTemplateDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Enregistrer comme modèle</DialogTitle>
+            <DialogDescription>
+              Ce modèle contiendra les {selectedMedications.length} médicament(s) actuellement sélectionnés.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="template-name">Nom du modèle</Label>
+              <Input
+                id="template-name"
+                placeholder="Ex: Traitement grippe"
+                value={newTemplateName}
+                onChange={(e) => setNewTemplateName(e.target.value)}
+                autoFocus
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    handleSaveAsTemplate();
+                  }
+                }}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsTemplateDialogOpen(false)}>
+              Annuler
+            </Button>
+            <Button onClick={handleSaveAsTemplate}>
+              Enregistrer le modèle
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

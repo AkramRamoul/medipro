@@ -64,6 +64,26 @@ router.post('/bilans/common', authorize('MANAGE_SETTINGS'), async (req, res, nex
     }
 });
 
+// Get bilan templates
+router.get('/bilans/templates', async (req, res, next) => {
+    try {
+        const templates = await consultationService.getBilanTemplates();
+        res.json(templates);
+    } catch (error) {
+        next(error);
+    }
+});
+
+// Update bilan templates
+router.post('/bilans/templates', authorize('MANAGE_SETTINGS'), async (req, res, next) => {
+    try {
+        const result = await consultationService.updateBilanTemplates(req.body);
+        res.json(result);
+    } catch (error) {
+        next(error);
+    }
+});
+
 // Get custom field definitions
 router.get('/settings/custom-fields', async (req, res, next) => {
     try {

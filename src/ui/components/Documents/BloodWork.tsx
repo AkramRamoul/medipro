@@ -35,6 +35,39 @@ import { cn } from "../../lib/utils";
 import { Patient } from "../../type";
 import { Separator } from "../ui/separator";
 import api from "../../axios";
+import { Badge } from "../ui/badge";
+
+interface BilanTemplate {
+  name: string;
+  tests: string[];
+}
+
+const DEFAULT_TEMPLATES: BilanTemplate[] = [
+  {
+    name: "Bilan Lipidique",
+    tests: ["Cholestérol Total", "Triglycérides", "Cholestérol HDL", "Cholestérol LDL", "Aspect du sérum"],
+  },
+  {
+    name: "Bilan Hépatique",
+    tests: ["ASAT (TGO)", "ALAT (TGP)", "Gamma GT", "Phosphatases Alcalines", "Bilirubine Totale", "Bilirubine Conjuguée"],
+  },
+  {
+    name: "Bilan Rénal",
+    tests: ["Urée", "Créatinine", "Débit de Filtration Glomérulaire (DFG)"],
+  },
+  {
+    name: "Bilan Thyroïdien",
+    tests: ["TSH us", "T4L", "T3L"],
+  },
+  {
+    name: "NFS / Inflammatoire",
+    tests: ["Hémogramme (NFS)", "Plaquettes", "Vitesse de sédimentation (VS)", "CRP"],
+  },
+  {
+    name: "Bilan Diabète",
+    tests: ["Glycémie à jeun", "Hémoglobine Glyquée (HbA1c)"],
+  },
+];
 
 const bloodWorkSchema = z.object({
   patientName: z.string().min(2),
@@ -63,13 +96,21 @@ export function BloodWork({
   const [currentItem, setCurrentItem] = useState("");
   const [suggestions, setSuggestions] = useState<{ name: string }[]>([]);
   const [allBilans, setAllBilans] = useState<{ name: string }[]>([]);
+  const [templates, setTemplates] = useState<BilanTemplate[]>([]);
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
   const suggestionsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    // Fetch common bilans for suggestions
     api.get("/consultations/bilans/common")
       .then((res) => setAllBilans(res.data))
       .catch(console.error);
+
+    // Fetch custom templates
+    api.get("/consultations/bilans/templates")
+      .then((res) => setTemplates(res.data))
+      .catch(console.error);
+
     const handleClickOutside = (event: MouseEvent) => {
       if (suggestionsRef.current && !suggestionsRef.current.contains(event.target as Node)) {
         setSuggestions([]);
@@ -89,6 +130,14 @@ export function BloodWork({
     setCurrentItem("");
     setSuggestions([]);
     setHighlightedIndex(-1);
+  }
+
+  function applyTemplate(templateTests: string[]) {
+    const currentResults = form.getValues("results");
+    const newTests = templateTests.filter(test => !currentResults.includes(test));
+    if (newTests.length > 0) {
+      form.setValue("results", [...currentResults, ...newTests]);
+    }
   }
 
   function handleSuggestionClick(name: string) {
@@ -275,6 +324,22 @@ export function BloodWork({
                 <FlaskConical className="w-4 h-4 text-primary" />
                 Liste des Analyses
               </FormLabel>
+
+              <div className="max-h-[120px] overflow-y-auto pr-2 custom-scrollbar bg-muted/10 rounded-lg p-2 border border-dashed hover:border-primary/30 transition-colors">
+                <div className="flex flex-wrap gap-2">
+                  {[...DEFAULT_TEMPLATES, ...templates].map((template, idx) => (
+                    <Badge
+                      key={`${template.name}-${idx}`}
+                      variant="secondary"
+                      className="cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors py-1.5 px-3 flex items-center gap-1.5 bg-background shadow-sm border-none group"
+                      onClick={() => applyTemplate(template.tests)}
+                    >
+                      <Plus className="w-3 h-3 text-primary group-hover:text-primary-foreground" />
+                      {template.name}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
 
               <div className="relative space-y-2" ref={suggestionsRef}>
                 <div className="flex gap-2">
