@@ -67,25 +67,25 @@ export default function LicenseScreen({ onSuccess }: LicenseScreenProps) {
   };
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-gray-50 p-4">
-      {/* Abstract Background Shapes */}
+    <div className="min-h-screen w-full flex items-center justify-center bg-background p-4">
+      {/* Abstract Background Shapes - Updated to medical teal/soft blue */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-100 rounded-full blur-[100px] opacity-60" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-100 rounded-full blur-[100px] opacity-60" />
+        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/5 rounded-full blur-[100px] opacity-60" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-500/5 rounded-full blur-[100px] opacity-60" />
       </div>
 
-      <div className="relative w-full max-w-md bg-white/80 backdrop-blur-xl shadow-2xl rounded-3xl overflow-hidden border border-white/20 ring-1 ring-gray-200/50">
-        {/* Header Section */}
-        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-8 text-center text-white">
+      <div className="relative w-full max-w-md bg-card backdrop-blur-xl shadow-xl rounded-3xl overflow-hidden border border-border ring-1 ring-border/50">
+        {/* Header Section - Medical Teal Gradient */}
+        <div className="bg-gradient-to-br from-primary to-primary/80 p-8 text-center text-primary-foreground">
           <div className="mb-4 flex justify-center">
-            <div className="h-16 w-16 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm shadow-inner">
+            <div className="h-16 w-16 bg-white/10 rounded-2xl flex items-center justify-center backdrop-blur-md shadow-inner border border-white/20">
               <Key className="h-8 w-8 text-white" />
             </div>
           </div>
           <h1 className="text-2xl font-bold tracking-tight">
             Activation du Produit
           </h1>
-          <p className="text-blue-100 text-sm mt-2 opacity-90">
+          <p className="text-primary-foreground/80 text-sm mt-1">
             Entrez votre clé de licence pour continuer
           </p>
         </div>
@@ -93,16 +93,16 @@ export default function LicenseScreen({ onSuccess }: LicenseScreenProps) {
         <div className="p-8 space-y-8">
           {/* Machine ID Section */}
           <div className="space-y-3">
-            <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider pl-1">
+            <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider pl-1">
               Identifiant Machine
             </label>
-            <div className="group relative flex items-center bg-gray-50 border border-gray-200 rounded-xl p-1 pr-1.5 transition-all hover:border-blue-400 hover:shadow-sm">
-              <code className="flex-1 text-sm font-mono text-gray-700 px-3 truncate select-all">
+            <div className="group relative flex items-center bg-muted/50 border border-border rounded-xl p-1 pr-1.5 transition-all hover:border-primary/50 hover:shadow-sm">
+              <code className="flex-1 text-sm font-mono text-foreground px-3 truncate select-all">
                 {data || "Chargement..."}
               </code>
               <button
                 onClick={handleCopy}
-                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-white border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 hover:text-blue-600 transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-background border border-border text-foreground rounded-lg hover:bg-accent hover:text-accent-foreground transition-all shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
                 title="Copier dans le presse-papier"
               >
                 {copied ? (
@@ -113,7 +113,7 @@ export default function LicenseScreen({ onSuccess }: LicenseScreenProps) {
                 {copied ? "Copié" : "Copier"}
               </button>
             </div>
-            <p className="text-[11px] text-gray-400 px-1">
+            <p className="text-[11px] text-muted-foreground px-1 leading-relaxed">
               Partagez cet ID avec l'administrateur pour recevoir votre clé de
               licence.
             </p>
@@ -123,7 +123,7 @@ export default function LicenseScreen({ onSuccess }: LicenseScreenProps) {
           <div className="space-y-3">
             <label
               htmlFor="licenseKey"
-              className="text-xs font-semibold text-gray-500 uppercase tracking-wider pl-1"
+              className="text-xs font-bold text-muted-foreground uppercase tracking-wider pl-1"
             >
               Clé de Licence
             </label>
@@ -132,14 +132,14 @@ export default function LicenseScreen({ onSuccess }: LicenseScreenProps) {
                 id="licenseKey"
                 type="text"
                 placeholder="Collez votre clé de licence ici"
-                className="w-full h-12 pl-11 pr-4 bg-white border-gray-200 rounded-xl text-sm transition-all focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500"
+                className="w-full h-12 pl-11 pr-4 bg-background border-border rounded-xl text-sm transition-all focus:ring-4 focus:ring-primary/10 focus:border-primary"
                 value={key}
                 onChange={(e) => {
                   setKey(e.target.value);
                   if (status) setStatus(null);
                 }}
               />
-              <Key className="absolute left-3.5 top-3.5 h-5 w-5 text-gray-400 pointer-events-none" />
+              <Key className="absolute left-3.5 top-3.5 h-5 w-5 text-muted-foreground pointer-events-none" />
             </div>
           </div>
 
@@ -152,8 +152,8 @@ export default function LicenseScreen({ onSuccess }: LicenseScreenProps) {
                 ${status === "valid"
                   ? "bg-green-600 hover:bg-green-700 ring-green-500"
                   : status === "invalid"
-                    ? "bg-red-600 hover:bg-red-700 ring-red-500"
-                    : "bg-blue-600 hover:bg-blue-700 ring-blue-500"
+                    ? "bg-destructive hover:bg-destructive/90 ring-destructive"
+                    : "bg-primary hover:bg-primary/90 ring-primary"
                 }`}
             >
               {status === "checking" ? (
@@ -177,7 +177,7 @@ export default function LicenseScreen({ onSuccess }: LicenseScreenProps) {
             </Button>
 
             {status === "invalid" && (
-              <p className="text-center text-xs text-red-500 animate-in fade-in slide-in-from-top-1">
+              <p className="text-center text-xs text-destructive font-medium animate-in fade-in slide-in-from-top-1">
                 La clé de licence fournie est incorrecte ou expirée.
               </p>
             )}

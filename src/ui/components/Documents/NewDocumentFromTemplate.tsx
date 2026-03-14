@@ -129,6 +129,7 @@ const NewDocumentFromTemplate: React.FC<NewDocumentFromTemplateProps> = ({
             if (result.id) {
                 toast.success("Document enregistré avec succès");
                 refreshDocuments();
+                window.dispatchEvent(new Event("documents-updated"));
                 onClose();
             } else {
                 toast.error("Erreur lors de l'enregistrement");

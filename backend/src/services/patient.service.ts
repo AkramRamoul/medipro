@@ -117,6 +117,7 @@ export class PatientService {
             .select({
                 id: DocumentTable.id,
                 type: DocumentTable.type,
+                name: DocumentTable.name,
                 content: DocumentTable.content,
                 createdAt: DocumentTable.createdAt,
             })
@@ -194,7 +195,7 @@ export class PatientService {
         });
 
         patientDocuments
-            .filter((doc) => doc.type === "certificate" || doc.type === "blood")
+            .filter((doc) => doc.type === "certificate" || doc.type === "blood" || doc.type === "template")
             .forEach((doc) => {
                 let summary = "Document";
                 let details = null;
@@ -217,6 +218,21 @@ export class PatientService {
                             ).toLocaleDateString("fr-FR");
                             details += `\nRepos: ${startDate} - ${endDate}`;
                         }
+                    }
+                } else if (doc.type === "template") {
+                    // Documents created from templates (Custom letters)
+                    // The document name/title is actually saved in `name`, but the timeline query
+                    // doesn't fetch `name` from `DocumentTable` currently. I need to update the query as well.
+                    // For now, I'll use doc.name if we query it, or a generic title.
+                    // Oh wait, looking at the query, `name` is not selected. I should modify the SQL select first.
+                    summary = (doc as any).name || "Lettre / Document";
+                    
+                    // The content is HTML, extracting text might be complex, or we can just leave details empty
+                    // or try to strip HTML tags if possible.
+                    if (doc.content && typeof doc.content === 'string') {
+                         // Simple HTML stripper for details preview
+                         const stripped = doc.content.replace(/<[^>]*>?/gm, '');
+                         details = stripped.slice(0, 50) + (stripped.length > 50 ? "..." : "");
                     }
                 }
 

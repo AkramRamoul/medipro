@@ -43,10 +43,12 @@ function TimeLine({ id }: { id: string }) {
     };
     window.addEventListener("consultations-updated", refetch);
     window.addEventListener("lab-results-updated", refetch);
+    window.addEventListener("documents-updated", refetch);
 
     return () => {
       window.removeEventListener("consultations-updated", refetch);
       window.removeEventListener("lab-results-updated", refetch);
+      window.removeEventListener("documents-updated", refetch);
     };
   }, [id]);
 

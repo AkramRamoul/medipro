@@ -69981,6 +69981,7 @@ var PatientService = class {
     const patientDocuments = await db.select({
       id: Document.id,
       type: Document.type,
+      name: Document.name,
       content: Document.content,
       createdAt: Document.createdAt
     }).from(Document).where(eq(Document.patientId, patientId));
@@ -70042,7 +70043,7 @@ Note: ${c.notes.slice(0, 50)}${c.notes.length > 50 ? "..." : ""}`;
         details: medsList || "Aucun m\xE9dicament prescrit"
       });
     });
-    patientDocuments.filter((doc) => doc.type === "certificate" || doc.type === "blood").forEach((doc) => {
+    patientDocuments.filter((doc) => doc.type === "certificate" || doc.type === "blood" || doc.type === "template").forEach((doc) => {
       let summary = "Document";
       let details = null;
       if (doc.type === "blood") {
@@ -70064,6 +70065,12 @@ Note: ${c.notes.slice(0, 50)}${c.notes.length > 50 ? "..." : ""}`;
             details += `
 Repos: ${startDate} - ${endDate}`;
           }
+        }
+      } else if (doc.type === "template") {
+        summary = doc.name || "Lettre / Document";
+        if (doc.content && typeof doc.content === "string") {
+          const stripped = doc.content.replace(/<[^>]*>?/gm, "");
+          details = stripped.slice(0, 50) + (stripped.length > 50 ? "..." : "");
         }
       }
       events.push({
@@ -70661,6 +70668,27 @@ var ConsultationService = class {
       return { success: false, error: "Failed to update bilans" };
     }
   }
+  async getBilanTemplates() {
+    const templatesPath = this.getAssetPath("bilan_templates.json");
+    try {
+      if (!import_fs.default.existsSync(templatesPath)) return [];
+      const data = import_fs.default.readFileSync(templatesPath, "utf-8");
+      return JSON.parse(data);
+    } catch (error48) {
+      console.error("Failed to read bilan_templates.json:", error48);
+      return [];
+    }
+  }
+  async updateBilanTemplates(templates) {
+    const templatesPath = this.getAssetPath("bilan_templates.json");
+    try {
+      import_fs.default.writeFileSync(templatesPath, JSON.stringify(templates, null, 4), "utf-8");
+      return { success: true };
+    } catch (error48) {
+      console.error("Failed to write bilan_templates.json:", error48);
+      return { success: false, error: "Failed to update bilan templates" };
+    }
+  }
   async getDashboardDiagnoses() {
     const result = await db.select({
       diagnosis: consultations.diagnosis,
@@ -70739,6 +70767,22 @@ router2.get("/bilans/common", async (req, res, next) => {
 router2.post("/bilans/common", authorize("MANAGE_SETTINGS"), async (req, res, next) => {
   try {
     const result = await consultationService.updateBilans(req.body);
+    res.json(result);
+  } catch (error48) {
+    next(error48);
+  }
+});
+router2.get("/bilans/templates", async (req, res, next) => {
+  try {
+    const templates = await consultationService.getBilanTemplates();
+    res.json(templates);
+  } catch (error48) {
+    next(error48);
+  }
+});
+router2.post("/bilans/templates", authorize("MANAGE_SETTINGS"), async (req, res, next) => {
+  try {
+    const result = await consultationService.updateBilanTemplates(req.body);
     res.json(result);
   } catch (error48) {
     next(error48);
