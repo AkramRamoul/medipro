@@ -322,13 +322,33 @@ export function LabResultsTab({ patientId }: LabResultsTabProps) {
   const handleExportExcel = async () => {
     try {
       setExporting(true);
-      const { data: result } = await api.get(`/patients/${patientId}/lab-export`);
-      if (!result.success) {
-        if (result.error !== "Cancelled") {
-          toast.error(result.error || "Export impossible");
+      const response = await api.get(`/patients/${patientId}/lab-export`, {
+        responseType: 'blob', // Important for receiving binary data
+      });
+      
+      // The backend returns a blob, so we create a link to download it
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      
+      // Extract filename from Content-Disposition header if possible, or use a default
+      const contentDisposition = response.headers['content-disposition'];
+      let filename = `bilan_biologique_patient_${patientId}.xlsx`;
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(/filename="?([^"]+)"?/);
+        if (filenameMatch && filenameMatch.length === 2) {
+          filename = filenameMatch[1];
         }
-        return;
       }
+      
+      link.setAttribute('download', filename);
+      document.body.appendChild(link);
+      link.click();
+      
+      // Clean up
+      link.parentNode?.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      
       toast.success("Export Excel terminé");
     } catch (error) {
       console.error("Failed to export lab results:", error);

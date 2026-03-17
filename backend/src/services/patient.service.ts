@@ -1,7 +1,7 @@
 import { db } from '../db';
 import { patients, consultations, prescriptions, prescriptionMedications, Document as DocumentTable, labResults } from '../db/schema';
 import { eq, sql, desc, or, like } from 'drizzle-orm';
-
+import ExcelJS from 'exceljs';
 export class PatientService {
     async getAll() {
         const result = await db
@@ -358,9 +358,65 @@ export class PatientService {
     }
 
     async exportLabResultsExcel(patientId: number) {
-        // Placeholder for Excel export. In a web app, this usually returns a download link or buffer.
-        // For now, we return success but might need a real implementation later.
-        return { success: true, message: "Export placeholder" };
+        const results = await this.getLabResults(patientId);
+        
+        const workbook = new ExcelJS.Workbook();
+        workbook.creator = 'Doc App';
+        workbook.created = new Date();
+        
+        const sheet = workbook.addWorksheet('Bilan Biologique');
+
+        sheet.columns = [
+            { header: 'Panel', key: 'panel', width: 25 },
+            { header: 'Date', key: 'date', width: 15 },
+            { header: 'Paramètre', key: 'test', width: 20 },
+            { header: 'Valeur', key: 'value', width: 15 },
+            { header: 'Unité', key: 'unit', width: 10 },
+            { header: 'Min Réf', key: 'min', width: 10 },
+            { header: 'Max Réf', key: 'max', width: 10 },
+            { header: 'Statut', key: 'status', width: 15 },
+        ];
+
+        // Style the header row
+        sheet.getRow(1).font = { bold: true };
+        sheet.getRow(1).fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: 'FFE0E0E0' }
+        };
+
+        results.forEach((panel: any) => {
+            const dateStr = panel.measuredAt ? new Date(panel.measuredAt).toLocaleDateString("fr-FR") : '';
+            
+            panel.entries.forEach((entry: any) => {
+                let statusLabel = 'Normal';
+                if (entry.status === 'high') statusLabel = 'Élevé';
+                if (entry.status === 'low') statusLabel = 'Bas';
+
+                const row = sheet.addRow({
+                    panel: panel.panelName,
+                    date: dateStr,
+                    test: entry.testName,
+                    value: entry.value,
+                    unit: entry.unit || '',
+                    min: entry.referenceMin ?? '',
+                    max: entry.referenceMax ?? '',
+                    status: statusLabel
+                });
+
+                // Highlight abnormal results
+                if (entry.status === 'high' || entry.status === 'low') {
+                    row.getCell('status').font = { color: { argb: 'FFFF0000' }, bold: true };
+                }
+            });
+        });
+
+        const buffer = await workbook.xlsx.writeBuffer();
+        
+        return { 
+            buffer: buffer, 
+            filename: `bilan_biologique_patient_${patientId}.xlsx` 
+        };
     }
 
     async search(query: string) {

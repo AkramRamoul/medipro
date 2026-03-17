@@ -259,13 +259,19 @@ export class PrescriptionService {
         return path.join(process.cwd(), '..', 'public', filename);
     }
 
+    private cachedMedications: any[] | null = null;
+
     async getMedications() {
+        if (this.cachedMedications) {
+            return this.cachedMedications;
+        }
+
         const medsPath = this.getAssetPath('meds.json');
         try {
             if (!fs.existsSync(medsPath)) return [];
-            const data = fs.readFileSync(medsPath, 'utf-8');
+            const data = await fs.promises.readFile(medsPath, 'utf-8');
             const rawMedications = JSON.parse(data);
-            return rawMedications.map((med: any) => ({
+            this.cachedMedications = rawMedications.map((med: any) => ({
                 name: (med["NOM DE MARQUE"] || "").trim(),
                 form: (med["FORME"] || "").trim(),
                 dosage: (med["DOSAGE"] || "").trim(),
@@ -273,6 +279,7 @@ export class PrescriptionService {
                 quantity: (med["QUANTITE"] || "").trim(),
                 duration: (med["DUREE"] || "").trim(),
             }));
+            return this.cachedMedications;
         } catch (error) {
             console.error("Failed to read meds.json:", error);
             return [];

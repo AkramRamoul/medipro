@@ -110,7 +110,11 @@ router.delete('/lab-panel/:panelId', authorize('EDIT_PATIENTS'), async (req, res
 router.get('/:id/lab-export', authorize('VIEW_PATIENTS'), async (req, res, next) => {
     try {
         const result = await patientService.exportLabResultsExcel(Number(req.params.id));
-        res.json(result);
+        
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        res.setHeader('Content-Disposition', `attachment; filename=${result.filename}`);
+        
+        res.send(result.buffer);
     } catch (error) {
         next(error);
     }
