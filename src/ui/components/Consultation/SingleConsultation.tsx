@@ -9,6 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from "../ui/card";
+import { Separator } from "../ui/separator";
 import { useEffect, useState } from "react";
 import {
   Loader2,
@@ -21,7 +22,6 @@ import {
   FileText,
   Save,
   HeartPulse,
-  Plus,
   Banknote,
 } from "lucide-react";
 import { Consultation } from "../../type";
@@ -48,8 +48,6 @@ export default function SingleConsultation({
   const [glucose, setGlucose] = useState("");
   const [weight, setWeight] = useState("");
   const [amountPaid, setAmountPaid] = useState("");
-  const [customFieldConfigs, setCustomFieldConfigs] = useState<any[]>([]);
-  const [customFieldValues, setCustomFieldValues] = useState<Record<string, any>>({});
 
   useEffect(() => {
     if (id) {
@@ -75,11 +73,7 @@ export default function SingleConsultation({
               setBpSystolic("");
               setBpDiastolic("");
             }
-            setCustomFieldValues(consultationData.customFields || {});
           }
-
-          const { data: fieldConfigs } = await api.get('/consultations/settings/custom-fields');
-          setCustomFieldConfigs(fieldConfigs);
         } catch (error) {
           console.error("Error fetching consultation data:", error);
           toast.error("Erreur lors du chargement des données.");
@@ -105,7 +99,6 @@ export default function SingleConsultation({
         weight,
         notes,
         amountPaid: amountPaid ? Math.round(Number(amountPaid)) : null,
-        customFields: customFieldValues,
       };
 
       try {
@@ -243,34 +236,7 @@ export default function SingleConsultation({
           </div>
         </div>
 
-        {customFieldConfigs.length > 0 && (
-          <div className="rounded-lg border bg-card p-4">
-            <h3 className="font-semibold mb-3 flex items-center gap-2 text-sm text-muted-foreground uppercase tracking-wide">
-              <Plus className="h-4 w-4" />
-              Champs personnalisés
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {customFieldConfigs.map((config) => (
-                <div key={config.id} className="space-y-2">
-                  <Label className="text-xs flex items-center gap-1">
-                    {config.label}
-                  </Label>
-                  <Input
-                    type={config.type}
-                    value={customFieldValues[config.name] || ""}
-                    onChange={(e) =>
-                      setCustomFieldValues((prev) => ({
-                        ...prev,
-                        [config.name]: e.target.value,
-                      }))
-                    }
-                    className="h-9"
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+        <Separator />
 
         <div className="grid gap-4">
           <div className="grid gap-2">

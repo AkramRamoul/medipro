@@ -16,11 +16,18 @@ import {
   ClipboardList,
   Save,
   X,
-  Plus,
   Banknote,
   Check,
   ArrowLeft,
 } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
+import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
 import { Patient } from "../../type";
 import { toast } from "sonner";
 import { Separator } from "../ui/separator";
@@ -50,14 +57,13 @@ function NewConsultationForm({
   const [temperature, setTemperature] = useState("");
   const [amountPaid, setAmountPaid] = useState("");
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [customFieldConfigs, setCustomFieldConfigs] = useState<any[]>([]);
-  const [customFieldValues, setCustomFieldValues] = useState<
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    Record<string, any>
-  >({});
   const [existingConsultationId, setExistingConsultationId] = useState<number | null>(null);
   const [isResuming, setIsResuming] = useState(false);
   const [linkedAppointmentId, setLinkedAppointmentId] = useState<number | null>(null);
+
+  const [examFormTemplates, setExamFormTemplates] = useState<any[]>([]);
+  const [selectedFormId, setSelectedFormId] = useState<string>("none");
+  const [examFormData, setExamFormData] = useState<Record<string, any>>({});
 
   const [allDiagnostics, setAllDiagnostics] = useState<{ name: string }[]>([]);
   const [diagnosticSuggestions, setDiagnosticSuggestions] = useState<
@@ -76,15 +82,11 @@ function NewConsultationForm({
       .catch(console.error)
       .finally(() => setLoading(false));
 
-    api.get('/consultations/settings/custom-fields')
-      .then(({ data: fields }) => {
-        setCustomFieldConfigs(fields);
-        const initialValues: Record<string, any> = {};
-        fields.forEach((f: any) => {
-          initialValues[f.name] = "";
-        });
-        setCustomFieldValues(initialValues);
-      });
+    api.get('/consultations/exam-forms')
+      .then(({ data }) => {
+        setExamFormTemplates(data);
+      })
+      .catch(console.error);
 
     // Check for existing in-progress consultation for today
     api.get(`/consultations/patient/${id}`)
@@ -109,8 +111,11 @@ function NewConsultationForm({
           }
           setGlucose(inProgress.glucose?.toString() || "");
           setWeight(inProgress.weight?.toString() || "");
-          if (inProgress.customFields) {
-            setCustomFieldValues(inProgress.customFields);
+          if (inProgress.formId) {
+            setSelectedFormId(inProgress.formId.toString());
+          }
+          if (inProgress.formData) {
+            setExamFormData(inProgress.formData);
           }
           setAmountPaid(inProgress.amountPaid?.toString() || "");
           toast.info("Reprise de la consultation en cours...");
@@ -208,7 +213,8 @@ function NewConsultationForm({
         temperature: temperature ? temperature : null,
       },
       amountPaid: amountPaid ? Math.round(Number(amountPaid)) : null,
-      customFields: customFieldValues,
+      formId: selectedFormId !== "none" ? Number(selectedFormId) : null,
+      formData: examFormData,
       status: "completed",
       appointmentId: linkedAppointmentId
     };
@@ -365,50 +371,171 @@ function NewConsultationForm({
           </div>
         </div>
 
-        {customFieldConfigs.length > 0 && (
-          <>
-            <Separator />
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold flex items-center gap-2 text-primary">
-                <Plus className="w-5 h-5" />
-                Champs personnalisés
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {customFieldConfigs.map((config) => (
-                  <div key={config.id} className="space-y-2">
-                    <Label className="flex items-center gap-2 text-foreground font-medium">
-                      {config.label}
+        <Separator />
+
+        {/* Section: Specialty Exam Form */}
+        <div className="space-y-6">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <h3 className="text-lg font-semibold flex items-center gap-2 text-primary">
+              <ClipboardList className="w-5 h-5" />
+              Formulaire d'examen spécifique
+            </h3>
+            <div className="w-full md:w-72">
+              <Select 
+                value={selectedFormId} 
+                onValueChange={(val) => {
+                  setSelectedFormId(val);
+                  // Initialize data for new fields if not already present
+                  const template = examFormTemplates.find(t => t.id.toString() === val);
+                  if (template) {
+                    const newData = { ...examFormData };
+                    template.fields.forEach((f: any) => {
+                      if (newData[f.id] === undefined) {
+                        newData[f.id] = (f.type === "checkbox") ? [] : "";
+                      }
+                    });
+                    setExamFormData(newData);
+                  }
+                }}
+              >
+                <SelectTrigger className="bg-muted/30">
+                  <SelectValue placeholder="Choisir un formulaire..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Aucun (Standard)</SelectItem>
+                  {examFormTemplates.map((form) => (
+                    <SelectItem key={form.id} value={form.id.toString()}>
+                      {form.name} ({form.specialty})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          {selectedFormId !== "none" && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 p-6 bg-muted/10 rounded-xl border border-border/50">
+              {examFormTemplates.find(t => t.id.toString() === selectedFormId)?.fields.map((field: any) => {
+                const isFullWidth = field.width === "full" || field.type === "header" || field.type === "divider" || field.type === "textarea";
+                
+                if (field.type === "header") {
+                  return (
+                    <div key={field.id} className="col-span-full mt-4 mb-2">
+                       <h4 className="text-md font-bold text-primary border-b pb-1 uppercase tracking-tight">{field.label}</h4>
+                    </div>
+                  );
+                }
+
+                if (field.type === "divider") {
+                  return (
+                    <div key={field.id} className="col-span-full my-2 border-b border-border/50" />
+                  );
+                }
+
+                return (
+                  <div key={field.id} className={`${isFullWidth ? "col-span-full" : "col-span-1"} space-y-2`}>
+                    <Label className="text-sm font-medium flex items-center gap-1.5">
+                      {field.label}
+                      {field.required && <span className="text-destructive">*</span>}
                     </Label>
-                    {config.type === "textarea" ? (
-                      <Textarea
-                        value={customFieldValues[config.name] || ""}
-                        onChange={(e) =>
-                          setCustomFieldValues((prev) => ({
-                            ...prev,
-                            [config.name]: e.target.value,
-                          }))
-                        }
-                        className="bg-muted/30 min-h-[100px]"
-                      />
-                    ) : (
-                      <Input
-                        type={config.type}
-                        value={customFieldValues[config.name] || ""}
-                        onChange={(e) =>
-                          setCustomFieldValues((prev) => ({
-                            ...prev,
-                            [config.name]: e.target.value,
-                          }))
-                        }
-                        className="bg-muted/30"
+
+                    {field.type === "text" && (
+                      <Input 
+                        placeholder={field.placeholder}
+                        value={examFormData[field.id] || ""}
+                        onChange={(e) => setExamFormData({...examFormData, [field.id]: e.target.value})}
+                        className="bg-background"
                       />
                     )}
+
+                    {field.type === "textarea" && (
+                      <Textarea 
+                        placeholder={field.placeholder}
+                        value={examFormData[field.id] || ""}
+                        onChange={(e) => setExamFormData({...examFormData, [field.id]: e.target.value})}
+                        className="bg-background min-h-[100px]"
+                      />
+                    )}
+
+                    {field.type === "number" && (
+                      <Input 
+                        type="number"
+                        placeholder={field.placeholder}
+                        value={examFormData[field.id] || ""}
+                        onChange={(e) => setExamFormData({...examFormData, [field.id]: e.target.value})}
+                        className="bg-background"
+                      />
+                    )}
+
+                    {field.type === "date" && (
+                      <Input 
+                        type="date"
+                        value={examFormData[field.id] || ""}
+                        onChange={(e) => setExamFormData({...examFormData, [field.id]: e.target.value})}
+                        className="bg-background"
+                      />
+                    )}
+
+                    {field.type === "select" && (
+                      <Select 
+                        value={examFormData[field.id] || ""}
+                        onValueChange={(val) => setExamFormData({...examFormData, [field.id]: val})}
+                      >
+                        <SelectTrigger className="bg-background">
+                          <SelectValue placeholder={field.placeholder || "Sélectionnez..."} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {field.options?.map((opt: string) => (
+                            <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+
+                    {field.type === "radio" && (
+                      <RadioGroup 
+                        value={examFormData[field.id] || ""}
+                        onValueChange={(val) => setExamFormData({...examFormData, [field.id]: val})}
+                        className="flex flex-wrap gap-4 pt-1"
+                      >
+                        {field.options?.map((opt: string) => (
+                          <div key={opt} className="flex items-center space-x-2">
+                            <RadioGroupItem value={opt} id={`radio-${field.id}-${opt}`} />
+                            <Label htmlFor={`radio-${field.id}-${opt}`} className="font-normal cursor-pointer">{opt}</Label>
+                          </div>
+                        ))}
+                      </RadioGroup>
+                    )}
+
+                    {field.type === "checkbox" && (
+                      <div className="flex flex-wrap gap-x-6 gap-y-3 pt-1">
+                        {field.options?.map((opt: string) => (
+                          <div key={opt} className="flex items-center space-x-2">
+                            <input 
+                              type="checkbox"
+                              id={`check-${field.id}-${opt}`}
+                              checked={(examFormData[field.id] || []).includes(opt)}
+                              onChange={(e) => {
+                                const checked = e.target.checked;
+                                const current = examFormData[field.id] || [];
+                                const next = checked 
+                                  ? [...current, opt]
+                                  : current.filter((i: string) => i !== opt);
+                                setExamFormData({...examFormData, [field.id]: next});
+                              }}
+                              className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                            />
+                            <Label htmlFor={`check-${field.id}-${opt}`} className="font-normal cursor-pointer whitespace-nowrap">{opt}</Label>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
-                ))}
-              </div>
+                );
+              })}
             </div>
-          </>
-        )}
+          )}
+        </div>
 
         <Separator />
 

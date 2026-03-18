@@ -1,5 +1,5 @@
 import { db } from '../db';
-import { consultations, patients, expenses, prescriptions, appointments, customFields } from '../db/schema';
+import { consultations, patients, expenses, prescriptions, appointments, customFields, examForms } from '../db/schema';
 import { eq, sql, desc, and, isNotNull } from 'drizzle-orm';
 import fs from 'fs';
 import path from 'path';
@@ -20,6 +20,8 @@ export class ConsultationService {
             notes: c.notes ? '[SENSITIVE]' : c.notes,
             symptoms: c.symptoms ? '[SENSITIVE]' : c.symptoms,
             customFields: {}, // Hide clinical custom fields
+            formId: null,
+            formData: {},
         };
     }
 
@@ -35,6 +37,8 @@ export class ConsultationService {
                 glucose: consultations.glucose,
                 weight: consultations.weight,
                 customFields: consultations.customFields,
+                formId: consultations.formId,
+                formData: consultations.formData,
                 patient: {
                     id: patients.id,
                     first_name: patients.first_name,
@@ -112,11 +116,30 @@ export class ConsultationService {
     }
 
     async update(id: number, data: any) {
-        const { id: _, ...rest } = data;
-        if (rest.amountPaid !== undefined && rest.amountPaid !== null) {
-            rest.amountPaid = Math.round(Number(rest.amountPaid));
+        const { id: _, vitals, ...rest } = data;
+        
+        const updateData: any = { ...rest };
+        
+        if (vitals) {
+            if (vitals.bpSystolic && vitals.bpDiastolic) {
+                updateData.bloodPressure = `${vitals.bpSystolic}/${vitals.bpDiastolic}`;
+            }
+            if (vitals.glucose !== undefined) {
+                updateData.glucose = vitals.glucose ? Number(vitals.glucose) : null;
+            }
+            if (vitals.weight !== undefined) {
+                updateData.weight = vitals.weight?.toString() || null;
+            }
+            if (vitals.temperature !== undefined) {
+                updateData.temperature = vitals.temperature?.toString() || null;
+            }
         }
-        await db.update(consultations).set(rest).where(eq(consultations.id, id));
+
+        if (updateData.amountPaid !== undefined && updateData.amountPaid !== null) {
+            updateData.amountPaid = Math.round(Number(updateData.amountPaid));
+        }
+
+        await db.update(consultations).set(updateData).where(eq(consultations.id, id));
         return { success: true };
     }
 
@@ -460,6 +483,43 @@ export class ConsultationService {
 
     async deleteCustomFieldDefinition(id: number) {
         await db.delete(customFields).where(eq(customFields.id, id));
+        return { success: true };
+    }
+
+    // ─── Exam Form Templates ─────────────────────────────────────────────────
+
+    async getExamForms() {
+        const result = await db.select().from(examForms).orderBy(examForms.name);
+        return result;
+    }
+
+    async getExamFormById(id: number) {
+        const [result] = await db.select().from(examForms).where(eq(examForms.id, id));
+        return result;
+    }
+
+    async createExamForm(data: { name: string; specialty: string; fields: any[]; isDefault?: boolean }) {
+        const [result] = await db.insert(examForms).values({
+            name: data.name,
+            specialty: data.specialty || 'general',
+            fields: data.fields || [],
+            isDefault: data.isDefault ?? false,
+        }).returning({ id: examForms.id });
+        return { success: true, id: result.id };
+    }
+
+    async updateExamForm(id: number, data: { name?: string; specialty?: string; fields?: any[]; isDefault?: boolean }) {
+        await db.update(examForms).set({
+            ...(data.name !== undefined && { name: data.name }),
+            ...(data.specialty !== undefined && { specialty: data.specialty }),
+            ...(data.fields !== undefined && { fields: data.fields }),
+            ...(data.isDefault !== undefined && { isDefault: data.isDefault }),
+        }).where(eq(examForms.id, id));
+        return { success: true };
+    }
+
+    async deleteExamForm(id: number) {
+        await db.delete(examForms).where(eq(examForms.id, id));
         return { success: true };
     }
 }

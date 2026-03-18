@@ -105,10 +105,10 @@ const BilanTemplatesSettings: React.FC = () => {
     };
 
     return (
-        <div className="space-y-6 m-8 p-6 bg-card text-foreground border border-border rounded-lg shadow-sm text-left">
+        <div className="space-y-6 text-left">
             <div className="flex items-center justify-between">
                 <div className="space-y-1">
-                    <h3 className="text-lg font-medium">Modèles de Bilans Personnalisés</h3>
+                    <h3 className="text-xl font-semibold">Modèles de Bilans Personnalisés</h3>
                     <p className="text-sm text-muted-foreground">
                         Créez des groupes d'analyses fréquents pour les ajouter en un clic lors des consultations.
                     </p>

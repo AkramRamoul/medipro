@@ -71,10 +71,10 @@ const BilanListSettings: React.FC = () => {
     };
 
     return (
-        <div className="space-y-6 m-8 p-6 bg-card text-foreground border border-border rounded-lg shadow-sm text-left">
+        <div className="space-y-6 text-left">
             <div className="flex items-center justify-between">
                 <div className="space-y-1">
-                    <h3 className="text-lg font-medium">Gestion du Catalogue d'Analyses (Bilans)</h3>
+                    <h3 className="text-xl font-semibold">Gestion du Catalogue d'Analyses (Bilans)</h3>
                     <p className="text-sm text-muted-foreground">
                         Gérez la liste des analyses biologiques suggérées dans le formulaire de bilan.
                     </p>

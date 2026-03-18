@@ -41,6 +41,10 @@ export const consultations = sqliteTable("consultations", {
     .default(sql`'{}'`),
   appointmentId: integer("appointment_id")
     .references(() => appointments.id, { onDelete: "set null" }),
+  formId: integer("form_id"),
+  formData: text("form_data", { mode: "json" })
+    .$type<Record<string, any>>()
+    .default(sql`'{}'`),
   status: text("status").notNull().default("in_progress"),
 }, (table) => ({
   patientIdIdx: index("consultation_patient_id_idx").on(table.patientId),
@@ -122,6 +126,27 @@ export const psychotropicCounters = sqliteTable("psychotropic_counters", {
   created_at: text("created_at").default(sql`CURRENT_TIMESTAMP`),
 });
 
+export const bilanTemplates = sqliteTable("bilan_templates", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  name: text("name").notNull(),
+});
+
+export const bilanTemplateItems = sqliteTable("bilan_template_items", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  templateId: integer("template_id")
+    .notNull()
+    .references(() => bilanTemplates.id, { onDelete: "cascade" }),
+  analysisName: text("analysis_name").notNull(),
+});
+
+export const users = sqliteTable("users", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  email: text("email").notNull().unique(),
+  password: text("password").notNull(),
+  role: text("role", { enum: ["doctor", "receptionist", "admin"] }).notNull(),
+  createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
+});
+
 export const auth = sqliteTable("auth", {
   id: integer("id").primaryKey(),
   passwordHash: text("password_hash").notNull(),
@@ -192,7 +217,7 @@ export const documentTemplates = sqliteTable("document_templates", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   name: text("name").notNull(),
   type: text("type", {
-    enum: ["work_stop", "medical_certificate", "chronic_disease", "custom"],
+    enum: ["work_stop", "medical_certificate", "chronic_disease", "referral", "exam_request", "custom"],
   }).notNull(),
   content: text("content").notNull(),
   isDefault: integer("is_default", { mode: "boolean" }).default(false),
@@ -210,7 +235,6 @@ export const expenses = sqliteTable("expenses", {
   dateIdx: index("expense_date_idx").on(table.date),
 }));
 
-export type Expense = typeof expenses.$inferSelect;
 export const labResults = sqliteTable("lab_results", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   panelId: text("panel_id").notNull(),
@@ -232,6 +256,24 @@ export const labResults = sqliteTable("lab_results", {
   panelIdx: index("lab_results_panel_idx").on(table.panelId),
 }));
 
+export const examForms = sqliteTable("exam_forms", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  name: text("name").notNull(),
+  specialty: text("specialty").notNull().default("general"),
+  fields: text("fields", { mode: "json" })
+    .$type<any[]>()
+    .default(sql`'[]'`),
+  isDefault: integer("is_default", { mode: "boolean" }).default(false),
+  createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
+});
+
+export const licenses = sqliteTable("licenses", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  key: text("key").notNull(),
+  payload: text("payload", { mode: "json" }).$type<any>().notNull(),
+});
+
+export type Expense = typeof expenses.$inferSelect;
 export type PrescriptionMed = typeof prescriptionMedications.$inferSelect;
 export type NewPrescriptionMed = typeof prescriptionMedications.$inferInsert;
 export type prescriptionModel = typeof prescriptionModel.$inferSelect;
@@ -240,3 +282,6 @@ export type Prescription = typeof prescriptions.$inferSelect;
 export type Appointment = typeof appointments.$inferSelect;
 export type DocumentTemplate = typeof documentTemplates.$inferSelect;
 export type LabResult = typeof labResults.$inferSelect;
+export type ExamForm = typeof examForms.$inferSelect;
+export type License = typeof licenses.$inferSelect;
+export type User = typeof users.$inferSelect;

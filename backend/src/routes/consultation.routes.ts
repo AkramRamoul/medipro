@@ -114,6 +114,59 @@ router.delete('/settings/custom-fields/:id', authorize('MANAGE_SETTINGS'), async
     }
 });
 
+// ─── Exam Form Routes ────────────────────────────────────────────────────────
+
+// Get all exam forms
+router.get('/exam-forms', async (req, res, next) => {
+    try {
+        const forms = await consultationService.getExamForms();
+        res.json(forms);
+    } catch (error) {
+        next(error);
+    }
+});
+
+// Get exam form by id
+router.get('/exam-forms/:id', async (req, res, next) => {
+    try {
+        const form = await consultationService.getExamFormById(Number(req.params.id));
+        if (!form) return res.status(404).json({ error: 'Form not found' });
+        res.json(form);
+    } catch (error) {
+        next(error);
+    }
+});
+
+// Create exam form
+router.post('/exam-forms', authorize('MANAGE_SETTINGS'), async (req, res, next) => {
+    try {
+        const result = await consultationService.createExamForm(req.body);
+        res.status(201).json(result);
+    } catch (error) {
+        next(error);
+    }
+});
+
+// Update exam form
+router.put('/exam-forms/:id', authorize('MANAGE_SETTINGS'), async (req, res, next) => {
+    try {
+        const result = await consultationService.updateExamForm(Number(req.params.id), req.body);
+        res.json(result);
+    } catch (error) {
+        next(error);
+    }
+});
+
+// Delete exam form
+router.delete('/exam-forms/:id', authorize('MANAGE_SETTINGS'), async (req, res, next) => {
+    try {
+        const result = await consultationService.deleteExamForm(Number(req.params.id));
+        res.json(result);
+    } catch (error) {
+        next(error);
+    }
+});
+
 // Get all consultations
 router.get('/', authorize('VIEW_PATIENTS'), async (req, res, next) => {
     try {
@@ -193,5 +246,7 @@ router.delete('/:id', authorize('EDIT_MEDICAL_RECORDS'), async (req, res, next) 
         next(error);
     }
 });
+
+
 
 export default router;
