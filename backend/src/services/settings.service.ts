@@ -52,10 +52,10 @@ export class SettingsService {
 
     async getLogo() {
         const [logo] = await db.select().from(image).limit(1);
-        if (!logo || !fs.existsSync(logo.imagePath)) return null;
+        if (!logo || !fs.existsSync(logo.image_path)) return null;
 
-        const buffer = fs.readFileSync(logo.imagePath);
-        const ext = path.extname(logo.imagePath).slice(1);
+        const buffer = fs.readFileSync(logo.image_path);
+        const ext = path.extname(logo.image_path).slice(1);
         return `data:image/${ext};base64,${buffer.toString('base64')}`;
     }
 
@@ -68,8 +68,8 @@ export class SettingsService {
         // Clean up old logo
         const existing = await db.select().from(image);
         for (const row of existing) {
-            if (fs.existsSync(row.imagePath)) {
-                fs.unlinkSync(row.imagePath);
+            if (fs.existsSync(row.image_path)) {
+                fs.unlinkSync(row.image_path);
             }
         }
         await db.delete(image);
@@ -84,7 +84,7 @@ export class SettingsService {
         const filepath = path.join(uploadDir, filename);
 
         fs.writeFileSync(filepath, buffer);
-        await db.insert(image).values({ imagePath: filepath });
+        await db.insert(image).values({ image_path: filepath });
 
         return { success: true, path: filepath };
     }

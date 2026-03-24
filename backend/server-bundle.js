@@ -40978,9 +40978,12 @@ __export(schema_exports, {
   Name: () => Name2,
   appointments: () => appointments,
   auth: () => auth,
+  bilanTemplateItems: () => bilanTemplateItems,
+  bilanTemplates: () => bilanTemplates,
   consultations: () => consultations,
   customFields: () => customFields,
   documentTemplates: () => documentTemplates,
+  examForms: () => examForms,
   expenses: () => expenses,
   image: () => image,
   labResults: () => labResults,
@@ -40994,7 +40997,7 @@ __export(schema_exports, {
   psychotropicCounters: () => psychotropicCounters,
   users: () => users
 });
-var patients, consultations, prescriptions, prescriptionMedications, docTypeEnums, Document, labResults, appointments, expenses, customFields, users, auth, Name2, psychotropicCounters, prescriptionTemplates, prescriptionTemplateMedications, documentTemplates, prescriptionModel, image, licenses;
+var patients, consultations, customFields, prescriptions, prescriptionMedications, image, prescriptionModel, psychotropicCounters, bilanTemplates, bilanTemplateItems, users, auth, Name2, docTypeEnums, Document, appointments, prescriptionTemplates, prescriptionTemplateMedications, documentTemplates, expenses, labResults, examForms, licenses;
 var init_schema = __esm({
   "src/db/schema.ts"() {
     "use strict";
@@ -41033,11 +41036,20 @@ var init_schema = __esm({
       amountPaid: integer("amount_paid"),
       customFields: text("custom_fields", { mode: "json" }).$type().default(sql`'{}'`),
       appointmentId: integer("appointment_id").references(() => appointments.id, { onDelete: "set null" }),
+      formId: integer("form_id"),
+      formData: text("form_data", { mode: "json" }).$type().default(sql`'{}'`),
       status: text("status").notNull().default("in_progress")
     }, (table) => ({
       patientIdIdx: index("consultation_patient_id_idx").on(table.patientId),
       dateIdx: index("consultation_date_idx").on(table.date)
     }));
+    customFields = sqliteTable("custom_fields", {
+      id: integer("id").primaryKey({ autoIncrement: true }),
+      name: text("name").notNull(),
+      type: text("type").notNull(),
+      label: text("label").notNull(),
+      isActive: integer("is_active", { mode: "boolean" }).default(true)
+    });
     prescriptions = sqliteTable("prescriptions", {
       id: integer("id").primaryKey({ autoIncrement: true }),
       patientId: integer("patient_id").notNull().references(() => patients.id, { onDelete: "cascade" }),
@@ -41060,64 +41072,48 @@ var init_schema = __esm({
       form: text("form"),
       note: text("note")
     });
-    docTypeEnums = ["blood", "certificate", "report", "template"];
-    Document = sqliteTable("document", {
+    image = sqliteTable("image", {
+      image_path: text("image_path").notNull()
+    });
+    prescriptionModel = sqliteTable("prescription_model", {
       id: integer("id").primaryKey({ autoIncrement: true }),
-      patientId: integer("patient_id").notNull().references(() => patients.id, { onDelete: "cascade" }),
-      name: text("name"),
-      type: text("type", { enum: docTypeEnums }).notNull(),
-      content: text("content", { mode: "json" }).$type().default(sql`'[]'`),
-      documentDate: text("document_date").notNull().default(sql`CURRENT_TIMESTAMP`),
-      createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`)
-    }, (table) => ({
-      patientIdIdx: index("document_patient_id_idx").on(table.patientId),
-      dateIdx: index("document_date_idx").on(table.documentDate)
-    }));
-    labResults = sqliteTable("lab_results", {
+      nameFr: text("name_fr").notNull(),
+      nameAr: text("name_ar").notNull(),
+      specialtyFr: text("specialty_fr").notNull(),
+      specialtyAr: text("specialty_ar").notNull(),
+      inscriptionNumber: text("inscription_number", { length: 255 }).notNull(),
+      servicesFr: text("services_fr").notNull(),
+      servicesAr: text("services_ar").notNull(),
+      address: text("address").notNull(),
+      phoneNumber1: text("phone_number_1"),
+      phoneNumber2: text("phone_number_2"),
+      city: text("city").notNull(),
+      accentColor: text("accent_color"),
+      fontFamily: text("font_family"),
+      doctorNameFontSize: integer("doctor_name_font_size").default(14),
+      specialtyFontSize: integer("specialty_font_size").default(10),
+      titleFontSize: integer("title_font_size").default(18),
+      bodyFontSize: integer("body_font_size").default(12),
+      logoSize: integer("logo_size").default(60),
+      watermarkOpacity: integer("watermark_opacity").default(10),
+      dividerStyle: text("divider_style").default("solid"),
+      titleText: text("title_text").default("ORDONNANCE"),
+      showInscriptionNumber: integer("show_inscription_number", { mode: "boolean" }).default(true),
+      layoutTemplate: text("layout_template").default("standard"),
+      languageMode: text("language_mode").default("bilingual")
+    });
+    psychotropicCounters = sqliteTable("psychotropic_counters", {
       id: integer("id").primaryKey({ autoIncrement: true }),
-      panelId: text("panel_id").notNull(),
-      patientId: integer("patient_id").notNull().references(() => patients.id, { onDelete: "cascade" }),
-      panelName: text("panel_name").notNull(),
-      testName: text("test_name").notNull(),
-      value: real("value").notNull(),
-      unit: text("unit"),
-      referenceMin: real("reference_min"),
-      referenceMax: real("reference_max"),
-      status: text("status").notNull().default("normal"),
-      notes: text("notes"),
-      measuredAt: text("measured_at").notNull().default(sql`CURRENT_TIMESTAMP`),
-      createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`)
-    }, (table) => ({
-      patientDateIdx: index("lab_results_patient_date_idx").on(table.patientId, table.measuredAt),
-      panelIdx: index("lab_results_panel_idx").on(table.panelId)
-    }));
-    appointments = sqliteTable("appointments", {
+      created_at: text("created_at").default(sql`CURRENT_TIMESTAMP`)
+    });
+    bilanTemplates = sqliteTable("bilan_templates", {
       id: integer("id").primaryKey({ autoIncrement: true }),
-      patientId: integer("patient_id").notNull().references(() => patients.id, { onDelete: "cascade" }),
-      date: text("date").notNull(),
-      time: text("time"),
-      title: text("title").notNull(),
-      notes: text("notes"),
-      status: text("status").notNull().default("scheduled")
-    }, (table) => ({
-      patientIdIdx: index("appointment_patient_id_idx").on(table.patientId),
-      dateIdx: index("appointment_date_idx").on(table.date)
-    }));
-    expenses = sqliteTable("expenses", {
+      name: text("name").notNull()
+    });
+    bilanTemplateItems = sqliteTable("bilan_template_items", {
       id: integer("id").primaryKey({ autoIncrement: true }),
-      description: text("description").notNull(),
-      amount: integer("amount").notNull(),
-      category: text("category").notNull(),
-      date: text("date").default(sql`CURRENT_TIMESTAMP`)
-    }, (table) => ({
-      dateIdx: index("expense_date_idx").on(table.date)
-    }));
-    customFields = sqliteTable("custom_fields", {
-      id: integer("id").primaryKey({ autoIncrement: true }),
-      name: text("name").notNull(),
-      type: text("type").notNull(),
-      label: text("label").notNull(),
-      isActive: integer("is_active", { mode: "boolean" }).default(true)
+      templateId: integer("template_id").notNull().references(() => bilanTemplates.id, { onDelete: "cascade" }),
+      analysisName: text("analysis_name").notNull()
     });
     users = sqliteTable("users", {
       id: integer("id").primaryKey({ autoIncrement: true }),
@@ -41134,10 +41130,31 @@ var init_schema = __esm({
       id: integer("id").primaryKey({ autoIncrement: true }),
       nameFr: text("name").notNull()
     });
-    psychotropicCounters = sqliteTable("psychotropic_counters", {
+    docTypeEnums = ["blood", "certificate", "report", "template"];
+    Document = sqliteTable("document", {
       id: integer("id").primaryKey({ autoIncrement: true }),
-      created_at: text("created_at").default(sql`CURRENT_TIMESTAMP`)
-    });
+      patientId: integer("patient_id").notNull().references(() => patients.id, { onDelete: "cascade" }),
+      name: text("name"),
+      type: text("type", { enum: docTypeEnums }).notNull(),
+      content: text("content", { mode: "json" }).$type().default(sql`'[]'`),
+      documentDate: text("document_date").notNull().default(sql`CURRENT_TIMESTAMP`),
+      createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`)
+    }, (table) => ({
+      patientIdIdx: index("document_patient_id_idx").on(table.patientId),
+      dateIdx: index("document_date_idx").on(table.documentDate)
+    }));
+    appointments = sqliteTable("appointments", {
+      id: integer("id").primaryKey({ autoIncrement: true }),
+      patientId: integer("patient_id").notNull().references(() => patients.id, { onDelete: "cascade" }),
+      date: text("date").notNull(),
+      time: text("time"),
+      title: text("title").notNull(),
+      notes: text("notes"),
+      status: text("status").notNull().default("scheduled")
+    }, (table) => ({
+      patientIdIdx: index("appointment_patient_id_idx").on(table.patientId),
+      dateIdx: index("appointment_date_idx").on(table.date)
+    }));
     prescriptionTemplates = sqliteTable("prescription_templates", {
       id: integer("id").primaryKey({ autoIncrement: true }),
       name: text("name").notNull()
@@ -41166,41 +41183,45 @@ var init_schema = __esm({
       createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
       updatedAt: text("updated_at").default(sql`CURRENT_TIMESTAMP`)
     });
-    prescriptionModel = sqliteTable("prescription_model", {
+    expenses = sqliteTable("expenses", {
       id: integer("id").primaryKey({ autoIncrement: true }),
-      nameFr: text("name_fr"),
-      nameAr: text("name_ar"),
-      specialtyFr: text("specialty_fr"),
-      specialtyAr: text("specialty_ar"),
-      inscriptionNumber: text("inscription_number"),
-      servicesFr: text("services_fr"),
-      // JSON string
-      servicesAr: text("services_ar"),
-      // JSON string
-      address: text("address"),
-      phoneNumber1: text("phone_number_1"),
-      phoneNumber2: text("phone_number_2"),
-      city: text("city"),
-      accentColor: text("accent_color").default("#000000"),
-      fontFamily: text("font_family").default("serif"),
-      doctorNameFontSize: integer("doctor_name_font_size").default(14),
-      specialtyFontSize: integer("specialty_font_size").default(10),
-      titleFontSize: integer("title_font_size").default(18),
-      bodyFontSize: integer("body_font_size").default(12),
-      logoSize: integer("logo_size").default(60),
-      watermarkOpacity: integer("watermark_opacity").default(10),
-      dividerStyle: text("divider_style").default("solid"),
-      titleText: text("title_text").default("ORDONNANCE"),
-      showInscriptionNumber: integer("show_inscription_number", { mode: "boolean" }).default(true)
-    });
-    image = sqliteTable("image", {
-      imagePath: text("image_path").notNull()
+      description: text("description").notNull(),
+      amount: integer("amount").notNull(),
+      category: text("category").notNull(),
+      date: text("date").default(sql`CURRENT_TIMESTAMP`)
+    }, (table) => ({
+      dateIdx: index("expense_date_idx").on(table.date)
+    }));
+    labResults = sqliteTable("lab_results", {
+      id: integer("id").primaryKey({ autoIncrement: true }),
+      panelId: text("panel_id").notNull(),
+      patientId: integer("patient_id").notNull().references(() => patients.id, { onDelete: "cascade" }),
+      panelName: text("panel_name").notNull(),
+      testName: text("test_name").notNull(),
+      value: real("value").notNull(),
+      unit: text("unit"),
+      referenceMin: real("reference_min"),
+      referenceMax: real("reference_max"),
+      status: text("status").notNull().default("normal"),
+      notes: text("notes"),
+      measuredAt: text("measured_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+      createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`)
+    }, (table) => ({
+      patientDateIdx: index("lab_results_patient_date_idx").on(table.patientId, table.measuredAt),
+      panelIdx: index("lab_results_panel_idx").on(table.panelId)
+    }));
+    examForms = sqliteTable("exam_forms", {
+      id: integer("id").primaryKey({ autoIncrement: true }),
+      name: text("name").notNull(),
+      specialty: text("specialty").notNull().default("general"),
+      fields: text("fields", { mode: "json" }).$type().default(sql`'[]'`),
+      isDefault: integer("is_default", { mode: "boolean" }).default(false),
+      createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`)
     });
     licenses = sqliteTable("licenses", {
       id: integer("id").primaryKey({ autoIncrement: true }),
       key: text("key").notNull(),
       payload: text("payload", { mode: "json" }).$type().notNull()
-      // JSON string/object
     });
   }
 });
@@ -135155,188 +135176,6 @@ function drizzle(...params) {
 var import_path2 = __toESM(require("path"));
 var url = `file:${import_path2.default.resolve(process.cwd(), env2.DATABASE_PATH)}`;
 var client = createClient({ url });
-var initDb = async () => {
-  try {
-    await client.batch([
-      `CREATE TABLE IF NOT EXISTS licenses (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                key TEXT NOT NULL,
-                payload TEXT NOT NULL
-            );`,
-      `CREATE TABLE IF NOT EXISTS users (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                email TEXT NOT NULL UNIQUE,
-                password TEXT NOT NULL,
-                role TEXT NOT NULL,
-                created_at TEXT DEFAULT CURRENT_TIMESTAMP
-            );`,
-      `CREATE TABLE IF NOT EXISTS patients (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                first_name TEXT NOT NULL,
-                last_name TEXT NOT NULL,
-                age INTEGER NOT NULL,
-                gender TEXT NOT NULL,
-                contact TEXT,
-                address TEXT,
-                weight INTEGER,
-                blood_type TEXT,
-                medical_history TEXT,
-                allergies TEXT,
-                tags TEXT,
-                notes TEXT,
-                status TEXT NOT NULL DEFAULT 'active',
-                created_at TEXT DEFAULT CURRENT_TIMESTAMP
-            );`,
-      `CREATE TABLE IF NOT EXISTS consultations (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                patient_id INTEGER NOT NULL REFERENCES patients(id) ON DELETE CASCADE,
-                date TEXT DEFAULT CURRENT_TIMESTAMP,
-                reason TEXT NOT NULL,
-                diagnosis TEXT NOT NULL,
-                notes TEXT,
-                symptoms TEXT,
-                blood_pressure TEXT,
-                glucose TEXT,
-                weight TEXT,
-                amount_paid INTEGER,
-                custom_fields TEXT DEFAULT '{}',
-                appointment_id INTEGER REFERENCES appointments(id) ON DELETE SET NULL,
-                status TEXT NOT NULL DEFAULT 'in_progress'
-            );`,
-      `CREATE TABLE IF NOT EXISTS prescriptions (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                patient_id INTEGER NOT NULL REFERENCES patients(id) ON DELETE CASCADE,
-                prescription_date TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                is_psychotropic INTEGER DEFAULT 0,
-                psychotropic_number INTEGER,
-                patient_address TEXT
-            );`,
-      `CREATE TABLE IF NOT EXISTS prescription_medications (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                prescription_id INTEGER NOT NULL REFERENCES prescriptions(id) ON DELETE CASCADE,
-                medicine_name TEXT NOT NULL,
-                dosage TEXT NOT NULL,
-                duration TEXT,
-                quantity TEXT,
-                form TEXT,
-                note TEXT
-            );`,
-      `CREATE TABLE IF NOT EXISTS document (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                patient_id INTEGER NOT NULL REFERENCES patients(id) ON DELETE CASCADE,
-                name TEXT,
-                type TEXT NOT NULL,
-                content TEXT DEFAULT '[]',
-                document_date TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-            );`,
-      `CREATE TABLE IF NOT EXISTS lab_results (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                panel_id TEXT NOT NULL,
-                patient_id INTEGER NOT NULL REFERENCES patients(id) ON DELETE CASCADE,
-                panel_name TEXT NOT NULL,
-                test_name TEXT NOT NULL,
-                value REAL NOT NULL,
-                unit TEXT,
-                reference_min REAL,
-                reference_max REAL,
-                status TEXT NOT NULL DEFAULT 'normal',
-                notes TEXT,
-                measured_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-            );`,
-      `CREATE TABLE IF NOT EXISTS appointments (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                patient_id INTEGER NOT NULL REFERENCES patients(id) ON DELETE CASCADE,
-                date TEXT NOT NULL,
-                time TEXT,
-                title TEXT NOT NULL,
-                notes TEXT,
-                status TEXT NOT NULL DEFAULT 'scheduled'
-            );`,
-      `CREATE TABLE IF NOT EXISTS expenses (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                description TEXT NOT NULL,
-                amount INTEGER NOT NULL,
-                category TEXT NOT NULL,
-                date TEXT DEFAULT CURRENT_TIMESTAMP
-            );`,
-      `CREATE TABLE IF NOT EXISTS custom_fields (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT NOT NULL,
-                type TEXT NOT NULL,
-                label TEXT NOT NULL,
-                is_active INTEGER DEFAULT 1
-            );`,
-      `CREATE TABLE IF NOT EXISTS auth (
-                id INTEGER PRIMARY KEY,
-                password_hash TEXT NOT NULL
-            );`,
-      `CREATE TABLE IF NOT EXISTS name (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT NOT NULL
-            );`,
-      `CREATE TABLE IF NOT EXISTS psychotropic_counters (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                created_at TEXT DEFAULT CURRENT_TIMESTAMP
-            );`,
-      `CREATE TABLE IF NOT EXISTS prescription_templates (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT NOT NULL
-            );`,
-      `CREATE TABLE IF NOT EXISTS prescription_template_medications (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                template_id INTEGER NOT NULL REFERENCES prescription_templates(id) ON DELETE CASCADE,
-                medicine_name TEXT NOT NULL,
-                dosage TEXT NOT NULL,
-                duration TEXT,
-                quantity TEXT,
-                form TEXT,
-                note TEXT
-            );`,
-      `CREATE TABLE IF NOT EXISTS document_templates (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT NOT NULL,
-                type TEXT NOT NULL,
-                content TEXT NOT NULL,
-                is_default INTEGER DEFAULT 0,
-                created_at TEXT DEFAULT CURRENT_TIMESTAMP,
-                updated_at TEXT DEFAULT CURRENT_TIMESTAMP
-            );`,
-      `CREATE TABLE IF NOT EXISTS prescription_model (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name_fr TEXT,
-                name_ar TEXT,
-                specialty_fr TEXT,
-                specialty_ar TEXT,
-                inscription_number TEXT,
-                services_fr TEXT,
-                services_ar TEXT,
-                address TEXT,
-                phone_number_1 TEXT,
-                phone_number_2 TEXT,
-                city TEXT,
-                accent_color TEXT DEFAULT '#000000',
-                font_family TEXT DEFAULT 'serif',
-                doctor_name_font_size INTEGER DEFAULT 14,
-                specialty_font_size INTEGER DEFAULT 10,
-                title_font_size INTEGER DEFAULT 18,
-                body_font_size INTEGER DEFAULT 12,
-                logo_size INTEGER DEFAULT 60,
-                watermark_opacity INTEGER DEFAULT 10,
-                divider_style TEXT DEFAULT 'solid',
-                title_text TEXT DEFAULT 'ORDONNANCE',
-                show_inscription_number INTEGER DEFAULT 1
-            );`,
-      `CREATE TABLE IF NOT EXISTS image (
-                image_path TEXT NOT NULL
-            );`
-    ], "write");
-  } catch (error48) {
-    console.error("Failed to initialize database tables:", error48);
-  }
-};
 var seedInitialData = async () => {
   try {
     const { users: users2, documentTemplates: documentTemplates2, prescriptionTemplates: prescriptionTemplates2, prescriptionTemplateMedications: prescriptionTemplateMedications2 } = await Promise.resolve().then(() => (init_schema(), schema_exports));
@@ -135475,9 +135314,7 @@ var seedInitialData = async () => {
     console.error("\u274C Failed to seed initial data:", error48);
   }
 };
-initDb().then(() => {
-  seedInitialData();
-});
+seedInitialData();
 var db = drizzle(client);
 
 // src/services/patient.service.ts
@@ -136010,8 +135847,10 @@ var ConsultationService = class {
       diagnosis: c.diagnosis ? "[SENSITIVE]" : c.diagnosis,
       notes: c.notes ? "[SENSITIVE]" : c.notes,
       symptoms: c.symptoms ? "[SENSITIVE]" : c.symptoms,
-      customFields: {}
+      customFields: {},
       // Hide clinical custom fields
+      formId: null,
+      formData: {}
     };
   }
   async getAll(role) {
@@ -136025,6 +135864,8 @@ var ConsultationService = class {
       glucose: consultations.glucose,
       weight: consultations.weight,
       customFields: consultations.customFields,
+      formId: consultations.formId,
+      formData: consultations.formData,
       patient: {
         id: patients.id,
         first_name: patients.first_name,
@@ -136077,11 +135918,26 @@ var ConsultationService = class {
     return { success: true, id: result.id };
   }
   async update(id, data) {
-    const { id: _2, ...rest } = data;
-    if (rest.amountPaid !== void 0 && rest.amountPaid !== null) {
-      rest.amountPaid = Math.round(Number(rest.amountPaid));
+    const { id: _2, vitals, ...rest } = data;
+    const updateData = { ...rest };
+    if (vitals) {
+      if (vitals.bpSystolic && vitals.bpDiastolic) {
+        updateData.bloodPressure = `${vitals.bpSystolic}/${vitals.bpDiastolic}`;
+      }
+      if (vitals.glucose !== void 0) {
+        updateData.glucose = vitals.glucose ? Number(vitals.glucose) : null;
+      }
+      if (vitals.weight !== void 0) {
+        updateData.weight = vitals.weight?.toString() || null;
+      }
+      if (vitals.temperature !== void 0) {
+        updateData.temperature = vitals.temperature?.toString() || null;
+      }
     }
-    await db.update(consultations).set(rest).where(eq(consultations.id, id));
+    if (updateData.amountPaid !== void 0 && updateData.amountPaid !== null) {
+      updateData.amountPaid = Math.round(Number(updateData.amountPaid));
+    }
+    await db.update(consultations).set(updateData).where(eq(consultations.id, id));
     return { success: true };
   }
   async delete(id) {
@@ -136341,6 +136197,37 @@ var ConsultationService = class {
     await db.delete(customFields).where(eq(customFields.id, id));
     return { success: true };
   }
+  // ─── Exam Form Templates ─────────────────────────────────────────────────
+  async getExamForms() {
+    const result = await db.select().from(examForms).orderBy(examForms.name);
+    return result;
+  }
+  async getExamFormById(id) {
+    const [result] = await db.select().from(examForms).where(eq(examForms.id, id));
+    return result;
+  }
+  async createExamForm(data) {
+    const [result] = await db.insert(examForms).values({
+      name: data.name,
+      specialty: data.specialty || "general",
+      fields: data.fields || [],
+      isDefault: data.isDefault ?? false
+    }).returning({ id: examForms.id });
+    return { success: true, id: result.id };
+  }
+  async updateExamForm(id, data) {
+    await db.update(examForms).set({
+      ...data.name !== void 0 && { name: data.name },
+      ...data.specialty !== void 0 && { specialty: data.specialty },
+      ...data.fields !== void 0 && { fields: data.fields },
+      ...data.isDefault !== void 0 && { isDefault: data.isDefault }
+    }).where(eq(examForms.id, id));
+    return { success: true };
+  }
+  async deleteExamForm(id) {
+    await db.delete(examForms).where(eq(examForms.id, id));
+    return { success: true };
+  }
 };
 var consultationService = new ConsultationService();
 
@@ -136429,6 +136316,47 @@ router2.post("/settings/custom-fields", authorize("MANAGE_SETTINGS"), async (req
 router2.delete("/settings/custom-fields/:id", authorize("MANAGE_SETTINGS"), async (req, res, next) => {
   try {
     const result = await consultationService.deleteCustomFieldDefinition(Number(req.params.id));
+    res.json(result);
+  } catch (error48) {
+    next(error48);
+  }
+});
+router2.get("/exam-forms", async (req, res, next) => {
+  try {
+    const forms = await consultationService.getExamForms();
+    res.json(forms);
+  } catch (error48) {
+    next(error48);
+  }
+});
+router2.get("/exam-forms/:id", async (req, res, next) => {
+  try {
+    const form = await consultationService.getExamFormById(Number(req.params.id));
+    if (!form) return res.status(404).json({ error: "Form not found" });
+    res.json(form);
+  } catch (error48) {
+    next(error48);
+  }
+});
+router2.post("/exam-forms", authorize("MANAGE_SETTINGS"), async (req, res, next) => {
+  try {
+    const result = await consultationService.createExamForm(req.body);
+    res.status(201).json(result);
+  } catch (error48) {
+    next(error48);
+  }
+});
+router2.put("/exam-forms/:id", authorize("MANAGE_SETTINGS"), async (req, res, next) => {
+  try {
+    const result = await consultationService.updateExamForm(Number(req.params.id), req.body);
+    res.json(result);
+  } catch (error48) {
+    next(error48);
+  }
+});
+router2.delete("/exam-forms/:id", authorize("MANAGE_SETTINGS"), async (req, res, next) => {
+  try {
+    const result = await consultationService.deleteExamForm(Number(req.params.id));
     res.json(result);
   } catch (error48) {
     next(error48);
@@ -137214,9 +137142,9 @@ var SettingsService = class {
   }
   async getLogo() {
     const [logo] = await db.select().from(image).limit(1);
-    if (!logo || !import_fs4.default.existsSync(logo.imagePath)) return null;
-    const buffer = import_fs4.default.readFileSync(logo.imagePath);
-    const ext = import_path6.default.extname(logo.imagePath).slice(1);
+    if (!logo || !import_fs4.default.existsSync(logo.image_path)) return null;
+    const buffer = import_fs4.default.readFileSync(logo.image_path);
+    const ext = import_path6.default.extname(logo.image_path).slice(1);
     return `data:image/${ext};base64,${buffer.toString("base64")}`;
   }
   async uploadLogo(base64Data) {
@@ -137226,8 +137154,8 @@ var SettingsService = class {
     }
     const existing = await db.select().from(image);
     for (const row of existing) {
-      if (import_fs4.default.existsSync(row.imagePath)) {
-        import_fs4.default.unlinkSync(row.imagePath);
+      if (import_fs4.default.existsSync(row.image_path)) {
+        import_fs4.default.unlinkSync(row.image_path);
       }
     }
     await db.delete(image);
@@ -137238,7 +137166,7 @@ var SettingsService = class {
     const filename = `${Date.now()}.${ext}`;
     const filepath = import_path6.default.join(uploadDir, filename);
     import_fs4.default.writeFileSync(filepath, buffer);
-    await db.insert(image).values({ imagePath: filepath });
+    await db.insert(image).values({ image_path: filepath });
     return { success: true, path: filepath };
   }
   async backup() {
