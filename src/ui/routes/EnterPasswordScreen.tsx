@@ -156,7 +156,7 @@ export default function LoginPage() {
             <div className="p-2.5 bg-white/10 backdrop-blur-md rounded-xl border border-white/20">
               <Activity className="h-8 w-8 text-blue-400" />
             </div>
-            <h2 className="text-3xl font-bold tracking-tight">DocRight</h2>
+            <h2 className="text-3xl font-bold tracking-tight">MediPro</h2>
           </div>
         </div>
 
@@ -190,7 +190,7 @@ export default function LoginPage() {
 
         <div className="relative z-10">
           <p className="text-sm text-slate-500 font-medium italic">
-            &copy; {new Date().getFullYear()} DocManager. Propulsé par l'innovation médicale.
+            &copy; {new Date().getFullYear()} MediPro. Propulsé par l'innovation médicale.
           </p>
         </div>
       </div>
@@ -205,7 +205,7 @@ export default function LoginPage() {
               <div className="p-2 bg-primary rounded-lg">
                 <Activity className="h-6 w-6 text-white" />
               </div>
-              <h2 className="text-xl font-bold">DocManager</h2>
+              <h2 className="text-xl font-bold">MediPro</h2>
             </div>
           </div>
 

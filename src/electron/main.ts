@@ -128,15 +128,15 @@ function setAppMenu(mainWindow: BrowserWindow) {
         {
           label: app.name,
           submenu: [
-            { role: "about", label: "À propos de DocRight" },
+            { role: "about", label: "À propos de MediPro" },
             { type: "separator" },
             { role: "services", label: "Services" },
             { type: "separator" },
-            { role: "hide", label: "Masquer DocRight" },
+            { role: "hide", label: "Masquer MediPro" },
             { role: "hideOthers", label: "Masquer les autres" },
             { role: "unhide", label: "Tout afficher" },
             { type: "separator" },
-            { role: "quit", label: "Quitter DocRight" },
+            { role: "quit", label: "Quitter MediPro" },
           ],
         },
       ] as MenuItemConstructorOptions[])
@@ -191,7 +191,7 @@ function setAppMenu(mainWindow: BrowserWindow) {
             await dialog.showMessageBox(mainWindow, {
               type: "info",
               title: "À propos",
-              message: "DocRight",
+              message: "MediPro",
               detail: `Version ${app.getVersion()}`,
             });
           },

@@ -1,6 +1,6 @@
 {
-  "appId": "com.akram.doc-right",
-  "productName": "DocRight",
+  "appId": "com.akram.medipro",
+  "productName": "MediPro",
   "asar": true,
   "compression": "maximum",
   "files": [
