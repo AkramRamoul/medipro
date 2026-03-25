@@ -65,11 +65,11 @@ export function AppSidebar() {
                         to={item.url}
                         className={`flex items-center gap-2 px-2 py-2 rounded-md transition-colors font-semibold text-lg
                         ${(item.url === "/" && currentPath === "/") ||
-                            (item.url === "/patients" &&
-                              (currentPath.startsWith("/patients") ||
-                                currentPath.startsWith("/pat/"))) ||
+                            (item.url === "/patients" && currentPath.startsWith("/patients")) ||
+                            (item.url === "/all-patients" && (currentPath.startsWith("/all-patients") || currentPath.startsWith("/pat/"))) ||
                             (item.url !== "/" &&
                               item.url !== "/patients" &&
+                              item.url !== "/all-patients" &&
                               currentPath.startsWith(item.url))
                             ? "bg-primary text-white pointer-events-none"
                             : "text-black dark:text-gray-300 hover:bg-[#e0f2fe] dark:hover:bg-[#1e3a8a]"

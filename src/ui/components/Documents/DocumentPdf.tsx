@@ -7,6 +7,7 @@ import {
   Font,
   Image,
 } from "@react-pdf/renderer";
+import Html from "react-pdf-html";
 
 import AmiriRegular from "/fonts/Amiri-Regular.ttf";
 import AmiriBold from "/fonts/Amiri-Bold.ttf";
@@ -228,7 +229,9 @@ const DocumentPdf = ({
           </View>
         </View>
 
-        <Text style={styles.title}>{documentName || labels[documentType]}</Text>
+        {documentType !== "template" && (
+          <Text style={styles.title}>{documentName || labels[documentType]}</Text>
+        )}
 
         <View style={{ marginTop: 8, gap: 6 }}>
           {documentType === "blood" ? (
@@ -290,14 +293,9 @@ const DocumentPdf = ({
             </View>
           ) : documentType === "template" ? (
             <View style={{ marginTop: 15 }}>
-              <Text style={{ fontSize: 11, lineHeight: 1.5 }}>
-                {String(documentContent)
-                  .replace(/<(p|div|br)[^>]*>/gi, "\n")
-                  .replace(/<[^>]+>/g, "")
-                  .split("\n")
-                  .filter((line) => line.trim() !== "")
-                  .join("\n\n")}
-              </Text>
+              <Html style={{ fontSize: 11, lineHeight: 1.5, fontFamily: "Amiri" }}>
+                {String(documentContent)}
+              </Html>
             </View>
           ) : (
             <View style={{ marginTop: 15, gap: 8 }}>

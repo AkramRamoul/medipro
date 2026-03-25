@@ -201,7 +201,9 @@ const DocumentPrintable: React.FC<DocumentPrintableProps> = ({
                     </div>
                 </div>
 
-                <div className="title">{documentName || labels[documentType]}</div>
+                {documentType !== "template" && (
+                    <div className="title">{documentName || labels[documentType]}</div>
+                )}
 
                 <div className="content">
                     {documentType === "blood" ? (

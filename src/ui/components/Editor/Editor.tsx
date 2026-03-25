@@ -1,5 +1,6 @@
 import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
+import TextAlign from '@tiptap/extension-text-align'
 import { Button } from '../ui/button'
 import {
     Bold,
@@ -9,7 +10,11 @@ import {
     Heading1,
     Heading2,
     Undo,
-    Redo
+    Redo,
+    AlignLeft,
+    AlignCenter,
+    AlignRight,
+    AlignJustify
 } from 'lucide-react'
 
 interface EditorProps {
@@ -19,7 +24,12 @@ interface EditorProps {
 
 const Editor = ({ content, onChange }: EditorProps) => {
     const editor = useEditor({
-        extensions: [StarterKit],
+        extensions: [
+            StarterKit,
+            TextAlign.configure({
+                types: ['heading', 'paragraph'],
+            }),
+        ],
         content: content,
         onUpdate: ({ editor }) => {
             onChange(editor.getHTML())
@@ -81,6 +91,39 @@ const Editor = ({ content, onChange }: EditorProps) => {
                     className={editor.isActive('orderedList') ? 'bg-accent text-accent-foreground' : ''}
                 >
                     <ListOrdered className="h-4 w-4" />
+                </Button>
+                <div className="w-px h-6 bg-border mx-1 my-auto" />
+                <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => editor.chain().focus().setTextAlign('left').run()}
+                    className={editor.isActive({ textAlign: 'left' }) ? 'bg-accent text-accent-foreground' : ''}
+                >
+                    <AlignLeft className="h-4 w-4" />
+                </Button>
+                <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => editor.chain().focus().setTextAlign('center').run()}
+                    className={editor.isActive({ textAlign: 'center' }) ? 'bg-accent text-accent-foreground' : ''}
+                >
+                    <AlignCenter className="h-4 w-4" />
+                </Button>
+                <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => editor.chain().focus().setTextAlign('right').run()}
+                    className={editor.isActive({ textAlign: 'right' }) ? 'bg-accent text-accent-foreground' : ''}
+                >
+                    <AlignRight className="h-4 w-4" />
+                </Button>
+                <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => editor.chain().focus().setTextAlign('justify').run()}
+                    className={editor.isActive({ textAlign: 'justify' }) ? 'bg-accent text-accent-foreground' : ''}
+                >
+                    <AlignJustify className="h-4 w-4" />
                 </Button>
                 <div className="flex-1" />
                 <Button
