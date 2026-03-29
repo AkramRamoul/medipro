@@ -11,6 +11,7 @@ import { RecentSales } from "./recent-sales";
 import { CommonDiagnoses } from "./CommonDiagnoses";
 import { BusiestDays } from "./BusiestDays";
 import { PatientRetention } from "./PatientRetention";
+import { PatientDemographics } from "./PatientDemographics";
 import { DashboardStats } from "../type";
 import { Activity, Users, Calendar, TrendingUp } from "lucide-react";
 import api from "../axios";
@@ -262,21 +263,32 @@ export default function DashboardPage() {
           </div>
 
           {/* Advanced Analytics Section */}
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-8 lg:grid-cols-6 items-start">
             {/* Patient Retention Card */}
-            <PatientRetention
-              retentionRate={stats.retentionRate}
-              totalReturnPatients={stats.totalReturnPatients}
-              totalUniquePatients={stats.totalUniquePatients}
-            />
+            <div className="lg:col-span-2">
+              <PatientRetention
+                retentionRate={stats.retentionRate}
+                totalReturnPatients={stats.totalReturnPatients}
+                totalUniquePatients={stats.totalUniquePatients}
+              />
+            </div>
+
+            {/* Patient Demographics Card */}
+            <div className="lg:col-span-4">
+              <PatientDemographics 
+                genderData={stats.genderDistribution || []}
+                ageData={stats.ageDistribution || []}
+                totalPatients={stats.totalUniquePatients}
+              />
+            </div>
 
             {/* Common Diagnoses Card */}
-            <div className="md:col-span-2 lg:col-span-2">
+            <div className="lg:col-span-3">
               <CommonDiagnoses data={stats.commonDiagnoses} />
             </div>
 
             {/* Busiest Days Card */}
-            <div className="md:col-span-2 lg:col-span-3">
+            <div className="lg:col-span-3">
               <BusiestDays data={stats.busiestDays} />
             </div>
           </div>

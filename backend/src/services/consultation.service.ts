@@ -183,6 +183,8 @@ export class ConsultationService {
             commonDiagnoses,
             busiestDays,
             allPatientsConsultations,
+            genderDistribution,
+            ageDistribution,
         ] = await Promise.all([
             db
                 .select({ count: sql<number>`count(*)` })
@@ -297,7 +299,25 @@ export class ConsultationService {
                 count: sql<number>`count(*)`
             })
                 .from(consultations)
-                .groupBy(consultations.patientId)
+                .groupBy(consultations.patientId),
+            db.select({
+                gender: patients.gender,
+                count: sql<number>`count(*)`
+            })
+                .from(patients)
+                .groupBy(patients.gender),
+            db.select({
+                ageGroup: sql<string>`case 
+                    when age < 18 then 'Pédiatrie'
+                    when age between 18 and 60 then 'Adulte'
+                    else 'Senior' end`,
+                count: sql<number>`count(*)`
+            })
+                .from(patients)
+                .groupBy(sql`case 
+                    when age < 18 then 'Pédiatrie'
+                    when age between 18 and 60 then 'Adulte'
+                    else 'Senior' end`)
         ]);
 
         const totalUniquePatientsCount = allPatientsConsultations.length;
@@ -328,6 +348,8 @@ export class ConsultationService {
             retentionRate,
             totalReturnPatients: totalReturnPatientsCount,
             totalUniquePatients: totalUniquePatientsCount,
+            genderDistribution,
+            ageDistribution,
         };
     }
 

@@ -63,6 +63,8 @@ export type DashboardStats = {
   retentionRate: number;
   totalReturnPatients: number;
   totalUniquePatients: number;
+  genderDistribution?: { gender: string; count: number }[];
+  ageDistribution?: { ageGroup: string; count: number }[];
 };
 
 export type VitalSignsData = {

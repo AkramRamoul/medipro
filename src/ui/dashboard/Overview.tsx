@@ -1,81 +1,90 @@
 import { useCallback, useEffect, useState } from "react";
-import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from "recharts";
-import { monthlyPatients } from "../type";
+import { 
+  Bar, 
+  BarChart, 
+  ResponsiveContainer, 
+  XAxis, 
+  YAxis, 
+  Tooltip
+} from "recharts";
 import api from "../axios";
-
-async function getData(): Promise<monthlyPatients[]> {
-  try {
-    const { data } = await api.get("/consultations/monthly-patients");
-    return data;
-  } catch (error) {
-    console.error("Failed to fetch patients in component:", error);
-    return [];
-  }
-}
+import { Loader2 } from "lucide-react";
 
 export function Overview() {
-  const [data, setData] = useState<monthlyPatients[]>([]);
+  const [stats, setStats] = useState<any>(null);
+  const [monthlyData, setMonthlyData] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   const fetchData = useCallback(async () => {
-    const monthlyPatients = await getData();
-    setData(monthlyPatients);
+    try {
+      setIsLoading(true);
+      const [statsRes, monthlyRes] = await Promise.all([
+        api.get("/consultations/stats"),
+        api.get("/consultations/monthly-patients")
+      ]);
+      setStats(statsRes.data);
+      setMonthlyData(monthlyRes.data);
+    } catch (error) {
+      console.error("Failed to fetch dashboard analytics:", error);
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
 
   useEffect(() => {
     fetchData();
   }, [fetchData]);
 
-  useEffect(() => {
-    // Relying on mount for data fetch
-  }, [fetchData]);
-  console.log(data);
-  return (
-    <div className="w-[90vh]">
-      <ResponsiveContainer width="100%" height={350}>
-        <BarChart
-          data={data}
-          margin={{ top: 20, right: 20, left: 20, bottom: 40 }}
-        >
-          <XAxis
-            dataKey="name"
-            stroke="#888888"
-            fontSize={12}
-            tickLine={false}
-            axisLine={false}
-            label={{
-              value: "Mois",
-              position: "bottom",
-              offset: 10,
-              style: { fill: "#555", fontWeight: "bold" },
-            }}
-          />
-          <YAxis
-            stroke="#888888"
-            fontSize={12}
-            allowDecimals={false}
-            tickLine={false}
-            axisLine={false}
-            tickFormatter={(value) => `${value}`}
-            label={{
-              value: "Nombre de patients",
-              angle: -90,
-              position: "outsideLeft",
-              offset: 20,
-              style: { fill: "#555", fontWeight: "bold" },
-            }}
-          />
+  if (isLoading || !stats) {
+    return (
+      <div className="w-full h-[400px] flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-primary/50" />
+      </div>
+    );
+  }
 
-          <Bar
-            dataKey="total"
-            fill="currentColor"
-            radius={[4, 4, 0, 0]}
-            className="fill-primary"
+  return (
+    <div className="h-[350px] w-full mt-2">
+      <ResponsiveContainer width="100%" height="100%">
+        <BarChart data={monthlyData} margin={{ top: 20, right: 30, left: 0, bottom: 20 }}>
+          <defs>
+            <linearGradient id="colorMonthly" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%" stopColor="#10b981" stopOpacity={0.8} />
+              <stop offset="95%" stopColor="#10b981" stopOpacity={0.1} />
+            </linearGradient>
+          </defs>
+          <XAxis 
+            dataKey="name" 
+            axisLine={false} 
+            tickLine={false} 
+            fontSize={12} 
+            tick={{ fill: 'hsl(var(--muted-foreground))' }}
+            dy={10}
+          />
+          <YAxis 
+            axisLine={false} 
+            tickLine={false} 
+            fontSize={12} 
+            tick={{ fill: 'hsl(var(--muted-foreground))' }}
+            allowDecimals={false}
+          />
+          <Tooltip 
+            cursor={{ fill: 'rgba(16, 185, 129, 0.05)' }}
+            contentStyle={{ 
+              borderRadius: '12px', 
+              border: '1px solid #10b98144', 
+              backgroundColor: 'hsl(var(--card))',
+              boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' 
+            }}
+          />
+          <Bar 
+            dataKey="total" 
+            fill="url(#colorMonthly)" 
+            radius={[6, 6, 0, 0]} 
+            barSize={40}
           />
         </BarChart>
       </ResponsiveContainer>
-      <p className="text-sm text-muted-foreground text-center mt-2">
-        Nombre mensuel de patients enregistrés à la clinique
-      </p>
     </div>
   );
 }

@@ -29,31 +29,42 @@ export function BusiestDays({ data }: BusiestDaysProps) {
                 <CardDescription>Distribution des consultations par jour (3 derniers mois)</CardDescription>
             </CardHeader>
             <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                    <BarChart data={data} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-                        <XAxis
-                            dataKey="day"
-                            tick={{ fontSize: 11 }}
-                            angle={-45}
-                            textAnchor="end"
-                            height={80}
-                        />
-                        <YAxis allowDecimals={false} />
-                        <Tooltip
-                            contentStyle={{
-                                backgroundColor: 'hsl(var(--card))',
-                                border: '1px solid hsl(var(--border))',
-                                borderRadius: '8px'
-                            }}
-                        />
-                        <Bar
-                            dataKey="count"
-                            fill="currentColor"
-                            className="fill-primary"
-                            radius={[4, 4, 0, 0]}
-                        />
-                    </BarChart>
-                </ResponsiveContainer>
+                <div className="h-[250px] w-full mt-4">
+                    <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={data} margin={{ top: 10, right: 30, left: 0, bottom: 20 }}>
+                            <defs>
+                                <linearGradient id="colorBusiest" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.8} />
+                                    <stop offset="95%" stopColor="#10b981" stopOpacity={0.1} />
+                                </linearGradient>
+                            </defs>
+                            <XAxis
+                                dataKey="day"
+                                axisLine={false}
+                                tickLine={false}
+                                fontSize={11}
+                                tick={{ fill: 'hsl(var(--muted-foreground))' }}
+                                dy={10}
+                            />
+                            <YAxis axisLine={false} tickLine={false} fontSize={11} tick={{ fill: 'hsl(var(--muted-foreground))' }} allowDecimals={false} />
+                            <Tooltip
+                                cursor={{ fill: 'rgba(16, 185, 129, 0.05)' }}
+                                contentStyle={{
+                                    backgroundColor: 'hsl(var(--card))',
+                                    border: '1px solid #10b98144',
+                                    borderRadius: '12px',
+                                    boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)'
+                                }}
+                            />
+                            <Bar
+                                dataKey="count"
+                                fill="url(#colorBusiest)"
+                                radius={[6, 6, 0, 0]}
+                                barSize={32}
+                            />
+                        </BarChart>
+                    </ResponsiveContainer>
+                </div>
             </CardContent>
         </Card>
     );
