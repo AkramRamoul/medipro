@@ -93,4 +93,27 @@ router.post('/restore', upload.single('database'), async (req, res, next) => {
     }
 });
 
+// Analyze Backup
+router.post('/analyze-backup', upload.single('database'), async (req, res, next) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ success: false, error: 'No file uploaded' });
+        }
+        const summary = await settingsService.analyzeBackup(req.file.path);
+        res.json({ success: true, summary });
+    } catch (error) {
+        next(error);
+    }
+});
+
+// Last Backup Date
+router.get('/last-backup', async (req, res, next) => {
+    try {
+        const date = await settingsService.getLastBackup();
+        res.json({ success: true, date });
+    } catch (error) {
+        next(error);
+    }
+});
+
 export default router;

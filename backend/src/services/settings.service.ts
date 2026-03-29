@@ -1,4 +1,4 @@
-import { db, sqlite } from '../db';
+import { db, sqlite, reinitializeDb } from '../db';
 import { prescriptionModel, image } from '../db/schema';
 import { eq } from 'drizzle-orm';
 import fs from 'fs';
@@ -111,41 +111,86 @@ export class SettingsService {
             fs.copyFileSync(sourcePath, filepath);
         }
 
+        try {
+            const uploadsDir = path.join(process.cwd(), 'uploads');
+            if (!fs.existsSync(uploadsDir)) {
+                fs.mkdirSync(uploadsDir, { recursive: true });
+            }
+            const lastBackupPath = path.join(uploadsDir, 'last_backup.json');
+            fs.writeFileSync(lastBackupPath, JSON.stringify({ date: new Date().toISOString() }));
+        } catch (e) {
+            console.error('Failed to save last backup date', e);
+        }
+
         return filepath;
     }
 
-    async restore(backupFilePath: string) {
-        // To restore safely:
-        // 1. Close current connection if possible (though @libsql client is pooled)
-        // 2. Overwrite the database file
+    async getLastBackup() {
+        try {
+            const lastBackupPath = path.join(process.cwd(), 'uploads', 'last_backup.json');
+            if (fs.existsSync(lastBackupPath)) {
+                const data = JSON.parse(fs.readFileSync(lastBackupPath, 'utf8'));
+                return data.date;
+            }
+        } catch (e) {
+            console.error('Failed to read last backup date', e);
+        }
+        return null;
+    }
 
+    async restore(backupFilePath: string) {
         const targetPath = path.resolve(process.cwd(), env.DATABASE_PATH);
 
         try {
-            // We need to be careful about file locks.
-            // A safer way with @libsql might be to close the client, copy, then re-open.
-            // But since this is a local server, we'll try direct overwrite first.
-
-            await sqlite.close();
+            // 1. Close active connection and swap to the restored file (reinitializeDb handles close internally)
+            // 2. Overwrite the live DB file with the backup
             fs.copyFileSync(backupFilePath, targetPath);
 
-            // Re-initialize sqlite client in db/index.ts is not easy without a refresh, 
-            // but the next request will likely use a new connection or we might need a restart.
-            // For now, we'll suggest a restart or hope the pool handles it.
+            // 3. Re-open the connection against the newly restored file — in-process, no restart needed
+            await reinitializeDb();
 
-            return { success: true, message: 'Database restored. Please restart the application for changes to take effect if they are not visible.' };
+            return { success: true, message: 'Database restored successfully.' };
         } catch (error: any) {
             console.error('Restore error detail:', error);
             throw error;
         } finally {
-            // Clean up the uploaded temporary file
-            if (fs.existsSync(backupFilePath)) {
-                try {
-                    fs.unlinkSync(backupFilePath);
-                } catch (unlinkError) {
-                    console.error('Failed to delete temporary backup file:', unlinkError);
+            // Clean up the uploaded temporary file asynchronously to avoid EBUSY on Windows
+            const pathToDelete = backupFilePath;
+            setTimeout(() => {
+                if (fs.existsSync(pathToDelete)) {
+                    try { fs.unlinkSync(pathToDelete); } catch (_) { /* ignore */ }
                 }
-            }
+            }, 300);
+        }
+    }
+
+    async analyzeBackup(backupFilePath: string) {
+        const url = `file:${path.resolve(backupFilePath)}`;
+        const tempClient = createClient({ url });
+
+        try {
+            const patientsRes = await tempClient.execute('SELECT COUNT(*) as count FROM patients');
+            const consultationsRes = await tempClient.execute('SELECT COUNT(*) as count FROM consultations');
+            const prescriptionsRes = await tempClient.execute('SELECT COUNT(*) as count FROM prescriptions');
+
+            return {
+                patients: Number(patientsRes.rows[0].count),
+                consultations: Number(consultationsRes.rows[0].count),
+                prescriptions: Number(prescriptionsRes.rows[0].count)
+            };
+        } catch (error) {
+            console.error('Failed to analyze backup:', error);
+            throw new Error('Invalid backup file');
+        } finally {
+            tempClient.close();
+            // On Windows, SQLite file handles are released asynchronously.
+            // Delete the temp file after a short delay to avoid EBUSY.
+            const pathToDelete = backupFilePath;
+            setTimeout(() => {
+                if (fs.existsSync(pathToDelete)) {
+                    try { fs.unlinkSync(pathToDelete); } catch (_) { /* ignore */ }
+                }
+            }, 300);
         }
     }
 }

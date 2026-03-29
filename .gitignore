@@ -28,3 +28,7 @@ database.db
 *.sw?
 todo.txt
 public.pem
+
+.db
+*.db
+*.db.*

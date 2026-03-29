@@ -135972,7 +135972,9 @@ var ConsultationService = class {
       [patientsLastMonth],
       commonDiagnoses,
       busiestDays,
-      allPatientsConsultations
+      allPatientsConsultations,
+      genderDistribution,
+      ageDistribution
     ] = await Promise.all([
       db.select({ count: sql`count(*)` }).from(consultations).where(
         sql`strftime('%Y-%m', ${consultations.date}) = strftime('%Y-%m', CURRENT_TIMESTAMP)`
@@ -136035,7 +136037,21 @@ var ConsultationService = class {
       db.select({
         patientId: consultations.patientId,
         count: sql`count(*)`
-      }).from(consultations).groupBy(consultations.patientId)
+      }).from(consultations).groupBy(consultations.patientId),
+      db.select({
+        gender: patients.gender,
+        count: sql`count(*)`
+      }).from(patients).groupBy(patients.gender),
+      db.select({
+        ageGroup: sql`case 
+                    when age < 18 then 'Pédiatrie'
+                    when age between 18 and 60 then 'Adulte'
+                    else 'Senior' end`,
+        count: sql`count(*)`
+      }).from(patients).groupBy(sql`case 
+                    when age < 18 then 'Pédiatrie'
+                    when age between 18 and 60 then 'Adulte'
+                    else 'Senior' end`)
     ]);
     const totalUniquePatientsCount = allPatientsConsultations.length;
     const totalReturnPatientsCount = allPatientsConsultations.filter((p) => p.count > 1).length;
@@ -136060,7 +136076,9 @@ var ConsultationService = class {
       busiestDays: busiestDays.slice(0, 7),
       retentionRate,
       totalReturnPatients: totalReturnPatientsCount,
-      totalUniquePatients: totalUniquePatientsCount
+      totalUniquePatients: totalUniquePatientsCount,
+      genderDistribution,
+      ageDistribution
     };
   }
   async getMonthlyPatients() {
@@ -137182,7 +137200,29 @@ var SettingsService = class {
     } catch (error48) {
       import_fs4.default.copyFileSync(sourcePath, filepath);
     }
+    try {
+      const uploadsDir = import_path6.default.join(process.cwd(), "uploads");
+      if (!import_fs4.default.existsSync(uploadsDir)) {
+        import_fs4.default.mkdirSync(uploadsDir, { recursive: true });
+      }
+      const lastBackupPath = import_path6.default.join(uploadsDir, "last_backup.json");
+      import_fs4.default.writeFileSync(lastBackupPath, JSON.stringify({ date: (/* @__PURE__ */ new Date()).toISOString() }));
+    } catch (e) {
+      console.error("Failed to save last backup date", e);
+    }
     return filepath;
+  }
+  async getLastBackup() {
+    try {
+      const lastBackupPath = import_path6.default.join(process.cwd(), "uploads", "last_backup.json");
+      if (import_fs4.default.existsSync(lastBackupPath)) {
+        const data = JSON.parse(import_fs4.default.readFileSync(lastBackupPath, "utf8"));
+        return data.date;
+      }
+    } catch (e) {
+      console.error("Failed to read last backup date", e);
+    }
+    return null;
   }
   async restore(backupFilePath) {
     const targetPath = import_path6.default.resolve(process.cwd(), env2.DATABASE_PATH);
@@ -137199,6 +137239,32 @@ var SettingsService = class {
           import_fs4.default.unlinkSync(backupFilePath);
         } catch (unlinkError) {
           console.error("Failed to delete temporary backup file:", unlinkError);
+        }
+      }
+    }
+  }
+  async analyzeBackup(backupFilePath) {
+    const url3 = `file:${import_path6.default.resolve(backupFilePath)}`;
+    const tempClient = createClient({ url: url3 });
+    try {
+      const patientsRes = await tempClient.execute("SELECT COUNT(*) as count FROM patients");
+      const consultationsRes = await tempClient.execute("SELECT COUNT(*) as count FROM consultations");
+      const prescriptionsRes = await tempClient.execute("SELECT COUNT(*) as count FROM prescriptions");
+      return {
+        patients: Number(patientsRes.rows[0].count),
+        consultations: Number(consultationsRes.rows[0].count),
+        prescriptions: Number(prescriptionsRes.rows[0].count)
+      };
+    } catch (error48) {
+      console.error("Failed to analyze backup:", error48);
+      throw new Error("Invalid backup file");
+    } finally {
+      tempClient.close();
+      if (import_fs4.default.existsSync(backupFilePath)) {
+        try {
+          import_fs4.default.unlinkSync(backupFilePath);
+        } catch (e) {
+          console.error("Failed to delete temp backup file:", e);
         }
       }
     }
@@ -137279,6 +137345,25 @@ router6.post("/restore", upload.single("database"), async (req, res, next) => {
     }
     const result = await settingsService.restore(req.file.path);
     res.json(result);
+  } catch (error48) {
+    next(error48);
+  }
+});
+router6.post("/analyze-backup", upload.single("database"), async (req, res, next) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ success: false, error: "No file uploaded" });
+    }
+    const summary = await settingsService.analyzeBackup(req.file.path);
+    res.json({ success: true, summary });
+  } catch (error48) {
+    next(error48);
+  }
+});
+router6.get("/last-backup", async (req, res, next) => {
+  try {
+    const date5 = await settingsService.getLastBackup();
+    res.json({ success: true, date: date5 });
   } catch (error48) {
     next(error48);
   }

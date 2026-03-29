@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { DatabaseBackup, RotateCcw, Loader2, Info } from "lucide-react";
 import { Button } from "../ui/button";
 import {
@@ -13,7 +13,23 @@ import api from "../../axios";
 
 export default function DatabaseSettings() {
   const [loading, setLoading] = useState(false);
+  const [lastBackupDate, setLastBackupDate] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    fetchLastBackup();
+  }, []);
+
+  const fetchLastBackup = async () => {
+    try {
+      const { data } = await api.get("/settings/last-backup");
+      if (data.success && data.date) {
+        setLastBackupDate(new Date(data.date).toLocaleString());
+      }
+    } catch (err) {
+      console.error("Failed to fetch last backup date", err);
+    }
+  };
 
   async function handleBackup() {
     setLoading(true);
@@ -32,6 +48,7 @@ export default function DatabaseSettings() {
       window.URL.revokeObjectURL(url);
 
       toast.success("Sauvegarde effectuée");
+      await fetchLastBackup();
     } catch (error) {
       console.error(error);
       toast.error("Erreur lors de la sauvegarde");
@@ -44,18 +61,34 @@ export default function DatabaseSettings() {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    const confirmed = confirm(
-      "La restauration d'une sauvegarde remplacera les données actuelles. Continuer ?",
-    );
-    if (!confirmed) {
-      if (fileInputRef.current) fileInputRef.current.value = "";
-      return;
-    }
-
     setLoading(true);
     try {
       const formData = new FormData();
       formData.append('database', file);
+
+      const analyzeResponse = await api.post("/settings/analyze-backup", formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+
+      if (analyzeResponse.data.success && analyzeResponse.data.summary) {
+        const { patients, consultations, prescriptions } = analyzeResponse.data.summary;
+        const confirmed = confirm(
+          `Résumé de la sauvegarde :\n- Patients : ${patients}\n- Consultations : ${consultations}\n- Ordonnances : ${prescriptions}\n\nLa restauration remplacera les données actuelles. Continuer ?`
+        );
+        
+        if (!confirmed) {
+          if (fileInputRef.current) fileInputRef.current.value = "";
+          setLoading(false);
+          return;
+        }
+      } else {
+        const confirmed = confirm("La restauration d'une sauvegarde remplacera les données actuelles. Continuer ?");
+        if (!confirmed) {
+          if (fileInputRef.current) fileInputRef.current.value = "";
+          setLoading(false);
+          return;
+        }
+      }
 
       const response = await api.post("/settings/restore", formData, {
         headers: {
@@ -64,9 +97,9 @@ export default function DatabaseSettings() {
       });
 
       if (response.data.success) {
-        toast.success("Restauration effectuée. L'application va redémarrer.");
-        // Reload the app to pick up new database state
-        setTimeout(() => window.location.reload(), 2000);
+        toast.success("Restauration effectuée avec succès !");
+        // Backend re-connected in-place — just reload after a short delay
+        setTimeout(() => window.location.reload(), 1500);
       } else {
         toast.error("Échec de la restauration");
       }
@@ -92,10 +125,17 @@ export default function DatabaseSettings() {
           <h4 className="text-sm font-medium">Maintenance</h4>
           <div className="flex items-start gap-2 p-3 rounded-lg bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800">
             <Info className="h-4 w-4 text-blue-600 dark:text-blue-400 mt-0.5 shrink-0" />
-            <p className="text-sm text-blue-700 dark:text-blue-300">
-              Il est recommandé de sauvegarder vos données régulièrement
-              (idéalement chaque semaine) pour éviter toute perte.
-            </p>
+            <div className="flex flex-col">
+              <p className="text-sm text-blue-700 dark:text-blue-300">
+                Il est recommandé de sauvegarder vos données régulièrement
+                (idéalement chaque semaine) pour éviter toute perte.
+              </p>
+              {lastBackupDate && (
+                <p className="text-xs text-blue-600 dark:text-blue-400 mt-2 font-medium">
+                  Dernière sauvegarde réussie : {lastBackupDate}
+                </p>
+              )}
+            </div>
           </div>
           <div className="flex flex-col items-center justify-center sm:flex-row gap-4">
             <Button
