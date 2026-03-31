@@ -21,6 +21,16 @@ interface PatientDemographicsProps {
 
 const GENDER_COLORS = ['#10b981', '#14b8a6', '#94a3b8'];
 
+const GENDER_TRANSLATIONS: Record<string, string> = {
+  'male': 'Homme',
+  'female': 'Femme',
+  'other': 'Autre',
+  'M': 'Homme',
+  'F': 'Femme'
+};
+
+const translateGender = (gender: string) => GENDER_TRANSLATIONS[gender?.toLowerCase()] || gender;
+
 export function PatientDemographics({ genderData, ageData, totalPatients }: PatientDemographicsProps) {
   return (
     <Card className="shadow-sm rounded-xl bg-card border-none ring-1 ring-border/50 col-span-full lg:col-span-4">
@@ -66,8 +76,14 @@ export function PatientDemographics({ genderData, ageData, totalPatients }: Pati
                       backgroundColor: 'hsl(var(--card))',
                       boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' 
                     }}
+                    formatter={(value: number, name: string) => [value, translateGender(name)]}
                   />
-                  <Legend verticalAlign="bottom" height={36} iconType="circle" />
+                  <Legend 
+                    verticalAlign="bottom" 
+                    height={36} 
+                    iconType="circle" 
+                    formatter={(value: string) => translateGender(value)}
+                  />
                 </PieChart>
               </ResponsiveContainer>
             </div>
@@ -116,3 +132,4 @@ export function PatientDemographics({ genderData, ageData, totalPatients }: Pati
     </Card>
   );
 }
+

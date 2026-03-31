@@ -12,8 +12,10 @@ import { CommonDiagnoses } from "./CommonDiagnoses";
 import { BusiestDays } from "./BusiestDays";
 import { PatientRetention } from "./PatientRetention";
 import { PatientDemographics } from "./PatientDemographics";
+import { FinancialOverview } from "./FinancialOverview";
+import { ExpenseBreakdown } from "./ExpenseBreakdown";
 import { DashboardStats } from "../type";
-import { Activity, Users, Calendar, TrendingUp } from "lucide-react";
+import { Activity, Users, Calendar, TrendingUp, DollarSign, Wallet } from "lucide-react";
 import api from "../axios";
 
 export default function DashboardPage() {
@@ -38,6 +40,8 @@ export default function DashboardPage() {
     expensesThisMonth: 0,
     expensesToday: 0,
     expensesLastMonth: 0,
+    earningsYear: 0,
+    expensesYear: 0,
   });
 
   const fetchDashboardStats = async () => {
@@ -221,6 +225,80 @@ export default function DashboardPage() {
                 <p className="text-xs text-muted-foreground mt-1">
                   Prévus pour aujourd'hui
                 </p>
+              </CardContent>
+            </Card>
+
+            {/* Annual Revenue Card */}
+            <Card className="shadow-sm rounded-xl bg-card border-none ring-1 ring-border/50">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
+                  Revenus (Année)
+                </CardTitle>
+                <div className="bg-blue-100 p-2 rounded-full dark:bg-blue-900/30">
+                  <DollarSign className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-foreground">
+                  {(stats.earningsYear || 0).toLocaleString()} DA
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Total cumulé de l'année
+                </p>
+              </CardContent>
+            </Card>
+
+            {/* Annual Expenses Card */}
+            <Card className="shadow-sm rounded-xl bg-card border-none ring-1 ring-border/50">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
+                  Dépenses (Année)
+                </CardTitle>
+                <div className="bg-rose-100 p-2 rounded-full dark:bg-rose-900/30">
+                  <Wallet className="h-4 w-4 text-rose-600 dark:text-rose-400" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-foreground">
+                  {(stats.expensesYear || 0).toLocaleString()} DA
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Total cumulé de l'année
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7 items-start">
+            {/* Financial Overview Card */}
+            <Card className="col-span-4 shadow-sm rounded-xl bg-card border-none ring-1 ring-border/50 overflow-hidden">
+              <CardHeader className="pb-2">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="text-xl text-foreground">Performance Financière</CardTitle>
+                    <CardDescription>Revenus, dépenses et bénéfices mensuels.</CardDescription>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-sm font-medium text-muted-foreground">Profit Net (Année)</div>
+                    <div className="text-xl font-bold text-blue-600 dark:text-blue-400">
+                      {((stats.earningsYear || 0) - (stats.expensesYear || 0)).toLocaleString()} DA
+                    </div>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <FinancialOverview />
+              </CardContent>
+            </Card>
+
+            {/* Expense Breakdown Card */}
+            <Card className="col-span-3 shadow-sm rounded-xl bg-card border-none ring-1 ring-border/50 overflow-hidden">
+              <CardHeader>
+                <CardTitle className="text-xl text-foreground">Répartition des Dépenses</CardTitle>
+                <CardDescription>Aperçu catégoriel du mois actuel.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ExpenseBreakdown />
               </CardContent>
             </Card>
           </div>

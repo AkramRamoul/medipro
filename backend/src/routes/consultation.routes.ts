@@ -34,6 +34,26 @@ router.get('/diagnostics/common', async (req, res, next) => {
     }
 });
 
+// Get financial stats
+router.get('/financial-stats', authorize('VIEW_DASHBOARD_STATS'), async (req, res, next) => {
+    try {
+        const stats = await consultationService.getFinancialStats();
+        res.json(stats);
+    } catch (error) {
+        next(error);
+    }
+});
+
+// Get expense breakdown
+router.get('/expense-breakdown', authorize('VIEW_DASHBOARD_STATS'), async (req, res, next) => {
+    try {
+        const breakdown = await consultationService.getExpenseBreakdown();
+        res.json(breakdown);
+    } catch (error) {
+        next(error);
+    }
+});
+
 // Update common diagnostics
 router.post('/diagnostics/common', authorize('MANAGE_SETTINGS'), async (req, res, next) => {
     try {

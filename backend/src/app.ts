@@ -5,6 +5,11 @@ import path from 'path';
 import routes from './routes';
 import { errorMiddleware, notFoundHandler } from './middleware/error.middleware';
 
+// BigInt serialization fix
+(BigInt.prototype as any).toJSON = function () {
+    return Number(this);
+};
+
 const app: Application = express();
 
 // Standard middleware

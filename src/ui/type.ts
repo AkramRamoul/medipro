@@ -65,6 +65,20 @@ export type DashboardStats = {
   totalUniquePatients: number;
   genderDistribution?: { gender: string; count: number }[];
   ageDistribution?: { ageGroup: string; count: number }[];
+  earningsYear?: number;
+  expensesYear?: number;
+};
+
+export type FinancialStat = {
+  name: string;
+  revenue: number;
+  expense: number;
+  profit: number;
+};
+
+export type ExpenseBreakdown = {
+  category: string;
+  total: number;
 };
 
 export type VitalSignsData = {

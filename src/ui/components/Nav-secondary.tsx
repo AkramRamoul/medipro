@@ -24,9 +24,13 @@ export function NavSecondary({
   return (
     <SidebarMenu {...props}>
       <SidebarMenuItem>
-        <SidebarMenuButton onClick={handleLogout} tooltip="Déconnexion">
-          <Lock />
-          <span>Déconnexion</span>
+        <SidebarMenuButton 
+          onClick={handleLogout} 
+          tooltip="Déconnexion"
+          className="transition-all duration-200 text-slate-600 dark:text-slate-300 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20 dark:hover:text-red-400 group"
+        >
+          <Lock className="w-5 h-5 transition-transform duration-200 group-hover:scale-110" />
+          <span className="text-[15px] font-medium">Déconnexion</span>
         </SidebarMenuButton>
       </SidebarMenuItem>
 
@@ -44,9 +48,12 @@ function HelpComponent() {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <SidebarMenuButton tooltip="Obtenir de l'aide">
-          <HelpCircleIcon />
-          <span>Obtenir de l'aide</span>
+        <SidebarMenuButton 
+          tooltip="Obtenir de l'aide"
+          className="transition-all duration-200 text-slate-600 dark:text-slate-300 hover:bg-primary/10 hover:text-primary dark:hover:bg-primary/20 dark:hover:text-white group"
+        >
+          <HelpCircleIcon className="w-5 h-5 transition-transform duration-200 group-hover:scale-110" />
+          <span className="text-[15px] font-medium">Obtenir de l'aide</span>
         </SidebarMenuButton>
       </PopoverTrigger>
 

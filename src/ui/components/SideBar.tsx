@@ -63,7 +63,7 @@ export function AppSidebar() {
                     >
                       <NavLink
                         to={item.url}
-                        className={`flex items-center gap-2 px-2 py-2 rounded-md transition-colors font-semibold text-lg
+                        className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-300 text-[15px] font-medium group
                         ${(item.url === "/" && currentPath === "/") ||
                             (item.url === "/patients" && currentPath.startsWith("/patients")) ||
                             (item.url === "/all-patients" && (currentPath.startsWith("/all-patients") || currentPath.startsWith("/pat/"))) ||
@@ -71,11 +71,11 @@ export function AppSidebar() {
                               item.url !== "/patients" &&
                               item.url !== "/all-patients" &&
                               currentPath.startsWith(item.url))
-                            ? "bg-primary text-white pointer-events-none"
-                            : "text-black dark:text-gray-300 hover:bg-[#e0f2fe] dark:hover:bg-[#1e3a8a]"
+                            ? "bg-gradient-to-r from-primary to-primary/90 text-white font-semibold shadow-md shadow-primary/25"
+                            : "text-slate-600 dark:text-slate-300 hover:bg-primary/10 hover:text-primary dark:hover:bg-primary/20 dark:hover:text-white"
                           }`}
                       >
-                        <item.icon />
+                        <item.icon className="w-5 h-5 transition-transform duration-200 group-hover:scale-110" />
                         <span>{item.title}</span>
                       </NavLink>
                     </SidebarMenuButton>

@@ -185,6 +185,8 @@ export class ConsultationService {
             allPatientsConsultations,
             genderDistribution,
             ageDistribution,
+            [earningsYear],
+            [expensesYear],
         ] = await Promise.all([
             db
                 .select({ count: sql<number>`count(*)` })
@@ -317,7 +319,15 @@ export class ConsultationService {
                 .groupBy(sql`case 
                     when age < 18 then 'Pédiatrie'
                     when age between 18 and 60 then 'Adulte'
-                    else 'Senior' end`)
+                    else 'Senior' end`),
+            db
+                .select({ sum: sql<number>`COALESCE(sum(${consultations.amountPaid}), 0)` })
+                .from(consultations)
+                .where(sql`strftime('%Y', ${consultations.date}) = strftime('%Y', CURRENT_TIMESTAMP)`),
+            db
+                .select({ sum: sql<number>`COALESCE(sum(${expenses.amount}), 0)` })
+                .from(expenses)
+                .where(sql`strftime('%Y', ${expenses.date}) = strftime('%Y', CURRENT_TIMESTAMP)`),
         ]);
 
         const totalUniquePatientsCount = allPatientsConsultations.length;
@@ -350,7 +360,74 @@ export class ConsultationService {
             totalUniquePatients: totalUniquePatientsCount,
             genderDistribution,
             ageDistribution,
+            earningsYear: earningsYear.sum || 0,
+            expensesYear: expensesYear.sum || 0,
         };
+    }
+
+    async getFinancialStats() {
+        const months = [
+            "Janv", "Févr", "Mars", "Avr", "Mai", "Juin",
+            "Juil", "Août", "Sept", "Oct", "Nov", "Déc",
+        ];
+
+        const currentYear = new Date().getFullYear();
+
+        const revenueResults = await db
+            .select({
+                month: sql<string>`strftime('%m', ${consultations.date})`,
+                total: sql<number>`sum(${consultations.amountPaid})`,
+            })
+            .from(consultations)
+            .where(sql`strftime('%Y', ${consultations.date}) = ${String(currentYear)}`)
+            .groupBy(sql`strftime('%m', ${consultations.date})`);
+
+        const expenseResults = await db
+            .select({
+                month: sql<string>`strftime('%m', ${expenses.date})`,
+                total: sql<number>`sum(${expenses.amount})`,
+            })
+            .from(expenses)
+            .where(sql`strftime('%Y', ${expenses.date}) = ${String(currentYear)}`)
+            .groupBy(sql`strftime('%m', ${expenses.date})`);
+
+        const revenueMap: Record<string, number> = {};
+        for (const row of revenueResults) {
+            revenueMap[row.month] = row.total || 0;
+        }
+
+        const expenseMap: Record<string, number> = {};
+        for (const row of expenseResults) {
+            expenseMap[row.month] = row.total || 0;
+        }
+
+        return months.map((name, index) => {
+            const monthNumber = String(index + 1).padStart(2, "0");
+            const revenue = revenueMap[monthNumber] || 0;
+            const expense = expenseMap[monthNumber] || 0;
+            return {
+                name,
+                revenue,
+                expense,
+                profit: revenue - expense,
+            };
+        });
+    }
+
+    async getExpenseBreakdown() {
+        const result = await db
+            .select({
+                category: expenses.category,
+                total: sql<number>`sum(${expenses.amount})`,
+            })
+            .from(expenses)
+            .where(
+                sql`strftime('%Y-%m', ${expenses.date}) = strftime('%Y-%m', CURRENT_TIMESTAMP)`,
+            )
+            .groupBy(expenses.category)
+            .orderBy(desc(sql`sum(${expenses.amount})`));
+            
+        return result;
     }
 
     async getMonthlyPatients() {

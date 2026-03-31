@@ -17,7 +17,7 @@ export class ExpenseService {
             category: data.category,
             date: data.date || new Date().toISOString(),
         });
-        return { success: true, id: result.lastInsertRowid };
+        return { success: true, id: Number(result.lastInsertRowid) };
     }
 
     async delete(id: number) {
