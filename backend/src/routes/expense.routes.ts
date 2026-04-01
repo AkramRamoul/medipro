@@ -18,9 +18,11 @@ router.get('/', authorize('VIEW_EXPENSES'), async (req, res, next) => {
 // Create expense
 router.post('/', authorize('MANAGE_EXPENSES'), async (req, res, next) => {
     try {
+        console.log(`[Expense] Create Request:`, req.body);
         const result = await expenseService.create(req.body);
         res.status(201).json(result);
     } catch (error) {
+        console.error(`[Expense] Create Error:`, error);
         next(error);
     }
 });

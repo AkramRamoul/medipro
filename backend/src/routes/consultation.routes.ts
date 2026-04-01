@@ -14,6 +14,16 @@ router.get('/stats', authorize('VIEW_DASHBOARD_STATS'), async (req, res, next) =
     }
 });
 
+// Get today's consultations
+router.get('/today', authorize('VIEW_PATIENTS'), async (req, res, next) => {
+    try {
+        const result = await consultationService.getTodayConsultations();
+        res.json(result);
+    } catch (error) {
+        next(error);
+    }
+});
+
 // Get monthly patients stats
 router.get('/monthly-patients', async (req, res, next) => {
     try {

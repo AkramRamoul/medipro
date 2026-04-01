@@ -12,6 +12,7 @@ import {
     RefreshCw,
     PauseCircle,
     UserPlus,
+    History,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
 import {
@@ -29,6 +30,8 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { GlobalAddAppointmentModal } from "../components/Appointment/GlobalAddAppointmentModal";
 import NewPatientModal from "../components/NewPatient/NewPatientModal";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
+import { format } from "date-fns";
 
 interface Appointment {
     id: number;
@@ -40,10 +43,24 @@ interface Appointment {
         first_name: string;
         last_name: string;
     };
-    date: string; // Added based on the usage in TableCell
+    date: string;
     consultation?: {
         id: number;
         status: 'in_progress' | 'completed';
+    };
+}
+
+interface Consultation {
+    id: number;
+    patientId: number;
+    appointmentId: number | null;
+    date: string;
+    reason: string;
+    status: 'in_progress' | 'completed';
+    patient: {
+        id: number;
+        first_name: string;
+        last_name: string;
     };
 }
 
@@ -51,25 +68,31 @@ const REFRESH_INTERVAL = 30_000; // 30 seconds
 
 export function Today() {
     const [appointments, setAppointments] = useState<Appointment[]>([]);
+    const [standaloneConsultations, setStandaloneConsultations] = useState<Consultation[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [isNewPatientOpen, setIsNewPatientOpen] = useState(false);
     const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
     const [autoRefresh, setAutoRefresh] = useState(true);
     const [secondsAgo, setSecondsAgo] = useState(0);
+    const [activeTab, setActiveTab] = useState<"attente" | "consultation" | "termines">("attente");
     const navigate = useNavigate();
     const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
     const fetchTodayData = async (silent = false) => {
         if (!silent) setIsLoading(true);
         try {
-            const response = await api.get("/appointments/today");
-            setAppointments(response.data);
+            const [aptRes, consRes] = await Promise.all([
+                api.get("/appointments/today"),
+                api.get("/consultations/today")
+            ]);
+            setAppointments(aptRes.data);
+            setStandaloneConsultations(consRes.data.filter((c: Consultation) => !c.appointmentId));
             setLastUpdated(new Date());
             setSecondsAgo(0);
         } catch (error) {
-            console.error("Failed to fetch today's appointments:", error);
-            toast.error("Erreur lors de la récupération des rendez-vous.");
+            console.error("Failed to fetch today's activity:", error);
+            toast.error("Erreur lors de la récupération des données.");
         } finally {
             if (!silent) setIsLoading(false);
         }
@@ -102,14 +125,17 @@ export function Today() {
 
     const handleStartCheckIn = async (appointment: Appointment) => {
         try {
-            await api.put(`/appointments/${appointment.id}`, {
-                status: 'checked_in'
+            await api.post('/consultations/start', {
+                patientId: appointment.patient.id,
+                appointmentId: appointment.id,
+                reason: appointment.title
             });
-            toast.success("Patient marqué comme arrivé.");
+            toast.success("Consultation démarrée.");
+            setActiveTab("consultation");
             fetchTodayData();
         } catch (error) {
-            console.error("Failed to check-in patient:", error);
-            toast.error("Erreur lors du marquage de l'arrivée.");
+            console.error("Failed to start consultation:", error);
+            toast.error("Erreur lors du démarrage de la consultation.");
         }
     };
 
@@ -147,11 +173,25 @@ export function Today() {
         }
     };
 
+    const enAttente = appointments.filter(a => a.status === 'scheduled');
+    const enConsultation = appointments.filter(a => a.status === 'checked_in' && a.consultation?.status === 'in_progress');
+    const termines = [
+        ...appointments.filter(a => a.consultation?.status === 'completed'),
+        ...standaloneConsultations.filter(c => c.status === 'completed')
+    ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    const annulations = appointments.filter(a => a.status === 'cancelled');
+
+    const journal = [
+        ...appointments,
+        ...standaloneConsultations
+    ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
     const stats = {
-        total: appointments.length,
-        waiting: appointments.filter(a => a.status === 'scheduled').length,
-        arrived: appointments.filter(a => a.status === 'checked_in' && !a.consultation).length,
-        completed: appointments.filter(a => a.consultation?.status === 'completed').length,
+        total: appointments.length + standaloneConsultations.length,
+        waiting: enAttente.length,
+        inConsultation: enConsultation.length,
+        completed: termines.length,
+        cancelled: annulations.length,
     };
 
     if (isLoading) {
@@ -243,11 +283,11 @@ export function Today() {
                 </Card>
                 <Card className="bg-indigo-50/50 dark:bg-indigo-900/10 border-indigo-100 dark:border-indigo-900/20">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Arrivés</CardTitle>
+                        <CardTitle className="text-sm font-medium">En Consultation</CardTitle>
                         <Play className="h-4 w-4 text-indigo-600" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">{stats.arrived}</div>
+                        <div className="text-2xl font-bold">{stats.inConsultation}</div>
                     </CardContent>
                 </Card>
                 <Card className="bg-emerald-50/50 dark:bg-emerald-900/10 border-emerald-100 dark:border-emerald-900/20">
@@ -261,72 +301,119 @@ export function Today() {
                 </Card>
             </div>
 
-            {/* Main Table */}
-            <div className="rounded-xl border bg-card text-card-foreground shadow-sm overflow-hidden">
-                {appointments.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-20 space-y-4">
-                        <CalendarClock className="h-16 w-16 text-muted-foreground opacity-20" />
-                        <div className="text-center">
-                            <h3 className="text-xl font-semibold">Aucun rendez-vous aujourd'hui</h3>
-                            <p className="text-muted-foreground">Votre journée semble calme.</p>
-                        </div>
-                        <Button variant="outline" onClick={() => setIsAddModalOpen(true)}>
-                            Planifier un rendez-vous
-                        </Button>
+            {/* Tabs Navigation */}
+            <Tabs value={activeTab} onValueChange={(val) => setActiveTab(val as any)} className="w-full">
+                <div className="overflow-x-auto pb-2">
+                    <TabsList className="h-14 p-1 inline-flex items-center justify-start bg-muted/40 rounded-xl">
+                        <TabsTrigger value="attente" className="h-11 px-8 gap-2 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm transition-all text-base">
+                            <Timer className="h-4 w-4" />
+                            En attente ({enAttente.length})
+                        </TabsTrigger>
+                        <TabsTrigger value="consultation" className="h-11 px-8 gap-2 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm transition-all text-base">
+                            <Play className="h-4 w-4" />
+                            En consultation ({enConsultation.length})
+                        </TabsTrigger>
+                        <TabsTrigger value="termines" className="h-11 px-8 gap-2 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm transition-all text-base">
+                            <CheckCircle2 className="h-4 w-4" />
+                            Terminés ({termines.length})
+                        </TabsTrigger>
+                        <TabsTrigger value="annulations" className="h-11 px-8 gap-2 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm transition-all text-base text-destructive data-[state=active]:text-destructive">
+                            <XCircle className="h-4 w-4" />
+                            Annulés ({annulations.length})
+                        </TabsTrigger>
+                        <TabsTrigger value="journal" className="h-11 px-8 gap-2 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm transition-all text-base">
+                            <History className="h-4 w-4" />
+                            Journal
+                        </TabsTrigger>
+                    </TabsList>
+                </div>
+
+                <TabsContent value="attente">
+                    <div className="rounded-xl border bg-card text-card-foreground shadow-sm overflow-hidden">
+                        {enAttente.length === 0 ? (
+                            <div className="flex flex-col items-center justify-center py-20 space-y-4">
+                                <Timer className="h-16 w-16 text-muted-foreground opacity-20" />
+                                <div className="text-center">
+                                    <h3 className="text-xl font-semibold">Personne en attente</h3>
+                                    <p className="text-muted-foreground">Tous les patients programmés ont été vus ou ne sont pas encore arrivés.</p>
+                                </div>
+                            </div>
+                        ) : (
+                            <Table>
+                                <TableHeader className="bg-muted/50">
+                                    <TableRow>
+                                        <TableHead className="w-[100px]">Heure</TableHead>
+                                        <TableHead>Patient</TableHead>
+                                        <TableHead>Motif</TableHead>
+                                        <TableHead className="text-right">Actions</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {enAttente.map((apt) => (
+                                        <TableRow key={apt.id} className="hover:bg-muted/30 transition-colors">
+                                            <TableCell className="font-semibold text-primary">
+                                                {apt.time || (apt.date && apt.date.includes('T') ? apt.date.split('T')[1].substring(0, 5) : "--:--")}
+                                            </TableCell>
+                                            <TableCell className="font-medium">
+                                                {apt.patient.first_name} {apt.patient.last_name}
+                                            </TableCell>
+                                            <TableCell className="text-muted-foreground">{apt.title}</TableCell>
+                                            <TableCell className="text-right">
+                                                <div className="flex justify-end gap-2">
+                                                    <Button size="sm" onClick={() => handleStartCheckIn(apt)} variant="default" className="gap-1">
+                                                        <Play className="h-3 w-3" /> Démarrer
+                                                    </Button>
+                                                    <Button size="sm" variant="ghost" className="text-destructive hover:text-destructive hover:bg-destructive/10" onClick={() => handleCancelAppointment(apt.id)}>
+                                                        <XCircle className="h-3 w-3" />
+                                                    </Button>
+                                                </div>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        )}
                     </div>
-                ) : (
-                    <Table>
-                        <TableHeader className="bg-muted/50">
-                            <TableRow>
-                                <TableHead className="w-[100px]">Heure</TableHead>
-                                <TableHead>Patient</TableHead>
-                                <TableHead>Motif</TableHead>
-                                <TableHead>Statut RDV</TableHead>
-                                <TableHead>Statut Med.</TableHead>
-                                <TableHead className="text-right">Actions</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {appointments.map((apt) => (
-                                <TableRow key={apt.id} className="hover:bg-muted/30 transition-colors">
-                                    <TableCell className="font-semibold text-primary">
-                                        {apt.time || (apt.date && apt.date.includes('T') ? apt.date.split('T')[1].substring(0, 5) : "--:--")}
-                                    </TableCell>
-                                    <TableCell className="font-medium">
-                                        {apt.patient.first_name} {apt.patient.last_name}
-                                    </TableCell>
-                                    <TableCell className="text-muted-foreground">{apt.title}</TableCell>
-                                    <TableCell>
-                                        <Badge variant={
-                                            apt.status === 'scheduled' ? 'outline' :
-                                                apt.status === 'checked_in' ? 'secondary' :
-                                                    'destructive'
-                                        }>
-                                            {apt.status === 'scheduled' ? 'Programmé' :
-                                                apt.status === 'checked_in' ? 'Arrivé' :
-                                                    'Annulé'}
-                                        </Badge>
-                                    </TableCell>
-                                    <TableCell>
-                                        {apt.consultation ? (
-                                            <Badge variant={apt.consultation.status === 'completed' ? 'default' : 'outline'} className={
-                                                apt.consultation.status === 'in_progress' ? "animate-pulse border-blue-500 text-blue-500" : ""
-                                            }>
-                                                {apt.consultation.status === 'completed' ? 'Terminée' : 'En cours'}
-                                            </Badge>
-                                        ) : (
-                                            <span className="text-xs text-muted-foreground">--</span>
-                                        )}
-                                    </TableCell>
-                                    <TableCell className="text-right">
-                                        <div className="flex justify-end gap-2">
-                                            {apt.status === 'scheduled' && (
-                                                <Button size="sm" onClick={() => handleStartCheckIn(apt)} variant="default" className="gap-1">
-                                                    <Play className="h-3 w-3" /> Démarrer
-                                                </Button>
-                                            )}
-                                            {apt.status === 'checked_in' && (
-                                                <>
+                </TabsContent>
+
+                <TabsContent value="consultation">
+                    <div className="rounded-xl border bg-card text-card-foreground shadow-sm overflow-hidden">
+                        {enConsultation.length === 0 ? (
+                            <div className="flex flex-col items-center justify-center py-20 space-y-4">
+                                <Play className="h-16 w-16 text-muted-foreground opacity-20" />
+                                <div className="text-center">
+                                    <h3 className="text-xl font-semibold">Aucune consultation en cours</h3>
+                                    <p className="text-muted-foreground">Démarrez une consultation depuis l'onglet "En attente".</p>
+                                </div>
+                            </div>
+                        ) : (
+                            <Table>
+                                <TableHeader className="bg-muted/50">
+                                    <TableRow>
+                                        <TableHead className="w-[100px]">Heure</TableHead>
+                                        <TableHead>Patient</TableHead>
+                                        <TableHead>Motif</TableHead>
+                                        <TableHead>Statut Med.</TableHead>
+                                        <TableHead className="text-right">Actions</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {enConsultation.map((apt) => (
+                                        <TableRow key={apt.id} className="hover:bg-muted/30 transition-colors">
+                                            <TableCell className="font-semibold text-primary">
+                                                {apt.time || (apt.date && apt.date.includes('T') ? apt.date.split('T')[1].substring(0, 5) : "--:--")}
+                                            </TableCell>
+                                            <TableCell className="font-medium">
+                                                {apt.patient.first_name} {apt.patient.last_name}
+                                            </TableCell>
+                                            <TableCell className="text-muted-foreground">{apt.title}</TableCell>
+                                            <TableCell>
+                                                <Badge variant="outline" className="animate-pulse border-blue-500 text-blue-500">
+                                                    En cours
+                                                </Badge>
+                                            </TableCell>
+                                            <TableCell className="text-right">
+                                                <div className="flex justify-end gap-2">
                                                     <Button
                                                         size="sm"
                                                         variant="outline"
@@ -335,31 +422,193 @@ export function Today() {
                                                     >
                                                         <Eye className="h-3 w-3" /> Voir
                                                     </Button>
-                                                    {apt.consultation?.status !== 'completed' && (
-                                                        <Button
-                                                            size="sm"
-                                                            variant="default"
-                                                            onClick={() => handleCompleteConsultation(apt)}
-                                                            className="gap-1 bg-emerald-600 hover:bg-emerald-700"
-                                                        >
-                                                            <CheckCircle2 className="h-3 w-3" /> Terminer
-                                                        </Button>
-                                                    )}
-                                                </>
-                                            )}
-                                            {apt.status === 'scheduled' && (
-                                                <Button size="sm" variant="ghost" className="text-destructive hover:text-destructive hover:bg-destructive/10" onClick={() => handleCancelAppointment(apt.id)}>
-                                                    <XCircle className="h-3 w-3" />
-                                                </Button>
-                                            )}
-                                        </div>
-                                    </TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                )}
-            </div>
+                                                    <Button
+                                                        size="sm"
+                                                        variant="default"
+                                                        onClick={() => handleCompleteConsultation(apt)}
+                                                        className="gap-1 bg-emerald-600 hover:bg-emerald-700"
+                                                    >
+                                                        <CheckCircle2 className="h-3 w-3" /> Terminer
+                                                    </Button>
+                                                </div>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        )}
+                    </div>
+                </TabsContent>
+
+                <TabsContent value="termines">
+                    <div className="rounded-xl border bg-card text-card-foreground shadow-sm overflow-hidden">
+                        {termines.length === 0 ? (
+                            <div className="flex flex-col items-center justify-center py-20 space-y-4">
+                                <CheckCircle2 className="h-16 w-16 text-muted-foreground opacity-20" />
+                                <div className="text-center">
+                                    <h3 className="text-xl font-semibold">Aucun patient terminé</h3>
+                                    <p className="text-muted-foreground">Les consultations terminées aujourd'hui s'afficheront ici.</p>
+                                </div>
+                            </div>
+                        ) : (
+                            <Table>
+                                <TableHeader className="bg-muted/50">
+                                    <TableRow>
+                                        <TableHead className="w-[100px]">Heure</TableHead>
+                                        <TableHead>Patient</TableHead>
+                                        <TableHead>Motif</TableHead>
+                                        <TableHead>Type</TableHead>
+                                        <TableHead className="text-right">Actions</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {termines.map((item) => {
+                                        const isAppointment = 'time' in item;
+                                        const time = isAppointment ? item.time : format(new Date(item.date), "HH:mm");
+                                        const patient = item.patient;
+                                        const title = isAppointment ? item.title : item.reason;
+
+                                        return (
+                                            <TableRow key={`${isAppointment ? 'a' : 'c'}-${item.id}`} className="hover:bg-muted/30 transition-colors">
+                                                <TableCell className="font-semibold text-muted-foreground">
+                                                    {time}
+                                                </TableCell>
+                                                <TableCell className="font-medium">
+                                                    {patient.first_name} {patient.last_name}
+                                                </TableCell>
+                                                <TableCell className="text-muted-foreground italic">{title || "Sans motif"}</TableCell>
+                                                <TableCell>
+                                                    <Badge variant="secondary" className="font-normal">
+                                                        {isAppointment ? "Rendez-vous" : "Directe"}
+                                                    </Badge>
+                                                </TableCell>
+                                                <TableCell className="text-right">
+                                                    <Button
+                                                        size="sm"
+                                                        variant="ghost"
+                                                        onClick={() => navigate(`/pat/${patient.id}`)}
+                                                        className="gap-1 hover:bg-primary/10 hover:text-primary"
+                                                    >
+                                                        <Eye className="h-3 w-3" /> Dossier
+                                                    </Button>
+                                                </TableCell>
+                                            </TableRow>
+                                        );
+                                    })}
+                                </TableBody>
+                            </Table>
+                        )}
+                    </div>
+                </TabsContent>
+
+                <TabsContent value="annulations">
+                    <div className="rounded-xl border bg-card text-card-foreground shadow-sm overflow-hidden">
+                        {annulations.length === 0 ? (
+                            <div className="flex flex-col items-center justify-center py-20 space-y-4">
+                                <XCircle className="h-16 w-16 text-muted-foreground opacity-20" />
+                                <div className="text-center">
+                                    <h3 className="text-xl font-semibold">Aucune annulation</h3>
+                                    <p className="text-muted-foreground">Les rendez-vous annulés aujourd'hui s'afficheront ici.</p>
+                                </div>
+                            </div>
+                        ) : (
+                            <Table>
+                                <TableHeader className="bg-muted/50">
+                                    <TableRow>
+                                        <TableHead className="w-[100px]">Heure</TableHead>
+                                        <TableHead>Patient</TableHead>
+                                        <TableHead>Motif</TableHead>
+                                        <TableHead className="text-right">Action</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {annulations.map((apt) => (
+                                        <TableRow key={apt.id} className="hover:bg-muted/30 transition-colors opacity-70">
+                                            <TableCell className="font-semibold text-muted-foreground line-through">
+                                                {apt.time || (apt.date && apt.date.includes('T') ? apt.date.split('T')[1].substring(0, 5) : "--:--")}
+                                            </TableCell>
+                                            <TableCell className="font-medium">
+                                                {apt.patient.first_name} {apt.patient.last_name}
+                                            </TableCell>
+                                            <TableCell className="text-muted-foreground italic">{apt.title}</TableCell>
+                                            <TableCell className="text-right">
+                                                <Badge variant="destructive" className="bg-destructive/10 text-destructive border-destructive/20 font-normal">
+                                                    Annulé
+                                                </Badge>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        )}
+                    </div>
+                </TabsContent>
+
+                <TabsContent value="journal">
+                    <div className="rounded-xl border bg-card text-card-foreground shadow-sm overflow-hidden">
+                        {journal.length === 0 ? (
+                            <div className="flex flex-col items-center justify-center py-20 space-y-4">
+                                <History className="h-16 w-16 text-muted-foreground opacity-20" />
+                                <div className="text-center">
+                                    <h3 className="text-xl font-semibold">Journal vide</h3>
+                                    <p className="text-muted-foreground">L'activité de la journée s'affichera ici chronologiquement.</p>
+                                </div>
+                            </div>
+                        ) : (
+                            <Table>
+                                <TableHeader className="bg-muted/50">
+                                    <TableRow>
+                                        <TableHead className="w-[120px]">Heure/Date</TableHead>
+                                        <TableHead>Patient</TableHead>
+                                        <TableHead>Type</TableHead>
+                                        <TableHead>Statut</TableHead>
+                                        <TableHead className="text-right">Actions</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {journal.map((item) => {
+                                        const isAppointment = 'time' in item;
+                                        const time = isAppointment ? item.time : format(new Date(item.date), "HH:mm");
+                                        const status = isAppointment ? item.status : item.status; // simplified
+                                        
+                                        return (
+                                            <TableRow key={`${isAppointment ? 'aj' : 'cj'}-${item.id}`} className="hover:bg-muted/30 transition-colors group">
+                                                <TableCell className="text-muted-foreground font-mono">
+                                                    {time}
+                                                </TableCell>
+                                                <TableCell className="font-medium">
+                                                    {item.patient.first_name} {item.patient.last_name}
+                                                </TableCell>
+                                                <TableCell>
+                                                    <Badge variant={isAppointment ? "outline" : "secondary"}>
+                                                        {isAppointment ? "RDV" : "Directe"}
+                                                    </Badge>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <Badge variant={
+                                                        status === 'completed' ? 'default' :
+                                                        status === 'in_progress' ? 'secondary' :
+                                                        status === 'cancelled' ? 'destructive' : 'outline'
+                                                    } className={status === 'in_progress' ? 'animate-pulse' : ''}>
+                                                        {status === 'scheduled' ? 'Attente' :
+                                                         status === 'checked_in' || status === 'in_progress' ? 'En cours' :
+                                                         status === 'completed' ? 'Terminé' : 'Annulé'}
+                                                    </Badge>
+                                                </TableCell>
+                                                <TableCell className="text-right">
+                                                    <Button variant="ghost" size="sm" onClick={() => navigate(`/pat/${item.patient.id}`)}>
+                                                        <Eye className="h-4 w-4" />
+                                                    </Button>
+                                                </TableCell>
+                                            </TableRow>
+                                        );
+                                    })}
+                                </TableBody>
+                            </Table>
+                        )}
+                    </div>
+                </TabsContent>
+            </Tabs>
 
             <GlobalAddAppointmentModal
                 isOpen={isAddModalOpen}

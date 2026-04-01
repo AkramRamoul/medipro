@@ -18512,8 +18512,8 @@ var require_encodeurl = __commonJS({
     var ENCODE_CHARS_REGEXP = /(?:[^\x21\x23-\x3B\x3D\x3F-\x5F\x61-\x7A\x7C\x7E]|%(?:[^0-9A-Fa-f]|[0-9A-Fa-f][^0-9A-Fa-f]|$))+/g;
     var UNMATCHED_SURROGATE_PAIR_REGEXP = /(^|[^\uD800-\uDBFF])[\uDC00-\uDFFF]|[\uD800-\uDBFF]([^\uDC00-\uDFFF]|$)/g;
     var UNMATCHED_SURROGATE_PAIR_REPLACE = "$1\uFFFD$2";
-    function encodeUrl(url3) {
-      return String(url3).replace(UNMATCHED_SURROGATE_PAIR_REGEXP, UNMATCHED_SURROGATE_PAIR_REPLACE).replace(ENCODE_CHARS_REGEXP, encodeURI);
+    function encodeUrl(url2) {
+      return String(url2).replace(UNMATCHED_SURROGATE_PAIR_REGEXP, UNMATCHED_SURROGATE_PAIR_REPLACE).replace(ENCODE_CHARS_REGEXP, encodeURI);
     }
   }
 });
@@ -18569,35 +18569,35 @@ var require_escape_html = __commonJS({
 var require_parseurl = __commonJS({
   "node_modules/parseurl/index.js"(exports2, module2) {
     "use strict";
-    var url3 = require("url");
-    var parse4 = url3.parse;
-    var Url = url3.Url;
+    var url2 = require("url");
+    var parse4 = url2.parse;
+    var Url = url2.Url;
     module2.exports = parseurl;
     module2.exports.original = originalurl;
     function parseurl(req) {
-      var url4 = req.url;
-      if (url4 === void 0) {
+      var url3 = req.url;
+      if (url3 === void 0) {
         return void 0;
       }
       var parsed = req._parsedUrl;
-      if (fresh(url4, parsed)) {
+      if (fresh(url3, parsed)) {
         return parsed;
       }
-      parsed = fastparse(url4);
-      parsed._raw = url4;
+      parsed = fastparse(url3);
+      parsed._raw = url3;
       return req._parsedUrl = parsed;
     }
     function originalurl(req) {
-      var url4 = req.originalUrl;
-      if (typeof url4 !== "string") {
+      var url3 = req.originalUrl;
+      if (typeof url3 !== "string") {
         return parseurl(req);
       }
       var parsed = req._parsedOriginalUrl;
-      if (fresh(url4, parsed)) {
+      if (fresh(url3, parsed)) {
         return parsed;
       }
-      parsed = fastparse(url4);
-      parsed._raw = url4;
+      parsed = fastparse(url3);
+      parsed._raw = url3;
       return req._parsedOriginalUrl = parsed;
     }
     function fastparse(str) {
@@ -18633,18 +18633,18 @@ var require_parseurl = __commonJS({
             return parse4(str);
         }
       }
-      var url4 = Url !== void 0 ? new Url() : {};
-      url4.path = str;
-      url4.href = str;
-      url4.pathname = pathname;
+      var url3 = Url !== void 0 ? new Url() : {};
+      url3.path = str;
+      url3.href = str;
+      url3.pathname = pathname;
       if (search !== null) {
-        url4.query = query;
-        url4.search = search;
+        url3.query = query;
+        url3.search = search;
       }
-      return url4;
+      return url3;
     }
-    function fresh(url4, parsedUrl) {
-      return typeof parsedUrl === "object" && parsedUrl !== null && (Url === void 0 || parsedUrl instanceof Url) && parsedUrl._raw === url4;
+    function fresh(url3, parsedUrl) {
+      return typeof parsedUrl === "object" && parsedUrl !== null && (Url === void 0 || parsedUrl instanceof Url) && parsedUrl._raw === url3;
     }
   }
 });
@@ -20827,14 +20827,14 @@ var require_router = __commonJS({
         return void 0;
       }
     }
-    function getProtohost(url3) {
-      if (typeof url3 !== "string" || url3.length === 0 || url3[0] === "/") {
+    function getProtohost(url2) {
+      if (typeof url2 !== "string" || url2.length === 0 || url2[0] === "/") {
         return void 0;
       }
-      const searchIndex = url3.indexOf("?");
-      const pathLength = searchIndex !== -1 ? searchIndex : url3.length;
-      const fqdnIndex = url3.substring(0, pathLength).indexOf("://");
-      return fqdnIndex !== -1 ? url3.substring(0, url3.indexOf("/", 3 + fqdnIndex)) : void 0;
+      const searchIndex = url2.indexOf("?");
+      const pathLength = searchIndex !== -1 ? searchIndex : url2.length;
+      const fqdnIndex = url2.substring(0, pathLength).indexOf("://");
+      return fqdnIndex !== -1 ? url2.substring(0, url2.indexOf("/", 3 + fqdnIndex)) : void 0;
     }
     function matchLayer(layer, path10) {
       try {
@@ -23355,11 +23355,11 @@ var require_response = __commonJS({
       this.append("Set-Cookie", cookie.serialize(name2, String(val), opts));
       return this;
     };
-    res.location = function location(url3) {
-      return this.set("Location", encodeUrl(url3));
+    res.location = function location(url2) {
+      return this.set("Location", encodeUrl(url2));
     };
-    res.redirect = function redirect(url3) {
-      var address = url3;
+    res.redirect = function redirect(url2) {
+      var address = url2;
       var body;
       var status = 302;
       if (arguments.length === 2) {
@@ -23513,7 +23513,7 @@ var require_serve_static = __commonJS({
     var parseUrl = require_parseurl();
     var resolve = require("path").resolve;
     var send = require_send();
-    var url3 = require("url");
+    var url2 = require("url");
     module2.exports = serveStatic;
     function serveStatic(root, options) {
       if (!root) {
@@ -23594,7 +23594,7 @@ var require_serve_static = __commonJS({
         var originalUrl = parseUrl.original(this.req);
         originalUrl.path = null;
         originalUrl.pathname = collapseLeadingSlashes(originalUrl.pathname + "/");
-        var loc = encodeUrl(url3.format(originalUrl));
+        var loc = encodeUrl(url2.format(originalUrl));
         var doc = createHtmlDocument("Redirecting", "Redirecting to " + escapeHtml(loc));
         res.statusCode = 301;
         res.setHeader("Content-Type", "text/html; charset=UTF-8");
@@ -28346,8 +28346,8 @@ var require_url_state_machine = __commonJS({
     function isSpecialScheme(scheme) {
       return specialSchemes[scheme] !== void 0;
     }
-    function isSpecial(url3) {
-      return isSpecialScheme(url3.scheme);
+    function isSpecial(url2) {
+      return isSpecialScheme(url2.scheme);
     }
     function defaultPort(scheme) {
       return specialSchemes[scheme];
@@ -28669,38 +28669,38 @@ var require_url_state_machine = __commonJS({
       }
       return host;
     }
-    function trimControlChars(url3) {
-      return url3.replace(/^[\u0000-\u001F\u0020]+|[\u0000-\u001F\u0020]+$/g, "");
+    function trimControlChars(url2) {
+      return url2.replace(/^[\u0000-\u001F\u0020]+|[\u0000-\u001F\u0020]+$/g, "");
     }
-    function trimTabAndNewline(url3) {
-      return url3.replace(/\u0009|\u000A|\u000D/g, "");
+    function trimTabAndNewline(url2) {
+      return url2.replace(/\u0009|\u000A|\u000D/g, "");
     }
-    function shortenPath(url3) {
-      const path10 = url3.path;
+    function shortenPath(url2) {
+      const path10 = url2.path;
       if (path10.length === 0) {
         return;
       }
-      if (url3.scheme === "file" && path10.length === 1 && isNormalizedWindowsDriveLetter(path10[0])) {
+      if (url2.scheme === "file" && path10.length === 1 && isNormalizedWindowsDriveLetter(path10[0])) {
         return;
       }
       path10.pop();
     }
-    function includesCredentials(url3) {
-      return url3.username !== "" || url3.password !== "";
+    function includesCredentials(url2) {
+      return url2.username !== "" || url2.password !== "";
     }
-    function cannotHaveAUsernamePasswordPort(url3) {
-      return url3.host === null || url3.host === "" || url3.cannotBeABaseURL || url3.scheme === "file";
+    function cannotHaveAUsernamePasswordPort(url2) {
+      return url2.host === null || url2.host === "" || url2.cannotBeABaseURL || url2.scheme === "file";
     }
     function isNormalizedWindowsDriveLetter(string5) {
       return /^[A-Za-z]:$/.test(string5);
     }
-    function URLStateMachine(input, base, encodingOverride, url3, stateOverride) {
+    function URLStateMachine(input, base, encodingOverride, url2, stateOverride) {
       this.pointer = 0;
       this.input = input;
       this.base = base || null;
       this.encodingOverride = encodingOverride || "utf-8";
       this.stateOverride = stateOverride;
-      this.url = url3;
+      this.url = url2;
       this.failure = false;
       this.parseError = false;
       if (!this.url) {
@@ -29253,36 +29253,36 @@ var require_url_state_machine = __commonJS({
       }
       return true;
     };
-    function serializeURL(url3, excludeFragment) {
-      let output = url3.scheme + ":";
-      if (url3.host !== null) {
+    function serializeURL(url2, excludeFragment) {
+      let output = url2.scheme + ":";
+      if (url2.host !== null) {
         output += "//";
-        if (url3.username !== "" || url3.password !== "") {
-          output += url3.username;
-          if (url3.password !== "") {
-            output += ":" + url3.password;
+        if (url2.username !== "" || url2.password !== "") {
+          output += url2.username;
+          if (url2.password !== "") {
+            output += ":" + url2.password;
           }
           output += "@";
         }
-        output += serializeHost(url3.host);
-        if (url3.port !== null) {
-          output += ":" + url3.port;
+        output += serializeHost(url2.host);
+        if (url2.port !== null) {
+          output += ":" + url2.port;
         }
-      } else if (url3.host === null && url3.scheme === "file") {
+      } else if (url2.host === null && url2.scheme === "file") {
         output += "//";
       }
-      if (url3.cannotBeABaseURL) {
-        output += url3.path[0];
+      if (url2.cannotBeABaseURL) {
+        output += url2.path[0];
       } else {
-        for (const string5 of url3.path) {
+        for (const string5 of url2.path) {
           output += "/" + string5;
         }
       }
-      if (url3.query !== null) {
-        output += "?" + url3.query;
+      if (url2.query !== null) {
+        output += "?" + url2.query;
       }
-      if (!excludeFragment && url3.fragment !== null) {
-        output += "#" + url3.fragment;
+      if (!excludeFragment && url2.fragment !== null) {
+        output += "#" + url2.fragment;
       }
       return output;
     }
@@ -29295,11 +29295,11 @@ var require_url_state_machine = __commonJS({
       return result;
     }
     module2.exports.serializeURL = serializeURL;
-    module2.exports.serializeURLOrigin = function(url3) {
-      switch (url3.scheme) {
+    module2.exports.serializeURLOrigin = function(url2) {
+      switch (url2.scheme) {
         case "blob":
           try {
-            return module2.exports.serializeURLOrigin(module2.exports.parseURL(url3.path[0]));
+            return module2.exports.serializeURLOrigin(module2.exports.parseURL(url2.path[0]));
           } catch (e) {
             return "null";
           }
@@ -29310,9 +29310,9 @@ var require_url_state_machine = __commonJS({
         case "ws":
         case "wss":
           return serializeOrigin({
-            scheme: url3.scheme,
-            host: url3.host,
-            port: url3.port
+            scheme: url2.scheme,
+            host: url2.host,
+            port: url2.port
           });
         case "file":
           return "file://";
@@ -29330,18 +29330,18 @@ var require_url_state_machine = __commonJS({
       }
       return usm.url;
     };
-    module2.exports.setTheUsername = function(url3, username) {
-      url3.username = "";
+    module2.exports.setTheUsername = function(url2, username) {
+      url2.username = "";
       const decoded = punycode.ucs2.decode(username);
       for (let i = 0; i < decoded.length; ++i) {
-        url3.username += percentEncodeChar(decoded[i], isUserinfoPercentEncode);
+        url2.username += percentEncodeChar(decoded[i], isUserinfoPercentEncode);
       }
     };
-    module2.exports.setThePassword = function(url3, password) {
-      url3.password = "";
+    module2.exports.setThePassword = function(url2, password) {
+      url2.password = "";
       const decoded = punycode.ucs2.decode(password);
       for (let i = 0; i < decoded.length; ++i) {
-        url3.password += percentEncodeChar(decoded[i], isUserinfoPercentEncode);
+        url2.password += percentEncodeChar(decoded[i], isUserinfoPercentEncode);
       }
     };
     module2.exports.serializeHost = serializeHost;
@@ -29365,7 +29365,7 @@ var require_URL_impl = __commonJS({
     var usm = require_url_state_machine();
     exports2.implementation = class URLImpl {
       constructor(constructorArgs) {
-        const url3 = constructorArgs[0];
+        const url2 = constructorArgs[0];
         const base = constructorArgs[1];
         let parsedBase = null;
         if (base !== void 0) {
@@ -29374,7 +29374,7 @@ var require_URL_impl = __commonJS({
             throw new TypeError("Invalid base URL");
           }
         }
-        const parsedURL = usm.basicURLParse(url3, { baseURL: parsedBase });
+        const parsedURL = usm.basicURLParse(url2, { baseURL: parsedBase });
         if (parsedURL === "failure") {
           throw new TypeError("Invalid URL");
         }
@@ -29418,14 +29418,14 @@ var require_URL_impl = __commonJS({
         usm.setThePassword(this._url, v);
       }
       get host() {
-        const url3 = this._url;
-        if (url3.host === null) {
+        const url2 = this._url;
+        if (url2.host === null) {
           return "";
         }
-        if (url3.port === null) {
-          return usm.serializeHost(url3.host);
+        if (url2.port === null) {
+          return usm.serializeHost(url2.host);
         }
-        return usm.serializeHost(url3.host) + ":" + usm.serializeInteger(url3.port);
+        return usm.serializeHost(url2.host) + ":" + usm.serializeInteger(url2.port);
       }
       set host(v) {
         if (this._url.cannotBeABaseURL) {
@@ -29484,14 +29484,14 @@ var require_URL_impl = __commonJS({
         return "?" + this._url.query;
       }
       set search(v) {
-        const url3 = this._url;
+        const url2 = this._url;
         if (v === "") {
-          url3.query = null;
+          url2.query = null;
           return;
         }
         const input = v[0] === "?" ? v.substring(1) : v;
-        url3.query = "";
-        usm.basicURLParse(input, { url: url3, stateOverride: "query" });
+        url2.query = "";
+        usm.basicURLParse(input, { url: url2, stateOverride: "query" });
       }
       get hash() {
         if (this._url.fragment === null || this._url.fragment === "") {
@@ -29523,7 +29523,7 @@ var require_URL = __commonJS({
     var utils = require_utils4();
     var Impl = require_URL_impl();
     var impl = utils.implSymbol;
-    function URL3(url3) {
+    function URL3(url2) {
       if (!this || this[impl] || !(this instanceof URL3)) {
         throw new TypeError("Failed to construct 'URL': Please use the 'new' operator, this DOM object constructor cannot be called as a function.");
       }
@@ -34391,13 +34391,13 @@ var require_lib6 = __commonJS({
       const dest = new URL$1(destination).protocol;
       return orig === dest;
     };
-    function fetch3(url3, opts) {
+    function fetch3(url2, opts) {
       if (!fetch3.Promise) {
         throw new Error("native promise missing, set fetch.Promise to your favorite alternative");
       }
       Body.Promise = fetch3.Promise;
       return new fetch3.Promise(function(resolve, reject) {
-        const request = new Request6(url3, opts);
+        const request = new Request6(url2, opts);
         const options = getNodeRequestOptions(request);
         const send = (options.protocol === "https:" ? https : http).request;
         const signal = request.signal;
@@ -34641,11 +34641,11 @@ var require_node_ponyfill = __commonJS({
   "node_modules/cross-fetch/dist/node-ponyfill.js"(exports2, module2) {
     var nodeFetch = require_lib6();
     var realFetch = nodeFetch.default || nodeFetch;
-    var fetch3 = function(url3, options) {
-      if (/^\/\//.test(url3)) {
-        url3 = "https:" + url3;
+    var fetch3 = function(url2, options) {
+      if (/^\/\//.test(url2)) {
+        url2 = "https:" + url2;
       }
-      return realFetch.call(this, url3, options);
+      return realFetch.call(this, url2, options);
     };
     fetch3.ponyfill = true;
     module2.exports = exports2 = fetch3;
@@ -110094,11 +110094,11 @@ var require_Open = __commonJS({
         };
         return directory(source, options);
       },
-      s3: function(client2, params, options) {
+      s3: function(client, params, options) {
         var source = {
           size: function() {
             return new Promise2(function(resolve, reject) {
-              client2.headObject(params, function(err, d) {
+              client.headObject(params, function(err, d) {
                 if (err)
                   reject(err);
                 else
@@ -110111,7 +110111,7 @@ var require_Open = __commonJS({
             for (var key in params)
               d[key] = params[key];
             d.Range = "bytes=" + offset + "-" + (length ? length : "");
-            return client2.getObject(d).createReadStream();
+            return client.getObject(d).createReadStream();
           }
         };
         return directory(source, options);
@@ -130122,14 +130122,14 @@ function expandConfig(config2, preferHttp) {
   if (typeof config2 !== "object") {
     throw new TypeError(`Expected client configuration as object, got ${typeof config2}`);
   }
-  let { url: url3, authToken, tls, intMode, concurrency } = config2;
+  let { url: url2, authToken, tls, intMode, concurrency } = config2;
   concurrency = Math.max(0, concurrency || 20);
   intMode ??= "number";
   let connectionQueryParams = [];
-  if (url3 === inMemoryMode) {
-    url3 = "file::memory:";
+  if (url2 === inMemoryMode) {
+    url2 = "file::memory:";
   }
-  const uri = parseUri(url3);
+  const uri = parseUri(url2);
   const originalUriScheme = uri.scheme.toLowerCase();
   const isInMemoryMode = originalUriScheme === "file" && uri.path === inMemoryMode && uri.authority === void 0;
   let queryParamsDef;
@@ -131762,9 +131762,9 @@ var WsCursor = class extends Cursor {
   #closed;
   #done;
   /** @private */
-  constructor(client2, stream, cursorId) {
+  constructor(client, stream, cursorId) {
     super();
-    this.#client = client2;
+    this.#client = client;
     this.#stream = stream;
     this.#cursorId = cursorId;
     this.#entryQueue = new Queue();
@@ -131837,19 +131837,19 @@ var WsStream = class _WsStream extends Stream {
   #closing;
   #closed;
   /** @private */
-  static open(client2) {
-    const streamId = client2._streamIdAlloc.alloc();
-    const stream = new _WsStream(client2, streamId);
+  static open(client) {
+    const streamId = client._streamIdAlloc.alloc();
+    const stream = new _WsStream(client, streamId);
     const responseCallback = () => void 0;
     const errorCallback = (e) => stream.#setClosed(e);
     const request = { type: "open_stream", streamId };
-    client2._sendRequest(request, { responseCallback, errorCallback });
+    client._sendRequest(request, { responseCallback, errorCallback });
     return stream;
   }
   /** @private */
-  constructor(client2, streamId) {
-    super(client2.intMode);
-    this.#client = client2;
+  constructor(client, streamId) {
+    super(client.intMode);
+    this.#client = client;
     this.#streamId = streamId;
     this.#queue = new Queue();
     this.#cursor = void 0;
@@ -133566,9 +133566,9 @@ var HttpStream = class extends Stream {
   #closed;
   #sqlIdAlloc;
   /** @private */
-  constructor(client2, baseUrl, jwt3, customFetch, remoteEncryptionKey) {
-    super(client2.intMode);
-    this.#client = client2;
+  constructor(client, baseUrl, jwt3, customFetch, remoteEncryptionKey) {
+    super(client.intMode);
+    this.#client = client;
     this.#baseUrl = baseUrl.toString();
     this.#jwt = jwt3;
     this.#fetch = customFetch;
@@ -133811,7 +133811,7 @@ var HttpStream = class extends Stream {
       batch: entry.batch
     }, endpoint.encoding, CursorReqBody, CursorReqBody2);
   }
-  #createRequest(url3, reqBody, encoding, jsonFun, protobufFun) {
+  #createRequest(url2, reqBody, encoding, jsonFun, protobufFun) {
     let bodyData;
     let contentType;
     if (encoding === "json") {
@@ -133831,7 +133831,7 @@ var HttpStream = class extends Stream {
     if (this.#remoteEncryptionKey !== void 0) {
       headers.set("x-turso-encryption-key", this.#remoteEncryptionKey);
     }
-    return new import_cross_fetch.Request(url3.toString(), { method: "POST", headers, body: bodyData });
+    return new import_cross_fetch.Request(url2.toString(), { method: "POST", headers, body: bodyData });
   }
 };
 function handlePipelineResponse(pipeline, respBody) {
@@ -133926,9 +133926,9 @@ var HttpClient = class extends Client {
   /** @private */
   _endpoint;
   /** @private */
-  constructor(url3, jwt3, customFetch, remoteEncryptionKey, protocolVersion = 2) {
+  constructor(url2, jwt3, customFetch, remoteEncryptionKey, protocolVersion = 2) {
     super();
-    this.#url = url3;
+    this.#url = url2;
     this.#jwt = jwt3;
     this.#fetch = customFetch ?? import_cross_fetch2.fetch;
     this.#remoteEncryptionKey = remoteEncryptionKey;
@@ -133994,8 +133994,8 @@ var HttpClient = class extends Client {
 async function findEndpoint(customFetch, clientUrl) {
   const fetch3 = customFetch;
   for (const endpoint of checkEndpoints) {
-    const url3 = new URL(endpoint.versionPath, clientUrl);
-    const request = new import_cross_fetch2.Request(url3.toString(), { method: "GET" });
+    const url2 = new URL(endpoint.versionPath, clientUrl);
+    const request = new import_cross_fetch2.Request(url2.toString(), { method: "GET" });
     const response = await fetch3(request);
     await response.arrayBuffer();
     if (response.ok) {
@@ -134007,7 +134007,7 @@ async function findEndpoint(customFetch, clientUrl) {
 
 // node_modules/@libsql/hrana-client/lib-esm/index.js
 var import_cross_fetch3 = __toESM(require_node_ponyfill(), 1);
-function openWs(url3, jwt3, protocolVersion = 2) {
+function openWs(url2, jwt3, protocolVersion = 2) {
   if (typeof import_websocket.default === "undefined") {
     throw new WebSocketUnsupportedError("WebSockets are not supported in this environment");
   }
@@ -134017,11 +134017,11 @@ function openWs(url3, jwt3, protocolVersion = 2) {
   } else {
     subprotocols = Array.from(subprotocolsV2.keys());
   }
-  const socket = new import_websocket.default(url3, subprotocols);
+  const socket = new import_websocket.default(url2, subprotocols);
   return new WsClient(socket, jwt3);
 }
-function openHttp(url3, jwt3, customFetch, remoteEncryptionKey, protocolVersion = 2) {
-  return new HttpClient(url3 instanceof URL ? url3 : new URL(url3), jwt3, customFetch, remoteEncryptionKey, protocolVersion);
+function openHttp(url2, jwt3, customFetch, remoteEncryptionKey, protocolVersion = 2) {
+  return new HttpClient(url2 instanceof URL ? url2 : new URL(url2), jwt3, customFetch, remoteEncryptionKey, protocolVersion);
 }
 
 // node_modules/@libsql/client/lib-esm/hrana.js
@@ -134390,10 +134390,10 @@ function _createClient2(config2) {
   } else if (config2.scheme === "wss" && !config2.tls) {
     throw new LibsqlError(`A "wss:" URL cannot opt out of TLS by using ?tls=0`, "URL_INVALID");
   }
-  const url3 = encodeBaseUrl(config2.scheme, config2.authority, config2.path);
-  let client2;
+  const url2 = encodeBaseUrl(config2.scheme, config2.authority, config2.path);
+  let client;
   try {
-    client2 = openWs(url3, config2.authToken);
+    client = openWs(url2, config2.authToken);
   } catch (e) {
     if (e instanceof WebSocketUnsupportedError) {
       const suggestedScheme = config2.scheme === "wss" ? "https" : "http";
@@ -134402,7 +134402,7 @@ function _createClient2(config2) {
     }
     throw mapHranaError(e);
   }
-  return new WsClient2(client2, url3, config2.authToken, config2.intMode, config2.concurrency);
+  return new WsClient2(client, url2, config2.authToken, config2.intMode, config2.concurrency);
 }
 var maxConnAgeMillis = 60 * 1e3;
 var sqlCacheCapacity = 100;
@@ -134420,11 +134420,11 @@ var WsClient2 = class {
   #isSchemaDatabase;
   #promiseLimitFunction;
   /** @private */
-  constructor(client2, url3, authToken, intMode, concurrency) {
-    this.#url = url3;
+  constructor(client, url2, authToken, intMode, concurrency) {
+    this.#url = url2;
     this.#authToken = authToken;
     this.#intMode = intMode;
-    this.#connState = this.#openConn(client2);
+    this.#connState = this.#openConn(client);
     this.#futureConnState = void 0;
     this.closed = false;
     this.protocol = "ws";
@@ -134582,13 +134582,13 @@ var WsClient2 = class {
       throw mapHranaError(e);
     }
   }
-  #openConn(client2) {
+  #openConn(client) {
     try {
-      client2 ??= openWs(this.#url, this.#authToken);
+      client ??= openWs(this.#url, this.#authToken);
       return {
-        client: client2,
+        client,
         useSqlCache: void 0,
-        sqlCache: new SqlCache(client2, 0),
+        sqlCache: new SqlCache(client, 0),
         openTime: /* @__PURE__ */ new Date(),
         streamStates: /* @__PURE__ */ new Set()
       };
@@ -134648,9 +134648,9 @@ var WsTransaction = class extends HranaTransaction {
   #client;
   #streamState;
   /** @private */
-  constructor(client2, state, mode, version5) {
+  constructor(client, state, mode, version5) {
     super(mode, version5);
-    this.#client = client2;
+    this.#client = client;
     this.#streamState = state;
   }
   /** @private */
@@ -134683,8 +134683,8 @@ function _createClient3(config2) {
   } else if (config2.scheme === "https" && !config2.tls) {
     throw new LibsqlError(`A "https:" URL cannot opt out of TLS by using ?tls=0`, "URL_INVALID");
   }
-  const url3 = encodeBaseUrl(config2.scheme, config2.authority, config2.path);
-  return new HttpClient2(url3, config2.authToken, config2.intMode, config2.fetch, config2.concurrency, config2.remoteEncryptionKey);
+  const url2 = encodeBaseUrl(config2.scheme, config2.authority, config2.path);
+  return new HttpClient2(url2, config2.authToken, config2.intMode, config2.fetch, config2.concurrency, config2.remoteEncryptionKey);
 }
 var sqlCacheCapacity2 = 30;
 var HttpClient2 = class {
@@ -134698,8 +134698,8 @@ var HttpClient2 = class {
   #remoteEncryptionKey;
   #promiseLimitFunction;
   /** @private */
-  constructor(url3, authToken, intMode, customFetch, concurrency, remoteEncryptionKey) {
-    this.#url = url3;
+  constructor(url2, authToken, intMode, customFetch, concurrency, remoteEncryptionKey) {
+    this.#url = url2;
     this.#authToken = authToken;
     this.#intMode = intMode;
     this.#customFetch = customFetch;
@@ -134894,9 +134894,9 @@ init_sqlite_core();
 init_session();
 init_utils();
 var LibSQLSession = class _LibSQLSession extends SQLiteSession {
-  constructor(client2, dialect, schema, options, tx) {
+  constructor(client, dialect, schema, options, tx) {
     super(dialect);
-    this.client = client2;
+    this.client = client;
     this.schema = schema;
     this.options = options;
     this.tx = tx;
@@ -134991,9 +134991,9 @@ var LibSQLTransaction = class _LibSQLTransaction extends SQLiteTransaction {
   }
 };
 var LibSQLPreparedQuery = class extends SQLitePreparedQuery {
-  constructor(client2, query, logger, cache, queryMetadata, cacheConfig, fields, tx, executeMethod, _isResponseInArrayMode, customResultMapper) {
+  constructor(client, query, logger, cache, queryMetadata, cacheConfig, fields, tx, executeMethod, _isResponseInArrayMode, customResultMapper) {
     super("async", executeMethod, query, cache, queryMetadata, cacheConfig);
-    this.client = client2;
+    this.client = client;
     this.logger = logger;
     this.fields = fields;
     this.tx = tx;
@@ -135012,13 +135012,13 @@ var LibSQLPreparedQuery = class extends SQLitePreparedQuery {
     });
   }
   async all(placeholderValues) {
-    const { fields, logger, query, tx, client: client2, customResultMapper } = this;
+    const { fields, logger, query, tx, client, customResultMapper } = this;
     if (!fields && !customResultMapper) {
       const params = fillPlaceholders(query.params, placeholderValues ?? {});
       logger.logQuery(query.sql, params);
       return await this.queryWithCache(query.sql, params, async () => {
         const stmt = { sql: query.sql, args: params };
-        return (tx ? tx.execute(stmt) : client2.execute(stmt)).then(({ rows: rows2 }) => this.mapAllResult(rows2));
+        return (tx ? tx.execute(stmt) : client.execute(stmt)).then(({ rows: rows2 }) => this.mapAllResult(rows2));
       });
     }
     const rows = await this.values(placeholderValues);
@@ -135043,13 +135043,13 @@ var LibSQLPreparedQuery = class extends SQLitePreparedQuery {
     });
   }
   async get(placeholderValues) {
-    const { fields, logger, query, tx, client: client2, customResultMapper } = this;
+    const { fields, logger, query, tx, client, customResultMapper } = this;
     if (!fields && !customResultMapper) {
       const params = fillPlaceholders(query.params, placeholderValues ?? {});
       logger.logQuery(query.sql, params);
       return await this.queryWithCache(query.sql, params, async () => {
         const stmt = { sql: query.sql, args: params };
-        return (tx ? tx.execute(stmt) : client2.execute(stmt)).then(({ rows: rows2 }) => this.mapGetResult(rows2));
+        return (tx ? tx.execute(stmt) : client.execute(stmt)).then(({ rows: rows2 }) => this.mapGetResult(rows2));
       });
     }
     const rows = await this.values(placeholderValues);
@@ -135119,7 +135119,7 @@ var LibSQLDatabase = class extends BaseSQLiteDatabase {
     return this.session.batch(batch);
   }
 };
-function construct(client2, config2 = {}) {
+function construct(client, config2 = {}) {
   const dialect = new SQLiteAsyncDialect({ casing: config2.casing });
   let logger;
   if (config2.logger === true) {
@@ -135139,9 +135139,9 @@ function construct(client2, config2 = {}) {
       tableNamesMap: tablesConfig.tableNamesMap
     };
   }
-  const session = new LibSQLSession(client2, dialect, schema, { logger, cache: config2.cache }, void 0);
+  const session = new LibSQLSession(client, dialect, schema, { logger, cache: config2.cache }, void 0);
   const db2 = new LibSQLDatabase("async", dialect, session, schema);
-  db2.$client = client2;
+  db2.$client = client;
   db2.$cache = config2.cache;
   if (db2.$cache) {
     db2.$cache["invalidate"] = config2.cache?.onMutate;
@@ -135158,8 +135158,8 @@ function drizzle(...params) {
     return construct(instance, params[1]);
   }
   if (isConfig(params[0])) {
-    const { connection, client: client2, ...drizzleConfig } = params[0];
-    if (client2) return construct(client2, drizzleConfig);
+    const { connection, client, ...drizzleConfig } = params[0];
+    if (client) return construct(client, drizzleConfig);
     const instance = typeof connection === "string" ? createClient({ url: connection }) : createClient(connection);
     return construct(instance, drizzleConfig);
   }
@@ -135174,26 +135174,27 @@ function drizzle(...params) {
 
 // src/db/index.ts
 var import_path2 = __toESM(require("path"));
-var url = `file:${import_path2.default.resolve(process.cwd(), env2.DATABASE_PATH)}`;
-var client = createClient({ url });
+var dbUrl = () => `file:${import_path2.default.resolve(process.cwd(), env2.DATABASE_PATH)}`;
+var _client = createClient({ url: dbUrl() });
+var _db = drizzle(_client);
 var seedInitialData = async () => {
   try {
     const { users: users2, documentTemplates: documentTemplates2, prescriptionTemplates: prescriptionTemplates2, prescriptionTemplateMedications: prescriptionTemplateMedications2 } = await Promise.resolve().then(() => (init_schema(), schema_exports));
     const { eq: eq2, sql: sql3 } = await Promise.resolve().then(() => (init_drizzle_orm(), drizzle_orm_exports));
     const bcrypt = await Promise.resolve().then(() => (init_bcryptjs(), bcryptjs_exports));
     const bootstrap = await Promise.resolve().then(() => __toESM(require_bootstrap()));
-    const existingUsers = await db.select().from(users2).limit(1);
+    const existingUsers = await _db.select().from(users2).limit(1);
     if (existingUsers.length === 0) {
       console.log("\u{1F331} No users found. Bootstrapping admin account...");
       const hashedPassword = await bcrypt.default.hash(bootstrap.default.password, 10);
-      await db.insert(users2).values({
+      await _db.insert(users2).values({
         email: bootstrap.default.email,
         password: hashedPassword,
         role: "admin"
       });
       console.log(`\u2705 Admin account created: ${bootstrap.default.email}`);
     }
-    const existingDocTemplates = await db.select().from(documentTemplates2).limit(1);
+    const existingDocTemplates = await _db.select().from(documentTemplates2).limit(1);
     if (existingDocTemplates.length === 0) {
       console.log("\u{1F331} Seeding default document templates...");
       const docTemplates = [
@@ -135277,7 +135278,7 @@ var seedInitialData = async () => {
         }
       ];
       for (const tpl of docTemplates) {
-        await db.insert(documentTemplates2).values({
+        await _db.insert(documentTemplates2).values({
           ...tpl,
           createdAt: (/* @__PURE__ */ new Date()).toISOString(),
           updatedAt: (/* @__PURE__ */ new Date()).toISOString()
@@ -135285,7 +135286,7 @@ var seedInitialData = async () => {
       }
       console.log("\u2705 Document templates seeded.");
     }
-    const existingPTemplates = await db.select().from(prescriptionTemplates2).limit(1);
+    const existingPTemplates = await _db.select().from(prescriptionTemplates2).limit(1);
     if (existingPTemplates.length === 0) {
       console.log("\u{1F331} Seeding default prescription templates...");
       const pTemplates = [
@@ -135298,11 +135299,11 @@ var seedInitialData = async () => {
         }
       ];
       for (const pt of pTemplates) {
-        const [inserted] = await db.insert(prescriptionTemplates2).values({
+        const [inserted] = await _db.insert(prescriptionTemplates2).values({
           name: pt.name
         }).returning({ id: prescriptionTemplates2.id });
         for (const med of pt.meds) {
-          await db.insert(prescriptionTemplateMedications2).values({
+          await _db.insert(prescriptionTemplateMedications2).values({
             ...med,
             templateId: inserted.id
           });
@@ -135314,8 +135315,38 @@ var seedInitialData = async () => {
     console.error("\u274C Failed to seed initial data:", error48);
   }
 };
+var db = new Proxy({}, {
+  get(_t, prop) {
+    const val = _db[prop];
+    return typeof val === "function" ? val.bind(_db) : val;
+  },
+  set(_t, prop, val) {
+    _db[prop] = val;
+    return true;
+  }
+});
+var sqlite = new Proxy({}, {
+  get(_t, prop) {
+    const val = _client[prop];
+    return typeof val === "function" ? val.bind(_client) : val;
+  },
+  set(_t, prop, val) {
+    _client[prop] = val;
+    return true;
+  }
+});
 seedInitialData();
-var db = drizzle(client);
+async function reinitializeDb() {
+  console.log("\u{1F504} Reinitializing database connection after restore...");
+  try {
+    _client.close();
+  } catch (_2) {
+  }
+  _client = createClient({ url: dbUrl() });
+  _db = drizzle(_client);
+  await seedInitialData();
+  console.log("\u2705 Database connection restored successfully.");
+}
 
 // src/services/patient.service.ts
 init_schema();
@@ -135704,6 +135735,7 @@ var RolePermissions = {
     "VIEW_PRESCRIPTIONS",
     "CREATE_PRESCRIPTIONS",
     "VIEW_EXPENSES",
+    "MANAGE_EXPENSES",
     "MANAGE_SETTINGS"
   ],
   receptionist: [
@@ -135974,7 +136006,9 @@ var ConsultationService = class {
       busiestDays,
       allPatientsConsultations,
       genderDistribution,
-      ageDistribution
+      ageDistribution,
+      [earningsYear],
+      [expensesYear]
     ] = await Promise.all([
       db.select({ count: sql`count(*)` }).from(consultations).where(
         sql`strftime('%Y-%m', ${consultations.date}) = strftime('%Y-%m', CURRENT_TIMESTAMP)`
@@ -136051,7 +136085,9 @@ var ConsultationService = class {
       }).from(patients).groupBy(sql`case 
                     when age < 18 then 'Pédiatrie'
                     when age between 18 and 60 then 'Adulte'
-                    else 'Senior' end`)
+                    else 'Senior' end`),
+      db.select({ sum: sql`COALESCE(sum(${consultations.amountPaid}), 0)` }).from(consultations).where(sql`strftime('%Y', ${consultations.date}) = strftime('%Y', CURRENT_TIMESTAMP)`),
+      db.select({ sum: sql`COALESCE(sum(${expenses.amount}), 0)` }).from(expenses).where(sql`strftime('%Y', ${expenses.date}) = strftime('%Y', CURRENT_TIMESTAMP)`)
     ]);
     const totalUniquePatientsCount = allPatientsConsultations.length;
     const totalReturnPatientsCount = allPatientsConsultations.filter((p) => p.count > 1).length;
@@ -136078,8 +136114,63 @@ var ConsultationService = class {
       totalReturnPatients: totalReturnPatientsCount,
       totalUniquePatients: totalUniquePatientsCount,
       genderDistribution,
-      ageDistribution
+      ageDistribution,
+      earningsYear: earningsYear.sum || 0,
+      expensesYear: expensesYear.sum || 0
     };
+  }
+  async getFinancialStats() {
+    const months = [
+      "Janv",
+      "F\xE9vr",
+      "Mars",
+      "Avr",
+      "Mai",
+      "Juin",
+      "Juil",
+      "Ao\xFBt",
+      "Sept",
+      "Oct",
+      "Nov",
+      "D\xE9c"
+    ];
+    const currentYear = (/* @__PURE__ */ new Date()).getFullYear();
+    const revenueResults = await db.select({
+      month: sql`strftime('%m', ${consultations.date})`,
+      total: sql`sum(${consultations.amountPaid})`
+    }).from(consultations).where(sql`strftime('%Y', ${consultations.date}) = ${String(currentYear)}`).groupBy(sql`strftime('%m', ${consultations.date})`);
+    const expenseResults = await db.select({
+      month: sql`strftime('%m', ${expenses.date})`,
+      total: sql`sum(${expenses.amount})`
+    }).from(expenses).where(sql`strftime('%Y', ${expenses.date}) = ${String(currentYear)}`).groupBy(sql`strftime('%m', ${expenses.date})`);
+    const revenueMap = {};
+    for (const row of revenueResults) {
+      revenueMap[row.month] = row.total || 0;
+    }
+    const expenseMap = {};
+    for (const row of expenseResults) {
+      expenseMap[row.month] = row.total || 0;
+    }
+    return months.map((name2, index2) => {
+      const monthNumber = String(index2 + 1).padStart(2, "0");
+      const revenue = revenueMap[monthNumber] || 0;
+      const expense = expenseMap[monthNumber] || 0;
+      return {
+        name: name2,
+        revenue,
+        expense,
+        profit: revenue - expense
+      };
+    });
+  }
+  async getExpenseBreakdown() {
+    const result = await db.select({
+      category: expenses.category,
+      total: sql`sum(${expenses.amount})`
+    }).from(expenses).where(
+      sql`strftime('%Y-%m', ${expenses.date}) = strftime('%Y-%m', CURRENT_TIMESTAMP)`
+    ).groupBy(expenses.category).orderBy(desc(sql`sum(${expenses.amount})`));
+    return result;
   }
   async getMonthlyPatients() {
     const months = [
@@ -136271,6 +136362,22 @@ router2.get("/diagnostics/common", async (req, res, next) => {
   try {
     const diagnostics = await consultationService.getCommonDiagnostics();
     res.json(diagnostics);
+  } catch (error48) {
+    next(error48);
+  }
+});
+router2.get("/financial-stats", authorize("VIEW_DASHBOARD_STATS"), async (req, res, next) => {
+  try {
+    const stats = await consultationService.getFinancialStats();
+    res.json(stats);
+  } catch (error48) {
+    next(error48);
+  }
+});
+router2.get("/expense-breakdown", authorize("VIEW_DASHBOARD_STATS"), async (req, res, next) => {
+  try {
+    const breakdown = await consultationService.getExpenseBreakdown();
+    res.json(breakdown);
   } catch (error48) {
     next(error48);
   }
@@ -137196,7 +137303,7 @@ var SettingsService = class {
     const filepath = import_path6.default.join(backupDir, filename);
     const sourcePath = import_path6.default.resolve(process.cwd(), env2.DATABASE_PATH);
     try {
-      await client.execute(`VACUUM INTO '${filepath.replace(/\\/g, "/")}'`);
+      await sqlite.execute(`VACUUM INTO '${filepath.replace(/\\/g, "/")}'`);
     } catch (error48) {
       import_fs4.default.copyFileSync(sourcePath, filepath);
     }
@@ -137227,25 +137334,27 @@ var SettingsService = class {
   async restore(backupFilePath) {
     const targetPath = import_path6.default.resolve(process.cwd(), env2.DATABASE_PATH);
     try {
-      await client.close();
       import_fs4.default.copyFileSync(backupFilePath, targetPath);
-      return { success: true, message: "Database restored. Please restart the application for changes to take effect if they are not visible." };
+      await reinitializeDb();
+      return { success: true, message: "Database restored successfully." };
     } catch (error48) {
       console.error("Restore error detail:", error48);
       throw error48;
     } finally {
-      if (import_fs4.default.existsSync(backupFilePath)) {
-        try {
-          import_fs4.default.unlinkSync(backupFilePath);
-        } catch (unlinkError) {
-          console.error("Failed to delete temporary backup file:", unlinkError);
+      const pathToDelete = backupFilePath;
+      setTimeout(() => {
+        if (import_fs4.default.existsSync(pathToDelete)) {
+          try {
+            import_fs4.default.unlinkSync(pathToDelete);
+          } catch (_2) {
+          }
         }
-      }
+      }, 300);
     }
   }
   async analyzeBackup(backupFilePath) {
-    const url3 = `file:${import_path6.default.resolve(backupFilePath)}`;
-    const tempClient = createClient({ url: url3 });
+    const url2 = `file:${import_path6.default.resolve(backupFilePath)}`;
+    const tempClient = createClient({ url: url2 });
     try {
       const patientsRes = await tempClient.execute("SELECT COUNT(*) as count FROM patients");
       const consultationsRes = await tempClient.execute("SELECT COUNT(*) as count FROM consultations");
@@ -137260,13 +137369,15 @@ var SettingsService = class {
       throw new Error("Invalid backup file");
     } finally {
       tempClient.close();
-      if (import_fs4.default.existsSync(backupFilePath)) {
-        try {
-          import_fs4.default.unlinkSync(backupFilePath);
-        } catch (e) {
-          console.error("Failed to delete temp backup file:", e);
+      const pathToDelete = backupFilePath;
+      setTimeout(() => {
+        if (import_fs4.default.existsSync(pathToDelete)) {
+          try {
+            import_fs4.default.unlinkSync(pathToDelete);
+          } catch (_2) {
+          }
         }
-      }
+      }, 300);
     }
   }
 };
@@ -137500,7 +137611,7 @@ var ExpenseService = class {
       category: data.category,
       date: data.date || (/* @__PURE__ */ new Date()).toISOString()
     });
-    return { success: true, id: result.lastInsertRowid };
+    return { success: true, id: Number(result.lastInsertRowid) };
   }
   async delete(id) {
     await db.delete(expenses).where(eq(expenses.id, id));
@@ -137770,7 +137881,7 @@ __export(external_exports, {
   union: () => union2,
   unknown: () => unknown,
   uppercase: () => _uppercase,
-  url: () => url2,
+  url: () => url,
   util: () => util_exports,
   uuid: () => uuid2,
   uuidv4: () => uuidv4,
@@ -139952,10 +140063,10 @@ var $ZodURL = /* @__PURE__ */ $constructor("$ZodURL", (inst, def) => {
   inst._zod.check = (payload) => {
     try {
       const trimmed = payload.value.trim();
-      const url3 = new URL(trimmed);
+      const url2 = new URL(trimmed);
       if (def.hostname) {
         def.hostname.lastIndex = 0;
-        if (!def.hostname.test(url3.hostname)) {
+        if (!def.hostname.test(url2.hostname)) {
           payload.issues.push({
             code: "invalid_format",
             format: "url",
@@ -139969,7 +140080,7 @@ var $ZodURL = /* @__PURE__ */ $constructor("$ZodURL", (inst, def) => {
       }
       if (def.protocol) {
         def.protocol.lastIndex = 0;
-        if (!def.protocol.test(url3.protocol.endsWith(":") ? url3.protocol.slice(0, -1) : url3.protocol)) {
+        if (!def.protocol.test(url2.protocol.endsWith(":") ? url2.protocol.slice(0, -1) : url2.protocol)) {
           payload.issues.push({
             code: "invalid_format",
             format: "url",
@@ -139982,7 +140093,7 @@ var $ZodURL = /* @__PURE__ */ $constructor("$ZodURL", (inst, def) => {
         }
       }
       if (def.normalize) {
-        payload.value = url3.href;
+        payload.value = url2.href;
       } else {
         payload.value = trimmed;
       }
@@ -149562,7 +149673,7 @@ __export(schemas_exports2, {
   undefined: () => _undefined3,
   union: () => union2,
   unknown: () => unknown,
-  url: () => url2,
+  url: () => url,
   uuid: () => uuid2,
   uuidv4: () => uuidv4,
   uuidv6: () => uuidv6,
@@ -149881,7 +149992,7 @@ var ZodURL = /* @__PURE__ */ $constructor("ZodURL", (inst, def) => {
   $ZodURL.init(inst, def);
   ZodStringFormat.init(inst, def);
 });
-function url2(params) {
+function url(params) {
   return _url(ZodURL, params);
 }
 function httpUrl(params) {
@@ -151468,6 +151579,9 @@ var notFoundHandler = (req, res) => {
 };
 
 // src/app.ts
+BigInt.prototype.toJSON = function() {
+  return Number(this);
+};
 var app = (0, import_express11.default)();
 app.use((0, import_cors.default)({ origin: env2.CORS_ORIGIN }));
 app.use(import_express11.default.json({ limit: "50mb" }));
@@ -151527,7 +151641,7 @@ var startServer = async () => {
     server.close(() => {
       console.log("[Server] HTTP server closed");
       try {
-        client.close();
+        sqlite.close();
         console.log("[Server] SQLite connection closed");
         process.exit(0);
       } catch (err) {

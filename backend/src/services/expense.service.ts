@@ -11,13 +11,34 @@ export class ExpenseService {
     }
 
     async create(data: { description: string; amount: number; category: string; date?: string }) {
-        const result = await db.insert(expenses).values({
-            description: data.description,
-            amount: data.amount,
-            category: data.category,
-            date: data.date || new Date().toISOString(),
-        });
-        return { success: true, id: Number(result.lastInsertRowid) };
+        try {
+            console.log(`[ExpenseService] Creating expense:`, data);
+            
+            // Ensure amount is a number and not NaN
+            const amount = Number(data.amount);
+            if (isNaN(amount)) {
+                throw new Error(`Invalid amount: ${data.amount}`);
+            }
+
+            const result = await db.insert(expenses).values({
+                description: data.description,
+                amount: amount,
+                category: data.category,
+                date: data.date || new Date().toISOString(),
+            });
+            
+            console.log(`[ExpenseService] Insert result:`, result);
+            
+            // Handle BigInt and different result structures safely
+            const lastId = result.lastInsertRowid !== undefined 
+                ? Number(result.lastInsertRowid) 
+                : null;
+                
+            return { success: true, id: lastId };
+        } catch (error) {
+            console.error(`[ExpenseService] Error creating expense:`, error);
+            throw error;
+        }
     }
 
     async delete(id: number) {

@@ -621,6 +621,28 @@ export class ConsultationService {
         await db.delete(examForms).where(eq(examForms.id, id));
         return { success: true };
     }
+
+    async getTodayConsultations() {
+        const result = await db
+            .select({
+                id: consultations.id,
+                patientId: consultations.patientId,
+                appointmentId: consultations.appointmentId,
+                date: consultations.date,
+                reason: consultations.reason,
+                status: consultations.status,
+                patient: {
+                    id: patients.id,
+                    first_name: patients.first_name,
+                    last_name: patients.last_name,
+                },
+            })
+            .from(consultations)
+            .innerJoin(patients, eq(consultations.patientId, patients.id))
+            .where(sql`date(${consultations.date}) = date('now')`)
+            .orderBy(desc(consultations.date));
+        return result;
+    }
 }
 
 export const consultationService = new ConsultationService();
