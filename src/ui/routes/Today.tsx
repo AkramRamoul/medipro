@@ -13,6 +13,7 @@ import {
     PauseCircle,
     UserPlus,
     History,
+    AlertCircle,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
 import {
@@ -31,7 +32,7 @@ import { toast } from "sonner";
 import { GlobalAddAppointmentModal } from "../components/Appointment/GlobalAddAppointmentModal";
 import NewPatientModal from "../components/NewPatient/NewPatientModal";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
-import { format } from "date-fns";
+import { format, differenceInMinutes } from "date-fns";
 
 interface Appointment {
     id: number;
@@ -203,37 +204,42 @@ export function Today() {
     }
 
     return (
-        <div className="h-full flex-1 flex-col space-y-6 p-4 md:p-8 flex bg-background text-foreground transition-colors overflow-auto">
-            <div className="flex items-center justify-between flex-wrap gap-4">
-                <div>
-                    <h2 className="text-3xl font-bold tracking-tight flex items-center gap-2">
-                        <CalendarClock className="h-8 w-8 text-primary" />
+        <div className="h-full flex-1 flex-col space-y-8 p-4 md:p-8 flex bg-slate-50 dark:bg-slate-950 text-foreground transition-colors overflow-auto">
+            <div className="flex flex-col md:flex-row md:items-end justify-between flex-wrap gap-6 border-b border-border/50 pb-6">
+                <div className="space-y-1">
+                    <h2 className="text-3xl font-extrabold tracking-tight flex items-center gap-3">
+                        <div className="p-2 bg-primary/10 rounded-xl text-primary">
+                            <CalendarClock className="h-7 w-7" />
+                        </div>
                         Aujourd'hui
                     </h2>
-                    <p className="text-muted-foreground mt-1 text-lg">
+                    <p className="text-muted-foreground text-lg ml-12">
                         Gérez votre flux opérationnel quotidien.
                     </p>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-4">
                     {/* Live indicator */}
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        {autoRefresh && (
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground px-3 py-1.5 rounded-full bg-background border shadow-sm">
+                        {autoRefresh ? (
                             <span className="relative flex h-2 w-2">
                                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
                                 <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
                             </span>
+                        ) : (
+                            <span className="h-2 w-2 rounded-full bg-amber-500" />
                         )}
                         {lastUpdated && (
-                            <span>
+                            <span className="font-medium">
                                 {secondsAgo < 5
                                     ? "À l'instant"
-                                    : `Il y a ${secondsAgo}s`}
+                                    : `${secondsAgo}s`}
                             </span>
                         )}
+                        <div className="h-4 w-px bg-border mx-1" />
                         <button
                             type="button"
                             onClick={() => fetchTodayData(true)}
-                            className="p-1 rounded hover:bg-muted transition-colors"
+                            className="p-1 rounded hover:text-foreground transition-colors"
                             title="Actualiser maintenant"
                         >
                             <RefreshCw className="h-3.5 w-3.5" />
@@ -242,19 +248,19 @@ export function Today() {
                             type="button"
                             onClick={() => setAutoRefresh(r => !r)}
                             className={`p-1 rounded transition-colors ${autoRefresh
-                                ? "hover:bg-muted text-muted-foreground"
-                                : "text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-900/20"
+                                ? "hover:text-foreground"
+                                : "text-amber-500"
                                 }`}
                             title={autoRefresh ? "Mettre en pause" : "Reprendre l'actualisation"}
                         >
                             <PauseCircle className="h-3.5 w-3.5" />
                         </button>
                     </div>
-                    <Button variant="outline" onClick={() => setIsNewPatientOpen(true)} className="gap-2">
+                    <Button variant="outline" onClick={() => setIsNewPatientOpen(true)} className="gap-2 shadow-sm rounded-xl border-border/60">
                         <UserPlus className="h-4 w-4" />
                         Nouveau Patient
                     </Button>
-                    <Button onClick={() => setIsAddModalOpen(true)} className="gap-2">
+                    <Button onClick={() => setIsAddModalOpen(true)} className="gap-2 shadow-md rounded-xl bg-primary hover:bg-primary/90">
                         <Plus className="h-4 w-4" />
                         Nouveau Rendez-vous
                     </Button>
@@ -262,41 +268,49 @@ export function Today() {
             </div>
 
             {/* Summary Cards */}
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                <Card className="bg-blue-50/50 dark:bg-blue-900/10 border-blue-100 dark:border-blue-900/20">
+            <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
+                <Card className="group bg-blue-50 border-blue-100 dark:bg-blue-950/40 dark:border-blue-900/40 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Total Rendez-vous</CardTitle>
-                        <Users className="h-4 w-4 text-blue-600" />
+                        <CardTitle className="text-sm font-semibold text-blue-700 dark:text-blue-300">Total Rendez-vous</CardTitle>
+                        <div className="p-2 bg-blue-100 dark:bg-blue-900/50 rounded-lg group-hover:scale-110 transition-transform">
+                            <Users className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                        </div>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">{stats.total}</div>
+                        <div className="text-3xl font-bold text-blue-950 dark:text-blue-100">{stats.total}</div>
                     </CardContent>
                 </Card>
-                <Card className="bg-amber-50/50 dark:bg-amber-900/10 border-amber-100 dark:border-amber-900/20">
+                <Card className="group bg-amber-50 border-amber-100 dark:bg-amber-950/40 dark:border-amber-900/40 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">En Attente</CardTitle>
-                        <Timer className="h-4 w-4 text-amber-600" />
+                        <CardTitle className="text-sm font-semibold text-amber-700 dark:text-amber-300">En Attente</CardTitle>
+                        <div className="p-2 bg-amber-100 dark:bg-amber-900/50 rounded-lg group-hover:scale-110 transition-transform">
+                            <Timer className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+                        </div>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">{stats.waiting}</div>
+                        <div className="text-3xl font-bold text-amber-950 dark:text-amber-100">{stats.waiting}</div>
                     </CardContent>
                 </Card>
-                <Card className="bg-indigo-50/50 dark:bg-indigo-900/10 border-indigo-100 dark:border-indigo-900/20">
+                <Card className="group bg-indigo-50 border-indigo-100 dark:bg-indigo-950/40 dark:border-indigo-900/40 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">En Consultation</CardTitle>
-                        <Play className="h-4 w-4 text-indigo-600" />
+                        <CardTitle className="text-sm font-semibold text-indigo-700 dark:text-indigo-300">En Consultation</CardTitle>
+                        <div className="p-2 bg-indigo-100 dark:bg-indigo-900/50 rounded-lg group-hover:scale-110 transition-transform">
+                            <Play className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+                        </div>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">{stats.inConsultation}</div>
+                        <div className="text-3xl font-bold text-indigo-950 dark:text-indigo-100">{stats.inConsultation}</div>
                     </CardContent>
                 </Card>
-                <Card className="bg-emerald-50/50 dark:bg-emerald-900/10 border-emerald-100 dark:border-emerald-900/20">
+                <Card className="group bg-emerald-50 border-emerald-100 dark:bg-emerald-950/40 dark:border-emerald-900/40 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Terminés</CardTitle>
-                        <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+                        <CardTitle className="text-sm font-semibold text-emerald-700 dark:text-emerald-300">Terminés</CardTitle>
+                        <div className="p-2 bg-emerald-100 dark:bg-emerald-900/50 rounded-lg group-hover:scale-110 transition-transform">
+                            <CheckCircle2 className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+                        </div>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">{stats.completed}</div>
+                        <div className="text-3xl font-bold text-emerald-950 dark:text-emerald-100">{stats.completed}</div>
                     </CardContent>
                 </Card>
             </div>
@@ -304,131 +318,160 @@ export function Today() {
             {/* Tabs Navigation */}
             <Tabs value={activeTab} onValueChange={(val) => setActiveTab(val as any)} className="w-full">
                 <div className="overflow-x-auto pb-2">
-                    <TabsList className="h-14 p-1 inline-flex items-center justify-start bg-muted/40 rounded-xl">
-                        <TabsTrigger value="attente" className="h-11 px-8 gap-2 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm transition-all text-base">
+                    <TabsList className="h-14 p-1 inline-flex items-center justify-start bg-muted/40 rounded-xl border shadow-inner">
+                        <TabsTrigger value="attente" className="h-11 px-6 gap-2 rounded-lg data-[state=active]:bg-white dark:data-[state=active]:bg-slate-900 data-[state=active]:shadow-sm data-[state=active]:text-amber-600 transition-all text-base font-medium">
                             <Timer className="h-4 w-4" />
-                            En attente ({enAttente.length})
+                            En attente <span className="ml-1 bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-400 px-2 py-0.5 rounded-full text-xs">{enAttente.length}</span>
                         </TabsTrigger>
-                        <TabsTrigger value="consultation" className="h-11 px-8 gap-2 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm transition-all text-base">
+                        <TabsTrigger value="consultation" className="h-11 px-6 gap-2 rounded-lg data-[state=active]:bg-white dark:data-[state=active]:bg-slate-900 data-[state=active]:shadow-sm data-[state=active]:text-indigo-600 transition-all text-base font-medium">
                             <Play className="h-4 w-4" />
-                            En consultation ({enConsultation.length})
+                            Consultation <span className="ml-1 bg-indigo-100 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-400 px-2 py-0.5 rounded-full text-xs">{enConsultation.length}</span>
                         </TabsTrigger>
-                        <TabsTrigger value="termines" className="h-11 px-8 gap-2 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm transition-all text-base">
+                        <TabsTrigger value="termines" className="h-11 px-6 gap-2 rounded-lg data-[state=active]:bg-white dark:data-[state=active]:bg-slate-900 data-[state=active]:shadow-sm data-[state=active]:text-emerald-600 transition-all text-base font-medium">
                             <CheckCircle2 className="h-4 w-4" />
-                            Terminés ({termines.length})
+                            Terminés <span className="ml-1 bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-400 px-2 py-0.5 rounded-full text-xs">{termines.length}</span>
                         </TabsTrigger>
-                        <TabsTrigger value="annulations" className="h-11 px-8 gap-2 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm transition-all text-base text-destructive data-[state=active]:text-destructive">
+                        <TabsTrigger value="annulations" className="h-11 px-6 gap-2 rounded-lg data-[state=active]:bg-white dark:data-[state=active]:bg-slate-900 data-[state=active]:shadow-sm data-[state=active]:text-destructive transition-all text-base font-medium">
                             <XCircle className="h-4 w-4" />
-                            Annulés ({annulations.length})
+                            Annulés <span className="ml-1 bg-destructive/10 text-destructive px-2 py-0.5 rounded-full text-xs">{annulations.length}</span>
                         </TabsTrigger>
-                        <TabsTrigger value="journal" className="h-11 px-8 gap-2 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm transition-all text-base">
+                        <TabsTrigger value="journal" className="h-11 px-6 gap-2 rounded-lg data-[state=active]:bg-white dark:data-[state=active]:bg-slate-900 data-[state=active]:shadow-sm transition-all text-base font-medium">
                             <History className="h-4 w-4" />
                             Journal
                         </TabsTrigger>
                     </TabsList>
                 </div>
 
-                <TabsContent value="attente">
-                    <div className="rounded-xl border bg-card text-card-foreground shadow-sm overflow-hidden">
+                <TabsContent value="attente" className="mt-4">
+                    <div className="rounded-xl border bg-background shadow-sm overflow-hidden">
                         {enAttente.length === 0 ? (
                             <div className="flex flex-col items-center justify-center py-20 space-y-4">
-                                <Timer className="h-16 w-16 text-muted-foreground opacity-20" />
+                                <Timer className="h-16 w-16 text-muted-foreground/30" />
                                 <div className="text-center">
-                                    <h3 className="text-xl font-semibold">Personne en attente</h3>
-                                    <p className="text-muted-foreground">Tous les patients programmés ont été vus ou ne sont pas encore arrivés.</p>
+                                    <h3 className="text-xl font-semibold text-foreground/80">Personne en attente</h3>
+                                    <p className="text-muted-foreground mt-1">Tous les patients programmés ont été vus ou ne sont pas encore arrivés.</p>
                                 </div>
                             </div>
                         ) : (
                             <Table>
-                                <TableHeader className="bg-muted/50">
+                                <TableHeader className="bg-slate-50 dark:bg-slate-900/50">
                                     <TableRow>
-                                        <TableHead className="w-[100px]">Heure</TableHead>
-                                        <TableHead>Patient</TableHead>
-                                        <TableHead>Motif</TableHead>
-                                        <TableHead className="text-right">Actions</TableHead>
+                                        <TableHead className="w-[120px] font-semibold">Heure</TableHead>
+                                        <TableHead className="font-semibold">Patient</TableHead>
+                                        <TableHead className="font-semibold">Motif</TableHead>
+                                        <TableHead className="text-right font-semibold">Actions</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {enAttente.map((apt) => (
-                                        <TableRow key={apt.id} className="hover:bg-muted/30 transition-colors">
-                                            <TableCell className="font-semibold text-primary">
-                                                {apt.time || (apt.date && apt.date.includes('T') ? apt.date.split('T')[1].substring(0, 5) : "--:--")}
+                                    {enAttente.map((apt) => {
+                                        let delayMinutes = 0;
+                                        if (apt.time || apt.date) {
+                                            try {
+                                                const aptDateTimeStr = apt.date && apt.date.includes('T') 
+                                                    ? apt.date 
+                                                    : `${format(new Date(), 'yyyy-MM-dd')}T${apt.time || "00:00"}:00`;
+                                                const aptDateObj = new Date(aptDateTimeStr);
+                                                delayMinutes = differenceInMinutes(new Date(), aptDateObj);
+                                            } catch (e) {
+                                                // ignore parse errors
+                                            }
+                                        }
+                                        const isDelayed = delayMinutes > 15;
+
+                                        return (
+                                        <TableRow key={apt.id} className="hover:bg-muted/50 transition-colors group">
+                                            <TableCell className="font-semibold">
+                                                <div className="flex items-center gap-2">
+                                                    <span className={isDelayed ? "text-amber-600 dark:text-amber-500" : "text-foreground"}>
+                                                        {apt.time || (apt.date && apt.date.includes('T') ? apt.date.split('T')[1].substring(0, 5) : "--:--")}
+                                                    </span>
+                                                    {isDelayed && (
+                                                        <Badge variant="outline" className="bg-amber-100 text-amber-700 hover:bg-amber-100 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800 text-[10px] px-1.5 h-5 flex gap-1 items-center">
+                                                            <AlertCircle className="w-3 h-3" />
+                                                            +{delayMinutes}m
+                                                        </Badge>
+                                                    )}
+                                                </div>
                                             </TableCell>
-                                            <TableCell className="font-medium">
+                                            <TableCell className="font-medium text-base">
                                                 {apt.patient.first_name} {apt.patient.last_name}
                                             </TableCell>
-                                            <TableCell className="text-muted-foreground">{apt.title}</TableCell>
+                                            <TableCell>
+                                                <Badge variant="secondary" className="font-normal text-muted-foreground bg-slate-100 dark:bg-slate-800">
+                                                    {apt.title || "Consultation"}
+                                                </Badge>
+                                            </TableCell>
                                             <TableCell className="text-right">
-                                                <div className="flex justify-end gap-2">
-                                                    <Button size="sm" onClick={() => handleStartCheckIn(apt)} variant="default" className="gap-1">
-                                                        <Play className="h-3 w-3" /> Démarrer
+                                                <div className="flex justify-end gap-2 opacity-80 group-hover:opacity-100 transition-opacity">
+                                                    <Button size="sm" onClick={() => handleStartCheckIn(apt)} className="gap-1.5 bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm rounded-lg">
+                                                        <Play className="h-3.5 w-3.5 fill-current" /> Démarrer
                                                     </Button>
-                                                    <Button size="sm" variant="ghost" className="text-destructive hover:text-destructive hover:bg-destructive/10" onClick={() => handleCancelAppointment(apt.id)}>
-                                                        <XCircle className="h-3 w-3" />
+                                                    <Button size="icon" variant="ghost" className="text-destructive/70 hover:text-destructive hover:bg-destructive/10 rounded-lg" onClick={() => handleCancelAppointment(apt.id)} title="Annuler">
+                                                        <XCircle className="h-4 w-4" />
                                                     </Button>
                                                 </div>
                                             </TableCell>
                                         </TableRow>
-                                    ))}
+                                    )})}
                                 </TableBody>
                             </Table>
                         )}
                     </div>
                 </TabsContent>
 
-                <TabsContent value="consultation">
-                    <div className="rounded-xl border bg-card text-card-foreground shadow-sm overflow-hidden">
+                <TabsContent value="consultation" className="mt-4">
+                    <div className="rounded-xl border bg-background shadow-sm overflow-hidden">
                         {enConsultation.length === 0 ? (
                             <div className="flex flex-col items-center justify-center py-20 space-y-4">
-                                <Play className="h-16 w-16 text-muted-foreground opacity-20" />
+                                <Play className="h-16 w-16 text-muted-foreground/30" />
                                 <div className="text-center">
-                                    <h3 className="text-xl font-semibold">Aucune consultation en cours</h3>
-                                    <p className="text-muted-foreground">Démarrez une consultation depuis l'onglet "En attente".</p>
+                                    <h3 className="text-xl font-semibold text-foreground/80">Aucune consultation en cours</h3>
+                                    <p className="text-muted-foreground mt-1">Démarrez une consultation depuis l'onglet "En attente".</p>
                                 </div>
                             </div>
                         ) : (
                             <Table>
-                                <TableHeader className="bg-muted/50">
+                                <TableHeader className="bg-slate-50 dark:bg-slate-900/50">
                                     <TableRow>
-                                        <TableHead className="w-[100px]">Heure</TableHead>
-                                        <TableHead>Patient</TableHead>
-                                        <TableHead>Motif</TableHead>
-                                        <TableHead>Statut Med.</TableHead>
-                                        <TableHead className="text-right">Actions</TableHead>
+                                        <TableHead className="w-[120px] font-semibold">Heure</TableHead>
+                                        <TableHead className="font-semibold">Patient</TableHead>
+                                        <TableHead className="font-semibold">Motif</TableHead>
+                                        <TableHead className="font-semibold">Statut Med.</TableHead>
+                                        <TableHead className="text-right font-semibold">Actions</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
                                     {enConsultation.map((apt) => (
-                                        <TableRow key={apt.id} className="hover:bg-muted/30 transition-colors">
-                                            <TableCell className="font-semibold text-primary">
+                                        <TableRow key={apt.id} className="hover:bg-muted/50 transition-colors group">
+                                            <TableCell className="font-semibold text-indigo-600 dark:text-indigo-400">
                                                 {apt.time || (apt.date && apt.date.includes('T') ? apt.date.split('T')[1].substring(0, 5) : "--:--")}
                                             </TableCell>
-                                            <TableCell className="font-medium">
+                                            <TableCell className="font-medium text-base">
                                                 {apt.patient.first_name} {apt.patient.last_name}
                                             </TableCell>
                                             <TableCell className="text-muted-foreground">{apt.title}</TableCell>
                                             <TableCell>
-                                                <Badge variant="outline" className="animate-pulse border-blue-500 text-blue-500">
+                                                <Badge variant="outline" className="animate-pulse bg-indigo-50 text-indigo-700 border-indigo-200 dark:bg-indigo-900/30 dark:text-indigo-400 dark:border-indigo-800">
                                                     En cours
                                                 </Badge>
                                             </TableCell>
                                             <TableCell className="text-right">
-                                                <div className="flex justify-end gap-2">
+                                                <div className="flex justify-end gap-2 opacity-90 group-hover:opacity-100 transition-opacity">
                                                     <Button
                                                         size="sm"
                                                         variant="outline"
                                                         onClick={() => navigate(`/pat/${apt.patient.id}`)}
-                                                        className="gap-1"
+                                                        className="gap-1.5 shadow-sm rounded-lg hover:bg-muted"
                                                     >
-                                                        <Eye className="h-3 w-3" /> Voir
+                                                        <Eye className="h-3.5 w-3.5" /> Voir
                                                     </Button>
                                                     <Button
                                                         size="sm"
                                                         variant="default"
                                                         onClick={() => handleCompleteConsultation(apt)}
-                                                        className="gap-1 bg-emerald-600 hover:bg-emerald-700"
+                                                        className="gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm rounded-lg"
                                                     >
-                                                        <CheckCircle2 className="h-3 w-3" /> Terminer
+                                                        <CheckCircle2 className="h-3.5 w-3.5" /> Terminer
                                                     </Button>
                                                 </div>
                                             </TableCell>
@@ -440,25 +483,25 @@ export function Today() {
                     </div>
                 </TabsContent>
 
-                <TabsContent value="termines">
-                    <div className="rounded-xl border bg-card text-card-foreground shadow-sm overflow-hidden">
+                <TabsContent value="termines" className="mt-4">
+                    <div className="rounded-xl border bg-background shadow-sm overflow-hidden">
                         {termines.length === 0 ? (
                             <div className="flex flex-col items-center justify-center py-20 space-y-4">
-                                <CheckCircle2 className="h-16 w-16 text-muted-foreground opacity-20" />
+                                <CheckCircle2 className="h-16 w-16 text-muted-foreground/30" />
                                 <div className="text-center">
-                                    <h3 className="text-xl font-semibold">Aucun patient terminé</h3>
-                                    <p className="text-muted-foreground">Les consultations terminées aujourd'hui s'afficheront ici.</p>
+                                    <h3 className="text-xl font-semibold text-foreground/80">Aucun patient terminé</h3>
+                                    <p className="text-muted-foreground mt-1">Les consultations terminées aujourd'hui s'afficheront ici.</p>
                                 </div>
                             </div>
                         ) : (
                             <Table>
-                                <TableHeader className="bg-muted/50">
+                                <TableHeader className="bg-slate-50 dark:bg-slate-900/50">
                                     <TableRow>
-                                        <TableHead className="w-[100px]">Heure</TableHead>
-                                        <TableHead>Patient</TableHead>
-                                        <TableHead>Motif</TableHead>
-                                        <TableHead>Type</TableHead>
-                                        <TableHead className="text-right">Actions</TableHead>
+                                        <TableHead className="w-[120px] font-semibold">Heure</TableHead>
+                                        <TableHead className="font-semibold">Patient</TableHead>
+                                        <TableHead className="font-semibold">Motif</TableHead>
+                                        <TableHead className="font-semibold">Type</TableHead>
+                                        <TableHead className="text-right font-semibold">Actions</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
@@ -469,16 +512,16 @@ export function Today() {
                                         const title = isAppointment ? item.title : item.reason;
 
                                         return (
-                                            <TableRow key={`${isAppointment ? 'a' : 'c'}-${item.id}`} className="hover:bg-muted/30 transition-colors">
+                                            <TableRow key={`${isAppointment ? 'a' : 'c'}-${item.id}`} className="hover:bg-muted/50 transition-colors group">
                                                 <TableCell className="font-semibold text-muted-foreground">
                                                     {time}
                                                 </TableCell>
-                                                <TableCell className="font-medium">
+                                                <TableCell className="font-medium text-base">
                                                     {patient.first_name} {patient.last_name}
                                                 </TableCell>
                                                 <TableCell className="text-muted-foreground italic">{title || "Sans motif"}</TableCell>
                                                 <TableCell>
-                                                    <Badge variant="secondary" className="font-normal">
+                                                    <Badge variant="secondary" className="font-normal bg-slate-100 dark:bg-slate-800">
                                                         {isAppointment ? "Rendez-vous" : "Directe"}
                                                     </Badge>
                                                 </TableCell>
@@ -487,9 +530,9 @@ export function Today() {
                                                         size="sm"
                                                         variant="ghost"
                                                         onClick={() => navigate(`/pat/${patient.id}`)}
-                                                        className="gap-1 hover:bg-primary/10 hover:text-primary"
+                                                        className="gap-1.5 hover:bg-primary/10 hover:text-primary rounded-lg opacity-80 group-hover:opacity-100 transition-opacity"
                                                     >
-                                                        <Eye className="h-3 w-3" /> Dossier
+                                                        <Eye className="h-3.5 w-3.5" /> Dossier
                                                     </Button>
                                                 </TableCell>
                                             </TableRow>
@@ -501,38 +544,38 @@ export function Today() {
                     </div>
                 </TabsContent>
 
-                <TabsContent value="annulations">
-                    <div className="rounded-xl border bg-card text-card-foreground shadow-sm overflow-hidden">
+                <TabsContent value="annulations" className="mt-4">
+                    <div className="rounded-xl border bg-background shadow-sm overflow-hidden">
                         {annulations.length === 0 ? (
                             <div className="flex flex-col items-center justify-center py-20 space-y-4">
-                                <XCircle className="h-16 w-16 text-muted-foreground opacity-20" />
+                                <XCircle className="h-16 w-16 text-muted-foreground/30" />
                                 <div className="text-center">
-                                    <h3 className="text-xl font-semibold">Aucune annulation</h3>
-                                    <p className="text-muted-foreground">Les rendez-vous annulés aujourd'hui s'afficheront ici.</p>
+                                    <h3 className="text-xl font-semibold text-foreground/80">Aucune annulation</h3>
+                                    <p className="text-muted-foreground mt-1">Les rendez-vous annulés aujourd'hui s'afficheront ici.</p>
                                 </div>
                             </div>
                         ) : (
                             <Table>
-                                <TableHeader className="bg-muted/50">
+                                <TableHeader className="bg-slate-50 dark:bg-slate-900/50">
                                     <TableRow>
-                                        <TableHead className="w-[100px]">Heure</TableHead>
-                                        <TableHead>Patient</TableHead>
-                                        <TableHead>Motif</TableHead>
-                                        <TableHead className="text-right">Action</TableHead>
+                                        <TableHead className="w-[120px] font-semibold">Heure</TableHead>
+                                        <TableHead className="font-semibold">Patient</TableHead>
+                                        <TableHead className="font-semibold">Motif</TableHead>
+                                        <TableHead className="text-right font-semibold">Action</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
                                     {annulations.map((apt) => (
-                                        <TableRow key={apt.id} className="hover:bg-muted/30 transition-colors opacity-70">
+                                        <TableRow key={apt.id} className="hover:bg-muted/50 transition-colors opacity-70">
                                             <TableCell className="font-semibold text-muted-foreground line-through">
                                                 {apt.time || (apt.date && apt.date.includes('T') ? apt.date.split('T')[1].substring(0, 5) : "--:--")}
                                             </TableCell>
-                                            <TableCell className="font-medium">
+                                            <TableCell className="font-medium text-base">
                                                 {apt.patient.first_name} {apt.patient.last_name}
                                             </TableCell>
                                             <TableCell className="text-muted-foreground italic">{apt.title}</TableCell>
                                             <TableCell className="text-right">
-                                                <Badge variant="destructive" className="bg-destructive/10 text-destructive border-destructive/20 font-normal">
+                                                <Badge variant="destructive" className="bg-destructive/10 text-destructive border-transparent font-normal">
                                                     Annulé
                                                 </Badge>
                                             </TableCell>
@@ -544,25 +587,25 @@ export function Today() {
                     </div>
                 </TabsContent>
 
-                <TabsContent value="journal">
-                    <div className="rounded-xl border bg-card text-card-foreground shadow-sm overflow-hidden">
+                <TabsContent value="journal" className="mt-4">
+                    <div className="rounded-xl border bg-background shadow-sm overflow-hidden">
                         {journal.length === 0 ? (
                             <div className="flex flex-col items-center justify-center py-20 space-y-4">
-                                <History className="h-16 w-16 text-muted-foreground opacity-20" />
+                                <History className="h-16 w-16 text-muted-foreground/30" />
                                 <div className="text-center">
-                                    <h3 className="text-xl font-semibold">Journal vide</h3>
-                                    <p className="text-muted-foreground">L'activité de la journée s'affichera ici chronologiquement.</p>
+                                    <h3 className="text-xl font-semibold text-foreground/80">Journal vide</h3>
+                                    <p className="text-muted-foreground mt-1">L'activité de la journée s'affichera ici chronologiquement.</p>
                                 </div>
                             </div>
                         ) : (
                             <Table>
-                                <TableHeader className="bg-muted/50">
+                                <TableHeader className="bg-slate-50 dark:bg-slate-900/50">
                                     <TableRow>
-                                        <TableHead className="w-[120px]">Heure/Date</TableHead>
-                                        <TableHead>Patient</TableHead>
-                                        <TableHead>Type</TableHead>
-                                        <TableHead>Statut</TableHead>
-                                        <TableHead className="text-right">Actions</TableHead>
+                                        <TableHead className="w-[120px] font-semibold">Heure/Date</TableHead>
+                                        <TableHead className="font-semibold">Patient</TableHead>
+                                        <TableHead className="font-semibold">Type</TableHead>
+                                        <TableHead className="font-semibold">Statut</TableHead>
+                                        <TableHead className="text-right font-semibold">Actions</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
@@ -572,15 +615,15 @@ export function Today() {
                                         const status = isAppointment ? item.status : item.status; // simplified
                                         
                                         return (
-                                            <TableRow key={`${isAppointment ? 'aj' : 'cj'}-${item.id}`} className="hover:bg-muted/30 transition-colors group">
+                                            <TableRow key={`${isAppointment ? 'aj' : 'cj'}-${item.id}`} className="hover:bg-muted/50 transition-colors group">
                                                 <TableCell className="text-muted-foreground font-mono">
                                                     {time}
                                                 </TableCell>
-                                                <TableCell className="font-medium">
+                                                <TableCell className="font-medium text-base">
                                                     {item.patient.first_name} {item.patient.last_name}
                                                 </TableCell>
                                                 <TableCell>
-                                                    <Badge variant={isAppointment ? "outline" : "secondary"}>
+                                                    <Badge variant="outline" className={isAppointment ? "bg-background text-foreground" : "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300"}>
                                                         {isAppointment ? "RDV" : "Directe"}
                                                     </Badge>
                                                 </TableCell>
@@ -589,14 +632,14 @@ export function Today() {
                                                         status === 'completed' ? 'default' :
                                                         status === 'in_progress' ? 'secondary' :
                                                         status === 'cancelled' ? 'destructive' : 'outline'
-                                                    } className={status === 'in_progress' ? 'animate-pulse' : ''}>
+                                                    } className={`${status === 'in_progress' ? 'animate-pulse bg-indigo-50 text-indigo-700 border-indigo-200 dark:bg-indigo-900/30 dark:text-indigo-400 dark:border-indigo-800' : ''} ${status === 'scheduled' ? 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800 font-normal' : ''} ${status === 'completed' ? 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800 hover:bg-emerald-50 font-normal' : ''}`}>
                                                         {status === 'scheduled' ? 'Attente' :
                                                          status === 'checked_in' || status === 'in_progress' ? 'En cours' :
                                                          status === 'completed' ? 'Terminé' : 'Annulé'}
                                                     </Badge>
                                                 </TableCell>
                                                 <TableCell className="text-right">
-                                                    <Button variant="ghost" size="sm" onClick={() => navigate(`/pat/${item.patient.id}`)}>
+                                                    <Button variant="ghost" size="sm" onClick={() => navigate(`/pat/${item.patient.id}`)} className="opacity-80 group-hover:opacity-100 transition-opacity hover:bg-primary/10 hover:text-primary rounded-lg">
                                                         <Eye className="h-4 w-4" />
                                                     </Button>
                                                 </TableCell>

@@ -53,7 +53,6 @@ export const authorize = (required: Permission | Permission[] | Role | Role[]) =
             return hasPermission(userRole, reqItem as Permission);
         });
 
-        console.log(`[Auth] Authorize: User=${req.user.email}, Role=${userRole}, Required=${requirements}, Authorized=${isAuthorized}`);
 
         if (!isAuthorized) {
             console.warn(`[Auth] Forbidden: User=${req.user.email}, Role=${userRole}, Required=${requirements}`);

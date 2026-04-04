@@ -135758,6 +135758,7 @@ var authorize = (required2) => {
       return hasPermission(userRole, reqItem);
     });
     if (!isAuthorized) {
+      console.warn(`[Auth] Forbidden: User=${req.user.email}, Role=${userRole}, Required=${requirements}`);
       return res.status(403).json({ success: false, message: "Forbidden: Insufficient permissions" });
     }
     next();
@@ -136337,6 +136338,22 @@ var ConsultationService = class {
     await db.delete(examForms).where(eq(examForms.id, id));
     return { success: true };
   }
+  async getTodayConsultations() {
+    const result = await db.select({
+      id: consultations.id,
+      patientId: consultations.patientId,
+      appointmentId: consultations.appointmentId,
+      date: consultations.date,
+      reason: consultations.reason,
+      status: consultations.status,
+      patient: {
+        id: patients.id,
+        first_name: patients.first_name,
+        last_name: patients.last_name
+      }
+    }).from(consultations).innerJoin(patients, eq(consultations.patientId, patients.id)).where(sql`date(${consultations.date}) = date('now')`).orderBy(desc(consultations.date));
+    return result;
+  }
 };
 var consultationService = new ConsultationService();
 
@@ -136346,6 +136363,14 @@ router2.get("/stats", authorize("VIEW_DASHBOARD_STATS"), async (req, res, next) 
   try {
     const stats = await consultationService.getDashboardStats();
     res.json(stats);
+  } catch (error48) {
+    next(error48);
+  }
+});
+router2.get("/today", authorize("VIEW_PATIENTS"), async (req, res, next) => {
+  try {
+    const result = await consultationService.getTodayConsultations();
+    res.json(result);
   } catch (error48) {
     next(error48);
   }
@@ -137605,13 +137630,25 @@ var ExpenseService = class {
     return await db.select().from(expenses).orderBy(desc(expenses.date));
   }
   async create(data) {
-    const result = await db.insert(expenses).values({
-      description: data.description,
-      amount: data.amount,
-      category: data.category,
-      date: data.date || (/* @__PURE__ */ new Date()).toISOString()
-    });
-    return { success: true, id: Number(result.lastInsertRowid) };
+    try {
+      console.log(`[ExpenseService] Creating expense:`, data);
+      const amount = Number(data.amount);
+      if (isNaN(amount)) {
+        throw new Error(`Invalid amount: ${data.amount}`);
+      }
+      const result = await db.insert(expenses).values({
+        description: data.description,
+        amount,
+        category: data.category,
+        date: data.date || (/* @__PURE__ */ new Date()).toISOString()
+      });
+      console.log(`[ExpenseService] Insert result:`, result);
+      const lastId = result.lastInsertRowid !== void 0 ? Number(result.lastInsertRowid) : null;
+      return { success: true, id: lastId };
+    } catch (error48) {
+      console.error(`[ExpenseService] Error creating expense:`, error48);
+      throw error48;
+    }
   }
   async delete(id) {
     await db.delete(expenses).where(eq(expenses.id, id));
@@ -137632,9 +137669,11 @@ router8.get("/", authorize("VIEW_EXPENSES"), async (req, res, next) => {
 });
 router8.post("/", authorize("MANAGE_EXPENSES"), async (req, res, next) => {
   try {
+    console.log(`[Expense] Create Request:`, req.body);
     const result = await expenseService.create(req.body);
     res.status(201).json(result);
   } catch (error48) {
+    console.error(`[Expense] Create Error:`, error48);
     next(error48);
   }
 });
@@ -151594,11 +151633,11 @@ app.use(import_express11.default.static(distPath));
 app.get("/", (req, res) => {
   res.sendFile(import_path8.default.join(distPath, "index.html"));
 });
-app.get("/*splat", (req, res, next) => {
-  if (req.path.startsWith("/api")) {
-    return next();
+app.use((req, res, next) => {
+  if (req.method === "GET" && !req.path.startsWith("/api")) {
+    return res.sendFile(import_path8.default.join(distPath, "index.html"));
   }
-  res.sendFile(import_path8.default.join(distPath, "index.html"));
+  next();
 });
 app.use(notFoundHandler);
 app.use(errorMiddleware);

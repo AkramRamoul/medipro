@@ -38,11 +38,11 @@ app.get('/', (req: Request, res: Response) => {
 });
 
 // SPA fallback for any other routes (except /api)
-app.get('/*splat', (req: Request, res: Response, next: any) => {
-    if (req.path.startsWith('/api')) {
-        return next();
+app.use((req: Request, res: Response, next: any) => {
+    if (req.method === 'GET' && !req.path.startsWith('/api')) {
+        return res.sendFile(path.join(distPath, 'index.html'));
     }
-    res.sendFile(path.join(distPath, 'index.html'));
+    next();
 });
 
 // 404 handler
