@@ -204,7 +204,7 @@ export function Today() {
     }
 
     return (
-        <div className="h-full flex-1 flex-col space-y-8 p-4 md:p-8 flex bg-slate-50 dark:bg-slate-950 text-foreground transition-colors overflow-auto">
+        <div className="h-full flex-1 flex-col space-y-8 p-4 md:p-8 flex text-foreground transition-colors overflow-auto">
             <div className="flex flex-col md:flex-row md:items-end justify-between flex-wrap gap-6 border-b border-border/50 pb-6">
                 <div className="space-y-1">
                     <h2 className="text-3xl font-extrabold tracking-tight flex items-center gap-3">
@@ -317,8 +317,8 @@ export function Today() {
 
             {/* Tabs Navigation */}
             <Tabs value={activeTab} onValueChange={(val) => setActiveTab(val as any)} className="w-full">
-                <div className="overflow-x-auto pb-2">
-                    <TabsList className="h-14 p-1 inline-flex items-center justify-start bg-muted/40 rounded-xl border shadow-inner">
+                <div className="overflow-x-auto pb-2 flex justify-center">
+                    <TabsList className="h-14 p-1 inline-flex items-center justify-center bg-muted/40 rounded-xl border shadow-inner">
                         <TabsTrigger value="attente" className="h-11 px-6 gap-2 rounded-lg data-[state=active]:bg-white dark:data-[state=active]:bg-slate-900 data-[state=active]:shadow-sm data-[state=active]:text-amber-600 transition-all text-base font-medium">
                             <Timer className="h-4 w-4" />
                             En attente <span className="ml-1 bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-400 px-2 py-0.5 rounded-full text-xs">{enAttente.length}</span>
@@ -367,8 +367,8 @@ export function Today() {
                                         let delayMinutes = 0;
                                         if (apt.time || apt.date) {
                                             try {
-                                                const aptDateTimeStr = apt.date && apt.date.includes('T') 
-                                                    ? apt.date 
+                                                const aptDateTimeStr = apt.date && apt.date.includes('T')
+                                                    ? apt.date
                                                     : `${format(new Date(), 'yyyy-MM-dd')}T${apt.time || "00:00"}:00`;
                                                 const aptDateObj = new Date(aptDateTimeStr);
                                                 delayMinutes = differenceInMinutes(new Date(), aptDateObj);
@@ -379,40 +379,41 @@ export function Today() {
                                         const isDelayed = delayMinutes > 15;
 
                                         return (
-                                        <TableRow key={apt.id} className="hover:bg-muted/50 transition-colors group">
-                                            <TableCell className="font-semibold">
-                                                <div className="flex items-center gap-2">
-                                                    <span className={isDelayed ? "text-amber-600 dark:text-amber-500" : "text-foreground"}>
-                                                        {apt.time || (apt.date && apt.date.includes('T') ? apt.date.split('T')[1].substring(0, 5) : "--:--")}
-                                                    </span>
-                                                    {isDelayed && (
-                                                        <Badge variant="outline" className="bg-amber-100 text-amber-700 hover:bg-amber-100 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800 text-[10px] px-1.5 h-5 flex gap-1 items-center">
-                                                            <AlertCircle className="w-3 h-3" />
-                                                            +{delayMinutes}m
-                                                        </Badge>
-                                                    )}
-                                                </div>
-                                            </TableCell>
-                                            <TableCell className="font-medium text-base">
-                                                {apt.patient.first_name} {apt.patient.last_name}
-                                            </TableCell>
-                                            <TableCell>
-                                                <Badge variant="secondary" className="font-normal text-muted-foreground bg-slate-100 dark:bg-slate-800">
-                                                    {apt.title || "Consultation"}
-                                                </Badge>
-                                            </TableCell>
-                                            <TableCell className="text-right">
-                                                <div className="flex justify-end gap-2 opacity-80 group-hover:opacity-100 transition-opacity">
-                                                    <Button size="sm" onClick={() => handleStartCheckIn(apt)} className="gap-1.5 bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm rounded-lg">
-                                                        <Play className="h-3.5 w-3.5 fill-current" /> Démarrer
-                                                    </Button>
-                                                    <Button size="icon" variant="ghost" className="text-destructive/70 hover:text-destructive hover:bg-destructive/10 rounded-lg" onClick={() => handleCancelAppointment(apt.id)} title="Annuler">
-                                                        <XCircle className="h-4 w-4" />
-                                                    </Button>
-                                                </div>
-                                            </TableCell>
-                                        </TableRow>
-                                    )})}
+                                            <TableRow key={apt.id} className="hover:bg-muted/50 transition-colors group">
+                                                <TableCell className="font-semibold">
+                                                    <div className="flex items-center gap-2">
+                                                        <span className={isDelayed ? "text-amber-600 dark:text-amber-500" : "text-foreground"}>
+                                                            {apt.time || (apt.date && apt.date.includes('T') ? apt.date.split('T')[1].substring(0, 5) : "--:--")}
+                                                        </span>
+                                                        {isDelayed && (
+                                                            <Badge variant="outline" className="bg-amber-100 text-amber-700 hover:bg-amber-100 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800 text-[10px] px-1.5 h-5 flex gap-1 items-center">
+                                                                <AlertCircle className="w-3 h-3" />
+                                                                +{delayMinutes}m
+                                                            </Badge>
+                                                        )}
+                                                    </div>
+                                                </TableCell>
+                                                <TableCell className="font-medium text-base">
+                                                    {apt.patient.first_name} {apt.patient.last_name}
+                                                </TableCell>
+                                                <TableCell>
+                                                    <Badge variant="secondary" className="font-normal text-muted-foreground bg-slate-100 dark:bg-slate-800">
+                                                        {apt.title || "Consultation"}
+                                                    </Badge>
+                                                </TableCell>
+                                                <TableCell className="text-right">
+                                                    <div className="flex justify-end gap-2 opacity-80 group-hover:opacity-100 transition-opacity">
+                                                        <Button size="sm" onClick={() => handleStartCheckIn(apt)} className="gap-1.5 bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm rounded-lg">
+                                                            <Play className="h-3.5 w-3.5 fill-current" /> Démarrer
+                                                        </Button>
+                                                        <Button size="icon" variant="ghost" className="text-destructive/70 hover:text-destructive hover:bg-destructive/10 rounded-lg" onClick={() => handleCancelAppointment(apt.id)} title="Annuler">
+                                                            <XCircle className="h-4 w-4" />
+                                                        </Button>
+                                                    </div>
+                                                </TableCell>
+                                            </TableRow>
+                                        )
+                                    })}
                                 </TableBody>
                             </Table>
                         )}
@@ -613,7 +614,7 @@ export function Today() {
                                         const isAppointment = 'time' in item;
                                         const time = isAppointment ? item.time : format(new Date(item.date), "HH:mm");
                                         const status = isAppointment ? item.status : item.status; // simplified
-                                        
+
                                         return (
                                             <TableRow key={`${isAppointment ? 'aj' : 'cj'}-${item.id}`} className="hover:bg-muted/50 transition-colors group">
                                                 <TableCell className="text-muted-foreground font-mono">
@@ -630,12 +631,12 @@ export function Today() {
                                                 <TableCell>
                                                     <Badge variant={
                                                         status === 'completed' ? 'default' :
-                                                        status === 'in_progress' ? 'secondary' :
-                                                        status === 'cancelled' ? 'destructive' : 'outline'
+                                                            status === 'in_progress' ? 'secondary' :
+                                                                status === 'cancelled' ? 'destructive' : 'outline'
                                                     } className={`${status === 'in_progress' ? 'animate-pulse bg-indigo-50 text-indigo-700 border-indigo-200 dark:bg-indigo-900/30 dark:text-indigo-400 dark:border-indigo-800' : ''} ${status === 'scheduled' ? 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800 font-normal' : ''} ${status === 'completed' ? 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800 hover:bg-emerald-50 font-normal' : ''}`}>
                                                         {status === 'scheduled' ? 'Attente' :
-                                                         status === 'checked_in' || status === 'in_progress' ? 'En cours' :
-                                                         status === 'completed' ? 'Terminé' : 'Annulé'}
+                                                            status === 'checked_in' || status === 'in_progress' ? 'En cours' :
+                                                                status === 'completed' ? 'Terminé' : 'Annulé'}
                                                     </Badge>
                                                 </TableCell>
                                                 <TableCell className="text-right">
