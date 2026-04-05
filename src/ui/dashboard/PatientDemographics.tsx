@@ -1,9 +1,9 @@
-import { 
-  PieChart, 
-  Pie, 
-  Cell, 
-  ResponsiveContainer, 
-  Tooltip, 
+import {
+  PieChart,
+  Pie,
+  Cell,
+  ResponsiveContainer,
+  Tooltip,
   Legend,
   BarChart,
   Bar,
@@ -47,7 +47,7 @@ export function PatientDemographics({ genderData, ageData, totalPatients }: Pati
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-4">
-          
+
           {/* Gender Pie Chart */}
           <div className="space-y-4">
             <h4 className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground text-center">Répartition par Sexe</h4>
@@ -69,19 +69,21 @@ export function PatientDemographics({ genderData, ageData, totalPatients }: Pati
                       <Cell key={`cell-${index}`} fill={GENDER_COLORS[index % GENDER_COLORS.length]} />
                     ))}
                   </Pie>
-                  <Tooltip 
-                    contentStyle={{ 
-                      borderRadius: '12px', 
-                      border: '1px solid #10b98144', 
+                  <Tooltip
+                    contentStyle={{
+                      borderRadius: '12px',
+                      border: '1px solid #10b98144',
                       backgroundColor: 'hsl(var(--card))',
-                      boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' 
+                      boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)'
                     }}
+                    itemStyle={{ color: 'hsl(var(--foreground))' }}
+                    labelStyle={{ color: 'hsl(var(--foreground))' }}
                     formatter={(value: number, name: string) => [value, translateGender(name)]}
                   />
-                  <Legend 
-                    verticalAlign="bottom" 
-                    height={36} 
-                    iconType="circle" 
+                  <Legend
+                    verticalAlign="bottom"
+                    height={36}
+                    iconType="circle"
                     formatter={(value: string) => translateGender(value)}
                   />
                 </PieChart>
@@ -104,22 +106,24 @@ export function PatientDemographics({ genderData, ageData, totalPatients }: Pati
                       <stop offset="95%" stopColor="#10b981" stopOpacity={0.1} />
                     </linearGradient>
                   </defs>
-                  <XAxis 
-                    dataKey="ageGroup" 
-                    axisLine={false} 
-                    tickLine={false} 
+                  <XAxis
+                    dataKey="ageGroup"
+                    axisLine={false}
+                    tickLine={false}
                     fontSize={11}
                     tick={{ fill: 'hsl(var(--muted-foreground))' }}
                   />
                   <YAxis axisLine={false} tickLine={false} fontSize={11} tick={{ fill: 'hsl(var(--muted-foreground))' }} allowDecimals={false} />
-                  <Tooltip 
+                  <Tooltip
                     cursor={{ fill: 'rgba(16, 185, 129, 0.05)' }}
-                    contentStyle={{ 
-                      borderRadius: '12px', 
-                      border: '1px solid #10b98144', 
+                    contentStyle={{
+                      borderRadius: '12px',
+                      border: '1px solid #10b98144',
                       backgroundColor: 'hsl(var(--card))',
-                      boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' 
+                      boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)'
                     }}
+                    itemStyle={{ color: 'hsl(var(--foreground))' }}
+                    labelStyle={{ color: 'hsl(var(--foreground))' }}
                   />
                   <Bar dataKey="count" fill="url(#colorAge)" radius={[6, 6, 0, 0]} barSize={36} />
                 </BarChart>

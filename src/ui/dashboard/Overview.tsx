@@ -76,6 +76,8 @@ export function Overview() {
               backgroundColor: 'hsl(var(--card))',
               boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' 
             }}
+            itemStyle={{ color: 'hsl(var(--foreground))' }}
+            labelStyle={{ color: 'hsl(var(--foreground))' }}
           />
           <Bar 
             dataKey="total" 

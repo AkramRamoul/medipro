@@ -36,35 +36,53 @@ export function formatLastVisit(lastVisit: string | Date) {
 }
 
 export function initialsAvatar(initials: string) {
+  // Enhanced hashing for more distinct color distribution
   let hash = 0;
   for (let i = 0; i < initials.length; i++) {
     hash = initials.charCodeAt(i) + ((hash << 5) - hash);
   }
 
+  // Use a curated set of hues or a more vibrant palette
   const hue = Math.abs(hash) % 360;
-  const saturation = 75;
-  const lightness = 55;
+  
+  // Create a gradient for a more "lush" look
+  const color1 = `hsl(${hue}, 70%, 60%)`;
+  const color2 = `hsl(${(hue + 20) % 360}, 80%, 50%)`;
+  
+  // Better contrast check for foreground text
+  const isBright = (hue > 45 && hue < 190); // Yellow/Green/Cyan spectrum is bright
+  const fg = isBright ? "rgba(0,0,0,0.6)" : "#ffffff";
 
-  const bg = `hsl(${hue}, ${saturation}%, ${lightness}%)`;
-
-  const fg = lightness > 60 ? "#1f2937" : "#ffffff";
-
+  // Use a modern SVG with:
+  // 1. A linear gradient background
+  // 2. A subtle inner border for depth
+  // 3. Better typography alignment
   const svg = `
-    <svg xmlns="http://www.w3.org/2000/svg" width="128" height="128">
-      <rect width="100%" height="100%" rx="64" fill="${bg}" />
+    <svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+      <defs>
+        <linearGradient id="avatarGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="${color1}" />
+          <stop offset="100%" stop-color="${color2}" />
+        </linearGradient>
+      </defs>
+      <circle cx="64" cy="64" r="64" fill="url(#avatarGrad)" />
+      <circle cx="64" cy="64" r="62" fill="none" stroke="white" stroke-opacity="0.1" stroke-width="1" />
       <text
         x="50%"
         y="50%"
-        dy=".35em"
+        dy=".1em"
         text-anchor="middle"
-        font-family="Inter, system-ui, sans-serif"
-        font-size="48"
+        dominant-baseline="middle"
+        font-family="Inter, system-ui, -apple-system, sans-serif"
+        font-size="52"
         font-weight="700"
-        fill="${fg}">
-        ${initials}
+        letter-spacing="-0.02em"
+        fill="${fg}"
+        style="text-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+        ${initials.toUpperCase()}
       </text>
     </svg>
   `;
 
-  return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+  return `data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(svg)))}`;
 }

@@ -82,7 +82,12 @@ export function FinancialOverview() {
               backgroundColor: 'hsl(var(--card))',
               boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' 
             }}
-            formatter={(value: number) => [`${value.toLocaleString()} DA`, '']}
+            itemStyle={{ color: 'hsl(var(--foreground))', padding: '2px 0' }}
+            labelStyle={{ color: 'hsl(var(--foreground))', fontWeight: 'bold', marginBottom: '4px' }}
+            formatter={(value: number, name: string) => [
+              <span className="font-medium">{value.toLocaleString()} DA</span>, 
+              name
+            ]}
           />
           <Legend verticalAlign="top" height={36}/>
           <Area
