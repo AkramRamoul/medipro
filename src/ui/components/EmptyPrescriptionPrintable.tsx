@@ -2,7 +2,7 @@
 
 import React from "react";
 
-type TemplateLayout = "bilingual" | "fr-only" | "ar-only" | "fr-logo-left" | "ar-logo-right";
+type TemplateLayout = "bilingual" | "fr-only" | "ar-only" | "fr-logo-left" | "ar-logo-right" | "bilingual-logo-left" | "bilingual-logo-right" | "centered";
 
 interface EmptyPrescriptionPrintableProps {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -70,6 +70,11 @@ const EmptyPrescriptionPrintable: React.FC<EmptyPrescriptionPrintableProps> = ({
     .col-logo-center { width: 20%; text-align: center; position: absolute; left: 40%; top: 0; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; }
     .col-fr-full { text-align: left; flex: 1; }
     .col-ar-full { text-align: right; direction: rtl; flex: 1; }
+    .col-logo-side { width: 20%; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; }
+    .header-centered { display: flex; flex-direction: column; align-items: center; width: 100%; margin-bottom: ${Math.max(20, logoSize * 0.35)}px; position: relative; }
+    .col-stacked-container { display: flex; width: 100%; justify-content: space-between; margin-top: 15px; }
+    .col-fr-center { text-align: center; width: 45%; display: flex; flex-direction: column; align-items: center; }
+    .col-ar-center { text-align: center; width: 45%; direction: rtl; display: flex; flex-direction: column; align-items: center; }
     /* Letterhead panels (fr-logo-left / ar-logo-right) */
     .header-panel { display: flex; align-items: stretch; margin-bottom: ${Math.max(20, logoSize * 0.35)}px; min-height: ${Math.max(100, logoSize + 30)}px; }
     .panel-logo-left { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 8px; border-right: 2px solid ${accentColor}; flex-shrink: 0; width: ${logoSize + 20}px; }
@@ -167,6 +172,32 @@ const EmptyPrescriptionPrintable: React.FC<EmptyPrescriptionPrintableProps> = ({
                             {showInscriptionNumber && (
                                 <div className="panel-inscription">N° Order : {prescriptionModel.inscriptionNumber}</div>
                             )}
+                        </div>
+                    </div>
+                );
+            case "bilingual-logo-left":
+                return (
+                    <div className="header">
+                        <div className="col-logo-side">{logoContent}</div>
+                        <div className="col-fr" style={{ paddingLeft: "10px" }}>{frContent}</div>
+                        <div className="col-ar">{arContent}</div>
+                    </div>
+                );
+            case "bilingual-logo-right":
+                return (
+                    <div className="header">
+                        <div className="col-fr">{frContent}</div>
+                        <div className="col-ar" style={{ paddingRight: "10px" }}>{arContent}</div>
+                        <div className="col-logo-side">{logoContent}</div>
+                    </div>
+                );
+            case "centered":
+                return (
+                    <div className="header-centered">
+                        <div className="col-logo">{logoContent}</div>
+                        <div className="col-stacked-container">
+                            <div className="col-fr-center">{frContent}</div>
+                            <div className="col-ar-center">{arContent}</div>
                         </div>
                     </div>
                 );

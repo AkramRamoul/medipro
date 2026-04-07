@@ -3,7 +3,10 @@ export type TemplateLayout =
     | "fr-only"
     | "ar-only"
     | "fr-logo-left"
-    | "ar-logo-right";
+    | "ar-logo-right"
+    | "bilingual-logo-left"
+    | "bilingual-logo-right"
+    | "centered";
 
 export interface FormState {
     nameFr: string;

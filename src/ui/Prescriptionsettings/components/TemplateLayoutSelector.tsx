@@ -88,6 +88,65 @@ const TEMPLATES: { id: TemplateLayout; label: string; desc: string; preview: Rea
             </div>
         ),
     },
+    {
+        id: "bilingual-logo-left",
+        label: "Bilingue - Logo gauche",
+        desc: "Logo + FR + AR",
+        preview: (
+            <div className="flex items-start gap-0.5 text-[6px] leading-tight w-full">
+                <div className="w-3 flex flex-col items-center">
+                    <div className="w-2.5 h-2.5 rounded-full border border-current opacity-60" />
+                </div>
+                <div className="flex-1 text-left space-y-0.5">
+                    <div className="bg-current rounded-sm h-1 w-6" />
+                    <div className="bg-current opacity-50 rounded-sm h-0.5 w-4" />
+                </div>
+                <div className="flex-1 text-right space-y-0.5">
+                    <div className="bg-current rounded-sm h-1 w-6 ml-auto" />
+                    <div className="bg-current opacity-50 rounded-sm h-0.5 w-4 ml-auto" />
+                </div>
+            </div>
+        ),
+    },
+    {
+        id: "bilingual-logo-right",
+        label: "Bilingue - Logo droite",
+        desc: "FR + AR + Logo",
+        preview: (
+            <div className="flex items-start gap-0.5 text-[6px] leading-tight w-full">
+                <div className="flex-1 text-left space-y-0.5">
+                    <div className="bg-current rounded-sm h-1 w-6" />
+                    <div className="bg-current opacity-50 rounded-sm h-0.5 w-4" />
+                </div>
+                <div className="flex-1 text-right space-y-0.5">
+                    <div className="bg-current rounded-sm h-1 w-6 ml-auto" />
+                    <div className="bg-current opacity-50 rounded-sm h-0.5 w-4 ml-auto" />
+                </div>
+                <div className="w-3 flex flex-col items-center">
+                    <div className="w-2.5 h-2.5 rounded-full border border-current opacity-60" />
+                </div>
+            </div>
+        ),
+    },
+    {
+        id: "centered",
+        label: "Centré",
+        desc: "Logo + Textes centrés",
+        preview: (
+            <div className="flex flex-col items-center gap-0.5 text-[6px] leading-tight w-full">
+                <div className="w-2.5 h-2.5 rounded-full border border-current opacity-60" />
+                <div className="flex w-full px-1 gap-1">
+                    <div className="flex-1 flex flex-col items-center">
+                         <div className="bg-current rounded-sm h-0.5 w-4" />
+                    </div>
+                    <div className="flex-1 flex flex-col items-center">
+                         <div className="bg-current rounded-sm h-0.5 w-4" />
+                    </div>
+                </div>
+                <div className="bg-current opacity-50 rounded-sm h-[1px] w-6" />
+            </div>
+        ),
+    },
 ];
 
 export function TemplateLayoutSelector() {

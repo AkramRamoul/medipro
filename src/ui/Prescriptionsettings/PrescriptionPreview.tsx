@@ -217,6 +217,40 @@ export const PrescriptionPreview: React.FC<PrescriptionPreviewProps> = ({
                         </div>
                     </div>
                 );
+            case "bilingual-logo-left":
+                return (
+                    <div className="flex justify-between items-start relative" style={{ marginBottom: mb, minHeight: minH }}>
+                        <div className="w-[20%] flex flex-col items-center justify-center pt-2">{logoBlock}</div>
+                        <div className="w-[40%] pl-2">{frBlock}</div>
+                        <div className="w-[40%]">{arBlock}</div>
+                    </div>
+                );
+            case "bilingual-logo-right":
+                return (
+                    <div className="flex justify-between items-start relative" style={{ marginBottom: mb, minHeight: minH }}>
+                        <div className="w-[40%]">{frBlock}</div>
+                        <div className="w-[40%] pr-2">{arBlock}</div>
+                        <div className="w-[20%] flex flex-col items-center justify-center pt-2">{logoBlock}</div>
+                    </div>
+                );
+            case "centered":
+                return (
+                    <div className="flex flex-col items-center w-full relative" style={{ marginBottom: mb, minHeight: minH }}>
+                        <div className="flex flex-col items-center justify-center mb-4">{logoBlock}</div>
+                        <div className="flex justify-between w-full">
+                            <div className="w-[45%] flex flex-col items-center text-center">
+                                <div className="font-bold leading-tight mb-1" style={{ color: accentColor, fontSize: `${doctorNameSize}px` }}>{form.nameFr || "Nom du Docteur"}</div>
+                                <div className="leading-tight mb-1 text-gray-600" style={{ fontSize: `${specialtySize}px` }}>{form.specialtyFr || "Spécialité"}</div>
+                                {services.map((s, i) => <div key={i} className="text-gray-700 text-center" style={{ fontSize: `${specialtySize * 0.9}px` }}>{s.fr}</div>)}
+                            </div>
+                            <div className="w-[45%] flex flex-col items-center text-center" dir="rtl">
+                                <div className="font-bold leading-tight mb-1" style={{ color: accentColor, fontSize: `${doctorNameSize}px` }}>{form.nameAr || "اسم الطبيب"}</div>
+                                <div className="leading-tight mb-1 text-gray-600" style={{ fontSize: `${specialtySize}px` }}>{form.specialtyAr || "التخصص"}</div>
+                                {services.map((s, i) => <div key={i} className="text-gray-700 text-center" style={{ fontSize: `${specialtySize * 0.9}px` }}>{s.ar}</div>)}
+                            </div>
+                        </div>
+                    </div>
+                );
             case "bilingual":
             default:
                 return (

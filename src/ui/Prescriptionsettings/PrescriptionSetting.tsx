@@ -26,32 +26,36 @@ import { VisualAndLayoutSettings } from "./components/VisualAndLayoutSettings";
 import { LogoUploadSection } from "./components/LogoUploadSection";
 
 const DEFAULT_FORM: FormState = {
-  nameFr: "",
-  nameAr: "",
-  specialtyFr: "",
-  specialtyAr: "",
+  nameFr: "Dr. Rayan Ramoul",
+  nameAr: "د. ريان رمول",
+  specialtyFr: "Spécialiste en Cardiologie",
+  specialtyAr: "أخصائي أمراض القلب والشرايين",
   servicesFr: "",
   servicesAr: "",
-  inscriptionNumber: "",
-  address: "",
-  phoneNumber1: "",
-  phoneNumber2: "",
-  city: "",
-  accentColor: "#000000",
-  fontFamily: "serif",
-  doctorNameFontSize: 14,
-  specialtyFontSize: 10,
-  titleFontSize: 18,
+  inscriptionNumber: "12345/2026",
+  address: "123 Boulevard de l'Avenir, Centre Médical",
+  phoneNumber1: "05 55 12 34 56",
+  phoneNumber2: "06 66 98 76 54",
+  city: "Alger",
+  accentColor: "#2563eb",
+  fontFamily: "inter",
+  doctorNameFontSize: 16,
+  specialtyFontSize: 11,
+  titleFontSize: 20,
   bodyFontSize: 12,
   logoSize: 60,
-  watermarkOpacity: 10,
+  watermarkOpacity: 8,
   dividerStyle: "solid",
   titleText: "ORDONNANCE",
   showInscriptionNumber: true,
-  templateLayout: "bilingual",
+  templateLayout: "bilingual-logo-left",
 };
 
-const DEFAULT_SERVICES: ServiceItem[] = [{ fr: "", ar: "" }];
+const DEFAULT_SERVICES: ServiceItem[] = [
+  { fr: "Échocardiographie Doppler", ar: "تخطيط صدى القلب دوبلر" },
+  { fr: "Électrocardiogramme (ECG)", ar: "تخطيط كهربية القلب" },
+  { fr: "Holter Rythmique", ar: "جهاز هولتر لمراقبة النبض" },
+];
 
 const fetcher = (url: string) => api.get(url).then(res => res.data);
 
