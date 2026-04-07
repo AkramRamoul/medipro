@@ -18,7 +18,7 @@ export interface FormState {
     phoneNumber2: string;
     city: string;
     accentColor: string;
-    fontFamily: "serif" | "sans-serif";
+    fontFamily: "serif" | "sans-serif" | "lora" | "merriweather" | "playfair" | "inter" | "roboto" | "montserrat";
     doctorNameFontSize: number;
     specialtyFontSize: number;
     titleFontSize: number;
@@ -35,3 +35,7 @@ export interface ServiceItem {
     fr: string;
     ar: string;
 }
+
+export type FormData = FormState & {
+    services: ServiceItem[];
+};
