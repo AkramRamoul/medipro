@@ -1,14 +1,21 @@
 import React from "react";
 import { Layout, SlidersHorizontal, Type, Minus, Eye, EyeOff } from "lucide-react";
-import { FormState } from "../types";
+import { useFormContext, useWatch } from "react-hook-form";
+import { FormData } from "../types";
 
-interface Props {
-    form: FormState;
-    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-    setFieldValue: (key: keyof FormState, value: any) => void;
-}
+export function VisualAndLayoutSettings() {
+    const { register, setValue, control } = useFormContext<FormData>();
 
-export function VisualAndLayoutSettings({ form, onChange, setFieldValue }: Props) {
+    const accentColor = useWatch({ control, name: "accentColor" }) || "#000000";
+    const dividerStyle = useWatch({ control, name: "dividerStyle" }) || "solid";
+    const showInscriptionNumber = useWatch({ control, name: "showInscriptionNumber" });
+    const doctorNameFontSize = useWatch({ control, name: "doctorNameFontSize" }) || 14;
+    const specialtyFontSize = useWatch({ control, name: "specialtyFontSize" }) || 10;
+    const titleFontSize = useWatch({ control, name: "titleFontSize" }) || 18;
+    const bodyFontSize = useWatch({ control, name: "bodyFontSize" }) || 12;
+    const logoSize = useWatch({ control, name: "logoSize" }) || 60;
+    const watermarkOpacity = useWatch({ control, name: "watermarkOpacity" }) || 10;
+
     return (
         <>
             {/* Personalization Section */}
@@ -25,9 +32,7 @@ export function VisualAndLayoutSettings({ form, onChange, setFieldValue }: Props
                             <input
                                 id="accentColor"
                                 type="color"
-                                name="accentColor"
-                                value={form.accentColor}
-                                onChange={onChange}
+                                {...register("accentColor")}
                                 className="w-12 h-12 p-1 rounded-md cursor-pointer border shadow-sm"
                             />
                             <div className="flex flex-wrap gap-2">
@@ -36,8 +41,8 @@ export function VisualAndLayoutSettings({ form, onChange, setFieldValue }: Props
                                         key={color}
                                         type="button"
                                         title={`Couleur ${color}`}
-                                        onClick={() => setFieldValue("accentColor", color)}
-                                        className={`w-6 h-6 rounded-full border border-white shadow-sm ring-1 ring-black/10 transition-transform hover:scale-110 ${form.accentColor === color ? 'scale-125 ring-primary' : ''}`}
+                                        onClick={() => setValue("accentColor", color, { shouldValidate: true })}
+                                        className={`w-6 h-6 rounded-full border border-white shadow-sm ring-1 ring-black/10 transition-transform hover:scale-110 ${accentColor === color ? 'scale-125 ring-primary' : ''}`}
                                         style={{ backgroundColor: color }}
                                     />
                                 ))}
@@ -49,23 +54,25 @@ export function VisualAndLayoutSettings({ form, onChange, setFieldValue }: Props
                     </div>
 
                     <div className="space-y-3">
-                        <label className="text-sm font-medium">Style d'écriture</label>
-                        <div className="flex p-1 bg-muted rounded-lg w-full max-w-[200px]">
-                            <button
-                                type="button"
-                                onClick={() => setFieldValue("fontFamily", "serif")}
-                                className={`flex-1 py-1.5 px-3 text-xs font-medium rounded-md transition-all ${form.fontFamily === "serif" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"}`}
-                            >
-                                Classique (Serif)
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => setFieldValue("fontFamily", "sans-serif")}
-                                className={`flex-1 py-1.5 px-3 text-xs font-medium rounded-md transition-all ${form.fontFamily === "sans-serif" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"}`}
-                            >
-                                Moderne (Sans)
-                            </button>
-                        </div>
+                        <label htmlFor="fontFamily" className="text-sm font-medium">Style d'écriture (Police)</label>
+                        <select
+                            id="fontFamily"
+                            {...register("fontFamily")}
+                            className="w-full p-2.5 border rounded-md bg-background text-foreground focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                        >
+                            <optgroup label="Classiques (Serif)">
+                                <option value="serif">Défaut (Serif)</option>
+                                <option value="lora">Lora</option>
+                                <option value="merriweather">Merriweather</option>
+                                <option value="playfair">Playfair Display</option>
+                            </optgroup>
+                            <optgroup label="Modernes (Sans-serif)">
+                                <option value="sans-serif">Défaut (Sans-serif)</option>
+                                <option value="inter">Inter</option>
+                                <option value="roboto">Roboto</option>
+                                <option value="montserrat">Montserrat</option>
+                            </optgroup>
+                        </select>
                     </div>
                 </div>
             </section>
@@ -85,23 +92,22 @@ export function VisualAndLayoutSettings({ form, onChange, setFieldValue }: Props
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {([
-                            { key: "doctorNameFontSize" as const, label: "Nom du docteur", min: 10, max: 22 },
-                            { key: "specialtyFontSize" as const, label: "Spécialité", min: 8, max: 16 },
-                            { key: "titleFontSize" as const, label: "Titre (ORDONNANCE)", min: 14, max: 28 },
-                            { key: "bodyFontSize" as const, label: "Corps de texte", min: 8, max: 16 },
-                        ]).map(({ key, label, min, max }) => (
+                            { key: "doctorNameFontSize" as const, label: "Nom du docteur", min: 10, max: 22, currentVal: doctorNameFontSize },
+                            { key: "specialtyFontSize" as const, label: "Spécialité", min: 8, max: 16, currentVal: specialtyFontSize },
+                            { key: "titleFontSize" as const, label: "Titre (ORDONNANCE)", min: 14, max: 28, currentVal: titleFontSize },
+                            { key: "bodyFontSize" as const, label: "Corps de texte", min: 8, max: 16, currentVal: bodyFontSize },
+                        ]).map(({ key, label, min, max, currentVal }) => (
                             <div key={key} className="space-y-1">
                                 <div className="flex items-center justify-between">
                                     <label htmlFor={`range-${key}`} className="text-xs text-muted-foreground">{label}</label>
-                                    <span className="text-xs font-mono font-semibold bg-muted px-1.5 py-0.5 rounded">{form[key]}px</span>
+                                    <span className="text-xs font-mono font-semibold bg-muted px-1.5 py-0.5 rounded">{currentVal}px</span>
                                 </div>
                                 <input
                                     id={`range-${key}`}
                                     type="range"
                                     min={min}
                                     max={max}
-                                    value={form[key] as number}
-                                    onChange={(e) => setFieldValue(key, Number(e.target.value))}
+                                    {...register(key, { valueAsNumber: true })}
                                     className="w-full h-1.5 bg-muted rounded-lg appearance-none cursor-pointer accent-primary"
                                 />
                             </div>
@@ -114,30 +120,28 @@ export function VisualAndLayoutSettings({ form, onChange, setFieldValue }: Props
                     <div className="space-y-1">
                         <div className="flex items-center justify-between">
                             <label htmlFor="logoSize" className="text-xs text-muted-foreground">Taille du logo</label>
-                            <span className="text-xs font-mono font-semibold bg-muted px-1.5 py-0.5 rounded">{form.logoSize}px</span>
+                            <span className="text-xs font-mono font-semibold bg-muted px-1.5 py-0.5 rounded">{logoSize}px</span>
                         </div>
                         <input
                             id="logoSize"
                             type="range"
                             min={40}
                             max={120}
-                            value={form.logoSize}
-                            onChange={(e) => setFieldValue("logoSize", Number(e.target.value))}
+                            {...register("logoSize", { valueAsNumber: true })}
                             className="w-full h-1.5 bg-muted rounded-lg appearance-none cursor-pointer accent-primary"
                         />
                     </div>
                     <div className="space-y-1">
                         <div className="flex items-center justify-between">
                             <label htmlFor="watermarkOpacity" className="text-xs text-muted-foreground">Opacité du filigrane</label>
-                            <span className="text-xs font-mono font-semibold bg-muted px-1.5 py-0.5 rounded">{form.watermarkOpacity}%</span>
+                            <span className="text-xs font-mono font-semibold bg-muted px-1.5 py-0.5 rounded">{watermarkOpacity}%</span>
                         </div>
                         <input
                             id="watermarkOpacity"
                             type="range"
                             min={0}
                             max={20}
-                            value={form.watermarkOpacity}
-                            onChange={(e) => setFieldValue("watermarkOpacity", Number(e.target.value))}
+                            {...register("watermarkOpacity", { valueAsNumber: true })}
                             className="w-full h-1.5 bg-muted rounded-lg appearance-none cursor-pointer accent-primary"
                         />
                     </div>
@@ -158,8 +162,8 @@ export function VisualAndLayoutSettings({ form, onChange, setFieldValue }: Props
                             <button
                                 key={value}
                                 type="button"
-                                onClick={() => setFieldValue("dividerStyle", value)}
-                                className={`flex-1 py-1.5 px-2 text-xs font-medium rounded-md transition-all ${form.dividerStyle === value
+                                onClick={() => setValue("dividerStyle", value, { shouldValidate: true })}
+                                className={`flex-1 py-1.5 px-2 text-xs font-medium rounded-md transition-all ${dividerStyle === value
                                     ? "bg-background shadow-sm text-foreground"
                                     : "text-muted-foreground hover:text-foreground"
                                     }`}
@@ -177,9 +181,7 @@ export function VisualAndLayoutSettings({ form, onChange, setFieldValue }: Props
                         <input
                             id="titleText"
                             type="text"
-                            name="titleText"
-                            value={form.titleText}
-                            onChange={onChange}
+                            {...register("titleText")}
                             placeholder="ORDONNANCE"
                             className="w-full p-2.5 border rounded-md bg-background text-foreground focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                         />
@@ -188,13 +190,13 @@ export function VisualAndLayoutSettings({ form, onChange, setFieldValue }: Props
                         <span className="text-sm font-medium block mb-1">Affichage du N° d'ordre</span>
                         <button
                             type="button"
-                            onClick={() => setFieldValue("showInscriptionNumber", !form.showInscriptionNumber)}
-                            className={`flex items-center gap-2 px-4 py-2.5 rounded-md border transition-all text-sm font-medium w-full justify-center ${form.showInscriptionNumber
+                            onClick={() => setValue("showInscriptionNumber", !showInscriptionNumber, { shouldValidate: true })}
+                            className={`flex items-center gap-2 px-4 py-2.5 rounded-md border transition-all text-sm font-medium w-full justify-center ${showInscriptionNumber
                                 ? "bg-primary/10 border-primary/30 text-primary"
                                 : "bg-muted/50 border-muted text-muted-foreground"
                                 }`}
                         >
-                            {form.showInscriptionNumber ? (
+                            {showInscriptionNumber ? (
                                 <><Eye className="w-4 h-4" /> Visible sur l'ordonnance</>
                             ) : (
                                 <><EyeOff className="w-4 h-4" /> Masqué sur l'ordonnance</>

@@ -1,13 +1,11 @@
 import React from "react";
 import { Info, Hash, MapPin, Phone } from "lucide-react";
-import { FormState } from "../types";
+import { useFormContext } from "react-hook-form";
+import { FormData } from "../types";
 
-interface Props {
-    form: FormState;
-    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-}
+export function ContactAndRegistration() {
+    const { register } = useFormContext<FormData>();
 
-export function ContactAndRegistration({ form, onChange }: Props) {
     return (
         <section className="space-y-4">
             <div className="flex items-center gap-2 pb-2 border-b border-muted">
@@ -23,9 +21,7 @@ export function ContactAndRegistration({ form, onChange }: Props) {
                     <input
                         id="inscriptionNumber"
                         type="text"
-                        name="inscriptionNumber"
-                        value={form.inscriptionNumber}
-                        onChange={onChange}
+                        {...register("inscriptionNumber")}
                         placeholder="Ex: 12345"
                         className="w-full p-2.5 border rounded-md bg-background focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                     />
@@ -37,9 +33,7 @@ export function ContactAndRegistration({ form, onChange }: Props) {
                     <input
                         id="city"
                         type="text"
-                        name="city"
-                        value={form.city}
-                        onChange={onChange}
+                        {...register("city")}
                         placeholder="Ex: Alger"
                         className="w-full p-2.5 border rounded-md bg-background focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                     />
@@ -51,9 +45,7 @@ export function ContactAndRegistration({ form, onChange }: Props) {
                 <input
                     id="address"
                     type="text"
-                    name="address"
-                    value={form.address}
-                    onChange={onChange}
+                    {...register("address")}
                     placeholder="Rue, Quartier, Bâtiment..."
                     className="w-full p-2.5 border rounded-md bg-background focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                 />
@@ -67,9 +59,7 @@ export function ContactAndRegistration({ form, onChange }: Props) {
                     <input
                         id="phoneNumber1"
                         type="tel"
-                        name="phoneNumber1"
-                        value={form.phoneNumber1}
-                        onChange={onChange}
+                        {...register("phoneNumber1")}
                         placeholder="021 XX XX XX"
                         className="w-full p-2.5 border rounded-md bg-background focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                     />
@@ -81,9 +71,7 @@ export function ContactAndRegistration({ form, onChange }: Props) {
                     <input
                         id="phoneNumber2"
                         type="tel"
-                        name="phoneNumber2"
-                        value={form.phoneNumber2}
-                        onChange={onChange}
+                        {...register("phoneNumber2")}
                         placeholder="05XX XX XX XX"
                         className="w-full p-2.5 border rounded-md bg-background focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                     />

@@ -15,8 +15,11 @@ import { PatientDemographics } from "./PatientDemographics";
 import { FinancialOverview } from "./FinancialOverview";
 import { ExpenseBreakdown } from "./ExpenseBreakdown";
 import { DashboardStats } from "../type";
-import { Activity, Users, Calendar, TrendingUp, DollarSign, Wallet } from "lucide-react";
+import { Activity, Users, Calendar, TrendingUp, DollarSign, Wallet, RefreshCw, ArrowUpRight, ArrowDownRight } from "lucide-react";
 import api from "../axios";
+import { Skeleton } from "../components/ui/skeleton";
+import { cn } from "../lib/utils";
+import { Button } from "../components/ui/button";
 
 export default function DashboardPage() {
   const [stats, setStats] = useState<DashboardStats>({
@@ -43,8 +46,10 @@ export default function DashboardPage() {
     earningsYear: 0,
     expensesYear: 0,
   });
+  const [isLoading, setIsLoading] = useState(true);
 
   const fetchDashboardStats = async () => {
+    setIsLoading(true);
     try {
       const { data } = await api.get("/consultations/stats");
       setStats((prev) => ({
@@ -59,22 +64,14 @@ export default function DashboardPage() {
       }));
     } catch (error) {
       console.error("Error fetching dashboard stats:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
+
   useEffect(() => {
     fetchDashboardStats();
   }, []);
-
-  const thisMonthPatients = stats.patientsThisMonth;
-  const lastMonthPatients = stats.patientsLastMonth;
-
-  const hasComparison = lastMonthPatients > 0;
-
-  const percentChange = hasComparison
-    ? ((thisMonthPatients - lastMonthPatients) / lastMonthPatients) * 100
-    : 0;
-
-  const isPositive = percentChange >= 0;
 
   return (
     <>
@@ -89,188 +86,159 @@ export default function DashboardPage() {
                 Vue d'ensemble de l'activité de la clinique.
               </p>
             </div>
+            <Button
+              variant="outline"
+              size="sm"
+              className={cn("gap-2 shadow-sm rounded-lg active:scale-95 transition-all", isLoading && "opacity-50 pointer-events-none")}
+              onClick={fetchDashboardStats}
+            >
+              <RefreshCw className={cn("w-4 h-4", isLoading && "animate-spin")} />
+              Rafraîchir
+            </Button>
           </div>
 
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-            {/* Patients This Month Card */}
-            <Card className="shadow-sm rounded-xl bg-card border-none ring-1 ring-border/50">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  Patients ce mois
-                </CardTitle>
-                <div className="bg-green-100 p-2 rounded-full dark:bg-green-900/30">
-                  <Users className="h-4 w-4 text-green-600 dark:text-green-400" />
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-foreground">
-                  {stats.patientsThisMonth}
-                </div>
-                <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
-                  {hasComparison ? (
-                    <>
-                      <TrendingUp
-                        className={`w-3 h-3 ${isPositive ? "text-green-500" : "text-red-500"
-                          }`}
-                      />
-                      {isPositive ? "+" : ""}
-                      {percentChange.toFixed(1)}% par rapport au mois dernier
-                    </>
-                  ) : (
-                    <>
-                      <TrendingUp className="w-3 h-3 text-muted-foreground" />
-                      Aucune donnée pour le mois précédent
-                    </>
-                  )}
-                </p>
-              </CardContent>
-            </Card>
+            {(() => {
+              const getPercentChange = (current: number, previous: number) => {
+                if (!previous || previous === 0) return { val: 0, exists: false };
+                const pct = ((current - previous) / previous) * 100;
+                return { val: pct, exists: true, isPos: pct >= 0 };
+              };
 
-            {/* Total Patients Card */}
+              const cards = [
+                {
+                  title: "Patients (Mois)",
+                  value: stats.patientsThisMonth,
+                  icon: Users,
+                  color: "text-green-600 dark:text-green-400",
+                  bg: "bg-green-100 dark:bg-green-900/30",
+                  subtext: isLoading ? null : getPercentChange(stats.patientsThisMonth, stats.patientsLastMonth).exists
+                    ? `${getPercentChange(stats.patientsThisMonth, stats.patientsLastMonth).val.toFixed(1)}% vs mois dernier`
+                    : "pas de données du mois dernier",
+                  isPositive: getPercentChange(stats.patientsThisMonth, stats.patientsLastMonth).isPos,
+                  showIcon: true,
+                },
+                {
+                  title: "Consultations (Mois)",
+                  value: stats.consultationsThisMonth,
+                  icon: Activity,
+                  color: "text-purple-600 dark:text-purple-400",
+                  bg: "bg-purple-100 dark:bg-purple-900/30",
+                  subtext: isLoading ? null : getPercentChange(stats.consultationsThisMonth, stats.consultationsLastMonth).exists
+                    ? `${getPercentChange(stats.consultationsThisMonth, stats.consultationsLastMonth).val.toFixed(1)}% vs mois dernier`
+                    : "Effectuées ce mois",
+                  isPositive: getPercentChange(stats.consultationsThisMonth, stats.consultationsLastMonth).isPos,
+                  showIcon: true,
+                },
+                {
+                  title: "Revenus (Mois)",
+                  value: `${(stats.earningsThisMonth || 0).toLocaleString()} DA`,
+                  icon: DollarSign,
+                  color: "text-emerald-600 dark:text-emerald-400",
+                  bg: "bg-emerald-100 dark:bg-emerald-900/30",
+                  subtext: isLoading ? null : getPercentChange(stats.earningsThisMonth, stats.earningsLastMonth).exists
+                    ? `${getPercentChange(stats.earningsThisMonth, stats.earningsLastMonth).val.toFixed(1)}% vs mois dernier`
+                    : `${(stats.earningsToday || 0).toLocaleString()} DA aujourd'hui`,
+                  isPositive: getPercentChange(stats.earningsThisMonth, stats.earningsLastMonth).isPos,
+                  showIcon: true
+                },
+                {
+                  title: "Dépenses (Mois)",
+                  value: `${(stats.expensesThisMonth || 0).toLocaleString()} DA`,
+                  icon: Wallet,
+                  color: "text-red-600 dark:text-red-400",
+                  bg: "bg-red-100 dark:bg-red-900/30",
+                  subtext: isLoading ? null : getPercentChange(stats.expensesThisMonth, stats.expensesLastMonth).exists
+                    ? `${getPercentChange(stats.expensesThisMonth, stats.expensesLastMonth).val.toFixed(1)}% vs mois dernier`
+                    : `${(stats.expensesToday || 0).toLocaleString()} DA aujourd'hui`,
+                  isPositive: !getPercentChange(stats.expensesThisMonth, stats.expensesLastMonth).isPos,
+                  showIcon: true
+                },
+                {
+                  title: "Profit Net (Mois)",
+                  value: `${((stats.earningsThisMonth || 0) - (stats.expensesThisMonth || 0)).toLocaleString()} DA`,
+                  icon: TrendingUp,
+                  color: "text-primary",
+                  bg: "bg-primary/10",
+                  isPrimary: true,
+                  subtext: isLoading ? null : stats.earningsThisMonth > 0
+                    ? `Marge: ${(((stats.earningsThisMonth - stats.expensesThisMonth) / stats.earningsThisMonth) * 100).toFixed(0)}%`
+                    : "Net bénéfice",
+                  showIcon: true
+                },
+                {
+                  title: "Rendez-vous (Auj)",
+                  value: stats.appointmentsToday,
+                  icon: Calendar,
+                  color: "text-orange-600 dark:text-orange-400",
+                  bg: "bg-orange-100 dark:bg-orange-900/30",
+                  subtext: "Planning quotidien",
+                  showIcon: false
+                },
+                {
+                  title: "Revenus (Année)",
+                  value: `${(stats.earningsYear || 0).toLocaleString()} DA`,
+                  icon: DollarSign,
+                  color: "text-blue-600 dark:text-blue-400",
+                  bg: "bg-blue-100 dark:bg-blue-900/30",
+                  subtext: "Total annuel cumulé",
+                  showIcon: false
+                },
+                {
+                  title: "Dépenses (Année)",
+                  value: `${(stats.expensesYear || 0).toLocaleString()} DA`,
+                  icon: Wallet,
+                  color: "text-rose-600 dark:text-rose-400",
+                  bg: "bg-rose-100 dark:bg-rose-900/30",
+                  subtext: "Total annuel cumulé",
+                  showIcon: false
+                }
+              ];
 
-            {/* Prescriptions This Month Card */}
-            <Card className="shadow-sm rounded-xl bg-card border-none ring-1 ring-border/50">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  Consultations (Mois)
-                </CardTitle>
-                <div className="bg-purple-100 p-2 rounded-full dark:bg-purple-900/30">
-                  <Activity className="h-4 w-4 text-purple-600 dark:text-purple-400" />
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-foreground">
-                  {stats.consultationsThisMonth}
-                </div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Effectuées ce mois-ci
-                </p>
-              </CardContent>
-            </Card>
-
-            {/* Earnings This Month Card */}
-            <Card className="shadow-sm rounded-xl bg-card border-none ring-1 ring-border/50">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  Revenus (Mois)
-                </CardTitle>
-                <div className="bg-emerald-100 p-2 rounded-full dark:bg-emerald-900/30">
-                  <TrendingUp className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-foreground">
-                  {(stats.earningsThisMonth || 0).toLocaleString()} DA
-                </div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  {(stats.earningsToday || 0).toLocaleString()} DA aujourd'hui
-                </p>
-              </CardContent>
-            </Card>
-
-            {/* Expenses This Month Card */}
-            <Card className="shadow-sm rounded-xl bg-card border-none ring-1 ring-border/50">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  Dépenses (Mois)
-                </CardTitle>
-                <div className="bg-red-100 p-2 rounded-full dark:bg-red-900/30">
-                  <TrendingUp className="h-4 w-4 text-red-600 dark:text-red-400 rotate-180" />
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-foreground">
-                  {(stats.expensesThisMonth || 0).toLocaleString()} DA
-                </div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  {(stats.expensesToday || 0).toLocaleString()} DA aujourd'hui
-                </p>
-              </CardContent>
-            </Card>
-
-            {/* Net Profit Card */}
-            <Card className="shadow-sm rounded-xl bg-card border-none ring-1 ring-border/50">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-primary">
-                  Profit Net (Mois)
-                </CardTitle>
-                <div className="bg-primary/20 p-2 rounded-full">
-                  <TrendingUp className="h-4 w-4 text-primary" />
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-primary">
-                  {((stats.earningsThisMonth || 0) - (stats.expensesThisMonth || 0)).toLocaleString()} DA
-                </div>
-                <p className="text-xs text-primary/70 mt-1">
-                  Revenus - Dépenses
-                </p>
-              </CardContent>
-            </Card>
-
-            {/* Consultations Today Card */}
-            <Card className="shadow-sm rounded-xl bg-card border-none ring-1 ring-border/50">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  Rendez-vous aujourd’hui
-                </CardTitle>
-                <div className="bg-orange-100 p-2 rounded-full dark:bg-orange-900/30">
-                  <Calendar className="h-4 w-4 text-orange-600 dark:text-orange-400" />
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-foreground">
-                  {stats.appointmentsToday}
-                </div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Prévus pour aujourd'hui
-                </p>
-              </CardContent>
-            </Card>
-
-            {/* Annual Revenue Card */}
-            <Card className="shadow-sm rounded-xl bg-card border-none ring-1 ring-border/50">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  Revenus (Année)
-                </CardTitle>
-                <div className="bg-blue-100 p-2 rounded-full dark:bg-blue-900/30">
-                  <DollarSign className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-foreground">
-                  {(stats.earningsYear || 0).toLocaleString()} DA
-                </div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Total cumulé de l'année
-                </p>
-              </CardContent>
-            </Card>
-
-            {/* Annual Expenses Card */}
-            <Card className="shadow-sm rounded-xl bg-card border-none ring-1 ring-border/50">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  Dépenses (Année)
-                </CardTitle>
-                <div className="bg-rose-100 p-2 rounded-full dark:bg-rose-900/30">
-                  <Wallet className="h-4 w-4 text-rose-600 dark:text-rose-400" />
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-foreground">
-                  {(stats.expensesYear || 0).toLocaleString()} DA
-                </div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Total cumulé de l'année
-                </p>
-              </CardContent>
-            </Card>
+              return cards.map((card, idx) => (
+                <Card key={idx} className={cn(
+                  "shadow-sm rounded-xl border-none ring-1 transition-all duration-300 hover:shadow-md hover:ring-primary/20",
+                  card.isPrimary ? "bg-primary/5 ring-primary/30" : "bg-card ring-border/50"
+                )}>
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className={cn("text-xs font-semibold uppercase tracking-wider", card.isPrimary ? "text-primary" : "text-muted-foreground")}>
+                      {card.title}
+                    </CardTitle>
+                    <div className={cn("p-2 rounded-lg", card.bg)}>
+                      <card.icon className={cn("h-4 w-4", card.color)} />
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    {isLoading ? (
+                      <div className="space-y-2">
+                        <Skeleton className="h-7 w-24" />
+                        <Skeleton className="h-3 w-16" />
+                      </div>
+                    ) : (
+                      <>
+                        <div className="text-2xl font-bold tracking-tight text-foreground">
+                          {card.value}
+                        </div>
+                        <div className="flex items-center gap-1.5 mt-1">
+                          {card.showIcon && card.subtext && !card.isPrimary && (
+                            card.isPositive ? <ArrowUpRight className="w-3 h-3 text-green-500" /> : <ArrowDownRight className="w-3 h-3 text-red-500" />
+                          )}
+                          <p className={cn(
+                            "text-[10px] font-medium",
+                            card.isPrimary ? "text-primary" : "text-muted-foreground"
+                          )}>
+                            {card.subtext}
+                          </p>
+                        </div>
+                      </>
+                    )}
+                  </CardContent>
+                </Card>
+              ));
+            })()}
           </div>
 
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7 items-start">
-            {/* Financial Overview Card */}
             <Card className="col-span-4 shadow-sm rounded-xl bg-card border-none ring-1 ring-border/50 overflow-hidden">
               <CardHeader className="pb-2">
                 <div className="flex items-center justify-between">
@@ -287,25 +255,34 @@ export default function DashboardPage() {
                 </div>
               </CardHeader>
               <CardContent>
-                <FinancialOverview />
+                {isLoading ? (
+                  <div className="h-[300px] flex items-center justify-center">
+                    <Skeleton className="h-[250px] w-full" />
+                  </div>
+                ) : (
+                  <FinancialOverview />
+                )}
               </CardContent>
             </Card>
 
-            {/* Expense Breakdown Card */}
             <Card className="col-span-3 shadow-sm rounded-xl bg-card border-none ring-1 ring-border/50 overflow-hidden">
               <CardHeader>
                 <CardTitle className="text-xl text-foreground">Répartition des Dépenses</CardTitle>
                 <CardDescription>Aperçu catégoriel du mois actuel.</CardDescription>
               </CardHeader>
               <CardContent>
-                <ExpenseBreakdown />
+                {isLoading ? (
+                  <div className="h-[300px] flex items-center justify-center">
+                    <Skeleton className="h-[250px] w-full rounded-full max-w-[250px]" />
+                  </div>
+                ) : (
+                  <ExpenseBreakdown />
+                )}
               </CardContent>
             </Card>
           </div>
 
-          {/* Overview and Recent Consultations */}
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7 items-start">
-            {/* Overview Card */}
             <Card className="col-span-4 shadow-sm rounded-xl bg-card border-none ring-1 ring-border/50">
               <CardHeader>
                 <CardTitle className="text-xl text-foreground">
@@ -320,7 +297,6 @@ export default function DashboardPage() {
               </CardContent>
             </Card>
 
-            {/* Recent Consultations Card */}
             <Card className="col-span-3 bg-card border-none ring-1 ring-border/50 shadow-sm rounded-xl">
               <CardHeader>
                 <CardTitle className="text-xl text-foreground">
@@ -340,9 +316,7 @@ export default function DashboardPage() {
             </Card>
           </div>
 
-          {/* Advanced Analytics Section */}
           <div className="grid gap-8 lg:grid-cols-6 items-start">
-            {/* Patient Retention Card */}
             <div className="lg:col-span-2">
               <PatientRetention
                 retentionRate={stats.retentionRate}
@@ -351,21 +325,18 @@ export default function DashboardPage() {
               />
             </div>
 
-            {/* Patient Demographics Card */}
             <div className="lg:col-span-4">
-              <PatientDemographics 
+              <PatientDemographics
                 genderData={stats.genderDistribution || []}
                 ageData={stats.ageDistribution || []}
                 totalPatients={stats.totalUniquePatients}
               />
             </div>
 
-            {/* Common Diagnoses Card */}
             <div className="lg:col-span-3">
               <CommonDiagnoses data={stats.commonDiagnoses} />
             </div>
 
-            {/* Busiest Days Card */}
             <div className="lg:col-span-3">
               <BusiestDays data={stats.busiestDays} />
             </div>

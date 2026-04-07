@@ -6,11 +6,15 @@ export type Patient = {
   id: string;
   firstname: string;
   lastname: string;
+  age?: number;
+  gender?: string;
   contact: string;
   lastVisit: string | null;
   createdAt?: string;
   status?: string;
   tags?: string;
+  bloodType?: string;
+  allergies?: string;
 };
 
 export const columns: ColumnDef<Patient>[] = [

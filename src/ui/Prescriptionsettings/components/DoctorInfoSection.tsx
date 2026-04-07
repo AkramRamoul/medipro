@@ -1,17 +1,17 @@
 import React from "react";
 import { User } from "lucide-react";
-import { FormState } from "../types";
+import { useFormContext, useWatch } from "react-hook-form";
+import { FormData } from "../types";
 
-interface Props {
-    form: FormState;
-    onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
-}
-
-export function DoctorInfoSection({ form, onChange }: Props) {
+export function DoctorInfoSection() {
+    const { register, control } = useFormContext<FormData>();
     const arabicRegex = /^[\u0600-\u06FF\s\u0660-\u0669.,،ء-ي]*$/;
 
-    const isNameArValid = form.nameAr === "" || arabicRegex.test(form.nameAr);
-    const isSpecialtyArValid = form.specialtyAr === "" || arabicRegex.test(form.specialtyAr);
+    const nameAr = useWatch({ control, name: "nameAr" }) || "";
+    const specialtyAr = useWatch({ control, name: "specialtyAr" }) || "";
+
+    const isNameArValid = nameAr === "" || arabicRegex.test(nameAr);
+    const isSpecialtyArValid = specialtyAr === "" || arabicRegex.test(specialtyAr);
 
     return (
         <section className="space-y-4">
@@ -26,9 +26,7 @@ export function DoctorInfoSection({ form, onChange }: Props) {
                         id="nameFr"
                         placeholder="Dr. Nom Prénom"
                         type="text"
-                        name="nameFr"
-                        value={form.nameFr}
-                        onChange={onChange}
+                        {...register("nameFr")}
                         className="w-full p-2.5 border rounded-md bg-background text-foreground focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                     />
                 </div>
@@ -38,10 +36,8 @@ export function DoctorInfoSection({ form, onChange }: Props) {
                         id="nameAr"
                         type="text"
                         maxLength={50}
-                        name="nameAr"
                         placeholder="الدكتور(ة) اسم الطبيب"
-                        value={form.nameAr}
-                        onChange={onChange}
+                        {...register("nameAr")}
                         className={`w-full p-2.5 border rounded-md bg-background text-foreground outline-none transition-all ${!isNameArValid ? 'border-destructive focus:ring-destructive/20' : 'focus:ring-2 focus:ring-primary/20'}`}
                     />
                     {!isNameArValid && (
@@ -58,9 +54,7 @@ export function DoctorInfoSection({ form, onChange }: Props) {
                         maxLength={50}
                         type="text"
                         placeholder="Ex: Dermatologue"
-                        name="specialtyFr"
-                        value={form.specialtyFr}
-                        onChange={onChange}
+                        {...register("specialtyFr")}
                         className="w-full p-2.5 border rounded-md bg-background text-foreground focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                     />
                 </div>
@@ -69,10 +63,8 @@ export function DoctorInfoSection({ form, onChange }: Props) {
                     <input
                         id="specialtyAr"
                         type="text"
-                        name="specialtyAr"
                         placeholder="مثال: أمراض الجلد"
-                        value={form.specialtyAr}
-                        onChange={onChange}
+                        {...register("specialtyAr")}
                         className={`w-full p-2.5 border rounded-md bg-background text-foreground outline-none transition-all ${!isSpecialtyArValid ? 'border-destructive focus:ring-destructive/20' : 'focus:ring-2 focus:ring-primary/20'}`}
                     />
                     {!isSpecialtyArValid && (

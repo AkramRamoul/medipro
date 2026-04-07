@@ -1,4 +1,6 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState } from "react";
+import { FormProvider, useForm } from "react-hook-form";
+import useSWR from "swr";
 import { useFileUploader } from "../hooks/use-file-uploader";
 import api from "../axios";
 import { toast } from "sonner";
@@ -14,7 +16,8 @@ import PrintButton from "./EmptyPrintButton";
 import { PrescriptionPreview } from "./PrescriptionPreview";
 import { Layout, RotateCcw, RefreshCw, Loader2 } from "lucide-react";
 
-import { FormState, ServiceItem, TemplateLayout } from "./types";
+import { useDebounce } from "../hooks/use-debounce";
+import { FormState, ServiceItem, FormData } from "./types";
 import { TemplateLayoutSelector } from "./components/TemplateLayoutSelector";
 import { DoctorInfoSection } from "./components/DoctorInfoSection";
 import { ServicesSection } from "./components/ServicesSection";
@@ -50,116 +53,62 @@ const DEFAULT_FORM: FormState = {
 
 const DEFAULT_SERVICES: ServiceItem[] = [{ fr: "", ar: "" }];
 
-export function PrescriptionModelForm() {
-  const [form, setForm] = useState<FormState>(DEFAULT_FORM);
-  const [logoImage, setLogoImage] = useState<string | null>(null);
-  const [services, setServices] = useState<ServiceItem[]>(DEFAULT_SERVICES);
+const fetcher = (url: string) => api.get(url).then(res => res.data);
 
-  const [isFetching, setIsFetching] = useState(true);
+export function PrescriptionModelForm() {
+  const [logoImage, setLogoImage] = useState<string | null>(null);
+  const fileUploaderProps = useFileUploader();
   const [isSaving, setIsSaving] = useState(false);
 
-  // ── Unified setter (replaces both handleChange and handleFieldValueChange) ──
-  const setField = useCallback(
-    <K extends keyof FormState>(key: K, value: FormState[K]) =>
-      setForm((prev) => ({ ...prev, [key]: value })),
-    []
-  );
+  const { data: logoData, isLoading: isFetchingLogo } = useSWR('/settings/logo', fetcher, { revalidateOnFocus: false });
+  const { data: modelData, isLoading: isFetchingModel, mutate: mutateModel } = useSWR('/settings/prescription-model', fetcher, { revalidateOnFocus: false });
 
-  const handleChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-      setField(e.target.name as keyof FormState, e.target.value as never);
-    },
-    [setField]
-  );
+  const methods = useForm<FormData>({
+    defaultValues: { ...DEFAULT_FORM, services: DEFAULT_SERVICES }
+  });
 
-  // ── Fetch from server (reload current saved state) ──
-  const loadData = useCallback(async () => {
-    setIsFetching(true);
-    try {
-      const [logoRes, modelRes] = await Promise.all([
-        api.get("/settings/logo"),
-        api.get("/settings/prescription-model"),
-      ]);
-
-      if (logoRes.data.success && logoRes.data.image) {
-        setLogoImage(logoRes.data.image);
-      }
-
-      if (modelRes.data.success && modelRes.data.model) {
-        const model = modelRes.data.model;
-        // Merge with defaults — no need to enumerate every field manually
-        setForm({ ...DEFAULT_FORM, ...model });
-
-        try {
-          const fr: string[] = JSON.parse(model.servicesFr || "[]");
-          const ar: string[] = JSON.parse(model.servicesAr || "[]");
-          const parsed = fr.map((f, i) => ({ fr: f, ar: ar[i] || "" }));
-          if (parsed.length > 0) setServices(parsed);
-        } catch {
-          // Ignore malformed service data
-        }
-      }
-    } catch (error) {
-      console.error("Error loading prescription settings:", error);
-      toast.error("Impossible de charger les paramètres.");
-    } finally {
-      setIsFetching(false);
-    }
-  }, []);
-
-  // ── Reset to factory defaults (no server call) ──
-  const handleReset = useCallback(() => {
-    setForm(DEFAULT_FORM);
-    setServices(DEFAULT_SERVICES);
-  }, []);
+  const { reset, handleSubmit, watch } = methods;
 
   useEffect(() => {
-    loadData();
-  }, [loadData]);
+    if (logoData?.success && logoData.image) {
+      setLogoImage(logoData.image);
+    }
+  }, [logoData]);
 
-  // ── Services handlers ──
-  const addService = useCallback(() => {
-    setServices((prev) => (prev.length < 3 ? [...prev, { fr: "", ar: "" }] : prev));
-  }, []);
+  useEffect(() => {
+    if (modelData?.success && modelData.model) {
+      const model = modelData.model;
+      let parsedServices = DEFAULT_SERVICES;
+      try {
+        const fr: string[] = JSON.parse(model.servicesFr || "[]");
+        const ar: string[] = JSON.parse(model.servicesAr || "[]");
+        const parsed = fr.map((f, i) => ({ fr: f, ar: ar[i] || "" }));
+        if (parsed.length > 0) parsedServices = parsed;
+      } catch {
+        // Ignore malformed service data
+      }
+      reset({ ...DEFAULT_FORM, ...model, services: parsedServices });
+    }
+  }, [modelData, reset]);
 
-  const removeService = useCallback((index: number) => {
-    setServices((prev) =>
-      prev.length > 1 ? prev.filter((_, i) => i !== index) : prev
-    );
-  }, []);
+  const watchedValues = watch();
+  const debouncedForm = useDebounce(watchedValues, 300);
 
-  const handleServiceChange = useCallback(
-    (index: number, lang: "fr" | "ar", value: string) => {
-      setServices((prev) => {
-        const updated = [...prev];
-        updated[index] = { ...updated[index], [lang]: value };
-        return updated;
-      });
-    },
-    []
-  );
+  const handleReset = () => {
+    reset({ ...DEFAULT_FORM, services: DEFAULT_SERVICES });
+  };
 
-  // ── Layout change ──
-  const handleLayoutChange = useCallback(
-    (layout: TemplateLayout) => setField("templateLayout", layout),
-    [setField]
-  );
+  const handleReload = () => {
+    mutateModel();
+  };
 
-  const fileUploaderProps = useFileUploader();
-
-  // ── Submit ──
-  const handleSubmit = async (e?: React.FormEvent<HTMLFormElement>) => {
-    if (e) e.preventDefault();
+  const onSubmit = async (data: FormData) => {
     setIsSaving(true);
     try {
-      const payload = { ...form, services };
-      const { data: result } = await api.post("/settings/prescription-model", payload);
+      const { data: result } = await api.post("/settings/prescription-model", data);
       if (result.success) {
         toast.success("Modèle enregistré avec succès !");
-        if (result.model) {
-          setForm((prev) => ({ ...prev, ...result.model }));
-          if (result.model.services) setServices(result.model.services);
-        }
+        mutateModel(); // Refetch to ensure form matches server state
       } else {
         toast.error(result.error || "Erreur lors de l'enregistrement");
       }
@@ -170,6 +119,8 @@ export function PrescriptionModelForm() {
       setIsSaving(false);
     }
   };
+
+  const isFetching = isFetchingLogo || isFetchingModel;
 
   if (isFetching) {
     return (
@@ -216,7 +167,7 @@ export function PrescriptionModelForm() {
                     type="button"
                     variant="outline"
                     size="sm"
-                    onClick={loadData}
+                    onClick={handleReload}
                     disabled={isFetching || isSaving}
                     className="gap-2"
                     title="Recharger les données enregistrées"
@@ -228,44 +179,23 @@ export function PrescriptionModelForm() {
               </div>
             </CardHeader>
             <CardContent className="pt-6">
-              <form onSubmit={handleSubmit} className="space-y-8">
+              <FormProvider {...methods}>
+                <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+                  <TemplateLayoutSelector />
+                  <DoctorInfoSection />
+                  <ServicesSection />
+                  <ContactAndRegistration />
+                  <VisualAndLayoutSettings />
 
-                <TemplateLayoutSelector
-                  form={form}
-                  onChange={handleLayoutChange}
-                />
-
-                <DoctorInfoSection
-                  form={form}
-                  onChange={handleChange}
-                />
-
-                <ServicesSection
-                  services={services}
-                  onAdd={addService}
-                  onRemove={removeService}
-                  onChange={handleServiceChange}
-                />
-
-                <ContactAndRegistration
-                  form={form}
-                  onChange={handleChange}
-                />
-
-                <VisualAndLayoutSettings
-                  form={form}
-                  onChange={handleChange}
-                  setFieldValue={setField}
-                />
-
-                <div className="flex gap-4 pt-4">
-                  <Button disabled={isSaving} type="submit" className="flex-1 h-11 text-lg font-semibold">
-                    {isSaving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-                    Enregistrer les modifications
-                  </Button>
-                  {form && <PrintButton model={form} image={logoImage} />}
-                </div>
-              </form>
+                  <div className="flex gap-4 pt-4">
+                    <Button disabled={isSaving} type="submit" className="flex-1 h-11 text-lg font-semibold">
+                      {isSaving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                      Enregistrer les modifications
+                    </Button>
+                    <PrintButton model={debouncedForm} image={logoImage} />
+                  </div>
+                </form>
+              </FormProvider>
             </CardContent>
           </Card>
 
@@ -280,8 +210,8 @@ export function PrescriptionModelForm() {
         {/* Right Side: Preview */}
         <div className="lg:sticky lg:top-8">
           <PrescriptionPreview
-            form={form}
-            services={services}
+            form={debouncedForm}
+            services={debouncedForm.services || []}
             logoImage={logoImage}
           />
         </div>

@@ -16,7 +16,7 @@ interface PrescriptionPreviewProps {
         phoneNumber2: string;
         city: string;
         accentColor?: string;
-        fontFamily?: "serif" | "sans-serif";
+        fontFamily?: "serif" | "sans-serif" | "lora" | "merriweather" | "playfair" | "inter" | "roboto" | "montserrat";
         doctorNameFontSize?: number;
         specialtyFontSize?: number;
         titleFontSize?: number;
@@ -49,7 +49,21 @@ export const PrescriptionPreview: React.FC<PrescriptionPreviewProps> = ({
     const zoomReset = () => setZoom(ZOOM_DEFAULT);
 
     const accentColor = form.accentColor || "#000000";
-    const fontFamily = form.fontFamily === "sans-serif" ? "sans-serif" : "'Amiri', serif";
+
+    const resolveFontFamily = (ff: string) => {
+        switch(ff) {
+            case "lora": return "'Lora', serif";
+            case "merriweather": return "'Merriweather', serif";
+            case "playfair": return "'Playfair Display', serif";
+            case "inter": return "'Inter', sans-serif";
+            case "roboto": return "'Roboto', sans-serif";
+            case "montserrat": return "'Montserrat', sans-serif";
+            case "sans-serif": return "sans-serif";
+            case "serif":
+            default: return "'Amiri', serif";
+        }
+    };
+    const fontFamily = resolveFontFamily(form.fontFamily || "serif");
 
     const scale = 0.62;
     const doctorNameSize = (form.doctorNameFontSize ?? 14) * scale;
@@ -217,6 +231,9 @@ export const PrescriptionPreview: React.FC<PrescriptionPreviewProps> = ({
 
     return (
         <div className="sticky top-8">
+            <style>
+                {`@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=Merriweather:wght@400;700&family=Montserrat:wght@400;600;700&family=Playfair+Display:wght@400;600;700&family=Roboto:wght@400;500;700&display=swap');`}
+            </style>
             <h3 className="text-lg font-semibold mb-4 text-center">Aperçu en direct</h3>
 
             {/* Zoom controls */}

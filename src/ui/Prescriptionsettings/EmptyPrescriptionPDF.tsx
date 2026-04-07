@@ -90,7 +90,7 @@ const EmptyPrescriptionPDF = ({
     phoneNumber2?: string;
     city: string;
     accentColor?: string;
-    fontFamily?: "serif" | "sans-serif";
+    fontFamily?: "serif" | "sans-serif" | "lora" | "merriweather" | "playfair" | "inter" | "roboto" | "montserrat";
   };
   image: string | null;
 }) => {
@@ -98,7 +98,7 @@ const EmptyPrescriptionPDF = ({
     <Document>
       <Page size={{ width: 419.53, height: 595.28 }} style={[
         styles.page,
-        { fontFamily: prescriptionModel.fontFamily === "sans-serif" ? "Helvetica" : "Amiri" }
+        { fontFamily: ["sans-serif", "inter", "roboto", "montserrat"].includes(prescriptionModel.fontFamily || "") ? "Helvetica" : "Amiri" }
       ]}>
         {image && (
           <Image

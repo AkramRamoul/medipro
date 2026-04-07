@@ -1,6 +1,7 @@
 import React from "react";
 import { LayoutTemplate } from "lucide-react";
-import { FormState, TemplateLayout } from "../types";
+import { useFormContext, useWatch } from "react-hook-form";
+import { FormData, TemplateLayout } from "../types";
 
 const TEMPLATES: { id: TemplateLayout; label: string; desc: string; preview: React.ReactNode }[] = [
     {
@@ -89,12 +90,10 @@ const TEMPLATES: { id: TemplateLayout; label: string; desc: string; preview: Rea
     },
 ];
 
-interface Props {
-    form: FormState;
-    onChange: (layout: TemplateLayout) => void;
-}
+export function TemplateLayoutSelector() {
+    const { control, setValue } = useFormContext<FormData>();
+    const templateLayout = useWatch({ control, name: "templateLayout" });
 
-export function TemplateLayoutSelector({ form, onChange }: Props) {
     return (
         <section className="space-y-4">
             <div className="flex items-center gap-2 pb-2 border-b border-muted">
@@ -106,8 +105,8 @@ export function TemplateLayoutSelector({ form, onChange }: Props) {
                     <button
                         key={tpl.id}
                         type="button"
-                        onClick={() => onChange(tpl.id)}
-                        className={`flex flex-col gap-2 p-3 rounded-lg border-2 transition-all text-left ${form.templateLayout === tpl.id
+                        onClick={() => setValue("templateLayout", tpl.id, { shouldValidate: true })}
+                        className={`flex flex-col gap-2 p-3 rounded-lg border-2 transition-all text-left ${templateLayout === tpl.id
                                 ? "border-primary bg-primary/5 text-primary"
                                 : "border-muted bg-muted/20 text-muted-foreground hover:border-primary/40 hover:text-foreground"
                             }`}
