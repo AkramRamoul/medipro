@@ -234,6 +234,27 @@ export class PrescriptionService {
         return { success: true, id: newTemplate.id };
     }
 
+    async updateTemplate(id: number, data: any) {
+        const { name, medications } = data;
+        await db
+            .update(prescriptionTemplates)
+            .set({ name })
+            .where(eq(prescriptionTemplates.id, id));
+
+        await db
+            .delete(prescriptionTemplateMedications)
+            .where(eq(prescriptionTemplateMedications.templateId, id));
+
+        if (medications && medications.length > 0) {
+            const medsToInsert = medications.map((med: any) => ({
+                ...med,
+                templateId: id,
+            }));
+            await db.insert(prescriptionTemplateMedications).values(medsToInsert);
+        }
+        return { success: true };
+    }
+
     async deleteTemplate(id: number) {
         await db
             .delete(prescriptionTemplates)
@@ -259,6 +280,23 @@ export class PrescriptionService {
         return path.join(process.cwd(), '..', 'public', filename);
     }
 
+    private toTitleCase(str: string): string {
+        if (!str) return "";
+        return str.toLowerCase().replace(/(?:^|\s|-)\S/g, (a) => a.toUpperCase());
+    }
+
+    private normalizeForComparison(str: string): string {
+        return str.toLowerCase().replace(/[^a-z0-9]/g, '');
+    }
+
+    private cleanLabName(lab: string): string {
+        if (!lab) return "";
+        return lab
+            .replace(/\b(SPA|SAS|SARL|EURL|LABORATOIRES|LABORATOIRE|PHARMA|PHARM|PRODUCTION|SA|GROUP|GROUPE|INC|LTD|PHARMACEUTIQUE|PHARMACEUTIQUES)\b/gi, "")
+            .replace(/\s+/g, " ")
+            .trim();
+    }
+
     private cachedMedications: any[] | null = null;
 
     async getMedications() {
@@ -271,14 +309,39 @@ export class PrescriptionService {
             if (!fs.existsSync(medsPath)) return [];
             const data = await fs.promises.readFile(medsPath, 'utf-8');
             const rawMedications = JSON.parse(data);
-            this.cachedMedications = rawMedications.map((med: any) => ({
-                name: (med["NOM DE MARQUE"] || "").trim(),
-                form: (med["FORME"] || "").trim(),
-                dosage: (med["DOSAGE"] || "").trim(),
-                note: (med["NOTE"] || "").trim(),
-                quantity: (med["QUANTITE"] || "").trim(),
-                duration: (med["DUREE"] || "").trim(),
-            }));
+            
+            const mappedMedications: any[] = [];
+
+            for (const group of rawMedications) {
+                const dciRaw = (group.genericName || "").trim();
+                const dci = this.toTitleCase(dciRaw);
+                
+                for (const variant of group.variants || []) {
+                    const brandRaw = (variant.brandName || "").trim();
+                    const dosage = (variant.dosage || "").trim();
+                    const form = this.toTitleCase((variant.form || "").trim());
+
+                    mappedMedications.push({
+                        name: dci,
+                        form,
+                        dosage,
+                        note: "",
+                        quantity: "",
+                        duration: "",
+                    });
+                }
+            }
+
+            // De-duplicate results
+            const uniqueMeds = new Map();
+            mappedMedications.forEach((med: any) => {
+                const key = `${med.name}|${med.form}|${med.dosage}`;
+                if (!uniqueMeds.has(key)) {
+                    uniqueMeds.set(key, med);
+                }
+            });
+
+            this.cachedMedications = Array.from(uniqueMeds.values());
             return this.cachedMedications;
         } catch (error) {
             console.error("Failed to read meds.json:", error);

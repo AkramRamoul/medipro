@@ -56,6 +56,9 @@ import {
   Pencil,
   Check,
   GripVertical,
+  Clock,
+  Package,
+  StickyNote
 } from "lucide-react";
 import { format, isToday } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -63,6 +66,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Calendar } from "../ui/calendar";
 import { cn } from "../../lib/utils";
 import api from "../../axios";
+import { checkInteractions, InteractionWarning } from "../../lib/interactions";
 
 interface Medication {
   id?: number;
@@ -75,6 +79,11 @@ interface Medication {
 }
 
 type MedItem = import("../../../electron/schema").PrescriptionMed & { uid: string };
+
+const capitalizeMedName = (str: string) => {
+  if (!str) return '';
+  return str.toLowerCase().replace(/(?:^|\s|-)\S/g, (a) => a.toUpperCase());
+};
 
 // ─── Sortable medication row ───────────────────────────────────────────────
 const SortableMedItem = memo(function SortableMedItem({
@@ -106,43 +115,62 @@ const SortableMedItem = memo(function SortableMedItem({
     <div
       ref={setNodeRef}
       style={style}
-      className={`flex items-center gap-2 p-3 rounded-lg border transition-colors group ${isEditing
-        ? "border-primary/60 bg-primary/5 ring-1 ring-primary/30"
-        : "bg-card hover:bg-accent/50 border-border"
-        } ${isDragging ? "shadow-lg" : ""}`}
+      className={`flex items-start gap-3 p-3.5 rounded-xl border transition-all duration-200 group ${isEditing
+        ? "border-primary/60 bg-primary/[0.02] ring-1 ring-primary/30 shadow-sm"
+        : "bg-card hover:bg-accent/30 border-border"
+        } ${isDragging ? "shadow-lg scale-[1.02] rotate-1" : ""}`}
     >
       {/* Drag handle */}
       <button
         {...attributes}
         {...listeners}
-        className="cursor-grab active:cursor-grabbing text-muted-foreground/40 hover:text-muted-foreground transition-colors touch-none p-0.5 rounded"
+        className="cursor-grab active:cursor-grabbing text-muted-foreground/30 hover:text-primary transition-colors touch-none p-1 rounded-md mt-1"
         tabIndex={-1}
         aria-label="Réorganiser"
       >
-        <GripVertical className="h-4 w-4" />
+        <GripVertical className="h-5 w-5" />
       </button>
 
       {/* Content */}
-      <div className="space-y-1 flex-1 min-w-0">
-        <div className="font-semibold flex items-center gap-2">
+      <div className="space-y-2 flex-1 min-w-0 py-0.5">
+        <div className="flex items-center gap-2 flex-wrap">
           {isEditing && (
-            <span className="inline-flex items-center gap-1 text-xs font-medium text-primary">
+            <span className="inline-flex items-center gap-1 text-[10px] uppercase font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full">
               <Pencil className="h-3 w-3" />
+              Édition
             </span>
           )}
-          {med.medicineName}
+          <span className="font-bold text-[15px] tracking-tight">{capitalizeMedName(med.medicineName)}</span>
           {med.dosage && (
-            <span className="text-xs font-normal px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
+            <span className="text-xs font-semibold px-2 py-0.5 rounded-md bg-primary/10 text-primary border border-primary/20">
               {med.dosage}
             </span>
           )}
+          {med.form && (
+            <span className="text-xs font-medium px-2 py-0.5 rounded-md bg-muted text-muted-foreground border">
+              {capitalizeMedName(med.form)}
+            </span>
+          )}
         </div>
-        <div className="text-sm text-muted-foreground">
-          {med.form}
-          {med.quantity && ` • ${med.quantity}`}
-          {med.duration && ` • ${med.duration}`}
+        
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-sm text-muted-foreground">
+          {med.quantity && (
+             <div className="flex items-center gap-1.5 bg-accent/50 px-2 py-0.5 rounded text-xs font-medium">
+               <Package className="h-3.5 w-3.5 text-muted-foreground/70" />
+               {med.quantity}
+             </div>
+          )}
+          {med.duration && (
+             <div className="flex items-center gap-1.5 bg-accent/50 px-2 py-0.5 rounded text-xs font-medium">
+               <Clock className="h-3.5 w-3.5 text-muted-foreground/70" />
+               {med.duration}
+             </div>
+          )}
           {med.note && (
-            <span className="text-foreground italic ml-2">— {med.note}</span>
+             <div className="flex items-center gap-1.5 text-foreground/80 bg-amber-50 dark:bg-amber-500/10 dark:text-amber-200/90 text-amber-900 px-2 py-0.5 rounded text-xs">
+               <StickyNote className="h-3.5 w-3.5 opacity-70" />
+               <span className="font-semibold italic">{capitalizeMedName(med.note)}</span>
+             </div>
           )}
         </div>
       </div>
@@ -195,9 +223,12 @@ const NewPrescriptionForm = ({
   const [quantity, setQuantity] = useState<string>("");
   const [duration, setDuration] = useState<string>("");
   const [note, setNote] = useState<string>("");
+  const [form, setForm] = useState<string>("");
+  const [dosage, setDosage] = useState<string>("");
   const [templates, setTemplates] = useState<any[]>([]);
   const [prescriptionDate, setPrescriptionDate] = useState<Date>(new Date());
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const [interactions, setInteractions] = useState<InteractionWarning[]>([]);
 
   // Template Save State
   const [isTemplateDialogOpen, setIsTemplateDialogOpen] = useState(false);
@@ -326,9 +357,9 @@ const NewPrescriptionForm = ({
       id: selectedMedication?.id || 0,
       prescriptionId: 0,
       medicineName: medName,
-      dosage: selectedMedication?.dosage || "",
+      dosage: dosage.trim() || "",
       quantity: quantity || null,
-      form: selectedMedication?.form || "",
+      form: form.trim() || "",
       duration: duration || null,
       note: note || null,
     };
@@ -342,6 +373,8 @@ const NewPrescriptionForm = ({
     }
     setSelectedMedication(null);
     setInputValue("");
+    setForm("");
+    setDosage("");
     setQuantity("");
     setDuration("");
     setNote("");
@@ -373,6 +406,8 @@ const NewPrescriptionForm = ({
     const med = selectedMedications[index];
     setEditingIndex(index);
     setInputValue(med.medicineName);
+    setForm(med.form || "");
+    setDosage(med.dosage || "");
     setQuantity(med.quantity || "");
     setDuration(med.duration || "");
     setNote(med.note || "");
@@ -398,6 +433,8 @@ const NewPrescriptionForm = ({
     setEditingIndex(null);
     setSelectedMedication(null);
     setInputValue("");
+    setForm("");
+    setDosage("");
     setQuantity("");
     setDuration("");
     setNote("");
@@ -406,31 +443,43 @@ const NewPrescriptionForm = ({
 
   const searchMedications = useCallback(
     (query: string) => {
-      if (query.trim() === "") {
-        setSuggestions([]);
-        return;
+      try {
+        if (!medications || medications.length === 0) {
+          console.log("No medications loaded to search through.");
+          setSuggestions([]);
+          return;
+        }
+        
+        if (query.trim() === "") {
+          setSuggestions([]);
+          return;
+        }
+
+        const lower = query.toLowerCase();
+        const words = lower.split(/\s+/);
+        const scored = medications
+          .map((med) => {
+            if (!med || !med.name) return null;
+            const nameLower = med.name.toLowerCase();
+            let score = 0;
+            if (nameLower === lower) score = 1000;
+            else if (nameLower.startsWith(lower)) score = 500;
+            else if (words.every((word) => nameLower.includes(word))) score = 100;
+            else return null;
+            score += Math.max(0, 50 - med.name.length);
+            return { med, score };
+          })
+          .filter(
+            (item): item is { med: Medication; score: number } => item !== null,
+          )
+          .sort((a, b) => b.score - a.score)
+          .slice(0, MAX_SUGGESTIONS)
+          .map((item) => item.med);
+        setSuggestions(scored);
+        setHighlightedIndex(-1);
+      } catch (err) {
+        console.error("Error in searchMedications:", err);
       }
-      const lower = query.toLowerCase();
-      const words = lower.split(/\s+/);
-      const scored = medications
-        .map((med) => {
-          const nameLower = med.name.toLowerCase();
-          let score = 0;
-          if (nameLower === lower) score = 1000;
-          else if (nameLower.startsWith(lower)) score = 500;
-          else if (words.every((word) => nameLower.includes(word))) score = 100;
-          else return null;
-          score += Math.max(0, 50 - med.name.length);
-          return { med, score };
-        })
-        .filter(
-          (item): item is { med: Medication; score: number } => item !== null,
-        )
-        .sort((a, b) => b.score - a.score)
-        .slice(0, MAX_SUGGESTIONS)
-        .map((item) => item.med);
-      setSuggestions(scored);
-      setHighlightedIndex(-1);
     },
     [medications],
   );
@@ -445,6 +494,8 @@ const NewPrescriptionForm = ({
   const handleSuggestionClick = (medication: Medication) => {
     setSelectedMedication(medication);
     setInputValue(medication.name);
+    setForm(medication.form || "");
+    setDosage(medication.dosage || "");
     setSuggestions([]);
   };
 
@@ -537,6 +588,10 @@ const NewPrescriptionForm = ({
   useEffect(() => {
     Promise.all([fetchMedications(), fetchTemplates()]);
   }, []);
+
+  useEffect(() => {
+    setInteractions(checkInteractions(selectedMedications));
+  }, [selectedMedications]);
 
   return (
     <div className="relative max-w-5xl mx-auto space-y-6">
@@ -676,15 +731,37 @@ const NewPrescriptionForm = ({
                         }`}
                       onMouseDown={() => handleSuggestionClick(med)}
                     >
-                      <div className="font-medium">{med.name}</div>
-                      <div className="text-xs text-muted-foreground">
-                        {med.form} • {med.dosage}
+                      <div className="font-semibold">{capitalizeMedName(med.name)}</div>
+                      <div className="text-xs text-muted-foreground font-medium mt-0.5 flex items-center gap-2">
+                        {med.form && <span className="bg-muted px-1.5 py-0.5 rounded">{capitalizeMedName(med.form)}</span>}
+                        {med.dosage && <span className="text-primary/80">{med.dosage}</span>}
                       </div>
                     </div>
                   ))}
                 </div>
               )}
             </div>
+
+            <div className="md:col-span-4 space-y-2">
+              <Label>Forme</Label>
+              <Input
+                type="text"
+                value={form}
+                onChange={(e) => setForm(e.target.value)}
+                placeholder="Ex: Comprimé..."
+              />
+            </div>
+
+            <div className="md:col-span-4 space-y-2">
+              <Label>Dosage</Label>
+              <Input
+                type="text"
+                value={dosage}
+                onChange={(e) => setDosage(e.target.value)}
+                placeholder="Ex: 500mg..."
+              />
+            </div>
+
             <div className="md:col-span-2 space-y-2">
               <Label>Quantité</Label>
               <Input
@@ -698,7 +775,7 @@ const NewPrescriptionForm = ({
                 placeholder="Qte"
               />
             </div>
-            <div className="md:col-span-3 space-y-2">
+            <div className="md:col-span-4 space-y-2">
               <div className="flex justify-between items-center">
                 <Label>Durée</Label>
                 <div className="flex gap-1">
@@ -723,7 +800,7 @@ const NewPrescriptionForm = ({
                 className="w-full"
               />
             </div>
-            <div className="md:col-span-3 space-y-2">
+            <div className="md:col-span-6 space-y-2">
               <div className="flex justify-between items-center">
                 <Label>Note</Label>
                 <div className="flex gap-1">
@@ -833,6 +910,26 @@ const NewPrescriptionForm = ({
               </div>
             </div>
           )}
+        </div>
+      )}
+
+      {interactions.length > 0 && (
+        <div className="space-y-2 animate-in slide-in-from-top-2">
+          {interactions.map((warn, idx) => (
+            <div key={idx} className={`p-3 rounded-md flex gap-3 items-start border ${warn.severity === 'high' ? 'bg-red-50 text-red-900 border-red-200 dark:bg-red-950/30 dark:text-red-200 dark:border-red-900/50' : 'bg-amber-50 text-amber-900 border-amber-200 dark:bg-amber-950/30 dark:text-amber-200 dark:border-amber-900/50'}`}>
+              <AlertTriangle className={`h-5 w-5 shrink-0 mt-0.5 ${warn.severity === 'high' ? 'text-red-500 dark:text-red-400' : 'text-amber-500 dark:text-amber-400'}`} />
+              <div className="flex-1 text-sm text-left">
+                <div className="font-semibold mb-1 flex items-center gap-2">
+                  Interaction Détectée
+                  <span className={`text-[10px] uppercase font-bold px-1.5 py-0.5 rounded ${warn.severity === 'high' ? 'bg-red-200 dark:bg-red-900/50 text-red-800 dark:text-red-200' : 'bg-amber-200 dark:bg-amber-900/50 text-amber-800 dark:text-amber-200'}`}>
+                    {warn.severity === 'high' ? 'Élevée' : 'Modérée'}
+                  </span>
+                </div>
+                <div className="opacity-90">{warn.message}</div>
+                <div className="mt-1.5 text-xs opacity-75 font-medium">Médicaments concernés : {warn.drugs.join(', ')}</div>
+              </div>
+            </div>
+          ))}
         </div>
       )}
 

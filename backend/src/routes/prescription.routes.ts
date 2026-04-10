@@ -18,8 +18,10 @@ router.get('/', authorize('VIEW_PRESCRIPTIONS'), async (req, res, next) => {
 router.get('/medications', authorize('VIEW_PRESCRIPTIONS'), async (req, res, next) => {
     try {
         const medications = await prescriptionService.getMedications();
+        console.log(`[API] Returning ${medications.length} medications to frontend.`);
         res.json(medications);
     } catch (error) {
+        console.error(`[API] Error fetching medications:`, error);
         next(error);
     }
 });
@@ -79,6 +81,16 @@ router.post('/templates', authorize('MANAGE_SETTINGS'), async (req, res, next) =
     try {
         const result = await prescriptionService.createTemplate(req.body);
         res.status(201).json(result);
+    } catch (error) {
+        next(error);
+    }
+});
+
+// Update prescription template
+router.put('/templates/:id', authorize('MANAGE_SETTINGS'), async (req, res, next) => {
+    try {
+        const result = await prescriptionService.updateTemplate(Number(req.params.id), req.body);
+        res.json(result);
     } catch (error) {
         next(error);
     }

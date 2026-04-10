@@ -3,7 +3,7 @@ import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { toast } from "sonner";
-import { Trash2, Plus, Save } from "lucide-react";
+import { Trash2, Plus, Save, Pencil, X } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Separator } from "../ui/separator";
 import api from "../../axios";
@@ -37,18 +37,22 @@ const PrescriptionTemplatesSettings: React.FC = () => {
   const [templates, setTemplates] = useState<PrescriptionTemplate[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Form state for new template
+  // Form state for new/edit template
   const [templateName, setTemplateName] = useState("");
   const [selectedMeds, setSelectedMeds] = useState<TemplateMedication[]>([]);
+  const [editingTemplateId, setEditingTemplateId] = useState<number | null>(null);
 
   // Medication search state
   const [medications, setMedications] = useState<Medication[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [suggestions, setSuggestions] = useState<Medication[]>([]);
   const [selectedMed, setSelectedMed] = useState<Medication | null>(null);
+  const [dosage, setDosage] = useState("");
+  const [form, setForm] = useState("");
   const [quantity, setQuantity] = useState("");
   const [duration, setDuration] = useState("");
   const [note, setNote] = useState("");
+  const [editingMedIndex, setEditingMedIndex] = useState<number | null>(null);
 
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const MAX_SUGGESTIONS = 50;
@@ -124,6 +128,8 @@ const PrescriptionTemplatesSettings: React.FC = () => {
   const handleSuggestionClick = (med: Medication) => {
     setSelectedMed(med);
     setInputValue(med.name);
+    setDosage(med.dosage || "");
+    setForm(med.form || "");
     setSuggestions([]);
   };
 
@@ -136,16 +142,52 @@ const PrescriptionTemplatesSettings: React.FC = () => {
 
     const newMed: TemplateMedication = {
       medicineName: medName,
-      dosage: selectedMed?.dosage || "",
-      form: selectedMed?.form || "",
+      dosage: dosage.trim(),
+      form: form.trim(),
       quantity: quantity || undefined,
       duration: duration || undefined,
       note: note || undefined,
     };
 
-    setSelectedMeds([...selectedMeds, newMed]);
+    if (editingMedIndex !== null) {
+      const updated = [...selectedMeds];
+      updated[editingMedIndex] = newMed;
+      setSelectedMeds(updated);
+      setEditingMedIndex(null);
+    } else {
+      setSelectedMeds([...selectedMeds, newMed]);
+    }
+
     setInputValue("");
     setSelectedMed(null);
+    setDosage("");
+    setForm("");
+    setQuantity("");
+    setDuration("");
+    setNote("");
+  };
+
+  const handleEditMedFromTemplate = (index: number) => {
+    const med = selectedMeds[index];
+    setInputValue(med.medicineName);
+    setDosage(med.dosage || "");
+    setForm(med.form || "");
+    setQuantity(med.quantity || "");
+    setDuration(med.duration || "");
+    setNote(med.note || "");
+    setEditingMedIndex(index);
+    
+    const match = medications.find(m => m.name.toLowerCase() === med.medicineName.toLowerCase());
+    setSelectedMed(match || null);
+    setSuggestions([]);
+  };
+
+  const handleCancelMedEdit = () => {
+    setEditingMedIndex(null);
+    setInputValue("");
+    setSelectedMed(null);
+    setDosage("");
+    setForm("");
     setQuantity("");
     setDuration("");
     setNote("");
@@ -162,22 +204,51 @@ const PrescriptionTemplatesSettings: React.FC = () => {
     }
 
     try {
-      const { data: result } = await api.post('/prescriptions/templates', {
-        name: templateName,
-        medications: selectedMeds,
-      });
-      if (result.success) {
-        toast.success("Modèle enregistré avec succès");
-        setTemplateName("");
-        setSelectedMeds([]);
-        fetchTemplates();
+      if (editingTemplateId) {
+        const { data: result } = await api.put(`/prescriptions/templates/${editingTemplateId}`, {
+          name: templateName,
+          medications: selectedMeds,
+        });
+        if (result.success) {
+          toast.success("Modèle modifié avec succès");
+          setTemplateName("");
+          setSelectedMeds([]);
+          setEditingTemplateId(null);
+          fetchTemplates();
+        } else {
+          toast.error("Erreur lors de la modification");
+        }
       } else {
-        toast.error("Erreur lors de l'enregistrement");
+        const { data: result } = await api.post('/prescriptions/templates', {
+          name: templateName,
+          medications: selectedMeds,
+        });
+        if (result.success) {
+          toast.success("Modèle enregistré avec succès");
+          setTemplateName("");
+          setSelectedMeds([]);
+          fetchTemplates();
+        } else {
+          toast.error("Erreur lors de l'enregistrement");
+        }
       }
     } catch (error) {
       console.error("Save template error:", error);
       toast.error("Une erreur est survenue");
     }
+  };
+
+  const handleEditTemplate = (template: PrescriptionTemplate) => {
+    setEditingTemplateId(template.id);
+    setTemplateName(template.name);
+    setSelectedMeds([...template.medications]);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleCancelEdit = () => {
+    setEditingTemplateId(null);
+    setTemplateName("");
+    setSelectedMeds([]);
   };
 
   const handleDeleteTemplate = async (id: number) => {
@@ -194,6 +265,9 @@ const PrescriptionTemplatesSettings: React.FC = () => {
   };
 
   const removeMedFromTemplate = (index: number) => {
+    if (editingMedIndex === index) {
+      handleCancelMedEdit();
+    }
     setSelectedMeds(selectedMeds.filter((_, i) => i !== index));
   };
 
@@ -208,9 +282,18 @@ const PrescriptionTemplatesSettings: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Creation Form */}
+        {/* Creation / Edit Form */}
         <div className="space-y-4 border p-4 rounded-md bg-muted/30">
-          <h4 className="font-semibold text-sm">Nouveau modèle</h4>
+          <div className="flex justify-between items-center">
+            <h4 className="font-semibold text-sm">
+              {editingTemplateId ? "Modifier le modèle" : "Nouveau modèle"}
+            </h4>
+            {editingTemplateId && (
+               <Button variant="ghost" size="sm" onClick={handleCancelEdit} className="text-muted-foreground h-6 px-2 text-xs">
+                 Annuler
+               </Button>
+            )}
+          </div>
           <div className="space-y-2">
             <Label>Nom du modèle</Label>
             <Input
@@ -247,6 +330,25 @@ const PrescriptionTemplatesSettings: React.FC = () => {
 
             <div className="grid grid-cols-2 gap-2">
               <div className="space-y-1">
+                <Label className="text-xs">Forme</Label>
+                <Input
+                  value={form}
+                  onChange={(e) => setForm(e.target.value)}
+                  placeholder="Ex: Comprimé"
+                />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs">Dosage</Label>
+                <Input
+                  value={dosage}
+                  onChange={(e) => setDosage(e.target.value)}
+                  placeholder="Ex: 500mg"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2">
+              <div className="space-y-1">
                 <Label className="text-xs">Quantité</Label>
                 <Input
                   size={1}
@@ -266,15 +368,23 @@ const PrescriptionTemplatesSettings: React.FC = () => {
             </div>
 
             <div className="space-y-1">
-              <Label className="text-xs">Note/Posologie</Label>
+              <div className="flex justify-between items-center">
+                <Label className="text-xs">Note/Posologie</Label>
+                {editingMedIndex !== null && (
+                  <Button variant="ghost" size="sm" className="h-4 text-[10px] px-0" onClick={handleCancelMedEdit}>
+                    <X className="h-3 w-3 mr-1" />
+                    Annuler l'édition
+                  </Button>
+                )}
+              </div>
               <div className="flex gap-2">
                 <Input
                   value={note}
                   onChange={(e) => setNote(e.target.value)}
                   placeholder="Matin-Soir..."
                 />
-                <Button size="icon" onClick={handleAddMedToTemplate}>
-                  <Plus className="h-4 w-4" />
+                <Button variant={editingMedIndex !== null ? "default" : "default"} size="icon" onClick={handleAddMedToTemplate}>
+                  {editingMedIndex !== null ? <Pencil className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
                 </Button>
               </div>
             </div>
@@ -293,19 +403,30 @@ const PrescriptionTemplatesSettings: React.FC = () => {
                 selectedMeds.map((med, i) => (
                   <div
                     key={i}
-                    className="flex justify-between items-center text-xs p-1 border-b last:border-0"
+                    className={`flex justify-between items-center text-xs p-1 border-b last:border-0 ${editingMedIndex === i ? 'bg-primary/5 rounded' : ''}`}
                   >
-                    <span>
-                      {med.medicineName} {med.dosage}
+                    <span className="flex gap-2">
+                      <span className="font-medium">{med.medicineName}</span>
+                      <span className="text-muted-foreground">{med.dosage} {med.form}</span>
                     </span>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-4 w-4 text-destructive"
-                      onClick={() => removeMedFromTemplate(i)}
-                    >
-                      <Trash2 className="h-3 w-3" />
-                    </Button>
+                    <div className="flex gap-1">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className={`h-5 w-5 ${editingMedIndex === i ? 'text-primary' : 'text-muted-foreground hover:text-primary'}`}
+                        onClick={() => handleEditMedFromTemplate(i)}
+                      >
+                        <Pencil className="h-3 w-3" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-5 w-5 text-destructive hover:bg-destructive/10"
+                        onClick={() => removeMedFromTemplate(i)}
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </Button>
+                    </div>
                   </div>
                 ))
               )}
@@ -313,7 +434,7 @@ const PrescriptionTemplatesSettings: React.FC = () => {
           </div>
 
           <Button className="w-full text-white" onClick={handleSaveTemplate}>
-            <Save className="mr-2 h-4 w-4" /> Enregistrer le modèle
+            <Save className="mr-2 h-4 w-4" /> {editingTemplateId ? "Enregistrer les modifications" : "Enregistrer le modèle"}
           </Button>
         </div>
 
@@ -333,14 +454,24 @@ const PrescriptionTemplatesSettings: React.FC = () => {
                   <CardHeader className="p-4 pb-2">
                     <CardTitle className="text-sm flex justify-between">
                       {template.name}
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-6 w-6 text-destructive opacity-0 group-hover:opacity-100"
-                        onClick={() => handleDeleteTemplate(template.id)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                      <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6 text-muted-foreground hover:text-primary"
+                          onClick={() => handleEditTemplate(template)}
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6 text-destructive hover:bg-destructive/10"
+                          onClick={() => handleDeleteTemplate(template.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="p-4 pt-0">
