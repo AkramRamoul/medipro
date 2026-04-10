@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import useSWR from "swr";
 import { useFileUploader } from "../hooks/use-file-uploader";
@@ -17,7 +17,7 @@ import { PrescriptionPreview } from "./PrescriptionPreview";
 import { Layout, RotateCcw, RefreshCw, Loader2 } from "lucide-react";
 
 import { useDebounce } from "../hooks/use-debounce";
-import { FormState, ServiceItem, FormData } from "./types";
+import { FormState, ServiceItem, FormData, DEFAULT_ELEMENT_POSITIONS } from "./types";
 import { TemplateLayoutSelector } from "./components/TemplateLayoutSelector";
 import { DoctorInfoSection } from "./components/DoctorInfoSection";
 import { ServicesSection } from "./components/ServicesSection";
@@ -49,6 +49,9 @@ const DEFAULT_FORM: FormState = {
   titleText: "ORDONNANCE",
   showInscriptionNumber: true,
   templateLayout: "bilingual-logo-left",
+  customPositions: DEFAULT_ELEMENT_POSITIONS,
+  useCustomLayout: false,
+  hiddenElements: [] as import("./types").LayoutElementId[],
 };
 
 const DEFAULT_SERVICES: ServiceItem[] = [
@@ -71,7 +74,7 @@ export function PrescriptionModelForm() {
     defaultValues: { ...DEFAULT_FORM, services: DEFAULT_SERVICES }
   });
 
-  const { reset, handleSubmit, watch } = methods;
+  const { reset, handleSubmit, watch, setValue } = methods;
 
   useEffect(() => {
     if (logoData?.success && logoData.image) {
@@ -217,6 +220,11 @@ export function PrescriptionModelForm() {
             form={debouncedForm}
             services={debouncedForm.services || []}
             logoImage={logoImage}
+            onCustomLayoutChange={(positions, useCustomLayout, hidden) => {
+              setValue("customPositions", positions);
+              setValue("useCustomLayout", useCustomLayout);
+              setValue("hiddenElements", hidden);
+            }}
           />
         </div>
       </div>

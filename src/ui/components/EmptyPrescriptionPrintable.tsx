@@ -121,7 +121,7 @@ const EmptyPrescriptionPrintable: React.FC<EmptyPrescriptionPrintableProps> = ({
         <>
             {image && <img src={image} className="logo" alt="Logo" />}
             {showInscriptionNumber && (
-                <div className="inscription">N° Order : {prescriptionModel.inscriptionNumber}</div>
+                <div className="inscription" style={{ marginTop: "4px", fontWeight: "bold", color: accentColor }}>N° Ordre : {prescriptionModel.inscriptionNumber}</div>
             )}
         </>
     );
@@ -150,7 +150,7 @@ const EmptyPrescriptionPrintable: React.FC<EmptyPrescriptionPrintableProps> = ({
                         <div className="panel-logo-left">
                             {image && <img src={image} className="logo" alt="Logo" />}
                             {showInscriptionNumber && (
-                                <div className="panel-inscription">N° Order : {prescriptionModel.inscriptionNumber}</div>
+                                <div className="panel-inscription" style={{ marginTop: "4px", fontWeight: "bold" }}>N° Ordre : {prescriptionModel.inscriptionNumber}</div>
                             )}
                         </div>
                         {/* French info on right */}
@@ -170,7 +170,7 @@ const EmptyPrescriptionPrintable: React.FC<EmptyPrescriptionPrintableProps> = ({
                         <div className="panel-logo-right">
                             {image && <img src={image} className="logo" alt="Logo" />}
                             {showInscriptionNumber && (
-                                <div className="panel-inscription">N° Order : {prescriptionModel.inscriptionNumber}</div>
+                                <div className="panel-inscription" style={{ marginTop: "4px", fontWeight: "bold" }}>N° Ordre : {prescriptionModel.inscriptionNumber}</div>
                             )}
                         </div>
                     </div>
