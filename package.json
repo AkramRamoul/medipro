@@ -69,6 +69,7 @@
     "exceljs": "^4.4.0",
     "express": "^5.2.1",
     "file-saver": "^2.0.5",
+    "framer-motion": "^12.38.0",
     "js-base64": "^3.7.8",
     "jsonwebtoken": "^9.0.3",
     "lucide-react": "^0.475.0",

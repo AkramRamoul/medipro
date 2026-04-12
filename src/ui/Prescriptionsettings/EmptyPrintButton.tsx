@@ -1,15 +1,18 @@
+import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "../components/ui/button";
-import { Printer } from "lucide-react";
+import { Printer, Loader2 } from "lucide-react";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const PrintButton = ({ model, image }: any) => {
+  const [isPrinting, setIsPrinting] = useState(false);
+
   const handlePrint = async () => {
     if (!model) {
       toast.error("Le modèle de prescription n'est pas prêt.");
       return;
     }
-
+    setIsPrinting(true);
     try {
       const { renderToStaticMarkup } = await import("react-dom/server");
       const { default: EmptyPrescriptionPrintable } =
@@ -31,21 +34,26 @@ const PrintButton = ({ model, image }: any) => {
     } catch (error) {
       console.error("Failed to print:", error);
       toast.error("Erreur lors de l'impression");
+    } finally {
+      setIsPrinting(false);
     }
   };
 
   return (
     <Button
+      variant="outline"
       onClick={(e) => {
         e.stopPropagation();
         handlePrint();
       }}
-      className="fixed bottom-6 right-6 z-50 flex items-center gap-2 font-semibold py-3 px-5 rounded-full shadow-xl"
+      disabled={isPrinting}
+      className="gap-2 w-full"
     >
-      <Printer className="w-5 h-5" />
-      <span className="hidden sm:inline">Imprimer</span>
+      {isPrinting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Printer className="w-4 h-4" />}
+      {isPrinting ? "Impression en cours..." : "Imprimer modèle vierge"}
     </Button>
   );
 };
 
 export default PrintButton;
+

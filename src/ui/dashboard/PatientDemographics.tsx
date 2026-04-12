@@ -33,14 +33,14 @@ const translateGender = (gender: string) => GENDER_TRANSLATIONS[gender?.toLowerC
 
 export function PatientDemographics({ genderData, ageData, totalPatients }: PatientDemographicsProps) {
   return (
-    <Card className="shadow-sm rounded-xl bg-card border-none ring-1 ring-border/50 col-span-full lg:col-span-4">
+    <Card className="shadow-lg rounded-2xl bg-card/60 backdrop-blur-xl border border-border/40 hover:border-primary/20 transition-all duration-300 h-full flex flex-col col-span-full">
       <CardHeader className="pb-2">
         <div className="flex items-center gap-3">
           <div className="p-2 bg-emerald-500/10 rounded-lg">
             <Users className="h-5 w-5 text-emerald-600" />
           </div>
           <div>
-            <CardTitle className="text-xl text-foreground">Démographie des Patients</CardTitle>
+            <CardTitle className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/70">Démographie des Patients</CardTitle>
             <CardDescription>Répartition par sexe et groupes d'âge</CardDescription>
           </div>
         </div>

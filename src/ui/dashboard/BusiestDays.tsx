@@ -8,9 +8,9 @@ interface BusiestDaysProps {
 export function BusiestDays({ data }: BusiestDaysProps) {
     if (!data || data.length === 0) {
         return (
-            <Card className="shadow-sm rounded-xl bg-card border-none ring-1 ring-border/50">
+            <Card className="shadow-lg rounded-2xl bg-card/60 backdrop-blur-xl border border-border/40 hover:border-primary/20 transition-all duration-300 h-full flex flex-col">
                 <CardHeader>
-                    <CardTitle className="text-xl text-foreground">Jours les plus chargés</CardTitle>
+                    <CardTitle className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/70">Jours les plus chargés</CardTitle>
                     <CardDescription>Distribution des consultations par jour (3 derniers mois)</CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -23,9 +23,9 @@ export function BusiestDays({ data }: BusiestDaysProps) {
     }
 
     return (
-        <Card className="shadow-sm rounded-xl bg-card border-none ring-1 ring-border/50">
+        <Card className="shadow-lg rounded-2xl bg-card/60 backdrop-blur-xl border border-border/40 hover:border-primary/20 transition-all duration-300 h-full flex flex-col">
             <CardHeader>
-                <CardTitle className="text-xl text-foreground">Jours les plus chargés</CardTitle>
+                <CardTitle className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/70">Jours les plus chargés</CardTitle>
                 <CardDescription>Distribution des consultations par jour (3 derniers mois)</CardDescription>
             </CardHeader>
             <CardContent>

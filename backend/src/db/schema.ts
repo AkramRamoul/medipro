@@ -116,6 +116,9 @@ export const prescriptionModel = sqliteTable("prescription_model", {
   showInscriptionNumber: integer("show_inscription_number", { mode: "boolean" }).default(true),
   layoutTemplate: text("layout_template").default("standard"),
   languageMode: text("language_mode").default("bilingual"),
+  useCustomLayout: integer("use_custom_layout", { mode: "boolean" }).default(false),
+  customPositions: text("custom_positions", { mode: "json" }).$type<any>(),
+  hiddenElements: text("hidden_elements", { mode: "json" }).$type<string[]>(),
 });
 
 export const psychotropicCounters = sqliteTable("psychotropic_counters", {

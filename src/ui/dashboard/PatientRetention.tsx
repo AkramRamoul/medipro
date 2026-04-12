@@ -25,20 +25,20 @@ export function PatientRetention({
     };
 
     return (
-        <Card className="shadow-sm rounded-xl bg-card border-none ring-1 ring-border/50">
+        <Card className="shadow-lg rounded-2xl bg-card/60 backdrop-blur-xl border border-border/40 hover:border-primary/20 transition-all duration-300 h-full flex flex-col">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
+                <CardTitle className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
                     Taux de fidélisation
                 </CardTitle>
                 <div className={`p-2 rounded-full ${getRetentionBgColor(retentionRate)}`}>
                     <TrendingUp className={`h-4 w-4 ${getRetentionColor(retentionRate)}`} />
                 </div>
             </CardHeader>
-            <CardContent>
-                <div className={`text-4xl font-bold ${getRetentionColor(retentionRate || 0)}`}>
+            <CardContent className="flex flex-col flex-1 justify-center">
+                <div className={`text-5xl font-extrabold tracking-tight drop-shadow-sm ${getRetentionColor(retentionRate || 0)}`}>
                     {(retentionRate || 0).toFixed(1)}%
                 </div>
-                <p className="text-xs text-muted-foreground mt-2">
+                <p className="text-xs font-medium text-muted-foreground mt-2">
                     6 derniers mois
                 </p>
                 <div className="mt-4 pt-4 border-t border-border/50">

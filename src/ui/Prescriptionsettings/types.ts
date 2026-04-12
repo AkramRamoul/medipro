@@ -18,6 +18,7 @@ export type LayoutElementId =
     | "divider"
     | "title"
     | "patientInfo"
+    | "dateCity"
     | "footer";
 
 export interface ElementPosition {
@@ -35,8 +36,9 @@ export const DEFAULT_ELEMENT_POSITIONS: CustomPositions = {
     specialtyAr: { x: 60, y: 9  },
     inscription: { x: 40, y: 17 },
     divider:     { x: 0,  y: 24 },
-    title:       { x: 28, y: 44 },
     patientInfo: { x: 5,  y: 32 },
+    dateCity:    { x: 55, y: 32 },
+    title:       { x: 28, y: 44 },
     footer:      { x: 0,  y: 91 },
 };
 
@@ -49,7 +51,8 @@ export const ELEMENT_LABELS: Record<LayoutElementId, string> = {
     inscription: "N° Inscription",
     divider:     "Séparateur",
     title:       "Titre",
-    patientInfo: "Infos patient",
+    patientInfo: "Nom/âge patient",
+    dateCity:    "Ville & date",
     footer:      "Pied de page",
 };
 
@@ -63,6 +66,7 @@ export const ELEMENT_COLORS: Record<LayoutElementId, string> = {
     divider:     "#6b7280",
     title:       "#b91c1c",
     patientInfo: "#6d28d9",
+    dateCity:    "#0f766e",
     footer:      "#374151",
 };
 

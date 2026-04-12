@@ -8,9 +8,9 @@ interface CommonDiagnosesProps {
 export function CommonDiagnoses({ data }: CommonDiagnosesProps) {
     if (!data || data.length === 0) {
         return (
-            <Card className="shadow-sm rounded-xl bg-card border-none ring-1 ring-border/50">
+            <Card className="shadow-lg rounded-2xl bg-card/60 backdrop-blur-xl border border-border/40 hover:border-primary/20 transition-all duration-300 h-full flex flex-col">
                 <CardHeader>
-                    <CardTitle className="text-xl text-foreground">Diagnostics les plus fréquents</CardTitle>
+                    <CardTitle className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/70">Diagnostics les plus fréquents</CardTitle>
                     <CardDescription>Top 5 des diagnostics (3 derniers mois)</CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -23,9 +23,9 @@ export function CommonDiagnoses({ data }: CommonDiagnosesProps) {
     }
 
     return (
-        <Card className="shadow-sm rounded-xl bg-card border-none ring-1 ring-border/50">
+        <Card className="shadow-lg rounded-2xl bg-card/60 backdrop-blur-xl border border-border/40 hover:border-primary/20 transition-all duration-300 h-full flex flex-col">
             <CardHeader>
-                <CardTitle className="text-xl text-foreground">Diagnostics les plus fréquents</CardTitle>
+                <CardTitle className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/70">Diagnostics les plus fréquents</CardTitle>
                 <CardDescription>Top 5 des diagnostics (3 derniers mois)</CardDescription>
             </CardHeader>
             <CardContent>

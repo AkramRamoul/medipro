@@ -11,9 +11,17 @@ export class SettingsService {
         const [model] = await db.select().from(prescriptionModel).limit(1);
         if (!model) return null;
 
-        // Parse services back to array for frontend
         return {
             ...model,
+            // Normalize DB field names back to the frontend form field names
+            templateLayout: model.layoutTemplate,
+            useCustomLayout: model.useCustomLayout ?? false,
+            customPositions: typeof model.customPositions === 'string'
+                ? JSON.parse(model.customPositions)
+                : (model.customPositions ?? null),
+            hiddenElements: typeof model.hiddenElements === 'string'
+                ? JSON.parse(model.hiddenElements)
+                : (model.hiddenElements ?? []),
             services: this.parseServices(model.servicesFr, model.servicesAr)
         };
     }
@@ -32,12 +40,19 @@ export class SettingsService {
         const servicesFr = JSON.stringify(data.services.map((s: any) => s.fr));
         const servicesAr = JSON.stringify(data.services.map((s: any) => s.ar));
 
-        const modelData = {
+        const modelData: any = {
             ...data,
             servicesFr,
             servicesAr,
+            // Map frontend form field names to DB column names
+            layoutTemplate: data.templateLayout,
+            useCustomLayout: data.useCustomLayout ?? false,
+            customPositions: data.customPositions ? JSON.stringify(data.customPositions) : null,
+            hiddenElements: data.hiddenElements ? JSON.stringify(data.hiddenElements) : '[]',
         };
+        // Remove frontend-only keys that don't exist in the DB schema
         delete modelData.services;
+        delete modelData.templateLayout;
 
         const existing = await db.select().from(prescriptionModel).limit(1);
         if (existing.length === 0) {

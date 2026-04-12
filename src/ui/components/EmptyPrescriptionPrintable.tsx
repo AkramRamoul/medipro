@@ -213,6 +213,103 @@ const EmptyPrescriptionPrintable: React.FC<EmptyPrescriptionPrintableProps> = ({
         }
     };
 
+    // ---- Custom Layout logic ----
+    const useCustomLayout = prescriptionModel.useCustomLayout;
+
+    const renderCustomLayoutBlocks = () => {
+        const customPositions = prescriptionModel.customPositions || {};
+        const hiddenElements = prescriptionModel.hiddenElements || [];
+        const isHidden = (id: string) => hiddenElements.includes(id);
+
+        const getStyle = (id: string, fullWidth?: boolean): React.CSSProperties => {
+            const pos = customPositions[id];
+            if (!pos || isHidden(id)) return { display: "none" };
+            return {
+                position: "absolute",
+                left: `${pos.x}%`,
+                top: `${pos.y}%`,
+                width: fullWidth ? "100%" : undefined,
+                maxWidth: fullWidth ? "100%" : "45%",
+            };
+        };
+
+        return (
+            <div style={{ position: "relative", width: "100%", height: "209mm" }}>
+                {!isHidden("logo") && (
+                    <div style={getStyle("logo")}>
+                        <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>{logoContent}</div>
+                    </div>
+                )}
+                {!isHidden("nameFr") && (
+                    <div style={getStyle("nameFr")}>
+                        <div className="doctor-name">{prescriptionModel.nameFr}</div>
+                    </div>
+                )}
+                {!isHidden("nameAr") && (
+                    <div style={{ ...getStyle("nameAr"), textAlign: "right", direction: "rtl" }}>
+                        <div className="doctor-name">{prescriptionModel.nameAr}</div>
+                    </div>
+                )}
+                {!isHidden("specialtyFr") && (
+                    <div style={getStyle("specialtyFr")}>
+                        <div className="specialty">{prescriptionModel.specialtyFr}</div>
+                        {servicesFr.map((srv: string, idx: number) => <div key={idx} className="service">{srv}</div>)}
+                    </div>
+                )}
+                {!isHidden("specialtyAr") && (
+                    <div style={{ ...getStyle("specialtyAr"), textAlign: "right", direction: "rtl" }}>
+                        <div className="specialty">{prescriptionModel.specialtyAr}</div>
+                        {servicesAr.map((srv: string, idx: number) => <div key={idx} className="service">{srv}</div>)}
+                    </div>
+                )}
+                {!isHidden("inscription") && (
+                    <div style={getStyle("inscription")}>
+                        <div className="inscription" style={{ color: accentColor }}>N° {prescriptionModel.inscriptionNumber}</div>
+                    </div>
+                )}
+                {!isHidden("divider") && (
+                    <div style={{ ...getStyle("divider", true) }}>
+                        <div className="divider" style={{ margin: 0 }} />
+                    </div>
+                )}
+                {!isHidden("title") && (
+                    <div style={getStyle("title", true)}>
+                        <div className="title" style={{ margin: 0 }}>{titleText}</div>
+                    </div>
+                )}
+                {!isHidden("patientInfo") && (
+                    <div style={{ ...getStyle("patientInfo") }}>
+                        <div className="patient-details" style={{ marginTop: 0, marginBottom: 0 }}>
+                            <div><strong>Nom :</strong> <span>..........................................</span></div>
+                            <div><strong>Âge :</strong> <span>...........</span></div>
+                        </div>
+                    </div>
+                )}
+                {!isHidden("dateCity") && (
+                    <div style={getStyle("dateCity")}>
+                        <div className="document-info" style={{ marginTop: 0, marginBottom: 0 }}>
+                            <div>{prescriptionModel.city}, le : <span>...........</span></div>
+                        </div>
+                    </div>
+                )}
+                {!isHidden("footer") && (
+                    <div style={{ ...getStyle("footer", true) }}>
+                        <div className="footer" style={{ position: "static", borderTop: "1px solid #aaa", paddingTop: "5px", fontSize: "11px", textAlign: "center" }}>
+                            <div>{prescriptionModel.address}</div>
+                            {(prescriptionModel.phoneNumber1 || prescriptionModel.phoneNumber2) && (
+                                <div>
+                                    {prescriptionModel.phoneNumber1 && `Tél. : ${prescriptionModel.phoneNumber1}`}
+                                    {prescriptionModel.phoneNumber1 && prescriptionModel.phoneNumber2 && " | "}
+                                    {prescriptionModel.phoneNumber2 && `Mob. : ${prescriptionModel.phoneNumber2}`}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                )}
+            </div>
+        );
+    };
+
     return (
         <html>
             <head>
@@ -221,38 +318,32 @@ const EmptyPrescriptionPrintable: React.FC<EmptyPrescriptionPrintableProps> = ({
             <body>
                 {image && <img src={image} className="watermark" alt="" />}
 
-                {renderHeader()}
-
-                <div className="divider" />
-
-                <div className="patient-info">
-                    <div className="patient-details">
-                        <div>
-                            <strong>Nom :</strong> <span>..........................................</span>
+                {useCustomLayout ? renderCustomLayoutBlocks() : (
+                    <>
+                        {renderHeader()}
+                        <div className="divider" />
+                        <div className="patient-info">
+                            <div className="patient-details">
+                                <div><strong>Nom :</strong> <span>..........................................</span></div>
+                                <div><strong>Âge :</strong> <span>...........</span></div>
+                            </div>
+                            <div className="document-info">
+                                <div>{prescriptionModel.city}, le : <span>...........</span></div>
+                            </div>
                         </div>
-                        <div>
-                            <strong>Âge :</strong> <span>...........</span>
+                        <div className="title">{titleText}</div>
+                        <div className="footer">
+                            <div>{prescriptionModel.address}</div>
+                            {(prescriptionModel.phoneNumber1 || prescriptionModel.phoneNumber2) && (
+                                <div>
+                                    {prescriptionModel.phoneNumber1 && `Tél. : ${prescriptionModel.phoneNumber1}`}
+                                    {prescriptionModel.phoneNumber1 && prescriptionModel.phoneNumber2 && " "}
+                                    {prescriptionModel.phoneNumber2 && `Mob. : ${prescriptionModel.phoneNumber2}`}
+                                </div>
+                            )}
                         </div>
-                    </div>
-                    <div className="document-info">
-                        <div>
-                            {prescriptionModel.city}, le : <span>...........</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="title">{titleText}</div>
-
-                <div className="footer">
-                    <div>{prescriptionModel.address}</div>
-                    {(prescriptionModel.phoneNumber1 || prescriptionModel.phoneNumber2) && (
-                        <div>
-                            {prescriptionModel.phoneNumber1 && `Tél. : ${prescriptionModel.phoneNumber1}`}
-                            {prescriptionModel.phoneNumber1 && prescriptionModel.phoneNumber2 && " "}
-                            {prescriptionModel.phoneNumber2 && `Mob. : ${prescriptionModel.phoneNumber2}`}
-                        </div>
-                    )}
-                </div>
+                    </>
+                )}
             </body>
         </html>
     );

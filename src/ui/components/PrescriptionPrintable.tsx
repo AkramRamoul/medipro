@@ -78,16 +78,25 @@ const PrescriptionPrintable: React.FC<PrescriptionPrintableProps> = ({
     body { font-family: ${fontFamily}; font-size: ${bodyFontSize}px; margin: 0; padding: 0; }
     .prescription-page { padding: 10px 20px; position: relative; }
     .prescription-page + .prescription-page { page-break-before: always; }
-    /* Bilingual (default) */
-    .header { margin-bottom: ${Math.max(20, logoSize * 0.35)}px; position: relative; min-height: ${Math.max(100, logoSize + 30)}px; display: flex; justify-content: space-between; align-items: flex-start; }
-    .header-left { text-align: left; width: 40%; }
-    .header-right { text-align: right; width: 40%; direction: rtl; }
-    .header-center { text-align: center; width: 20%; position: absolute; left: 40%; top: 0; }
-    /* Single-lang side-by-side */
-    .header-single { margin-bottom: ${Math.max(20, logoSize * 0.35)}px; min-height: ${Math.max(100, logoSize + 30)}px; display: flex; justify-content: space-between; align-items: flex-start; }
+    .header {
+      margin-bottom: ${Math.max(20, logoSize * 0.35)}px;
+      min-height: ${Math.max(100, logoSize + 30)}px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      position: relative;
+    }
     .col-fr { text-align: left; flex: 1; }
     .col-ar { text-align: right; direction: rtl; flex: 1; }
-    .col-logo-side { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; flex-shrink: 0; width: ${logoSize + 20}px; }
+    .col-logo { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; flex-shrink: 0; width: ${logoSize + 20}px; }
+    .col-logo-center { width: 20%; text-align: center; position: absolute; left: 40%; top: 0; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; }
+    .col-fr-full { text-align: left; flex: 1; }
+    .col-ar-full { text-align: right; direction: rtl; flex: 1; }
+    .col-logo-side { width: 20%; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; }
+    .header-centered { display: flex; flex-direction: column; align-items: center; width: 100%; margin-bottom: ${Math.max(20, logoSize * 0.35)}px; position: relative; }
+    .col-stacked-container { display: flex; width: 100%; justify-content: space-between; margin-top: 15px; }
+    .col-fr-center { text-align: center; width: 45%; display: flex; flex-direction: column; align-items: center; }
+    .col-ar-center { text-align: center; width: 45%; direction: rtl; display: flex; flex-direction: column; align-items: center; }
     /* Letterhead panel (fr-logo-left / ar-logo-right) */
     .header-panel { display: flex; align-items: stretch; margin-bottom: ${Math.max(20, logoSize * 0.35)}px; min-height: ${Math.max(100, logoSize + 30)}px; }
     .panel-logo-left { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 8px; border-right: 2px solid ${accentColor}; flex-shrink: 0; width: ${logoSize + 20}px; }
@@ -132,8 +141,8 @@ const PrescriptionPrintable: React.FC<PrescriptionPrintableProps> = ({
     <>
       {image && <img src={image} className="logo" alt="Logo" />}
       {showInscriptionNumber && (
-        <div style={{ marginTop: 5, fontSize: 9, textAlign: "center", color: accentColor }}>
-          N° Order : {prescriptionModel.inscriptionNumber}
+        <div className="inscription" style={{ marginTop: "4px", fontWeight: "bold", color: accentColor, fontSize: "10px", textAlign: "center" }}>
+          N° Ordre : {prescriptionModel.inscriptionNumber}
         </div>
       )}
     </>
@@ -143,22 +152,29 @@ const PrescriptionPrintable: React.FC<PrescriptionPrintableProps> = ({
     switch (templateLayout) {
       case "fr-only":
         return (
-          <div className="header-single">
-            <div className="col-fr">{frContent}</div>
-            <div className="col-logo-side">{logoContent}</div>
+          <div className="header">
+            <div className="col-fr-full">{frContent}</div>
+            <div className="col-logo">{logoContent}</div>
           </div>
         );
       case "ar-only":
         return (
-          <div className="header-single">
-            <div className="col-logo-side">{logoContent}</div>
-            <div className="col-ar">{arContent}</div>
+          <div className="header">
+            <div className="col-logo">{logoContent}</div>
+            <div className="col-ar-full">{arContent}</div>
           </div>
         );
       case "fr-logo-left":
         return (
           <div className="header-panel">
-            <div className="panel-logo-left">{logoContent}</div>
+            <div className="panel-logo-left">
+              {image && <img src={image} className="logo" alt="Logo" />}
+              {showInscriptionNumber && (
+                <div className="panel-inscription" style={{ marginTop: "4px", fontWeight: "bold" }}>
+                  N° Ordre : {prescriptionModel.inscriptionNumber}
+                </div>
+              )}
+            </div>
             <div className="panel-text-fr">{frContent}</div>
           </div>
         );
@@ -166,16 +182,49 @@ const PrescriptionPrintable: React.FC<PrescriptionPrintableProps> = ({
         return (
           <div className="header-panel">
             <div className="panel-text-ar">{arContent}</div>
-            <div className="panel-logo-right">{logoContent}</div>
+            <div className="panel-logo-right">
+              {image && <img src={image} className="logo" alt="Logo" />}
+              {showInscriptionNumber && (
+                <div className="panel-inscription" style={{ marginTop: "4px", fontWeight: "bold" }}>
+                  N° Ordre : {prescriptionModel.inscriptionNumber}
+                </div>
+              )}
+            </div>
+          </div>
+        );
+      case "bilingual-logo-left":
+        return (
+          <div className="header">
+            <div className="col-logo-side">{logoContent}</div>
+            <div className="col-fr" style={{ paddingLeft: "10px" }}>{frContent}</div>
+            <div className="col-ar">{arContent}</div>
+          </div>
+        );
+      case "bilingual-logo-right":
+        return (
+          <div className="header">
+            <div className="col-fr">{frContent}</div>
+            <div className="col-ar" style={{ paddingRight: "10px" }}>{arContent}</div>
+            <div className="col-logo-side">{logoContent}</div>
+          </div>
+        );
+      case "centered":
+        return (
+          <div className="header-centered">
+            <div className="col-logo">{logoContent}</div>
+            <div className="col-stacked-container">
+              <div className="col-fr-center">{frContent}</div>
+              <div className="col-ar-center">{arContent}</div>
+            </div>
           </div>
         );
       case "bilingual":
       default:
         return (
           <div className="header">
-            <div className="header-left">{frContent}</div>
-            <div className="header-center">{logoContent}</div>
-            <div className="header-right">{arContent}</div>
+            <div className="col-fr">{frContent}</div>
+            <div className="col-logo-center">{logoContent}</div>
+            <div className="col-ar">{arContent}</div>
           </div>
         );
     }
@@ -208,12 +257,142 @@ const PrescriptionPrintable: React.FC<PrescriptionPrintableProps> = ({
       {(prescriptionModel.phoneNumber1 || prescriptionModel.phoneNumber2) && (
         <div>
           {prescriptionModel.phoneNumber1 && `Tél. : ${prescriptionModel.phoneNumber1}`}
-          {prescriptionModel.phoneNumber1 && prescriptionModel.phoneNumber2 && " "}
+          {prescriptionModel.phoneNumber1 && prescriptionModel.phoneNumber2 && " | "}
           {prescriptionModel.phoneNumber2 && `Mob. : ${prescriptionModel.phoneNumber2}`}
         </div>
       )}
     </div>
   );
+
+  const useCustomLayout = prescriptionModel.useCustomLayout;
+
+  const renderCustomLayoutBlocks = (chunk: PrescriptionMed[], pageIndex: number) => {
+    const customPositions = prescriptionModel.customPositions || {};
+    const hiddenElements = prescriptionModel.hiddenElements || [];
+    const isHidden = (id: string) => hiddenElements.includes(id);
+
+    const getStyle = (id: string, fullWidth?: boolean): React.CSSProperties => {
+        const pos = customPositions[id];
+        if (!pos || isHidden(id)) return { display: "none" };
+        return {
+            position: "absolute",
+            left: `${pos.x}%`,
+            top: `${pos.y}%`,
+            width: fullWidth ? "100%" : undefined,
+            maxWidth: fullWidth ? "100%" : "45%",
+        };
+    };
+
+    let maxTop = 0;
+    ["logo", "nameFr", "nameAr", "specialtyFr", "specialtyAr", "inscription", "divider", "title", "patientInfo", "dateCity"].forEach(id => {
+        if (!isHidden(id) && customPositions[id] && customPositions[id].y > maxTop) {
+            maxTop = customPositions[id].y;
+        }
+    });
+    const medsTop = maxTop + 8;
+
+    return (
+        <div style={{ position: "relative", width: "100%", height: "209mm" }}>
+            {!isHidden("logo") && (
+                <div style={getStyle("logo")}>
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>{logoContent}</div>
+                </div>
+            )}
+            {!isHidden("nameFr") && (
+                <div style={getStyle("nameFr")}>
+                    <div className="doctor-name">{prescriptionModel.nameFr}</div>
+                </div>
+            )}
+            {!isHidden("nameAr") && (
+                <div style={{ ...getStyle("nameAr"), textAlign: "right", direction: "rtl" }}>
+                    <div className="doctor-name">{prescriptionModel.nameAr}</div>
+                </div>
+            )}
+            {!isHidden("specialtyFr") && (
+                <div style={getStyle("specialtyFr")}>
+                    <div className="specialty">{prescriptionModel.specialtyFr}</div>
+                    {servicesFr.map((srv: string, idx: number) => <div key={idx} className="service">{srv}</div>)}
+                </div>
+            )}
+            {!isHidden("specialtyAr") && (
+                <div style={{ ...getStyle("specialtyAr"), textAlign: "right", direction: "rtl" }}>
+                    <div className="specialty">{prescriptionModel.specialtyAr}</div>
+                    {servicesAr.map((srv: string, idx: number) => <div key={idx} className="service">{srv}</div>)}
+                </div>
+            )}
+            {!isHidden("inscription") && (
+                <div style={getStyle("inscription")}>
+                    <div className="inscription" style={{ color: accentColor }}>N° {prescriptionModel.inscriptionNumber}</div>
+                </div>
+            )}
+            {!isHidden("divider") && (
+                <div style={{ ...getStyle("divider", true) }}>
+                    <div className="divider" style={{ margin: 0 }} />
+                </div>
+            )}
+            {!isHidden("title") && (
+                <div style={getStyle("title", true)}>
+                    <div className="title" style={{ margin: 0 }}>{titleText}</div>
+                </div>
+            )}
+            {!isHidden("patientInfo") && (
+                <div style={getStyle("patientInfo")}>
+                    <div className="patient-details" style={{ marginTop: 0, marginBottom: 0 }}>
+                        <div><strong>Nom :</strong> {patient.first_name} {patient.last_name}</div>
+                        <div><strong>Âge :</strong> {patient.age} Ans</div>
+                        {isPsychotropic && patientAddress && <div><strong>Adresse :</strong> {patientAddress}</div>}
+                    </div>
+                </div>
+            )}
+            {!isHidden("dateCity") && (
+                <div style={getStyle("dateCity")}>
+                    <div className="document-info" style={{ marginTop: 0, marginBottom: 0 }}>
+                        <div>{prescriptionModel.city}, le : {formatDate(prescriptionDate ? new Date(prescriptionDate) : new Date())}</div>
+                        {isPsychotropic && psychotropicNumber && <div><strong>Numero de serie :</strong> {psychotropicNumber}</div>}
+                    </div>
+                </div>
+            )}
+            {!isHidden("footer") && (
+                <div style={{ ...getStyle("footer", true) }}>
+                    <div className="footer" style={{ position: "static", borderTop: "1px solid #aaa", paddingTop: "5px", fontSize: "11px", textAlign: "center" }}>
+                        <div>{prescriptionModel.address}</div>
+                        {(prescriptionModel.phoneNumber1 || prescriptionModel.phoneNumber2) && (
+                            <div>
+                                {prescriptionModel.phoneNumber1 && `Tél. : ${prescriptionModel.phoneNumber1}`}
+                                {prescriptionModel.phoneNumber1 && prescriptionModel.phoneNumber2 && " | "}
+                                {prescriptionModel.phoneNumber2 && `Mob. : ${prescriptionModel.phoneNumber2}`}
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
+
+            <div className="medications" style={{ position: "absolute", top: `${medsTop}%`, left: 0, right: 0 }}>
+                {totalPages > 1 && (
+                  <div className="page-indicator">
+                    Page {pageIndex + 1} / {totalPages}
+                  </div>
+                )}
+                {chunk.map((med, index) => (
+                  <div key={index} className="medication-item">
+                    <div className="med-header">
+                      <span>
+                        {med.medicineName}
+                        {med.form ? ` ${med.form}` : ""}
+                        {med.dosage ? ` ${med.dosage}` : ""}
+                      </span>
+                      <span>
+                        {med.quantity ? `(${med.quantity})` : ""}
+                        {med.duration ? ` (${med.duration})` : ""}
+                      </span>
+                    </div>
+                    {med.note && <div className="med-note">{med.note}</div>}
+                  </div>
+                ))}
+            </div>
+        </div>
+    );
+  };
 
   return (
     <html>
@@ -225,36 +404,40 @@ const PrescriptionPrintable: React.FC<PrescriptionPrintableProps> = ({
 
         {medicationChunks.map((chunk, pageIndex) => (
           <div key={pageIndex} className="prescription-page">
-            {renderHeader()}
-            {renderPatientAndDivider()}
+            {useCustomLayout ? renderCustomLayoutBlocks(chunk, pageIndex) : (
+                <>
+                    {renderHeader()}
+                    {renderPatientAndDivider()}
 
-            <div className="title">{titleText}</div>
-            {totalPages > 1 && (
-              <div className="page-indicator">
-                Page {pageIndex + 1} / {totalPages}
-              </div>
+                    <div className="title">{titleText}</div>
+                    {totalPages > 1 && (
+                      <div className="page-indicator">
+                        Page {pageIndex + 1} / {totalPages}
+                      </div>
+                    )}
+
+                    <div className="medications">
+                      {chunk.map((med, index) => (
+                        <div key={index} className="medication-item">
+                          <div className="med-header">
+                            <span>
+                              {med.medicineName}
+                              {med.form ? ` ${med.form}` : ""}
+                              {med.dosage ? ` ${med.dosage}` : ""}
+                            </span>
+                            <span>
+                              {med.quantity ? `(${med.quantity})` : ""}
+                              {med.duration ? ` (${med.duration})` : ""}
+                            </span>
+                          </div>
+                          {med.note && <div className="med-note">{med.note}</div>}
+                        </div>
+                      ))}
+                    </div>
+
+                    {renderFooter()}
+                </>
             )}
-
-            <div className="medications">
-              {chunk.map((med, index) => (
-                <div key={index} className="medication-item">
-                  <div className="med-header">
-                    <span>
-                      {med.medicineName}
-                      {med.form ? ` ${med.form}` : ""}
-                      {med.dosage ? ` ${med.dosage}` : ""}
-                    </span>
-                    <span>
-                      {med.quantity ? `(${med.quantity})` : ""}
-                      {med.duration ? ` (${med.duration})` : ""}
-                    </span>
-                  </div>
-                  {med.note && <div className="med-note">{med.note}</div>}
-                </div>
-              ))}
-            </div>
-
-            {renderFooter()}
           </div>
         ))}
       </body>

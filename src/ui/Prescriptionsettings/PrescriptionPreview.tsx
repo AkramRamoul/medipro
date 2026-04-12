@@ -34,6 +34,7 @@ export const PrescriptionPreview: React.FC<PrescriptionPreviewProps> = ({
 }) => {
     const [zoom, setZoom] = useState(1.0);
     const [isDesignMode, setIsDesignMode] = useState(false);
+    const [showResetConfirm, setShowResetConfirm] = useState(false);
 
     // Local positions — initialized from form, updated by dragging
     const [positions, setPositions] = useState<CustomPositions>(
@@ -252,7 +253,8 @@ export const PrescriptionPreview: React.FC<PrescriptionPreviewProps> = ({
         { id: "inscription", content: <div style={{ fontSize: "0.5rem", color: accentColor }}>N° {form.inscriptionNumber || "0000"}</div> },
         { id: "divider",     content: <div style={{ width: "100%", borderBottom: divStyle === "double" ? "3px double #9ca3af" : `1px ${divStyle} #9ca3af` }} />, fullWidth: true },
         { id: "title",       content: <div className="font-bold underline tracking-wider text-center" style={{ color: accentColor, fontSize: titleSize }}>{titleText}</div> },
-        { id: "patientInfo", content: <div style={{ fontSize: bodySize }}><div><strong>Nom :</strong> ................................</div><div><strong>Âge :</strong> ......... — {form.city || "Ville"}, le : ...........</div></div> },
+        { id: "patientInfo", content: <div style={{ fontSize: bodySize }}><div><strong>Nom :</strong> ................................</div><div><strong>Âge :</strong> .........</div></div> },
+        { id: "dateCity",    content: <div style={{ fontSize: bodySize }}>{form.city || "Ville"}, le : ...</div>, },
         { id: "footer",      content: <div className="text-center text-gray-600" style={{ fontSize: "0.6rem", borderTop: "1px solid #d1d5db", paddingTop: 2 }}><div>{form.address || "Adresse"}</div><div>{form.phoneNumber1}{form.phoneNumber2 && ` | ${form.phoneNumber2}`}</div></div>, fullWidth: true },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     ], [form.nameFr, form.nameAr, form.specialtyFr, form.specialtyAr, form.inscriptionNumber, form.address, form.phoneNumber1, form.phoneNumber2, form.city, accentColor, doctorNameSize, specialtySize, titleSize, bodySize, divStyle, titleText, logoSizePx, showInscNo, services]);
@@ -266,7 +268,7 @@ export const PrescriptionPreview: React.FC<PrescriptionPreviewProps> = ({
                 <h3 className="text-lg font-semibold">Aperçu en direct</h3>
                 <div className="flex items-center gap-1.5">
                     {form.useCustomLayout && !isDesignMode && (
-                        <button type="button" onClick={() => onCustomLayoutChange?.(positions, false, [...hidden])}
+                        <button type="button" onClick={() => setShowResetConfirm(true)}
                             className="text-[10px] px-2 py-1 rounded border border-amber-400 text-amber-600 hover:bg-amber-50 transition-colors flex items-center gap-1">
                             <X className="w-3 h-3" /> Modèle normal
                         </button>
@@ -294,6 +296,42 @@ export const PrescriptionPreview: React.FC<PrescriptionPreviewProps> = ({
                     )}
                 </div>
             </div>
+
+            {/* Reset-to-normal confirmation dialog */}
+            {showResetConfirm && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+                    <div className="bg-white dark:bg-gray-900 rounded-xl shadow-2xl p-6 max-w-sm w-full mx-4 border border-amber-200">
+                        <div className="flex items-center gap-3 mb-3">
+                            <div className="w-9 h-9 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0">
+                                <X className="w-5 h-5 text-amber-600" />
+                            </div>
+                            <h4 className="font-semibold text-base text-gray-900 dark:text-gray-100">Revenir au modèle normal ?</h4>
+                        </div>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-5">
+                            Cette action supprimera votre mise en page personnalisée (glisser-déposer). Cette opération est irréversible.
+                        </p>
+                        <div className="flex gap-2 justify-end">
+                            <button
+                                type="button"
+                                onClick={() => setShowResetConfirm(false)}
+                                className="px-4 py-1.5 rounded-md border border-gray-300 text-sm hover:bg-gray-100 transition-colors"
+                            >
+                                Annuler
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setShowResetConfirm(false);
+                                    onCustomLayoutChange?.(positions, false, []);
+                                }}
+                                className="px-4 py-1.5 rounded-md bg-amber-500 text-white text-sm font-medium hover:bg-amber-600 transition-colors"
+                            >
+                                Oui, réinitialiser
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {isDesignMode && (
                 <p className="text-[10px] text-blue-500 text-center mb-2 italic">

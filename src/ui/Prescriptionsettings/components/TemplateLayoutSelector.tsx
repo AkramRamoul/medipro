@@ -152,6 +152,7 @@ const TEMPLATES: { id: TemplateLayout; label: string; desc: string; preview: Rea
 export function TemplateLayoutSelector() {
     const { control, setValue } = useFormContext<FormData>();
     const templateLayout = useWatch({ control, name: "templateLayout" });
+    const useCustomLayout = useWatch({ control, name: "useCustomLayout" });
 
     return (
         <section className="space-y-4">
@@ -159,16 +160,28 @@ export function TemplateLayoutSelector() {
                 <LayoutTemplate className="w-4 h-4 text-primary" />
                 <h3 className="font-semibold text-sm uppercase tracking-wider">Modèle de mise en page</h3>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+
+            {useCustomLayout && (
+                <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-amber-50 border border-amber-200 text-amber-700 text-xs">
+                    <LayoutTemplate className="w-3.5 h-3.5 flex-shrink-0" />
+                    <span>
+                        Vous utilisez une mise en page personnalisée. Cliquez sur{" "}
+                        <strong>« Modèle normal »</strong> dans l'aperçu pour déverrouiller les modèles.
+                    </span>
+                </div>
+            )}
+
+            <div className={`grid grid-cols-2 sm:grid-cols-3 gap-3 transition-opacity ${useCustomLayout ? "opacity-40 pointer-events-none select-none" : ""}`}>
                 {TEMPLATES.map((tpl) => (
                     <button
                         key={tpl.id}
                         type="button"
+                        disabled={!!useCustomLayout}
                         onClick={() => setValue("templateLayout", tpl.id, { shouldValidate: true })}
                         className={`flex flex-col gap-2 p-3 rounded-lg border-2 transition-all text-left ${templateLayout === tpl.id
                                 ? "border-primary bg-primary/5 text-primary"
                                 : "border-muted bg-muted/20 text-muted-foreground hover:border-primary/40 hover:text-foreground"
-                            }`}
+                            } ${useCustomLayout ? "cursor-not-allowed" : ""}`}
                     >
                         <div className="w-full h-8 bg-background rounded border flex items-center px-2 py-1">
                             {tpl.preview}
