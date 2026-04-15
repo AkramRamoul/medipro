@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import useSWR from "swr";
 import { useFileUploader } from "../hooks/use-file-uploader";
@@ -61,7 +61,7 @@ const fetcher = (url: string) => api.get(url).then(res => res.data);
 
 // ── Accordion Section ──────────────────────────────────────────────────────
 function AccordionSection({
-  id, title, icon, defaultOpen = false, children,
+  title, icon, defaultOpen = false, children,
 }: {
   id: string; title: string; icon: React.ReactNode; defaultOpen?: boolean; children: React.ReactNode;
 }) {
@@ -105,7 +105,7 @@ export function PrescriptionModelForm() {
     defaultValues: { ...DEFAULT_FORM, services: DEFAULT_SERVICES }
   });
 
-  const { reset, handleSubmit, watch, setValue, formState } = methods;
+  const { reset, handleSubmit, watch, setValue } = methods;
 
   useEffect(() => {
     if (logoData?.success && logoData.image) setLogoImage(logoData.image);
@@ -141,8 +141,21 @@ export function PrescriptionModelForm() {
   };
 
   const handleReload = () => {
-    mutateModel();
+    if (modelData?.success && modelData.model) {
+      const model = modelData.model;
+      let parsedServices = DEFAULT_SERVICES;
+      try {
+        const fr: string[] = JSON.parse(model.servicesFr || "[]");
+        const ar: string[] = JSON.parse(model.servicesAr || "[]");
+        const parsed = fr.map((f, i) => ({ fr: f, ar: ar[i] || "" }));
+        if (parsed.length > 0) parsedServices = parsed;
+      } catch { /* ignore */ }
+      reset({ ...DEFAULT_FORM, ...model, services: parsedServices });
+    } else {
+      reset({ ...DEFAULT_FORM, services: DEFAULT_SERVICES });
+    }
     setIsDirty(false);
+    mutateModel();
   };
 
   const onSubmit = async (data: FormData) => {

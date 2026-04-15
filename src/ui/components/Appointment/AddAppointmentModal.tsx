@@ -31,9 +31,10 @@ export function AddAppointmentModal({
     setIsLoading(true);
 
     try {
-      const timePart = time ? time : "00:00";
-      // We store the date exactly as entered (local time) to avoid UTC shifts
-      const dateString = `${date}T${timePart}`;
+      // If no time is selected, we don't send a default "00:00" to avoid confusion in the UI
+      const timePart = time || "";
+      // If time is provided, we append it to the date; otherwise we just send the date
+      const dateString = timePart ? `${date}T${timePart}` : date;
 
       await api.post("/appointments", {
         patientId: Number(patientId),

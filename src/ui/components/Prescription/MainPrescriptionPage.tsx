@@ -300,6 +300,7 @@ function MainPrescriptionPage({
           {viewingDocument ? (
             <SingleDocument
               document={viewingDocument}
+              patient={patient || undefined}
               onClose={() => {
                 setIsOpen(false);
                 setViewingDocument(null);

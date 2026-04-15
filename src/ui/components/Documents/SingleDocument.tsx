@@ -1,4 +1,7 @@
-import { Document } from "../../type";
+import { useState } from "react";
+import { toast } from "sonner";
+import api from "../../axios";
+import { Document, smallPatient } from "../../type";
 import {
   Card,
   CardContent,
@@ -19,10 +22,12 @@ import {
   Pill,
   Stethoscope,
   Printer,
+  Loader2,
 } from "lucide-react";
 
 interface SingleDocumentProps {
   document: Document;
+  patient?: smallPatient;
   onClose?: () => void;
 }
 
@@ -40,8 +45,65 @@ const icons: Record<Document["type"], any> = {
   template: FileText,
 };
 
-export function SingleDocument({ document, onClose }: SingleDocumentProps) {
+export function SingleDocument({ document, patient, onClose }: SingleDocumentProps) {
+  const [isPrinting, setIsPrinting] = useState(false);
   const Icon = icons[document.type] || FileText;
+
+  const handlePrint = async () => {
+    if (!patient) {
+      toast.error("Données du patient manquantes pour l'impression.");
+      return;
+    }
+
+    setIsPrinting(true);
+    try {
+      // Fetch settings
+      const [logoRes, modelRes] = await Promise.all([
+        api.get("/settings/logo"),
+        api.get("/settings/prescription-model")
+      ]);
+
+      if (!modelRes.data.success) {
+        throw new Error("Impossible de charger le modèle d'impression.");
+      }
+
+      const prescriptionModel = modelRes.data.model;
+      const image = logoRes.data.success ? logoRes.data.image : null;
+
+      // Dynamic imports for printing
+      const { renderToStaticMarkup } = await import("react-dom/server");
+      const { default: DocumentPrintable } = await import("./DocumentPrintable");
+      const { printHtml } = await import("../../lib/print-utils");
+
+      const htmlContent = renderToStaticMarkup(
+        <DocumentPrintable
+          first_name={patient.first_name}
+          last_name={patient.last_name}
+          patientAge={patient.age}
+          prescriptionModel={prescriptionModel}
+          image={image}
+          documentContent={document.content}
+          documentType={document.type}
+          documentName={document.name}
+          documentDate={document.documentDate}
+        />
+      );
+
+      const fullHtml = `<!DOCTYPE html>${htmlContent}`;
+      const result = await printHtml(fullHtml);
+
+      if (result.success) {
+        toast.success("Impression lancée !");
+      } else {
+        toast.error(`Erreur d'impression: ${result.error}`);
+      }
+    } catch (error) {
+      console.error("Failed to print:", error);
+      toast.error("Erreur lors de l'impression");
+    } finally {
+      setIsPrinting(false);
+    }
+  };
 
   const renderContent = () => {
     const { content } = document;
@@ -289,20 +351,20 @@ export function SingleDocument({ document, onClose }: SingleDocumentProps) {
 
       <CardFooter className="pt-6 border-t mt-auto flex justify-between gap-3">
         <div className="flex gap-2">
-          {document.type === "blood" && (
-            <Button
-              variant="outline"
-              className="gap-2 border-primary/20 hover:bg-primary/5 text-primary"
-              onClick={() => {
-                // We'll rely on the existing print functionality 
-                // but this signals intent.
-                // In a real scenario we'd call the handlePrint logic here.
-                window.print();
-              }}
-            >
-              <Printer className="w-4 h-4" /> Imprimer le bilan
-            </Button>
-          )}
+          <Button
+            variant="outline"
+            className="gap-2 border-primary/20 hover:bg-primary/5 text-primary"
+            onClick={handlePrint}
+            disabled={isPrinting}
+          >
+            {isPrinting ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Printer className="w-4 h-4" />
+            )}
+            {" "}
+            {document.type === "blood" ? "Imprimer le bilan" : "Imprimer le document"}
+          </Button>
         </div>
         {onClose && (
           <Button onClick={onClose} variant="secondary" className="gap-2 px-6">

@@ -40,14 +40,22 @@ export const PrescriptionPreview: React.FC<PrescriptionPreviewProps> = ({
     const [positions, setPositions] = useState<CustomPositions>(
         () => ({ ...DEFAULT_ELEMENT_POSITIONS, ...(form.customPositions ?? {}) })
     );
+    const positionsRef = useRef<CustomPositions>(positions);
+    useEffect(() => { positionsRef.current = positions; }, [positions]);
+
     // Hidden elements set
     const [hidden, setHidden] = useState<Set<LayoutElementId>>(
         () => new Set((form as any).hiddenElements ?? [])
     );
+    const hiddenRef = useRef<Set<LayoutElementId>>(hidden);
+    useEffect(() => { hiddenRef.current = hidden; }, [hidden]);
 
     const hideElement   = (id: LayoutElementId) => setHidden(prev => new Set([...prev, id]));
     const restoreElement = (id: LayoutElementId) => setHidden(prev => { const n = new Set(prev); n.delete(id); return n; });
     const resetHidden   = () => setHidden(new Set());
+
+    // Guide lines for snapping
+    const [guides, setGuides] = useState<{ x: number | null, y: number | null }>({ x: null, y: null });
 
     // Refs — no state updates needed for drag bookkeeping
     const paperRef = useRef<HTMLDivElement>(null);
@@ -72,16 +80,57 @@ export const PrescriptionPreview: React.FC<PrescriptionPreviewProps> = ({
             const dx = ((e.clientX - d.startMouseX) / rect.width)  * 100;
             const dy = ((e.clientY - d.startMouseY) / rect.height) * 100;
 
+            let newX = Math.max(0, Math.min(90, d.startElX + dx));
+            let newY = Math.max(0, Math.min(94, d.startElY + dy));
+
+            const SNAP_THRESHOLD = 1.5; // percent
+            let guideX: number | null = null;
+            let guideY: number | null = null;
+
+            // Common vertical center/fractions
+            const xSnaps = [10, 20, 25, 30, 40, 50, 60, 70, 75, 80, 90];
+            for (const snap of xSnaps) {
+                if (Math.abs(newX - snap) < SNAP_THRESHOLD) { newX = snap; guideX = snap; break; }
+            }
+
+            // Common horizontal center/fractions
+            const ySnaps = [10, 20, 25, 30, 40, 50, 60, 70, 75, 80, 90];
+            for (const snap of ySnaps) {
+                if (Math.abs(newY - snap) < SNAP_THRESHOLD) { newY = snap; guideY = snap; break; }
+            }
+
+            // Element snapping
+            const others = Object.entries(positionsRef.current)
+                .filter(([id]) => id !== d.id && !hiddenRef.current.has(id as LayoutElementId))
+                .map(([_, pos]) => pos);
+
+            if (guideX === null) {
+                for (const pos of others) {
+                    if (Math.abs(newX - pos.x) < SNAP_THRESHOLD) { newX = pos.x; guideX = pos.x; break; }
+                }
+            }
+
+            if (guideY === null) {
+                for (const pos of others) {
+                    if (Math.abs(newY - pos.y) < SNAP_THRESHOLD) { newY = pos.y; guideY = pos.y; break; }
+                }
+            }
+
+            setGuides({ x: guideX, y: guideY });
+
             setPositions(prev => ({
                 ...prev,
                 [d.id]: {
-                    x: Math.max(0, Math.min(90, d.startElX + dx)),
-                    y: Math.max(0, Math.min(94, d.startElY + dy)),
+                    x: newX,
+                    y: newY,
                 },
             }));
         };
 
-        const onUp = () => { dragging.current = null; };
+        const onUp = () => { 
+            dragging.current = null;
+            setGuides({ x: null, y: null });
+        };
 
         window.addEventListener("mousemove", onMove);
         window.addEventListener("mouseup",   onUp);
@@ -101,12 +150,25 @@ export const PrescriptionPreview: React.FC<PrescriptionPreviewProps> = ({
         };
     };
 
+    // Optimitic state to bypass 300ms debounce from parent form
+    const [previewState, setPreviewState] = useState<{
+        useCustomLayout?: boolean;
+        customPositions?: CustomPositions;
+        hiddenElements?: LayoutElementId[];
+    } | null>(null);
+
+    useEffect(() => {
+        // Clear optimistic state once the parent's debounced form catches up
+        setPreviewState(null);
+    }, [form]);
+
     const handleEnterDesign = () => {
         setPositions({ ...DEFAULT_ELEMENT_POSITIONS, ...(form.customPositions ?? {}) });
         setHidden(new Set((form as any).hiddenElements ?? []));
         setIsDesignMode(true);
     };
     const handleSave = () => {
+        setPreviewState({ useCustomLayout: true, customPositions: positions, hiddenElements: [...hidden] });
         onCustomLayoutChange?.(positions, true, [...hidden]);
         setIsDesignMode(false);
     };
@@ -115,12 +177,12 @@ export const PrescriptionPreview: React.FC<PrescriptionPreviewProps> = ({
         setHidden(new Set((form as any).hiddenElements ?? []));
         setIsDesignMode(false);
     };
-    const handleReset = () => {
-        setPositions({ ...DEFAULT_ELEMENT_POSITIONS });
-        resetHidden();
-    };
 
     // ── Computed style values ──────────────────────────────────────────────
+    const activeUseCustomLayout = previewState ? previewState.useCustomLayout : form.useCustomLayout;
+    const activeCustomPositions = previewState ? previewState.customPositions : form.customPositions;
+    const activeHiddenElements  = previewState ? previewState.hiddenElements  : (form as any).hiddenElements;
+
     const accentColor = form.accentColor || "#000000";
     const sc = 0.62;
     const doctorNameSize  = (form.doctorNameFontSize ?? 14) * sc;
@@ -267,12 +329,11 @@ export const PrescriptionPreview: React.FC<PrescriptionPreviewProps> = ({
             <div className="flex items-center justify-between mb-3 px-1">
                 <h3 className="text-lg font-semibold">Aperçu en direct</h3>
                 <div className="flex items-center gap-1.5">
-                    {form.useCustomLayout && !isDesignMode && (
-                        <button type="button" onClick={() => setShowResetConfirm(true)}
-                            className="text-[10px] px-2 py-1 rounded border border-amber-400 text-amber-600 hover:bg-amber-50 transition-colors flex items-center gap-1">
-                            <X className="w-3 h-3" /> Modèle normal
-                        </button>
-                    )}
+                    <button type="button" onClick={() => setShowResetConfirm(true)} title="Tout réinitialiser"
+                        className="p-1.5 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 hover:bg-gray-100 transition-colors text-amber-600">
+                        <RefreshCw className="w-4 h-4" />
+                    </button>
+
                     {!isDesignMode ? (
                         <button type="button" onClick={handleEnterDesign}
                             className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-colors font-medium">
@@ -280,10 +341,6 @@ export const PrescriptionPreview: React.FC<PrescriptionPreviewProps> = ({
                         </button>
                     ) : (
                         <div className="flex items-center gap-1">
-                            <button type="button" onClick={handleReset} title="Réinitialiser"
-                                className="p-1.5 rounded border border-gray-300 hover:bg-gray-100 transition-colors">
-                                <RefreshCw className="w-3.5 h-3.5 text-gray-500" />
-                            </button>
                             <button type="button" onClick={handleCancel}
                                 className="text-xs px-2 py-1.5 rounded border border-gray-300 hover:bg-gray-100 transition-colors flex items-center gap-1">
                                 <X className="w-3 h-3" /> Annuler
@@ -322,7 +379,11 @@ export const PrescriptionPreview: React.FC<PrescriptionPreviewProps> = ({
                                 type="button"
                                 onClick={() => {
                                     setShowResetConfirm(false);
-                                    onCustomLayoutChange?.(positions, false, []);
+                                    setPositions({ ...DEFAULT_ELEMENT_POSITIONS });
+                                    setHidden(new Set());
+                                    setIsDesignMode(false);
+                                    setPreviewState({ useCustomLayout: false, customPositions: DEFAULT_ELEMENT_POSITIONS, hiddenElements: [] });
+                                    onCustomLayoutChange?.(DEFAULT_ELEMENT_POSITIONS, false, []);
                                 }}
                                 className="px-4 py-1.5 rounded-md bg-amber-500 text-white text-sm font-medium hover:bg-amber-600 transition-colors"
                             >
@@ -365,9 +426,9 @@ export const PrescriptionPreview: React.FC<PrescriptionPreviewProps> = ({
             <div className="overflow-auto rounded-md" style={{ maxHeight: "70vh" }}>
                 {/* Outer scaled wrapper */}
                 <div
-                    className="bg-white text-black shadow-2xl rounded-sm mx-auto relative"
+                    className="bg-white text-black shadow-2xl rounded-sm mx-auto relative transition-all duration-200"
                     style={{
-                        width: "100%", maxWidth: "400px",
+                        width: "100%", maxWidth: "550px",
                         aspectRatio: "1 / 1.414",
                         fontSize: bodySize, fontFamily,
                         border: isDesignMode ? "2px solid #3b82f6" : "1px solid #e2e8f0",
@@ -388,10 +449,18 @@ export const PrescriptionPreview: React.FC<PrescriptionPreviewProps> = ({
                             ref={paperRef}
                             className="absolute inset-0"
                             style={{
-                                backgroundImage: "radial-gradient(circle, #cbd5e180 1px, transparent 1px)",
-                                backgroundSize: "5% 5%",
+                                backgroundImage: "radial-gradient(circle, #94a3b860 1.5px, transparent 1.5px)",
+                                backgroundSize: "4% 4%",
                             }}
                         >
+                            {/* Guidelines */}
+                            {guides.x !== null && (
+                                <div className="absolute top-0 bottom-0 z-0 pointer-events-none" style={{ left: `${guides.x}%`, width: '1px', backgroundColor: '#e8115b', boxShadow: '0 0 3px #e8115b60' }} />
+                            )}
+                            {guides.y !== null && (
+                                <div className="absolute left-0 right-0 z-0 pointer-events-none" style={{ top: `${guides.y}%`, height: '1px', backgroundColor: '#e8115b', boxShadow: '0 0 3px #e8115b60' }} />
+                            )}
+
                             {designElements.filter(({ id }) => !hidden.has(id)).map(({ id, content, fullWidth }) => {
                                 const pos = positions[id];
                                 const color = ELEMENT_COLORS[id];
@@ -480,11 +549,11 @@ export const PrescriptionPreview: React.FC<PrescriptionPreviewProps> = ({
                                 </div>
                             )}
                         </div>
-                    ) : form.useCustomLayout && form.customPositions ? (
+                    ) : activeUseCustomLayout && activeCustomPositions ? (
                         // ── CUSTOM SAVED LAYOUT ────────────────────────────
                         <div className="absolute inset-0">
-                            {designElements.filter(({ id }) => !(form as any).hiddenElements?.includes(id)).map(({ id, content, fullWidth }) => {
-                                const pos = (form.customPositions ?? DEFAULT_ELEMENT_POSITIONS)[id];
+                            {designElements.filter(({ id }) => !activeHiddenElements?.includes(id)).map(({ id, content, fullWidth }) => {
+                                const pos = (activeCustomPositions ?? DEFAULT_ELEMENT_POSITIONS)[id];
                                 if (!pos) return null;
                                 return (
                                     <div

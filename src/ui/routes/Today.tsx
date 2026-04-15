@@ -88,7 +88,8 @@ export function Today() {
                 api.get("/consultations/today")
             ]);
             setAppointments(aptRes.data);
-            setStandaloneConsultations(consRes.data.filter((c: Consultation) => !c.appointmentId));
+            // Case-insensitive/snake_case safety: filter out any consultation that has an appointment ID
+            setStandaloneConsultations(consRes.data.filter((c: any) => !c.appointmentId && !c.appointment_id));
             setLastUpdated(new Date());
             setSecondsAgo(0);
         } catch (error) {
@@ -188,11 +189,12 @@ export function Today() {
     ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
     const stats = {
-        total: appointments.length + standaloneConsultations.length,
         waiting: enAttente.length,
         inConsultation: enConsultation.length,
         completed: termines.length,
         cancelled: annulations.length,
+        // The total is the sum of all active categories to prevent double counting
+        total: enAttente.length + enConsultation.length + termines.length + annulations.length,
     };
 
     if (isLoading) {
@@ -363,19 +365,22 @@ export function Today() {
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {enAttente.map((apt) => {
-                                        let delayMinutes = 0;
-                                        if (apt.time || apt.date) {
-                                            try {
-                                                const aptDateTimeStr = apt.date && apt.date.includes('T')
-                                                    ? apt.date
-                                                    : `${format(new Date(), 'yyyy-MM-dd')}T${apt.time || "00:00"}:00`;
-                                                const aptDateObj = new Date(aptDateTimeStr);
-                                                delayMinutes = differenceInMinutes(new Date(), aptDateObj);
-                                            } catch (e) {
-                                                // ignore parse errors
+                                        {enAttente.map((apt) => {
+                                            let delayMinutes = 0;
+                                            const hasTime = apt.time && apt.time !== "" && apt.time !== "00:00";
+                                            const hasDateWithTime = apt.date && apt.date.includes('T') && !apt.date.endsWith('T') && !apt.date.includes('T00:00');
+
+                                            if (hasTime || hasDateWithTime) {
+                                                try {
+                                                    const aptDateTimeStr = hasDateWithTime
+                                                        ? apt.date
+                                                        : `${format(new Date(), 'yyyy-MM-dd')}T${apt.time}:00`;
+                                                    const aptDateObj = new Date(aptDateTimeStr);
+                                                    delayMinutes = differenceInMinutes(new Date(), aptDateObj);
+                                                } catch (e) {
+                                                    // ignore parse errors
+                                                }
                                             }
-                                        }
                                         const isDelayed = delayMinutes > 15;
 
                                         return (
@@ -383,7 +388,7 @@ export function Today() {
                                                 <TableCell className="font-semibold">
                                                     <div className="flex items-center gap-2">
                                                         <span className={isDelayed ? "text-amber-600 dark:text-amber-500" : "text-foreground"}>
-                                                            {apt.time || (apt.date && apt.date.includes('T') ? apt.date.split('T')[1].substring(0, 5) : "--:--")}
+                                                            {apt.time && apt.time !== "00:00" ? apt.time : (apt.date && apt.date.includes('T') && !apt.date.includes('T00:00') ? apt.date.split('T')[1].substring(0, 5) : "--:--")}
                                                         </span>
                                                         {isDelayed && (
                                                             <Badge variant="outline" className="bg-amber-100 text-amber-700 hover:bg-amber-100 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800 text-[10px] px-1.5 h-5 flex gap-1 items-center">
@@ -445,7 +450,7 @@ export function Today() {
                                     {enConsultation.map((apt) => (
                                         <TableRow key={apt.id} className="hover:bg-muted/50 transition-colors group">
                                             <TableCell className="font-semibold text-indigo-600 dark:text-indigo-400">
-                                                {apt.time || (apt.date && apt.date.includes('T') ? apt.date.split('T')[1].substring(0, 5) : "--:--")}
+                                                {apt.time && apt.time !== "00:00" ? apt.time : (apt.date && apt.date.includes('T') && !apt.date.includes('T00:00') ? apt.date.split('T')[1].substring(0, 5) : "--:--")}
                                             </TableCell>
                                             <TableCell className="font-medium text-base">
                                                 {apt.patient.first_name} {apt.patient.last_name}
@@ -508,7 +513,9 @@ export function Today() {
                                 <TableBody>
                                     {termines.map((item) => {
                                         const isAppointment = 'time' in item;
-                                        const time = isAppointment ? item.time : format(new Date(item.date), "HH:mm");
+                                        const time = isAppointment
+                                            ? (item.time && item.time !== "00:00" ? item.time : (item.date && item.date.includes('T') && !item.date.includes('T00:00') ? item.date.split('T')[1].substring(0, 5) : "--:--"))
+                                            : format(new Date(item.date), "HH:mm");
                                         const patient = item.patient;
                                         const title = isAppointment ? item.title : item.reason;
 
@@ -569,7 +576,7 @@ export function Today() {
                                     {annulations.map((apt) => (
                                         <TableRow key={apt.id} className="hover:bg-muted/50 transition-colors opacity-70">
                                             <TableCell className="font-semibold text-muted-foreground line-through">
-                                                {apt.time || (apt.date && apt.date.includes('T') ? apt.date.split('T')[1].substring(0, 5) : "--:--")}
+                                                {apt.time && apt.time !== "00:00" ? apt.time : (apt.date && apt.date.includes('T') && !apt.date.includes('T00:00') ? apt.date.split('T')[1].substring(0, 5) : "--:--")}
                                             </TableCell>
                                             <TableCell className="font-medium text-base">
                                                 {apt.patient.first_name} {apt.patient.last_name}
@@ -612,7 +619,9 @@ export function Today() {
                                 <TableBody>
                                     {journal.map((item) => {
                                         const isAppointment = 'time' in item;
-                                        const time = isAppointment ? item.time : format(new Date(item.date), "HH:mm");
+                                        const time = isAppointment
+                                            ? (item.time && item.time !== "00:00" ? item.time : (item.date && item.date.includes('T') && !item.date.includes('T00:00') ? item.date.split('T')[1].substring(0, 5) : "--:--"))
+                                            : format(new Date(item.date), "HH:mm");
                                         const status = isAppointment ? item.status : item.status; // simplified
 
                                         return (

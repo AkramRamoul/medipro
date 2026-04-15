@@ -41100,7 +41100,10 @@ var init_schema = __esm({
       titleText: text("title_text").default("ORDONNANCE"),
       showInscriptionNumber: integer("show_inscription_number", { mode: "boolean" }).default(true),
       layoutTemplate: text("layout_template").default("standard"),
-      languageMode: text("language_mode").default("bilingual")
+      languageMode: text("language_mode").default("bilingual"),
+      useCustomLayout: integer("use_custom_layout", { mode: "boolean" }).default(false),
+      customPositions: text("custom_positions", { mode: "json" }).$type(),
+      hiddenElements: text("hidden_elements", { mode: "json" }).$type()
     });
     psychotropicCounters = sqliteTable("psychotropic_counters", {
       id: integer("id").primaryKey({ autoIncrement: true }),
@@ -136760,6 +136763,19 @@ var PrescriptionService = class {
     }
     return { success: true, id: newTemplate.id };
   }
+  async updateTemplate(id, data) {
+    const { name: name2, medications } = data;
+    await db.update(prescriptionTemplates).set({ name: name2 }).where(eq(prescriptionTemplates.id, id));
+    await db.delete(prescriptionTemplateMedications).where(eq(prescriptionTemplateMedications.templateId, id));
+    if (medications && medications.length > 0) {
+      const medsToInsert = medications.map((med) => ({
+        ...med,
+        templateId: id
+      }));
+      await db.insert(prescriptionTemplateMedications).values(medsToInsert);
+    }
+    return { success: true };
+  }
   async deleteTemplate(id) {
     await db.delete(prescriptionTemplates).where(eq(prescriptionTemplates.id, id));
     return { success: true };
@@ -136775,6 +136791,17 @@ var PrescriptionService = class {
     }
     return import_path4.default.join(process.cwd(), "..", "public", filename);
   }
+  toTitleCase(str) {
+    if (!str) return "";
+    return str.toLowerCase().replace(/(?:^|\s|-)\S/g, (a) => a.toUpperCase());
+  }
+  normalizeForComparison(str) {
+    return str.toLowerCase().replace(/[^a-z0-9]/g, "");
+  }
+  cleanLabName(lab) {
+    if (!lab) return "";
+    return lab.replace(/\b(SPA|SAS|SARL|EURL|LABORATOIRES|LABORATOIRE|PHARMA|PHARM|PRODUCTION|SA|GROUP|GROUPE|INC|LTD|PHARMACEUTIQUE|PHARMACEUTIQUES)\b/gi, "").replace(/\s+/g, " ").trim();
+  }
   async getMedications() {
     if (this.cachedMedications) {
       return this.cachedMedications;
@@ -136784,14 +136811,32 @@ var PrescriptionService = class {
       if (!import_fs2.default.existsSync(medsPath)) return [];
       const data = await import_fs2.default.promises.readFile(medsPath, "utf-8");
       const rawMedications = JSON.parse(data);
-      this.cachedMedications = rawMedications.map((med) => ({
-        name: (med["NOM DE MARQUE"] || "").trim(),
-        form: (med["FORME"] || "").trim(),
-        dosage: (med["DOSAGE"] || "").trim(),
-        note: (med["NOTE"] || "").trim(),
-        quantity: (med["QUANTITE"] || "").trim(),
-        duration: (med["DUREE"] || "").trim()
-      }));
+      const mappedMedications = [];
+      for (const group of rawMedications) {
+        const dciRaw = (group.genericName || "").trim();
+        const dci = this.toTitleCase(dciRaw);
+        for (const variant of group.variants || []) {
+          const brandRaw = (variant.brandName || "").trim();
+          const dosage = (variant.dosage || "").trim();
+          const form = this.toTitleCase((variant.form || "").trim());
+          mappedMedications.push({
+            name: dci,
+            form,
+            dosage,
+            note: "",
+            quantity: "",
+            duration: ""
+          });
+        }
+      }
+      const uniqueMeds = /* @__PURE__ */ new Map();
+      mappedMedications.forEach((med) => {
+        const key = `${med.name}|${med.form}|${med.dosage}`;
+        if (!uniqueMeds.has(key)) {
+          uniqueMeds.set(key, med);
+        }
+      });
+      this.cachedMedications = Array.from(uniqueMeds.values());
       return this.cachedMedications;
     } catch (error48) {
       console.error("Failed to read meds.json:", error48);
@@ -136814,8 +136859,10 @@ router3.get("/", authorize("VIEW_PRESCRIPTIONS"), async (req, res, next) => {
 router3.get("/medications", authorize("VIEW_PRESCRIPTIONS"), async (req, res, next) => {
   try {
     const medications = await prescriptionService.getMedications();
+    console.log(`[API] Returning ${medications.length} medications to frontend.`);
     res.json(medications);
   } catch (error48) {
+    console.error(`[API] Error fetching medications:`, error48);
     next(error48);
   }
 });
@@ -136863,6 +136910,14 @@ router3.post("/templates", authorize("MANAGE_SETTINGS"), async (req, res, next) 
   try {
     const result = await prescriptionService.createTemplate(req.body);
     res.status(201).json(result);
+  } catch (error48) {
+    next(error48);
+  }
+});
+router3.put("/templates/:id", authorize("MANAGE_SETTINGS"), async (req, res, next) => {
+  try {
+    const result = await prescriptionService.updateTemplate(Number(req.params.id), req.body);
+    res.json(result);
   } catch (error48) {
     next(error48);
   }
@@ -137260,6 +137315,11 @@ var SettingsService = class {
     if (!model) return null;
     return {
       ...model,
+      // Normalize DB field names back to the frontend form field names
+      templateLayout: model.layoutTemplate,
+      useCustomLayout: model.useCustomLayout ?? false,
+      customPositions: typeof model.customPositions === "string" ? JSON.parse(model.customPositions) : model.customPositions ?? null,
+      hiddenElements: typeof model.hiddenElements === "string" ? JSON.parse(model.hiddenElements) : model.hiddenElements ?? [],
       services: this.parseServices(model.servicesFr, model.servicesAr)
     };
   }
@@ -137278,9 +137338,15 @@ var SettingsService = class {
     const modelData = {
       ...data,
       servicesFr,
-      servicesAr
+      servicesAr,
+      // Map frontend form field names to DB column names
+      layoutTemplate: data.templateLayout,
+      useCustomLayout: data.useCustomLayout ?? false,
+      customPositions: data.customPositions ? JSON.stringify(data.customPositions) : null,
+      hiddenElements: data.hiddenElements ? JSON.stringify(data.hiddenElements) : "[]"
     };
     delete modelData.services;
+    delete modelData.templateLayout;
     const existing = await db.select().from(prescriptionModel).limit(1);
     if (existing.length === 0) {
       await db.insert(prescriptionModel).values(modelData);

@@ -75,8 +75,8 @@ export function GlobalAddAppointmentModal({
         setIsLoading(true);
 
         try {
-            const timePart = time ? time : "00:00";
-            const dateString = `${date}T${timePart}`;
+            const timePart = time || "";
+            const dateString = timePart ? `${date}T${timePart}` : date;
 
             await api.post("/appointments", {
                 patientId: Number(selectedPatientId),
