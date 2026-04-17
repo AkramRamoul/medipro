@@ -57,6 +57,9 @@ export const PrescriptionPreview: React.FC<PrescriptionPreviewProps> = ({
     // Guide lines for snapping
     const [guides, setGuides] = useState<{ x: number | null, y: number | null }>({ x: null, y: null });
 
+    // Live drag coordinate tooltip
+    const [dragCoord, setDragCoord] = useState<{ x: number; y: number } | null>(null);
+
     // Refs — no state updates needed for drag bookkeeping
     const paperRef = useRef<HTMLDivElement>(null);
     const dragging = useRef<{
@@ -117,6 +120,7 @@ export const PrescriptionPreview: React.FC<PrescriptionPreviewProps> = ({
             }
 
             setGuides({ x: guideX, y: guideY });
+            setDragCoord({ x: Math.round(newX), y: Math.round(newY) });
 
             setPositions(prev => ({
                 ...prev,
@@ -130,6 +134,7 @@ export const PrescriptionPreview: React.FC<PrescriptionPreviewProps> = ({
         const onUp = () => { 
             dragging.current = null;
             setGuides({ x: null, y: null });
+            setDragCoord(null);
         };
 
         window.addEventListener("mousemove", onMove);
@@ -208,33 +213,45 @@ export const PrescriptionPreview: React.FC<PrescriptionPreviewProps> = ({
 
     // ── Shared sub-blocks ──────────────────────────────────────────────────
     const logoPart = logoImage
-        ? <img src={logoImage} alt="Logo" className="object-contain" style={{ width: logoSizePx, height: logoSizePx }} />
-        : <div className="bg-gray-100 rounded flex items-center justify-center text-gray-400"
-               style={{ width: logoSizePx, height: logoSizePx, fontSize: "0.4rem" }}>LOGO</div>;
+        ? <img src={logoImage} alt="Logo" className="object-contain drop-shadow-sm" style={{ width: logoSizePx, height: logoSizePx }} />
+        : <div className="bg-slate-50 border border-slate-200 rounded-lg flex items-center justify-center text-slate-400 font-semibold tracking-widest shadow-sm"
+               style={{ width: logoSizePx, height: logoSizePx, fontSize: "0.5rem" }}>LOGO</div>;
 
     const frBlock = (
-        <div className="text-left">
-            <div className="font-bold leading-tight mb-0.5" style={{ color: accentColor, fontSize: doctorNameSize }}>{form.nameFr || "Nom du Docteur"}</div>
-            <div className="text-gray-600 leading-tight mb-0.5" style={{ fontSize: specialtySize }}>{form.specialtyFr || "Spécialité"}</div>
-            {services.map((s, i) => <div key={i} className="text-gray-700" style={{ fontSize: specialtySize * 0.9 }}>{s.fr}</div>)}
+        <div className="text-left flex flex-col justify-center">
+            <div className="font-bold tracking-tight mb-1 uppercase" style={{ color: accentColor, fontSize: doctorNameSize * 1.1 }}>{form.nameFr || "Nom du Docteur"}</div>
+            <div className="font-semibold mb-2 uppercase tracking-widest" style={{ fontSize: specialtySize * 0.9, color: "#475569" }}>{form.specialtyFr || "Spécialité"}</div>
+            {services.length > 0 && (
+                <div className="flex flex-col gap-0.5 border-l-[1.5px] pl-2.5 py-0.5" style={{ borderColor: `${accentColor}60` }}>
+                    {services.map((s, i) => <div key={i} className="text-slate-600 leading-tight" style={{ fontSize: specialtySize * 0.85 }}>{s.fr}</div>)}
+                </div>
+            )}
         </div>
     );
     const arBlock = (
-        <div className="text-right" dir="rtl">
-            <div className="font-bold leading-tight mb-0.5" style={{ color: accentColor, fontSize: doctorNameSize }}>{form.nameAr || "اسم الطبيب"}</div>
-            <div className="text-gray-600 leading-tight mb-0.5" style={{ fontSize: specialtySize }}>{form.specialtyAr || "التخصص"}</div>
-            {services.map((s, i) => <div key={i} className="text-gray-700" style={{ fontSize: specialtySize * 0.9 }}>{s.ar}</div>)}
+        <div className="text-right flex flex-col justify-center" dir="rtl">
+            <div className="font-extrabold tracking-tight mb-1" style={{ color: accentColor, fontSize: doctorNameSize * 1.15 }}>{form.nameAr || "اسم الطبيب"}</div>
+            <div className="font-semibold mb-2" style={{ fontSize: specialtySize * 0.95, color: "#475569" }}>{form.specialtyAr || "التخصص"}</div>
+            {services.length > 0 && (
+                <div className="flex flex-col gap-0.5 border-r-[1.5px] pr-2.5 py-0.5" style={{ borderColor: `${accentColor}60` }}>
+                    {services.map((s, i) => <div key={i} className="text-slate-600 leading-tight" style={{ fontSize: specialtySize * 0.85 }}>{s.ar}</div>)}
+                </div>
+            )}
         </div>
     );
     const logoBlock = (
-        <div className="flex flex-col items-center justify-center mt-1">
+        <div className="flex flex-col items-center justify-center shrink-0">
             {logoPart}
-            {showInscNo && <div className="text-[0.5rem] whitespace-nowrap mt-1 font-semibold" style={{ color: accentColor }}>N° Ordre : {form.inscriptionNumber || "0000"}</div>}
+            {showInscNo && (
+                <div className="mt-2 text-[0.45rem] font-medium tracking-widest uppercase px-2 py-0.5 rounded-sm" style={{ color: accentColor, backgroundColor: `${accentColor}08` }}>
+                    N° Ordre: {form.inscriptionNumber || "0000"}
+                </div>
+            )}
         </div>
     );
 
-    const minH = `${Math.max(40, logoSizePx + 10)}px`;
-    const mb   = `${Math.max(16, logoSizePx * 0.35)}px`;
+    const minH = `${Math.max(45, logoSizePx + 15)}px`;
+    const mb   = `${Math.max(20, logoSizePx * 0.4)}px`;
 
     // ── Normal-mode header (template switch) ───────────────────────────────
     const renderHeader = () => {
@@ -250,21 +267,17 @@ export const PrescriptionPreview: React.FC<PrescriptionPreviewProps> = ({
                     <div className="flex-1">{arBlock}</div>
                 </div>;
             case "fr-logo-left":
-                return <div className="flex items-stretch" style={{ marginBottom: mb, minHeight: minH }}>
-                    <div className="flex flex-col items-center justify-center px-2 shrink-0"
-                         style={{ width: logoSizePx + 16, borderRight: `2px solid ${accentColor}` }}>
-                        {logoPart}
-                        {showInscNo && <div className="text-[0.45rem] mt-1 whitespace-nowrap font-semibold" style={{ color: accentColor }}>N° Ordre : {form.inscriptionNumber || "0000"}</div>}
+                return <div className="flex items-center" style={{ marginBottom: mb, minHeight: minH }}>
+                    <div className="pr-5 shrink-0 border-r-[1.5px]" style={{ borderColor: `${accentColor}40` }}>
+                        {logoBlock}
                     </div>
-                    <div className="flex-1 flex flex-col justify-center pl-3">{frBlock}</div>
+                    <div className="flex-1 flex flex-col justify-center pl-5">{frBlock}</div>
                 </div>;
             case "ar-logo-right":
-                return <div className="flex items-stretch" style={{ marginBottom: mb, minHeight: minH }}>
-                    <div className="flex-1 flex flex-col justify-center pr-3" dir="rtl">{arBlock}</div>
-                    <div className="flex flex-col items-center justify-center px-2 shrink-0"
-                         style={{ width: logoSizePx + 16, borderLeft: `2px solid ${accentColor}` }}>
-                        {logoPart}
-                        {showInscNo && <div className="text-[0.45rem] mt-1 whitespace-nowrap font-semibold" style={{ color: accentColor }}>N° Ordre : {form.inscriptionNumber || "0000"}</div>}
+                return <div className="flex items-center" style={{ marginBottom: mb, minHeight: minH }}>
+                    <div className="flex-1 flex flex-col justify-center pr-5" dir="rtl">{arBlock}</div>
+                    <div className="pl-5 shrink-0 border-l-[1.5px]" style={{ borderColor: `${accentColor}40` }}>
+                        {logoBlock}
                     </div>
                 </div>;
             case "bilingual-logo-left":
@@ -306,18 +319,18 @@ export const PrescriptionPreview: React.FC<PrescriptionPreviewProps> = ({
     const designElements: { id: LayoutElementId; content: React.ReactNode; fullWidth?: boolean }[] = useMemo(() => [
         {
             id: "logo",
-            content: <div className="flex flex-col items-center">{logoPart}</div>,
+            content: <div className="flex flex-col items-center shrink-0">{logoPart}</div>,
         },
-        { id: "nameFr",      content: <div className="font-bold" style={{ color: accentColor, fontSize: doctorNameSize }}>{form.nameFr || "Nom du Docteur"}</div> },
-        { id: "nameAr",      content: <div className="font-bold text-right" dir="rtl" style={{ color: accentColor, fontSize: doctorNameSize }}>{form.nameAr || "اسم الطبيب"}</div> },
-        { id: "specialtyFr", content: <div style={{ fontSize: specialtySize, color: "#4b5563" }}>{form.specialtyFr || "Spécialité"}{services.map((s, i) => <div key={i} style={{ fontSize: specialtySize * 0.9 }}>{s.fr}</div>)}</div> },
-        { id: "specialtyAr", content: <div dir="rtl" className="text-right" style={{ fontSize: specialtySize, color: "#4b5563" }}>{form.specialtyAr || "التخصص"}{services.map((s, i) => <div key={i} style={{ fontSize: specialtySize * 0.9 }}>{s.ar}</div>)}</div> },
-        { id: "inscription", content: <div style={{ fontSize: "0.5rem", color: accentColor }}>N° {form.inscriptionNumber || "0000"}</div> },
-        { id: "divider",     content: <div style={{ width: "100%", borderBottom: divStyle === "double" ? "3px double #9ca3af" : `1px ${divStyle} #9ca3af` }} />, fullWidth: true },
-        { id: "title",       content: <div className="font-bold underline tracking-wider text-center" style={{ color: accentColor, fontSize: titleSize }}>{titleText}</div> },
-        { id: "patientInfo", content: <div style={{ fontSize: bodySize }}><div><strong>Nom :</strong> ................................</div><div><strong>Âge :</strong> .........</div></div> },
-        { id: "dateCity",    content: <div style={{ fontSize: bodySize }}>{form.city || "Ville"}, le : ...</div>, },
-        { id: "footer",      content: <div className="text-center text-gray-600" style={{ fontSize: "0.6rem", borderTop: "1px solid #d1d5db", paddingTop: 2 }}><div>{form.address || "Adresse"}</div><div>{form.phoneNumber1}{form.phoneNumber2 && ` | ${form.phoneNumber2}`}</div></div>, fullWidth: true },
+        { id: "nameFr",      content: <div className="font-bold tracking-tight uppercase" style={{ color: accentColor, fontSize: doctorNameSize * 1.1 }}>{form.nameFr || "Nom du Docteur"}</div> },
+        { id: "nameAr",      content: <div className="font-extrabold text-right tracking-tight" dir="rtl" style={{ color: accentColor, fontSize: doctorNameSize * 1.15 }}>{form.nameAr || "اسم الطبيب"}</div> },
+        { id: "specialtyFr", content: <div className="flex flex-col gap-1.5"><div className="font-semibold uppercase tracking-widest" style={{ fontSize: specialtySize * 0.9, color: "#475569" }}>{form.specialtyFr || "Spécialité"}</div>{services.length > 0 && <div className="flex flex-col gap-0.5 border-l-[1.5px] pl-2.5 py-0.5" style={{ borderColor: `${accentColor}60` }}>{services.map((s, i) => <div key={i} className="text-slate-600 leading-tight" style={{ fontSize: specialtySize * 0.85 }}>{s.fr}</div>)}</div>}</div> },
+        { id: "specialtyAr", content: <div className="flex flex-col gap-1.5 text-right" dir="rtl"><div className="font-semibold" style={{ fontSize: specialtySize * 0.95, color: "#475569" }}>{form.specialtyAr || "التخصص"}</div>{services.length > 0 && <div className="flex flex-col gap-0.5 border-r-[1.5px] pr-2.5 py-0.5" style={{ borderColor: `${accentColor}60` }}>{services.map((s, i) => <div key={i} className="text-slate-600 leading-tight" style={{ fontSize: specialtySize * 0.85 }}>{s.ar}</div>)}</div>}</div> },
+        { id: "inscription", content: <div className="text-[0.45rem] font-medium tracking-widest uppercase px-2 py-0.5 rounded-sm" style={{ color: accentColor, backgroundColor: `${accentColor}08`, display: 'inline-block' }}>N° Ordre: {form.inscriptionNumber || "0000"}</div> },
+        { id: "divider",     content: <div style={{ width: "100%", borderBottom: divStyle === "double" ? "3px double" : `1px ${divStyle}`, borderColor: accentColor, opacity: 0.7 }} />, fullWidth: true },
+        { id: "title",       content: <div className="font-bold tracking-[0.2em] uppercase px-4 pb-1 inline-block text-center w-full" style={{ color: accentColor, fontSize: titleSize, borderBottom: `2px solid ${accentColor}40` }}>{titleText}</div> },
+        { id: "patientInfo", content: <div className="flex flex-col gap-3 w-full" style={{ fontSize: bodySize }}><div className="flex items-end gap-2"><strong style={{ color: accentColor, fontSize: bodySize * 0.9, textTransform: "uppercase", letterSpacing: "0.05em" }}>Nom :</strong><div className="flex-1 border-b border-slate-300" style={{ height: bodySize }}></div></div><div className="flex items-end gap-2 w-[70%]"><strong style={{ color: accentColor, fontSize: bodySize * 0.9, textTransform: "uppercase", letterSpacing: "0.05em" }}>Âge :</strong><div className="flex-1 border-b border-slate-300" style={{ height: bodySize }}></div></div></div> },
+        { id: "dateCity",    content: <div className="flex items-end gap-2 w-full" style={{ fontSize: bodySize }}><span style={{ fontSize: bodySize * 0.9, color: "#475569" }}>{form.city || "Ville"}, le</span><div className="flex-1 border-b border-slate-300" style={{ height: bodySize }}></div></div>, },
+        { id: "footer",      content: <div className="text-center pt-3 border-t w-full" style={{ borderColor: `${accentColor}40` }}><div className="font-medium tracking-wide" style={{ fontSize: "0.65rem", color: "#334155" }}>{form.address || "Adresse"}</div><div className="mt-0.5" style={{ fontSize: "0.6rem", color: "#64748b" }}>Tél: <span className="font-medium">{form.phoneNumber1}</span>{form.phoneNumber2 && <span className="mx-1">|</span>}{form.phoneNumber2 && <span className="font-medium">Mob: {form.phoneNumber2}</span>}</div></div>, fullWidth: true },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     ], [form.nameFr, form.nameAr, form.specialtyFr, form.specialtyAr, form.inscriptionNumber, form.address, form.phoneNumber1, form.phoneNumber2, form.city, accentColor, doctorNameSize, specialtySize, titleSize, bodySize, divStyle, titleText, logoSizePx, showInscNo, services]);
 
@@ -453,17 +466,46 @@ export const PrescriptionPreview: React.FC<PrescriptionPreviewProps> = ({
                                 backgroundSize: "4% 4%",
                             }}
                         >
-                            {/* Guidelines */}
+                            {/* ── Simple ruler strip ── */}
+                            <div style={{
+                                position: "absolute", top: 0, left: 0, right: 0,
+                                height: 12, pointerEvents: "none", zIndex: 40,
+                                background: "rgba(15,23,42,0.55)",
+                                backdropFilter: "blur(2px)",
+                            }}>
+                                {[0, 25, 50, 75, 100].map(pct => (
+                                    <div key={pct} style={{
+                                        position: "absolute",
+                                        left: `${pct}%`,
+                                        top: 0, bottom: 0,
+                                        display: "flex", flexDirection: "column", alignItems: "center",
+                                    }}>
+                                        <div style={{ width: 1, height: pct === 50 ? 10 : 7, background: pct === 50 ? "#60a5fa" : "#94a3b8" }} />
+                                        <span style={{
+                                            position: "absolute", top: 2, left: pct === 0 ? 2 : pct === 100 ? undefined : -6,
+                                            right: pct === 100 ? 2 : undefined,
+                                            fontSize: 5.5, color: pct === 50 ? "#93c5fd" : "#94a3b8",
+                                            fontFamily: "monospace", lineHeight: 1,
+                                        }}>{pct}%</span>
+                                    </div>
+                                ))}
+                            </div>
+
+                            {/* Snap guidelines */}
                             {guides.x !== null && (
-                                <div className="absolute top-0 bottom-0 z-0 pointer-events-none" style={{ left: `${guides.x}%`, width: '1px', backgroundColor: '#e8115b', boxShadow: '0 0 3px #e8115b60' }} />
+                                <div className="absolute top-0 bottom-0 z-20 pointer-events-none" style={{ left: `${guides.x}%`, width: '1px', backgroundColor: '#e8115b', boxShadow: '0 0 4px #e8115b80' }} />
                             )}
                             {guides.y !== null && (
-                                <div className="absolute left-0 right-0 z-0 pointer-events-none" style={{ top: `${guides.y}%`, height: '1px', backgroundColor: '#e8115b', boxShadow: '0 0 3px #e8115b60' }} />
+                                <div className="absolute left-0 right-0 z-20 pointer-events-none" style={{ top: `${guides.y}%`, height: '1px', backgroundColor: '#e8115b', boxShadow: '0 0 4px #e8115b80' }} />
                             )}
+                            {/* Subtle center crosshair */}
+                            <div className="absolute top-0 bottom-0 pointer-events-none" style={{ left: '50%', width: 1, background: 'rgba(96,165,250,0.2)' }} />
+                            <div className="absolute left-0 right-0 pointer-events-none" style={{ top: '50%', height: 1, background: 'rgba(96,165,250,0.2)' }} />
 
                             {designElements.filter(({ id }) => !hidden.has(id)).map(({ id, content, fullWidth }) => {
                                 const pos = positions[id];
                                 const color = ELEMENT_COLORS[id];
+                                const isBeingDragged = dragging.current?.id === id;
                                 return (
                                     <div
                                         key={id}
@@ -475,7 +517,7 @@ export const PrescriptionPreview: React.FC<PrescriptionPreviewProps> = ({
                                             width: fullWidth ? "100%" : undefined,
                                             cursor: "grab",
                                             userSelect: "none",
-                                            zIndex: 10,
+                                            zIndex: isBeingDragged ? 50 : 10,
                                             maxWidth: fullWidth ? "100%" : "45%",
                                         }}
                                     >
@@ -514,6 +556,19 @@ export const PrescriptionPreview: React.FC<PrescriptionPreviewProps> = ({
                                         }}>
                                             {content}
                                         </div>
+                                        {/* Coordinate badge — only while dragging */}
+                                        {isBeingDragged && dragCoord && (
+                                            <div style={{
+                                                position: "absolute", top: -26, left: 0,
+                                                background: "#0f172a", color: "#f8fafc",
+                                                fontSize: 6, padding: "2px 4px", borderRadius: 3,
+                                                fontFamily: "monospace", whiteSpace: "nowrap",
+                                                pointerEvents: "none", zIndex: 60,
+                                                boxShadow: "0 1px 4px rgba(0,0,0,0.4)",
+                                            }}>
+                                                x: {dragCoord.x}% · y: {dragCoord.y}%
+                                            </div>
+                                        )}
                                     </div>
                                 );
                             })}
@@ -574,26 +629,45 @@ export const PrescriptionPreview: React.FC<PrescriptionPreviewProps> = ({
                         </div>
                     ) : (
                         // ── NORMAL TEMPLATE PREVIEW ────────────────────────
-                        <div className="p-6 h-full flex flex-col">
+                        <div className="p-6 h-full flex flex-col relative z-10" style={{ minHeight: "100%" }}>
                             {renderHeader()}
                             {divStyle !== "none" && (
-                                <div className="my-2" style={{ borderBottom: divStyle === "double" ? "3px double #9ca3af" : `1px ${divStyle} #9ca3af` }} />
+                                <div className="my-5 opacity-70" style={{ borderBottom: divStyle === "double" ? "3px double" : `1px ${divStyle}`, borderColor: accentColor }} />
                             )}
-                            <div className="flex justify-between mt-4" style={{ fontSize: bodySize }}>
-                                <div className="space-y-1">
-                                    <div><strong>Nom :</strong> ......................................</div>
-                                    <div><strong>Âge :</strong> ...........</div>
+                            
+                            <div className="flex justify-between items-start mt-4 gap-8 w-full" style={{ fontSize: bodySize }}>
+                                <div className="flex-1 flex flex-col gap-3.5">
+                                    <div className="flex items-end gap-2 w-full">
+                                        <strong style={{ color: accentColor, fontSize: bodySize * 0.9, textTransform: "uppercase", letterSpacing: "0.05em" }}>Nom :</strong>
+                                        <div className="flex-1 border-b border-slate-300" style={{ height: bodySize }}></div>
+                                    </div>
+                                    <div className="flex items-end gap-2 w-2/3">
+                                        <strong style={{ color: accentColor, fontSize: bodySize * 0.9, textTransform: "uppercase", letterSpacing: "0.05em" }}>Âge :</strong>
+                                        <div className="flex-1 border-b border-slate-300" style={{ height: bodySize }}></div>
+                                    </div>
                                 </div>
-                                <div className="text-right"><div>{form.city || "Ville"}, le : ....................</div></div>
+                                <div className="flex items-end gap-2 min-w-[35%]">
+                                    <span style={{ fontSize: bodySize * 0.9, color: "#475569" }}>{form.city || "Ville"}, le</span>
+                                    <div className="flex-1 border-b border-slate-300" style={{ height: bodySize }}></div>
+                                </div>
                             </div>
-                            <div className="text-center font-bold underline my-8 tracking-wider" style={{ color: accentColor, fontSize: titleSize }}>{titleText}</div>
-                            <div className="flex-grow space-y-4 opacity-20">
-                                <div className="h-2 w-3/4 bg-gray-300 rounded" /><div className="h-2 w-1/2 bg-gray-300 rounded ml-4" />
-                                <div className="h-2 w-2/3 bg-gray-300 rounded" /><div className="h-2 w-1/3 bg-gray-300 rounded ml-4" />
+                            
+                            <div className="w-full text-center mt-12 mb-10">
+                                <span className="font-bold tracking-[0.2em] uppercase px-6 pb-2 inline-block" style={{ color: accentColor, fontSize: titleSize, borderBottom: `2.5px solid ${accentColor}40` }}>
+                                    {titleText}
+                                </span>
                             </div>
-                            <div className="mt-auto pt-2 border-t border-gray-300 text-center text-[0.6rem] text-gray-600">
-                                <div>{form.address || "Adresse de la clinique"}</div>
-                                <div>Tél: {form.phoneNumber1 || "00 00 00 00 00"}{form.phoneNumber2 && ` | Mob: ${form.phoneNumber2}`}</div>
+
+                            {/* Mock Prescription Content */}
+                            <div className="flex-grow flex flex-col gap-7 opacity-30 px-3 mt-4">
+                                <div className="flex items-end gap-3"><div className="w-2 h-2 rounded-full border-[1.5px]" style={{ borderColor: accentColor }}></div><div className="h-0 flex-1 border-b-2 border-slate-300 border-dashed"></div></div>
+                                <div className="flex items-end gap-3"><div className="w-2 h-2 rounded-full border-[1.5px]" style={{ borderColor: accentColor }}></div><div className="h-0 w-3/4 border-b-2 border-slate-300 border-dashed"></div></div>
+                                <div className="flex items-end gap-3 mt-4"><div className="w-2 h-2 rounded-full border-[1.5px]" style={{ borderColor: accentColor }}></div><div className="h-0 flex-1 border-b-2 border-slate-300 border-dashed"></div></div>
+                            </div>
+
+                            <div className="mt-auto pt-4 border-t-[1.5px] w-full text-center" style={{ borderColor: `${accentColor}30` }}>
+                                <div className="font-medium tracking-wide" style={{ fontSize: "0.65rem", color: "#334155" }}>{form.address || "Adresse de la clinique"}</div>
+                                <div className="mt-1" style={{ fontSize: "0.6rem", color: "#64748b" }}>Tél : <span className="font-medium">{form.phoneNumber1 || "00 00 00 00 00"}</span>{form.phoneNumber2 && <span className="mx-2 font-light">|</span>}{form.phoneNumber2 && <span>Mob : <span className="font-medium">{form.phoneNumber2}</span></span>}</div>
                             </div>
                         </div>
                     )}
