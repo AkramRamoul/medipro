@@ -205,11 +205,13 @@ const SortableMedItem = memo(function SortableMedItem({
 const NewPrescriptionForm = ({
   id,
   onClose,
+  onBack,
   refreshPrescriptions,
   patient,
 }: {
   id: string;
   onClose: () => void;
+  onBack?: () => void;
   refreshPrescriptions: () => void;
   patient: Patient;
 }) => {
@@ -598,15 +600,27 @@ const NewPrescriptionForm = ({
       <Card className="border-border shadow-sm">
         <CardHeader className="pb-4">
           <div className="flex items-center justify-between mb-4">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onClose}
-              className="gap-2 text-muted-foreground hover:text-primary transition-colors"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              Retour
-            </Button>
+            {onBack ? (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onBack}
+                className="gap-2 text-muted-foreground hover:text-primary transition-colors"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                Modifier le patient
+              </Button>
+            ) : (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onClose}
+                className="gap-2 text-muted-foreground hover:text-primary transition-colors"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                Retour
+              </Button>
+            )}
           </div>
           <div className="flex items-center justify-between">
             <div>

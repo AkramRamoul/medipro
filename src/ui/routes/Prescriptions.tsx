@@ -25,6 +25,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "../components/ui/dialog";
+import { ChevronRight } from "lucide-react";
 import { useLocation } from "react-router-dom";
 import api from "../axios";
 import { X } from "lucide-react";
@@ -385,11 +386,56 @@ function Prescriptions() {
             newPrescriptionStep === 1 ? "sm:max-w-xl" : "sm:max-w-6xl",
           )}
         >
-          <DialogHeader className="p-6 pb-0">
-            <DialogTitle>Nouvelle Ordonnance</DialogTitle>
+          {/* Gradient accent top bar */}
+          <div className="h-1 w-full bg-gradient-to-r from-primary/80 via-primary to-primary/60 rounded-t-lg" />
+
+          <DialogHeader className="px-6 pt-5 pb-3">
+            <DialogTitle asChild>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+                    <Pill className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <p className="text-base font-semibold leading-none">Nouvelle Ordonnance</p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {newPrescriptionStep === 1
+                        ? "Étape 1 sur 2 — Informations patient"
+                        : "Étape 2 sur 2 — Composition de l'ordonnance"}
+                    </p>
+                  </div>
+                </div>
+                {/* Step pills */}
+                <div className="flex items-center gap-1.5 mr-6">
+                  <div
+                    className={cn(
+                      "flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold transition-all",
+                      newPrescriptionStep === 1
+                        ? "bg-primary text-primary-foreground shadow-sm"
+                        : "bg-primary/10 text-primary"
+                    )}
+                  >
+                    <span>1</span>
+                    <span className="hidden sm:inline">Patient</span>
+                  </div>
+                  <ChevronRight className="w-3.5 h-3.5 text-muted-foreground/50" />
+                  <div
+                    className={cn(
+                      "flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold transition-all",
+                      newPrescriptionStep === 2
+                        ? "bg-primary text-primary-foreground shadow-sm"
+                        : "bg-muted text-muted-foreground"
+                    )}
+                  >
+                    <span>2</span>
+                    <span className="hidden sm:inline">Médicaments</span>
+                  </div>
+                </div>
+              </div>
+            </DialogTitle>
           </DialogHeader>
 
-          <div className="p-6 pt-4">
+          <div className="px-6 pb-6 pt-0">
             <GenericPrescriptionModal
               onClose={() => setIsNewPrescriptionOpen(false)}
               refreshPrescriptions={fetchData}

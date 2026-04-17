@@ -27,7 +27,7 @@ function DeleteDocButton({ docId, children, setData }: DeleteDialogueProps) {
   const handleDelete = () => {
     setIsDeleting(true);
 
-    api.delete(`/document/${docId}`)
+    api.delete(`/documents/${docId}`)
       .then(() => {
         setData((prev) => prev.filter((item) => item.id !== Number(docId)));
         toast.success("Document supprimée avec succès");

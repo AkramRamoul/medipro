@@ -32,7 +32,7 @@ function DeleteDialogue({
   const handleDelete = () => {
     setIsDeleting(true);
 
-    api.post("/prescriptions/delete-prescription", { id: priscriptionId })
+    api.delete(`/prescriptions/${priscriptionId}`)
       .then(() => {
         setData((prev) =>
           prev.filter((item) => item.id !== Number(priscriptionId))
