@@ -20,6 +20,14 @@ const EmptyPrescriptionPrintable: React.FC<EmptyPrescriptionPrintableProps> = ({
     const origin = typeof window !== "undefined" ? window.location.origin : "";
 
     const accentColor = prescriptionModel.accentColor || "#000000";
+
+    const hexToRgba = (hex: string, alpha: number): string => {
+        const clean = hex.replace("#", "");
+        const r = parseInt(clean.slice(0, 2), 16);
+        const g = parseInt(clean.slice(2, 4), 16);
+        const b = parseInt(clean.slice(4, 6), 16);
+        return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    };
     const fontFamily = prescriptionModel.fontFamily === "sans-serif" ? "sans-serif" : "'Amiri', serif";
 
     const doctorNameFontSize = prescriptionModel.doctorNameFontSize ?? 14;
@@ -87,15 +95,15 @@ const EmptyPrescriptionPrintable: React.FC<EmptyPrescriptionPrintableProps> = ({
     .doctor-name { font-weight: bold; font-size: ${doctorNameFontSize}px; margin-bottom: 4px; color: ${accentColor}; }
     .specialty { font-size: ${specialtyFontSize}px; margin-bottom: 2px; color: #444; }
     .service { font-size: ${specialtyFontSize}px; color: #666; }
-    .services-fr { border-left: 1.5px solid ${accentColor}60; padding-left: 8px; padding-top: 2px; padding-bottom: 2px; margin-top: 2px; }
-    .services-ar { border-right: 1.5px solid ${accentColor}60; padding-right: 8px; padding-top: 2px; padding-bottom: 2px; margin-top: 2px; }
-    .inscription-badge { display: inline-block; font-size: 9px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; padding: 2px 7px; border-radius: 3px; color: ${accentColor}; background-color: ${accentColor}14; margin-top: 4px; text-align: center; }
+    .services-fr { border-left: 1.5px solid ${hexToRgba(accentColor, 0.38)}; padding-left: 8px; padding-top: 2px; padding-bottom: 2px; margin-top: 2px; }
+    .services-ar { border-right: 1.5px solid ${hexToRgba(accentColor, 0.38)}; padding-right: 8px; padding-top: 2px; padding-bottom: 2px; margin-top: 2px; }
+    .inscription-badge { display: inline-block; font-size: 9px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; padding: 2px 7px; border-radius: 3px; color: ${accentColor}; background-color: ${hexToRgba(accentColor, 0.03)}; margin-top: 4px; text-align: center; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     .inscription { font-size: 10px; margin-top: 5px; text-align: center; }
     .divider { ${dividerCSS} margin: 10px 0; width: 100%; }
     .patient-info { display: flex; justify-content: space-between; margin-top: 20px; margin-bottom: 20px; font-size: ${bodyFontSize}px; }
     .patient-details { text-align: left; }
     .document-info { text-align: right; }
-    .title { display: block; text-align: center; font-size: ${titleFontSize}px; font-weight: bold; letter-spacing: 0.2em; text-decoration: none; border-bottom: 2.5px solid ${accentColor}40; padding-bottom: 6px; margin: 10px auto 20px auto; width: fit-content; color: ${accentColor}; }
+    .title { display: block; text-align: center; font-size: ${titleFontSize}px; font-weight: bold; letter-spacing: 0.2em; text-decoration: none; border-bottom: 2.5px solid ${hexToRgba(accentColor, 0.25)}; padding-bottom: 6px; margin: 10px auto 20px auto; width: fit-content; color: ${accentColor}; }
     .footer { position: fixed; bottom: 20px; left: 0; right: 0; text-align: center; border-top: 1px solid #aaa; padding-top: 5px; font-size: 11px; }
   `;
 

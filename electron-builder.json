@@ -58,8 +58,13 @@
   },
   "win": {
     "target": [
-      "portable",
-      "msi"
+      "nsis",
+      "portable"
     ]
+  },
+  "nsis": {
+    "oneClick": false,
+    "allowToChangeInstallationDirectory": true,
+    "include": "build/installer.nsh"
   }
 }
