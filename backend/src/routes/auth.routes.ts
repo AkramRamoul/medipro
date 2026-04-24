@@ -42,6 +42,7 @@ router.post('/login', async (req, res, next) => {
             userId: user.id,
             email: user.email,
             role: user.role,
+            requiresPasswordChange: user.requires_password_change ?? false,
         });
 
         res.json({
@@ -51,6 +52,7 @@ router.post('/login', async (req, res, next) => {
                 id: user.id,
                 email: user.email,
                 role: user.role,
+                requiresPasswordChange: user.requires_password_change ?? false,
             }
         });
     } catch (error) {
@@ -93,7 +95,8 @@ router.post('/bootstrap', async (req, res, next) => {
         const data = registerSchema.parse(req.body);
         const newUser = await userService.createUser({
             ...data,
-            role: 'admin' // Force admin for bootstrap
+            role: 'admin', // Force admin for bootstrap
+            requires_password_change: true
         });
 
         res.status(201).json({
@@ -102,6 +105,7 @@ router.post('/bootstrap', async (req, res, next) => {
                 id: newUser.id,
                 email: newUser.email,
                 role: newUser.role,
+                requiresPasswordChange: true,
             }
         });
     } catch (error) {
@@ -122,6 +126,7 @@ router.get('/me', authMiddleware, async (req, res, next) => {
                 id: user.id,
                 email: user.email,
                 role: user.role,
+                requiresPasswordChange: user.requires_password_change ?? false,
             }
         });
     } catch (error) {
@@ -141,6 +146,42 @@ router.get('/accounts', async (req, res, next) => {
                 role: u.role
             }))
         );
+    } catch (error) {
+        next(error);
+    }
+});
+
+const forceResetSchema = z.object({
+    newPassword: z.string().min(6),
+});
+
+// Force password reset
+router.post('/force-reset', authMiddleware, async (req, res, next) => {
+    try {
+        const { newPassword } = forceResetSchema.parse(req.body);
+        const userId = req.user!.userId;
+        
+        await userService.forcePasswordReset(userId, newPassword);
+        const user = await userService.findById(userId);
+        if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+        
+        const token = authService.generateToken({
+            userId: user.id,
+            email: user.email,
+            role: user.role,
+            requiresPasswordChange: false,
+        });
+
+        res.json({
+            success: true,
+            token,
+            user: {
+                id: user.id,
+                email: user.email,
+                role: user.role,
+                requiresPasswordChange: false,
+            }
+        });
     } catch (error) {
         next(error);
     }

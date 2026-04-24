@@ -8,6 +8,8 @@ import {
   Document,
   expenses,
   psychotropicCounters,
+  users,
+  auth,
 } from "../src/electron/schema";
 import path from "path";
 import fs from "fs";
@@ -55,6 +57,12 @@ async function main() {
 
     await db.delete(psychotropicCounters);
     console.log("✅ Psychotropic counters cleared");
+
+    await db.delete(users);
+    console.log("✅ User accounts cleared");
+
+    await db.delete(auth);
+    console.log("✅ Auth records cleared");
 
     console.log("✨ Database successfully emptied!");
   } catch (error) {

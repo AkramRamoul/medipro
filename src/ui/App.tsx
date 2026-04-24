@@ -29,6 +29,7 @@ const PrescriptionModelForm = React.lazy(() => import("./Prescriptionsettings/Pr
 const MainAppointmentPage = React.lazy(() => import("./components/Appointment/MainAppointmentPage"));
 const ExpensesPage = React.lazy(() => import("./expenses/Page"));
 const LicenseScreen = React.lazy(() => import("./components/License/LicenseScreen"));
+const ForceResetScreen = React.lazy(() => import("./routes/ForceResetScreen"));
 
 const LoadingFallback = () => (
   <div className="flex items-center justify-center py-10 w-full h-screen">
@@ -61,6 +62,11 @@ function App() {
           <Suspense fallback={<LoadingFallback />}>
             <Routes>
               <Route path="/login" element={<LoginPage />} />
+              <Route path="/force-reset" element={
+                <RequirePassword>
+                  <ForceResetScreen />
+                </RequirePassword>
+              } />
               <Route
                 path="/"
                 element={

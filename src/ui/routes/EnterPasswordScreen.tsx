@@ -85,7 +85,11 @@ export default function LoginPage() {
       const response = await api.post("/auth/login", data);
       if (response.data.success) {
         login(response.data.token, response.data.user);
-        navigate(from, { replace: true });
+        if (response.data.user?.requiresPasswordChange) {
+          navigate("/force-reset", { replace: true });
+        } else {
+          navigate(from, { replace: true });
+        }
       }
     } catch (error: any) {
       console.error("Login failed:", error);

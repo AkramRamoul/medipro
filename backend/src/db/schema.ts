@@ -144,6 +144,7 @@ export const users = sqliteTable("users", {
   email: text("email").notNull().unique(),
   password: text("password").notNull(),
   role: text("role", { enum: ["doctor", "receptionist", "admin"] }).notNull(),
+  requires_password_change: integer("requires_password_change", { mode: "boolean" }).default(false),
   createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
 });
 

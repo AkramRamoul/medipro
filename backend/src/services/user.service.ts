@@ -26,6 +26,7 @@ export class UserService {
             email: data.email,
             password: hashedPassword,
             role: data.role,
+            requires_password_change: data.requires_password_change ?? false,
         }).returning();
         return newUser;
     }
@@ -52,6 +53,17 @@ export class UserService {
     async updateUserRole(id: number, newRole: "doctor" | "receptionist" | "admin") {
         await db.update(users)
             .set({ role: newRole })
+            .where(eq(users.id, id));
+        return { success: true };
+    }
+
+    async forcePasswordReset(id: number, newPassword: string) {
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        await db.update(users)
+            .set({ 
+                password: hashedPassword,
+                requires_password_change: false 
+            })
             .where(eq(users.id, id));
         return { success: true };
     }

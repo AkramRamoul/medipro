@@ -20,6 +20,7 @@ export interface User {
   id: number;
   email: string;
   role: Role;
+  requiresPasswordChange?: boolean;
 }
 
 const RolePermissions: Record<Role, Permission[]> = {

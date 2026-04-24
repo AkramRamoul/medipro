@@ -73284,6 +73284,7 @@ var init_schema = __esm({
       email: text("email").notNull().unique(),
       password: text("password").notNull(),
       role: text("role", { enum: ["doctor", "receptionist", "admin"] }).notNull(),
+      requires_password_change: integer("requires_password_change", { mode: "boolean" }).default(false),
       createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`)
     });
     auth = sqliteTable("auth", {
@@ -163652,6 +163653,17 @@ var authMiddleware = (req, res, next) => {
     const token = authHeader.split(" ")[1];
     const payload = authService.verifyToken(token);
     req.user = payload;
+    if (req.user.requiresPasswordChange) {
+      const allowedRoutes = ["/force-reset", "/me", "/login", "/bootstrap"];
+      const isAllowed = allowedRoutes.some((route) => req.originalUrl.includes(route));
+      if (!isAllowed) {
+        return res.status(403).json({
+          success: false,
+          message: "Password change required",
+          requirePasswordChange: true
+        });
+      }
+    }
     next();
   } catch (error48) {
     return res.status(401).json({ success: false, message: error48.message });
@@ -164911,7 +164923,8 @@ var UserService = class {
     const [newUser] = await db.insert(users).values({
       email: data.email,
       password: hashedPassword,
-      role: data.role
+      role: data.role,
+      requires_password_change: data.requires_password_change ?? false
     }).returning();
     return newUser;
   }
@@ -164932,6 +164945,14 @@ var UserService = class {
   }
   async updateUserRole(id, newRole) {
     await db.update(users).set({ role: newRole }).where(eq(users.id, id));
+    return { success: true };
+  }
+  async forcePasswordReset(id, newPassword) {
+    const hashedPassword = await bcryptjs_default.hash(newPassword, 10);
+    await db.update(users).set({
+      password: hashedPassword,
+      requires_password_change: false
+    }).where(eq(users.id, id));
     return { success: true };
   }
   // Legacy Support & License Logic
@@ -179497,7 +179518,8 @@ router9.post("/login", async (req, res, next) => {
     const token = authService.generateToken({
       userId: user.id,
       email: user.email,
-      role: user.role
+      role: user.role,
+      requiresPasswordChange: user.requires_password_change ?? false
     });
     res.json({
       success: true,
@@ -179505,7 +179527,8 @@ router9.post("/login", async (req, res, next) => {
       user: {
         id: user.id,
         email: user.email,
-        role: user.role
+        role: user.role,
+        requiresPasswordChange: user.requires_password_change ?? false
       }
     });
   } catch (error48) {
@@ -179541,15 +179564,17 @@ router9.post("/bootstrap", async (req, res, next) => {
     const data = registerSchema.parse(req.body);
     const newUser = await userService.createUser({
       ...data,
-      role: "admin"
+      role: "admin",
       // Force admin for bootstrap
+      requires_password_change: true
     });
     res.status(201).json({
       success: true,
       user: {
         id: newUser.id,
         email: newUser.email,
-        role: newUser.role
+        role: newUser.role,
+        requiresPasswordChange: true
       }
     });
   } catch (error48) {
@@ -179567,7 +179592,8 @@ router9.get("/me", authMiddleware, async (req, res, next) => {
       user: {
         id: user.id,
         email: user.email,
-        role: user.role
+        role: user.role,
+        requiresPasswordChange: user.requires_password_change ?? false
       }
     });
   } catch (error48) {
@@ -179584,6 +179610,36 @@ router9.get("/accounts", async (req, res, next) => {
         role: u.role
       }))
     );
+  } catch (error48) {
+    next(error48);
+  }
+});
+var forceResetSchema = external_exports.object({
+  newPassword: external_exports.string().min(6)
+});
+router9.post("/force-reset", authMiddleware, async (req, res, next) => {
+  try {
+    const { newPassword } = forceResetSchema.parse(req.body);
+    const userId = req.user.userId;
+    await userService.forcePasswordReset(userId, newPassword);
+    const user = await userService.findById(userId);
+    if (!user) return res.status(404).json({ success: false, message: "User not found" });
+    const token = authService.generateToken({
+      userId: user.id,
+      email: user.email,
+      role: user.role,
+      requiresPasswordChange: false
+    });
+    res.json({
+      success: true,
+      token,
+      user: {
+        id: user.id,
+        email: user.email,
+        role: user.role,
+        requiresPasswordChange: false
+      }
+    });
   } catch (error48) {
     next(error48);
   }
