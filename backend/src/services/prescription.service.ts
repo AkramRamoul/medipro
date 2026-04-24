@@ -3,6 +3,7 @@ import { prescriptions, prescriptionMedications, psychotropicCounters, patients,
 import { eq, sql, desc } from 'drizzle-orm';
 import fs from 'fs';
 import path from 'path';
+import { env } from '../config/env';
 
 export class PrescriptionService {
     async getAll() {
@@ -274,6 +275,9 @@ export class PrescriptionService {
     }
 
     private getAssetPath(filename: string) {
+        if (env.USER_DATA_PATH) {
+            return path.join(env.USER_DATA_PATH, filename);
+        }
         if (process.env.IS_PACKAGED_ELECTRON === 'true' && process.env.RESOURCES_PATH) {
             return path.join(process.env.RESOURCES_PATH, filename);
         }
@@ -299,6 +303,30 @@ export class PrescriptionService {
 
     private cachedMedications: any[] | null = null;
 
+    async getCustomMedications() {
+        const path = this.getAssetPath('custom_medications.json');
+        try {
+            if (!fs.existsSync(path)) return [];
+            const data = fs.readFileSync(path, 'utf-8');
+            return JSON.parse(data);
+        } catch (error) {
+            console.error("Failed to read custom_medications.json:", error);
+            return [];
+        }
+    }
+
+    async updateCustomMedications(meds: any[]) {
+        const path = this.getAssetPath('custom_medications.json');
+        try {
+            fs.writeFileSync(path, JSON.stringify(meds, null, 4), 'utf-8');
+            this.cachedMedications = null; // Invalidate cache
+            return { success: true };
+        } catch (error) {
+            console.error("Failed to write custom_medications.json:", error);
+            return { success: false, error: "Failed to update custom medications" };
+        }
+    }
+
     async getMedications() {
         if (this.cachedMedications) {
             return this.cachedMedications;
@@ -306,32 +334,35 @@ export class PrescriptionService {
 
         const medsPath = this.getAssetPath('meds.json');
         try {
-            if (!fs.existsSync(medsPath)) return [];
-            const data = await fs.promises.readFile(medsPath, 'utf-8');
-            const rawMedications = JSON.parse(data);
-            
             const mappedMedications: any[] = [];
-
-            for (const group of rawMedications) {
-                const dciRaw = (group.genericName || "").trim();
-                const dci = this.toTitleCase(dciRaw);
+            
+            if (fs.existsSync(medsPath)) {
+                const data = await fs.promises.readFile(medsPath, 'utf-8');
+                const rawMedications = JSON.parse(data);
                 
-                for (const variant of group.variants || []) {
-                    const brandRaw = (variant.brandName || "").trim();
-                    const dosage = (variant.dosage || "").trim();
-                    const form = this.toTitleCase((variant.form || "").trim());
+                for (const group of rawMedications) {
+                    const dciRaw = (group.genericName || "").trim();
+                    const dci = this.toTitleCase(dciRaw);
+                    
+                    for (const variant of group.variants || []) {
+                        const brandRaw = (variant.brandName || "").trim();
+                        const dosage = (variant.dosage || "").trim();
+                        const form = this.toTitleCase((variant.form || "").trim());
 
-                    mappedMedications.push({
-                        name: dci,
-                        form,
-                        dosage,
-                        note: "",
-                        quantity: "",
-                        duration: "",
-                    });
+                        mappedMedications.push({
+                            name: dci,
+                            form,
+                            dosage,
+                            note: "",
+                            quantity: "",
+                            duration: "",
+                        });
+                    }
                 }
             }
 
+            const customMeds = await this.getCustomMedications();
+            
             // De-duplicate results
             const uniqueMeds = new Map();
             mappedMedications.forEach((med: any) => {
@@ -339,6 +370,12 @@ export class PrescriptionService {
                 if (!uniqueMeds.has(key)) {
                     uniqueMeds.set(key, med);
                 }
+            });
+
+            customMeds.forEach((med: any) => {
+                const key = `${med.name}|${med.form}|${med.dosage}`;
+                // Overwrite or append
+                uniqueMeds.set(key, med);
             });
 
             this.cachedMedications = Array.from(uniqueMeds.values());

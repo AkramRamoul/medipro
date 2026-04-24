@@ -7,7 +7,8 @@ import {
   FlaskConical,
   Activity,
   Layout,
-  ShieldCheck
+  ShieldCheck,
+  Pill
 } from "lucide-react";
 import DatabaseSettings from "./DataBaseSettings";
 import PrescriptionTemplatesSettings from "./PrescriptionTemplatesSettings";
@@ -17,6 +18,7 @@ import BilanTemplatesSettings from "./BilanTemplatesSettings";
 import DiagnosticListSettings from "./ConsultationListSettings";
 import ExamFormsSettings from "./ExamFormsSettings";
 import UserManagement from "./UserManagement";
+import MedicationListSettings from "./MedicationListSettings";
 import { useAuth } from "../../context/auth-context";
 
 function Settings() {
@@ -74,6 +76,10 @@ function Settings() {
                     <FlaskConical className="w-4 h-4" />
                     <span className="text-sm font-medium">Catalogue Analyses</span>
                   </TabsTrigger>
+                  <TabsTrigger value="medications" className="flex items-center gap-3 px-4 py-3 w-full justify-start text-muted-foreground data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:font-semibold transition-all rounded-xl border border-transparent hover:bg-muted/50 group">
+                    <Pill className="w-4 h-4" />
+                    <span className="text-sm font-medium">Catalogue Médicaments</span>
+                  </TabsTrigger>
                   <TabsTrigger value="bilan-templates" className="flex items-center gap-3 px-4 py-3 w-full justify-start text-muted-foreground data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:font-semibold transition-all rounded-xl border border-transparent hover:bg-muted/50 group">
                     <ClipboardList className="w-4 h-4" />
                     <span className="text-sm font-medium">Modèles de Bilans</span>
@@ -113,6 +119,9 @@ function Settings() {
                 </TabsContent>
                 <TabsContent value="bilans" className="mt-0 border-none outline-none focus-visible:ring-0">
                   <BilanListSettings />
+                </TabsContent>
+                <TabsContent value="medications" className="mt-0 border-none outline-none focus-visible:ring-0">
+                  <MedicationListSettings />
                 </TabsContent>
                 <TabsContent value="bilan-templates" className="mt-0 border-none outline-none focus-visible:ring-0">
                   <BilanTemplatesSettings />

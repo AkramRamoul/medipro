@@ -26,6 +26,26 @@ router.get('/medications', authorize('VIEW_PRESCRIPTIONS'), async (req, res, nex
     }
 });
 
+// Get custom medications
+router.get('/custom-medications', authorize('MANAGE_SETTINGS'), async (req, res, next) => {
+    try {
+        const medications = await prescriptionService.getCustomMedications();
+        res.json(medications);
+    } catch (error) {
+        next(error);
+    }
+});
+
+// Update custom medications
+router.post('/custom-medications', authorize('MANAGE_SETTINGS'), async (req, res, next) => {
+    try {
+        const result = await prescriptionService.updateCustomMedications(req.body);
+        res.json(result);
+    } catch (error) {
+        next(error);
+    }
+});
+
 // Get next psychotropic number
 router.get('/next-psychotropic', authorize('CREATE_PRESCRIPTIONS'), async (req, res, next) => {
     try {
