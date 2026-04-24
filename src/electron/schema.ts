@@ -36,7 +36,6 @@ export const consultations = sqliteTable("consultations", {
   weight: text("weight"),
   amountPaid: integer("amount_paid"),
   customFields: text("custom_fields", { mode: "json" })
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     .$type<Record<string, any>>()
     .default(sql`'{}'`),
   appointmentId: integer("appointment_id")
@@ -54,22 +53,19 @@ export const consultations = sqliteTable("consultations", {
 export const customFields = sqliteTable("custom_fields", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   name: text("name").notNull(),
-  type: text("type").notNull(), // text, number, date
+  type: text("type").notNull(),
   label: text("label").notNull(),
   isActive: integer("is_active", { mode: "boolean" }).default(true),
 });
 
 export const prescriptions = sqliteTable("prescriptions", {
   id: integer("id").primaryKey({ autoIncrement: true }),
-
   patientId: integer("patient_id")
     .notNull()
     .references(() => patients.id, { onDelete: "cascade" }),
   prescriptionDate: text("prescription_date").notNull().default(sql`CURRENT_TIMESTAMP`),
   createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
-  is_psychotropic: integer("is_psychotropic", { mode: "boolean" }).default(
-    false,
-  ),
+  is_psychotropic: integer("is_psychotropic", { mode: "boolean" }).default(false),
   psychotropic_number: integer("psychotropic_number"),
   patient_address: text("patient_address"),
 }, (table) => ({
@@ -91,7 +87,7 @@ export const prescriptionMedications = sqliteTable("prescription_medications", {
 });
 
 export const image = sqliteTable("image", {
-  imagePath: text("image_path"),
+  image_path: text("image_path").notNull(),
 });
 
 export const prescriptionModel = sqliteTable("prescription_model", {
@@ -119,8 +115,12 @@ export const prescriptionModel = sqliteTable("prescription_model", {
   titleText: text("title_text").default("ORDONNANCE"),
   showInscriptionNumber: integer("show_inscription_number", { mode: "boolean" }).default(true),
   layoutTemplate: text("layout_template").default("standard"),
-  languageMode: text("language_mode").default("bilingual"), // 'bilingual', 'fr', 'ar'
+  languageMode: text("language_mode").default("bilingual"),
+  useCustomLayout: integer("use_custom_layout", { mode: "boolean" }).default(false),
+  customPositions: text("custom_positions", { mode: "json" }).$type<any>(),
+  hiddenElements: text("hidden_elements", { mode: "json" }).$type<string[]>(),
 });
+
 export const psychotropicCounters = sqliteTable("psychotropic_counters", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   created_at: text("created_at").default(sql`CURRENT_TIMESTAMP`),
@@ -144,6 +144,7 @@ export const users = sqliteTable("users", {
   email: text("email").notNull().unique(),
   password: text("password").notNull(),
   role: text("role", { enum: ["doctor", "receptionist", "admin"] }).notNull(),
+  requires_password_change: integer("requires_password_change", { mode: "boolean" }).default(false),
   createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
 });
 
@@ -167,7 +168,6 @@ export const Document = sqliteTable("document", {
   name: text("name"),
   type: text("type", { enum: docTypeEnums }).notNull(),
   content: text("content", { mode: "json" })
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     .$type<any>()
     .default(sql`'[]'`),
   documentDate: text("document_date").notNull().default(sql`CURRENT_TIMESTAMP`),
@@ -229,7 +229,7 @@ export const expenses = sqliteTable("expenses", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   description: text("description").notNull(),
   amount: integer("amount").notNull(),
-  category: text("category").notNull(), // 'supplies', 'rent', 'staff', 'other'
+  category: text("category").notNull(),
   date: text("date").default(sql`CURRENT_TIMESTAMP`),
 }, (table) => ({
   dateIdx: index("expense_date_idx").on(table.date),

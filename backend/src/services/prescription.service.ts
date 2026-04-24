@@ -351,6 +351,7 @@ export class PrescriptionService {
 
                         mappedMedications.push({
                             name: dci,
+                            brandName: brandRaw,
                             form,
                             dosage,
                             note: "",
@@ -366,14 +367,14 @@ export class PrescriptionService {
             // De-duplicate results
             const uniqueMeds = new Map();
             mappedMedications.forEach((med: any) => {
-                const key = `${med.name}|${med.form}|${med.dosage}`;
+                const key = `${med.name}|${med.brandName}|${med.form}|${med.dosage}`;
                 if (!uniqueMeds.has(key)) {
                     uniqueMeds.set(key, med);
                 }
             });
 
             customMeds.forEach((med: any) => {
-                const key = `${med.name}|${med.form}|${med.dosage}`;
+                const key = `${med.name}|${med.brandName}|${med.form}|${med.dosage}`;
                 // Overwrite or append
                 uniqueMeds.set(key, med);
             });

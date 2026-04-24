@@ -30,8 +30,9 @@ const seedInitialData = async () => {
                 email: bootstrap.default.email,
                 password: hashedPassword,
                 role: 'admin',
+                requires_password_change: true,
             });
-            console.log(`✅ Admin account created: ${bootstrap.default.email}`);
+            console.log(`✅ Admin account created: ${bootstrap.default.email} with forced password reset.`);
         }
 
         // Check and seed Document Templates
@@ -200,3 +201,4 @@ export async function reinitializeDb() {
     await seedInitialData();
     console.log('✅ Database connection restored successfully.');
 }
+// Trigger restart 2

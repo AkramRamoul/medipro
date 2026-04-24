@@ -11,6 +11,7 @@ import api from "../../axios";
 interface Medication {
   id?: number;
   name: string;
+  brandName?: string;
   form: string;
   dosage: string;
   quantity?: string;
@@ -97,10 +98,16 @@ const PrescriptionTemplatesSettings: React.FC = () => {
       const scored = medications
         .map((med) => {
           const nameLower = med.name.toLowerCase();
+          const brandLower = (med.brandName || "").toLowerCase();
           let score = 0;
+          // Match on generic name (DCI)
           if (nameLower === lower) score = 1000;
           else if (nameLower.startsWith(lower)) score = 500;
           else if (words.every((word) => nameLower.includes(word))) score = 100;
+          // Match on brand name (NOM DE MARQUE)
+          else if (brandLower === lower) score = 950;
+          else if (brandLower.startsWith(lower)) score = 450;
+          else if (words.every((word) => brandLower.includes(word))) score = 90;
           else return null;
           score += Math.max(0, 50 - med.name.length);
           return { med, score };
@@ -127,7 +134,7 @@ const PrescriptionTemplatesSettings: React.FC = () => {
 
   const handleSuggestionClick = (med: Medication) => {
     setSelectedMed(med);
-    setInputValue(med.name);
+    setInputValue(med.brandName || med.name);
     setDosage(med.dosage || "");
     setForm(med.form || "");
     setSuggestions([]);
@@ -177,7 +184,11 @@ const PrescriptionTemplatesSettings: React.FC = () => {
     setNote(med.note || "");
     setEditingMedIndex(index);
     
-    const match = medications.find(m => m.name.toLowerCase() === med.medicineName.toLowerCase());
+    const match = medications.find(
+      (m) =>
+        m.name.toLowerCase() === med.medicineName.toLowerCase() ||
+        (m.brandName && m.brandName.toLowerCase() === med.medicineName.toLowerCase())
+    );
     setSelectedMed(match || null);
     setSuggestions([]);
   };
@@ -321,7 +332,13 @@ const PrescriptionTemplatesSettings: React.FC = () => {
                       className="px-3 py-2 text-sm cursor-pointer hover:bg-accent hover:text-accent-foreground"
                       onClick={() => handleSuggestionClick(med)}
                     >
-                      {med.name} - {med.dosage}
+                      <div className="font-medium">{med.brandName || med.name}</div>
+                      {med.brandName && med.brandName.toLowerCase() !== med.name.toLowerCase() && (
+                        <div className="text-xs text-primary/70">{med.name}</div>
+                      )}
+                      {med.dosage && (
+                        <div className="text-xs text-muted-foreground">{med.dosage}</div>
+                      )}
                     </div>
                   ))}
                 </div>
