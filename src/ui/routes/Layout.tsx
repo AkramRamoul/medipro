@@ -13,7 +13,7 @@ const Layout = () => {
     <div className="flex">
       <SidebarProvider defaultOpen={true}>
         <AppSidebar />
-        <main className="flex-1 dark:bg-background">
+        <main className="flex-1 min-w-0 dark:bg-background">
           <div className="sticky top-0 z-10 flex items-center justify-between p-2 bg-background border-b border-border">
             <div className="flex items-center gap-2">
               <SidebarTrigger />

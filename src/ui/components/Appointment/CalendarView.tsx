@@ -411,35 +411,37 @@ export function CalendarView() {
             </div>
 
             {/* Calendar */}
-            <div className="flex-1 bg-card rounded-xl border border-border/50 shadow-sm p-4 min-h-[580px]">
-                {isLoading ? (
-                    <div className="h-full flex items-center justify-center">
-                        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                    </div>
-                ) : (
-                    <Calendar
-                        localizer={localizer}
-                        events={events}
-                        startAccessor="start"
-                        endAccessor="end"
-                        style={{ height: "100%" }}
-                        messages={messages}
-                        culture="fr-FR"
-                        selectable
-                        onSelectSlot={handleSelectSlot}
-                        onSelectEvent={handleSelectEvent}
-                        eventPropGetter={eventStyleGetter}
-                        views={["month", "week", "day", "agenda"]}
-                        view={view}
-                        onView={setView}
-                        date={date}
-                        onNavigate={onNavigate}
-                        className="text-sm font-sans"
-                        components={{
-                            toolbar: CustomToolbar,
-                        }}
-                    />
-                )}
+            <div className="flex-1 bg-card rounded-xl border border-border/50 shadow-sm p-4 min-h-[580px] overflow-x-auto">
+                <div className="min-w-[800px] h-full">
+                    {isLoading ? (
+                        <div className="h-full flex items-center justify-center">
+                            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                        </div>
+                    ) : (
+                        <Calendar
+                            localizer={localizer}
+                            events={events}
+                            startAccessor="start"
+                            endAccessor="end"
+                            style={{ height: "100%" }}
+                            messages={messages}
+                            culture="fr-FR"
+                            selectable
+                            onSelectSlot={handleSelectSlot}
+                            onSelectEvent={handleSelectEvent}
+                            eventPropGetter={eventStyleGetter}
+                            views={["month", "week", "day", "agenda"]}
+                            view={view}
+                            onView={setView}
+                            date={date}
+                            onNavigate={onNavigate}
+                            className="text-sm font-sans"
+                            components={{
+                                toolbar: CustomToolbar,
+                            }}
+                        />
+                    )}
+                </div>
             </div>
 
             {/* Legend */}

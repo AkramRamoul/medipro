@@ -272,47 +272,47 @@ export function Today() {
             {/* Summary Cards */}
             <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
                 <Card className="group bg-blue-50 border-blue-100 dark:bg-blue-950/40 dark:border-blue-900/40 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 p-4 pb-2">
                         <CardTitle className="text-sm font-semibold text-blue-700 dark:text-blue-300">Total Rendez-vous</CardTitle>
                         <div className="p-2 bg-blue-100 dark:bg-blue-900/50 rounded-lg group-hover:scale-110 transition-transform">
-                            <Users className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                            <Users className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                         </div>
                     </CardHeader>
-                    <CardContent>
-                        <div className="text-3xl font-bold text-blue-950 dark:text-blue-100">{stats.total}</div>
+                    <CardContent className="p-4 pt-0">
+                        <div className="text-2xl font-bold text-blue-950 dark:text-blue-100">{stats.total}</div>
                     </CardContent>
                 </Card>
                 <Card className="group bg-amber-50 border-amber-100 dark:bg-amber-950/40 dark:border-amber-900/40 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 p-4 pb-2">
                         <CardTitle className="text-sm font-semibold text-amber-700 dark:text-amber-300">En Attente</CardTitle>
                         <div className="p-2 bg-amber-100 dark:bg-amber-900/50 rounded-lg group-hover:scale-110 transition-transform">
-                            <Timer className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+                            <Timer className="h-4 w-4 text-amber-600 dark:text-amber-400" />
                         </div>
                     </CardHeader>
-                    <CardContent>
-                        <div className="text-3xl font-bold text-amber-950 dark:text-amber-100">{stats.waiting}</div>
+                    <CardContent className="p-4 pt-0">
+                        <div className="text-2xl font-bold text-amber-950 dark:text-amber-100">{stats.waiting}</div>
                     </CardContent>
                 </Card>
                 <Card className="group bg-indigo-50 border-indigo-100 dark:bg-indigo-950/40 dark:border-indigo-900/40 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 p-4 pb-2">
                         <CardTitle className="text-sm font-semibold text-indigo-700 dark:text-indigo-300">En Consultation</CardTitle>
                         <div className="p-2 bg-indigo-100 dark:bg-indigo-900/50 rounded-lg group-hover:scale-110 transition-transform">
-                            <Play className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+                            <Play className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
                         </div>
                     </CardHeader>
-                    <CardContent>
-                        <div className="text-3xl font-bold text-indigo-950 dark:text-indigo-100">{stats.inConsultation}</div>
+                    <CardContent className="p-4 pt-0">
+                        <div className="text-2xl font-bold text-indigo-950 dark:text-indigo-100">{stats.inConsultation}</div>
                     </CardContent>
                 </Card>
                 <Card className="group bg-emerald-50 border-emerald-100 dark:bg-emerald-950/40 dark:border-emerald-900/40 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 p-4 pb-2">
                         <CardTitle className="text-sm font-semibold text-emerald-700 dark:text-emerald-300">Terminés</CardTitle>
                         <div className="p-2 bg-emerald-100 dark:bg-emerald-900/50 rounded-lg group-hover:scale-110 transition-transform">
-                            <CheckCircle2 className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+                            <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
                         </div>
                     </CardHeader>
-                    <CardContent>
-                        <div className="text-3xl font-bold text-emerald-950 dark:text-emerald-100">{stats.completed}</div>
+                    <CardContent className="p-4 pt-0">
+                        <div className="text-2xl font-bold text-emerald-950 dark:text-emerald-100">{stats.completed}</div>
                     </CardContent>
                 </Card>
             </div>
@@ -356,7 +356,7 @@ export function Today() {
                             </div>
                         ) : (
                             <Table>
-                                <TableHeader className="bg-slate-50 dark:bg-slate-900/50">
+                                <TableHeader>
                                     <TableRow>
                                         <TableHead className="w-[120px] font-semibold">Heure</TableHead>
                                         <TableHead className="font-semibold">Patient</TableHead>
@@ -437,7 +437,7 @@ export function Today() {
                             </div>
                         ) : (
                             <Table>
-                                <TableHeader className="bg-slate-50 dark:bg-slate-900/50">
+                                <TableHeader>
                                     <TableRow>
                                         <TableHead className="w-[120px] font-semibold">Heure</TableHead>
                                         <TableHead className="font-semibold">Patient</TableHead>
@@ -501,7 +501,7 @@ export function Today() {
                             </div>
                         ) : (
                             <Table>
-                                <TableHeader className="bg-slate-50 dark:bg-slate-900/50">
+                                <TableHeader>
                                     <TableRow>
                                         <TableHead className="w-[120px] font-semibold">Heure</TableHead>
                                         <TableHead className="font-semibold">Patient</TableHead>
@@ -564,7 +564,7 @@ export function Today() {
                             </div>
                         ) : (
                             <Table>
-                                <TableHeader className="bg-slate-50 dark:bg-slate-900/50">
+                                <TableHeader>
                                     <TableRow>
                                         <TableHead className="w-[120px] font-semibold">Heure</TableHead>
                                         <TableHead className="font-semibold">Patient</TableHead>
@@ -607,7 +607,7 @@ export function Today() {
                             </div>
                         ) : (
                             <Table>
-                                <TableHeader className="bg-slate-50 dark:bg-slate-900/50">
+                                <TableHeader>
                                     <TableRow>
                                         <TableHead className="w-[120px] font-semibold">Heure/Date</TableHead>
                                         <TableHead className="font-semibold">Patient</TableHead>
