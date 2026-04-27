@@ -14,12 +14,17 @@ import { ExpenseBreakdown as ExpenseBreakdownType } from "../type";
 
 const CATEGORY_TRANSLATIONS: Record<string, string> = {
   'supplies': 'Fournitures',
-  'rent': 'Loyer / Factures',
+  'rent': 'Loyer',
+  'utilities': 'Factures',
+  'maintenance': 'Entretien',
+  'marketing': 'Marketing',
+  'insurance': 'Assurance',
   'staff': 'Personnel',
   'other': 'Autre'
 };
 
-const translateCategory = (category: string) => CATEGORY_TRANSLATIONS[category] || category;
+const translateCategory = (category: string) => 
+  CATEGORY_TRANSLATIONS[category.toLowerCase()] || category;
 
 export function ExpenseBreakdown() {
   const [data, setData] = useState<ExpenseBreakdownType[]>([]);

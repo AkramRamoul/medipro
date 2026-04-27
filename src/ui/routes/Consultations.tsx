@@ -208,7 +208,7 @@ function Page() {
             </div>
           ) : (
             <Table>
-              <TableHeader className="bg-muted/50">
+              <TableHeader>
                 <TableRow>
                   <TableHead className="w-[180px]">
                     <div className="flex items-center gap-2">
@@ -243,7 +243,7 @@ function Page() {
                       onClick={() => {
                         setSelectedPrescriptionId(consultation.id.toString());
                       }}
-                      className=" hover:bg-white/[0.04] odd:bg-white/[0.02] transition-colors cursor-pointer"
+                      className="cursor-pointer"
                     >
                       <TableCell className="font-semibold">
                         {consultation.patient?.first_name || "N/A"}{" "}

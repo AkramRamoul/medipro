@@ -204,7 +204,7 @@ function MainPrescriptionPage({
           </div>
 
           <Table>
-            <TableHeader className="bg-muted/50">
+            <TableHeader>
               <TableRow>
                 <TableHead className="w-[30%]">
                   <div className="flex items-center gap-2">

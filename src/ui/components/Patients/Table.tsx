@@ -95,10 +95,7 @@ function PatientsTable({
   >("createdAt");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [showArchived, setShowArchived] = useState(false);
-  const [date, setDate] = useState<DateRange | undefined>({
-    from: new Date(),
-    to: new Date(),
-  })
+  const [date, setDate] = useState<DateRange | undefined>(undefined)
 
   // Advanced Filters
   const [genderFilter, setGenderFilter] = useState<string>("all");
@@ -181,11 +178,21 @@ function PatientsTable({
       );
     })
 
-  // Stats calculation
-  const totalFiltered = filteredData.length;
-  const maleCount = filteredData.filter(p => p.gender === "Male").length;
-  const femaleCount = filteredData.filter(p => p.gender === "Female").length;
-  const avgAge = Math.round(filteredData.reduce((acc, p) => acc + (p.age || 0), 0) / (totalFiltered || 1));
+  // Stats calculation — based on ALL patients (not affected by search/date/archive filters)
+  // This matches the dashboard's statistics
+  const totalFiltered = patients.length;
+  
+  const maleCount = patients.filter(p => {
+    const g = (p.gender || "").toLowerCase();
+    return g === "male" || g === "m" || g === "homme";
+  }).length;
+  
+  const femaleCount = patients.filter(p => {
+    const g = (p.gender || "").toLowerCase();
+    return g === "female" || g === "f" || g === "femme";
+  }).length;
+  
+  const avgAge = Math.round(patients.reduce((acc, p) => acc + (p.age || 0), 0) / (patients.length || 1));
 
   const sortedData = [...filteredData].sort((a, b) => {
     // ... existing sort logic ...
@@ -527,9 +534,9 @@ function PatientsTable({
           <TooltipProvider>
             <Table className="min-w-[600px] w-full">
               <TableHeader>
-                <TableRow className="bg-muted rounded-lg">
+                <TableRow>
                   <TableHead
-                    className="text-muted-foreground text-left cursor-pointer select-none"
+                    className="text-left cursor-pointer select-none"
                     onClick={() => handleSort("name")}
                   >
                     <span className="flex items-center">
@@ -537,12 +544,12 @@ function PatientsTable({
                     </span>
                   </TableHead>
 
-                  <TableHead className="text-muted-foreground">
+                  <TableHead>
                     Contact
                   </TableHead>
 
                   <TableHead
-                    className="text-muted-foreground text-right cursor-pointer select-none w-[200px]"
+                    className="text-right cursor-pointer select-none w-[200px]"
                     onClick={() => handleSort("lastVisit")}
                   >
                     <span className="flex items-center">
@@ -551,7 +558,7 @@ function PatientsTable({
                     </span>
                   </TableHead>
 
-                  <TableHead className="text-muted-foreground text-right w-[60px]">
+                  <TableHead className="text-right w-[60px]">
                     Actions
                   </TableHead>
                 </TableRow>

@@ -57,7 +57,7 @@ async function seedDashboard() {
 
     // 4. Seed Expenses
     console.log('💸 Seeding 20 expenses...');
-    const expenseCategories = ['Rent', 'Supplies', 'Utilities', 'Maintenance', 'Marketing', 'Insurance'];
+    const expenseCategories = ['Loyer', 'Fournitures', 'Factures', 'Entretien', 'Marketing', 'Assurance'];
     for (let i = 0; i < 20; i++) {
         const randomDate = subDays(new Date(), faker.number.int({ min: 0, max: 30 }));
         await db.insert(expenses).values({

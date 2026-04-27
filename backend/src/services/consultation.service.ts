@@ -303,11 +303,17 @@ export class ConsultationService {
                 .from(consultations)
                 .groupBy(consultations.patientId),
             db.select({
-                gender: patients.gender,
+                gender: sql<string>`case 
+                    when lower(${patients.gender}) in ('male', 'm', 'homme') then 'male'
+                    when lower(${patients.gender}) in ('female', 'f', 'femme') then 'female'
+                    else 'other' end`,
                 count: sql<number>`count(*)`
             })
                 .from(patients)
-                .groupBy(patients.gender),
+                .groupBy(sql`case 
+                    when lower(${patients.gender}) in ('male', 'm', 'homme') then 'male'
+                    when lower(${patients.gender}) in ('female', 'f', 'femme') then 'female'
+                    else 'other' end`),
             db.select({
                 ageGroup: sql<string>`case 
                     when age < 18 then 'Pédiatrie'

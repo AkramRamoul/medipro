@@ -1,4 +1,5 @@
 import React, { useRef, useState, useEffect, useMemo } from "react";
+import { createPortal } from "react-dom";
 import { ZoomIn, ZoomOut, RotateCcw, Pencil, Check, X, RefreshCw, Move, Eye } from "lucide-react";
 import type { TemplateLayout, LayoutElementId, CustomPositions } from "./types";
 import { DEFAULT_ELEMENT_POSITIONS, ELEMENT_LABELS, ELEMENT_COLORS } from "./types";
@@ -334,6 +335,18 @@ export const PrescriptionPreview: React.FC<PrescriptionPreviewProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
     ], [form.nameFr, form.nameAr, form.specialtyFr, form.specialtyAr, form.inscriptionNumber, form.address, form.phoneNumber1, form.phoneNumber2, form.city, accentColor, doctorNameSize, specialtySize, titleSize, bodySize, divStyle, titleText, logoSizePx, showInscNo, services]);
 
+    const isLayoutCustomized = useMemo(() => {
+        if (activeUseCustomLayout) return true;
+        if (hidden.size > 0) return true;
+        for (const key in DEFAULT_ELEMENT_POSITIONS) {
+            const id = key as LayoutElementId;
+            if (positions[id] && (positions[id].x !== DEFAULT_ELEMENT_POSITIONS[id].x || positions[id].y !== DEFAULT_ELEMENT_POSITIONS[id].y)) {
+                return true;
+            }
+        }
+        return false;
+    }, [activeUseCustomLayout, hidden, positions]);
+
     return (
         <div className="sticky top-8">
             <style>{`@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=Merriweather:wght@400;700&family=Montserrat:wght@400;600;700&family=Playfair+Display:wght@400;600;700&family=Roboto:wght@400;500;700&display=swap');`}</style>
@@ -343,7 +356,12 @@ export const PrescriptionPreview: React.FC<PrescriptionPreviewProps> = ({
                 <h3 className="text-lg font-semibold">Aperçu en direct</h3>
                 <div className="flex items-center gap-1.5">
                     <button type="button" onClick={() => setShowResetConfirm(true)} title="Tout réinitialiser"
-                        className="p-1.5 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 hover:bg-gray-100 transition-colors text-amber-600">
+                        disabled={!isLayoutCustomized}
+                        className={`p-1.5 rounded border transition-colors ${
+                            isLayoutCustomized
+                                ? "border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 hover:bg-gray-100 text-amber-600"
+                                : "border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-400 cursor-not-allowed"
+                        }`}>
                         <RefreshCw className="w-4 h-4" />
                     </button>
 
@@ -368,8 +386,8 @@ export const PrescriptionPreview: React.FC<PrescriptionPreviewProps> = ({
             </div>
 
             {/* Reset-to-normal confirmation dialog */}
-            {showResetConfirm && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+            {showResetConfirm && typeof document !== "undefined" && createPortal(
+                <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40">
                     <div className="bg-white dark:bg-gray-900 rounded-xl shadow-2xl p-6 max-w-sm w-full mx-4 border border-amber-200">
                         <div className="flex items-center gap-3 mb-3">
                             <div className="w-9 h-9 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0">
@@ -404,7 +422,8 @@ export const PrescriptionPreview: React.FC<PrescriptionPreviewProps> = ({
                             </button>
                         </div>
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
 
             {isDesignMode && (

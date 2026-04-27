@@ -135,10 +135,6 @@ export function PrescriptionModelForm() {
   const watchedValues = watch();
   const debouncedForm = useDebounce(watchedValues, 300);
 
-  const handleReset = () => {
-    reset({ ...DEFAULT_FORM, services: DEFAULT_SERVICES });
-    setIsDirty(true);
-  };
 
   const handleReload = () => {
     if (modelData?.success && modelData.model) {
@@ -220,11 +216,7 @@ export function PrescriptionModelForm() {
             </span>
           ) : null}
 
-          <Button type="button" variant="ghost" size="sm" onClick={handleReset}
-            disabled={isSaving} className="gap-1.5" title="Réinitialiser aux valeurs par défaut">
-            <RotateCcw className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Réinitialiser</span>
-          </Button>
+
           <Button type="button" variant="outline" size="sm" onClick={handleReload}
             disabled={isSaving} className="gap-1.5" title="Recharger les données enregistrées">
             <RefreshCw className="w-3.5 h-3.5" />

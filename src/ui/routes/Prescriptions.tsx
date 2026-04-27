@@ -262,7 +262,7 @@ function Prescriptions() {
             </div>
           ) : (
             <Table>
-              <TableHeader className="bg-muted/60 border-b border-white/10 backdrop-blur">
+              <TableHeader>
                 <TableRow>
                   <TableHead className="w-[30%]">
                     <div className="flex items-center gap-2">
@@ -290,7 +290,7 @@ function Prescriptions() {
                     <TableRow
                       key={prescription.id}
                       onClick={() => setSelectedPrescription(prescription)}
-                      className=" hover:bg-white/[0.04] odd:bg-white/[0.02] transition-colors cursor-pointer"
+                      className="cursor-pointer"
                     >
                       <TableCell className="font-semibold">
                         {prescription.patient?.first_name || "N/A"}
