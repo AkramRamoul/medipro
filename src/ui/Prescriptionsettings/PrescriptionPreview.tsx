@@ -327,11 +327,11 @@ export const PrescriptionPreview: React.FC<PrescriptionPreviewProps> = ({
         { id: "specialtyFr", content: <div className="flex flex-col gap-1.5"><div className="font-semibold uppercase tracking-widest" style={{ fontSize: specialtySize * 0.9, color: "#475569" }}>{form.specialtyFr || "Spécialité"}</div>{services.length > 0 && <div className="flex flex-col gap-0.5 border-l-[1.5px] pl-2.5 py-0.5" style={{ borderColor: `${accentColor}60` }}>{services.map((s, i) => <div key={i} className="text-slate-600 leading-tight" style={{ fontSize: specialtySize * 0.85 }}>{s.fr}</div>)}</div>}</div> },
         { id: "specialtyAr", content: <div className="flex flex-col gap-1.5 text-right" dir="rtl"><div className="font-semibold" style={{ fontSize: specialtySize * 0.95, color: "#475569" }}>{form.specialtyAr || "التخصص"}</div>{services.length > 0 && <div className="flex flex-col gap-0.5 border-r-[1.5px] pr-2.5 py-0.5" style={{ borderColor: `${accentColor}60` }}>{services.map((s, i) => <div key={i} className="text-slate-600 leading-tight" style={{ fontSize: specialtySize * 0.85 }}>{s.ar}</div>)}</div>}</div> },
         { id: "inscription", content: <div className="text-[0.45rem] font-medium tracking-widest uppercase px-2 py-0.5 rounded-sm" style={{ color: accentColor, backgroundColor: `${accentColor}08`, display: 'inline-block', WebkitPrintColorAdjust: "exact", printColorAdjust: "exact" }}>N° Ordre: {form.inscriptionNumber || "0000"}</div> },
-        { id: "divider",     content: <div style={{ width: "100%", borderBottom: divStyle === "double" ? "3px double" : `1px ${divStyle}`, borderColor: accentColor, opacity: 0.7 }} />, fullWidth: true },
-        { id: "title",       content: <div className="font-bold tracking-[0.2em] uppercase px-4 pb-1 inline-block text-center w-full" style={{ color: accentColor, fontSize: titleSize, borderBottom: `2px solid ${accentColor}40` }}>{titleText}</div> },
+        { id: "divider",     content: <div style={{ width: "100%", borderBottom: divStyle === "double" ? "2px double" : `0.5px ${divStyle}`, borderColor: accentColor, opacity: 0.7 }} />, fullWidth: true },
+        { id: "title",       content: <div className="font-bold tracking-[0.2em] uppercase px-4 pb-1 inline-block text-center w-full" style={{ color: accentColor, fontSize: titleSize, borderBottom: `1px solid ${accentColor}40` }}>{titleText}</div> },
         { id: "patientInfo", content: <div className="flex flex-col gap-3 w-full" style={{ fontSize: bodySize }}><div className="flex items-end gap-2"><strong style={{ color: accentColor, fontSize: bodySize * 0.9, textTransform: "uppercase", letterSpacing: "0.05em" }}>Nom :</strong><div className="flex-1 border-b border-slate-300" style={{ height: bodySize }}></div></div><div className="flex items-end gap-2 w-[70%]"><strong style={{ color: accentColor, fontSize: bodySize * 0.9, textTransform: "uppercase", letterSpacing: "0.05em" }}>Âge :</strong><div className="flex-1 border-b border-slate-300" style={{ height: bodySize }}></div></div></div> },
         { id: "dateCity",    content: <div className="flex items-end gap-2 w-full" style={{ fontSize: bodySize }}><span style={{ fontSize: bodySize * 0.9, color: "#475569" }}>{form.city || "Ville"}, le</span><div className="flex-1 border-b border-slate-300" style={{ height: bodySize }}></div></div>, },
-        { id: "footer",      content: <div className="text-center pt-3 border-t w-full" style={{ borderColor: `${accentColor}40` }}><div className="font-medium tracking-wide" style={{ fontSize: "0.65rem", color: "#334155" }}>{form.address || "Adresse"}</div><div className="mt-0.5" style={{ fontSize: "0.6rem", color: "#64748b" }}>Tél: <span className="font-medium">{form.phoneNumber1}</span>{form.phoneNumber2 && <span className="mx-1">|</span>}{form.phoneNumber2 && <span className="font-medium">Mob: {form.phoneNumber2}</span>}</div></div>, fullWidth: true },
+        { id: "footer",      content: <div className="text-center pt-3 w-full" style={{ borderTop: `0.5px solid ${accentColor}40` }}><div className="font-medium tracking-wide" style={{ fontSize: "0.65rem", color: "#334155" }}>{form.address || "Adresse"}</div><div className="mt-0.5" style={{ fontSize: "0.6rem", color: "#64748b" }}>Tél: <span className="font-medium">{form.phoneNumber1}</span>{form.phoneNumber2 && <span className="mx-1">|</span>}{form.phoneNumber2 && <span className="font-medium">Mob: {form.phoneNumber2}</span>}</div></div>, fullWidth: true },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     ], [form.nameFr, form.nameAr, form.specialtyFr, form.specialtyAr, form.inscriptionNumber, form.address, form.phoneNumber1, form.phoneNumber2, form.city, accentColor, doctorNameSize, specialtySize, titleSize, bodySize, divStyle, titleText, logoSizePx, showInscNo, services]);
 
@@ -651,7 +651,7 @@ export const PrescriptionPreview: React.FC<PrescriptionPreviewProps> = ({
                         <div className="p-6 h-full flex flex-col relative z-10" style={{ minHeight: "100%" }}>
                             {renderHeader()}
                             {divStyle !== "none" && (
-                                <div className="my-5 opacity-70" style={{ borderBottom: divStyle === "double" ? "3px double" : `1px ${divStyle}`, borderColor: accentColor }} />
+                                <div className="my-5 opacity-70" style={{ borderBottom: divStyle === "double" ? "2px double" : `0.5px ${divStyle}`, borderColor: accentColor }} />
                             )}
                             
                             <div className="flex justify-between items-start mt-4 gap-8 w-full" style={{ fontSize: bodySize }}>
@@ -672,7 +672,7 @@ export const PrescriptionPreview: React.FC<PrescriptionPreviewProps> = ({
                             </div>
                             
                             <div className="w-full text-center mt-12 mb-10">
-                                <span className="font-bold tracking-[0.2em] uppercase px-6 pb-2 inline-block" style={{ color: accentColor, fontSize: titleSize, borderBottom: `2.5px solid ${accentColor}40` }}>
+                                <span className="font-bold tracking-[0.2em] uppercase px-6 pb-2 inline-block" style={{ color: accentColor, fontSize: titleSize, borderBottom: `1px solid ${accentColor}40` }}>
                                     {titleText}
                                 </span>
                             </div>
@@ -684,7 +684,7 @@ export const PrescriptionPreview: React.FC<PrescriptionPreviewProps> = ({
                                 <div className="flex items-end gap-3 mt-4"><div className="w-2 h-2 rounded-full border-[1.5px]" style={{ borderColor: accentColor }}></div><div className="h-0 flex-1 border-b-2 border-slate-300 border-dashed"></div></div>
                             </div>
 
-                            <div className="mt-auto pt-4 border-t-[1.5px] w-full text-center" style={{ borderColor: `${accentColor}30` }}>
+                            <div className="mt-auto pt-4 w-full text-center" style={{ borderTop: `0.5px solid ${accentColor}30` }}>
                                 <div className="font-medium tracking-wide" style={{ fontSize: "0.65rem", color: "#334155" }}>{form.address || "Adresse de la clinique"}</div>
                                 <div className="mt-1" style={{ fontSize: "0.6rem", color: "#64748b" }}>Tél : <span className="font-medium">{form.phoneNumber1 || "00 00 00 00 00"}</span>{form.phoneNumber2 && <span className="mx-2 font-light">|</span>}{form.phoneNumber2 && <span>Mob : <span className="font-medium">{form.phoneNumber2}</span></span>}</div>
                             </div>

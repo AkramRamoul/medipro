@@ -45,8 +45,8 @@ const EmptyPrescriptionPrintable: React.FC<EmptyPrescriptionPrintableProps> = ({
         dividerStyle === "none"
             ? "border: none;"
             : dividerStyle === "double"
-                ? "border-bottom: 3px double #666;"
-                : `border-bottom: 1px ${dividerStyle} #666;`;
+                ? "border-bottom: 2px double #aaa;"
+                : `border-bottom: 0.5px ${dividerStyle} #aaa;`;
 
     const styles = `
     @page { size: A5; margin: 0; }
@@ -103,8 +103,8 @@ const EmptyPrescriptionPrintable: React.FC<EmptyPrescriptionPrintableProps> = ({
     .patient-info { display: flex; justify-content: space-between; margin-top: 20px; margin-bottom: 20px; font-size: ${bodyFontSize}px; }
     .patient-details { text-align: left; }
     .document-info { text-align: right; }
-    .title { display: block; text-align: center; font-size: ${titleFontSize}px; font-weight: bold; letter-spacing: 0.2em; text-decoration: none; border-bottom: 2.5px solid ${hexToRgba(accentColor, 0.25)}; padding-bottom: 6px; margin: 10px auto 20px auto; width: fit-content; color: ${accentColor}; }
-    .footer { position: fixed; bottom: 20px; left: 0; right: 0; text-align: center; border-top: 1px solid #aaa; padding-top: 5px; font-size: 11px; }
+    .title { display: block; text-align: center; font-size: ${titleFontSize}px; font-weight: bold; letter-spacing: 0.2em; text-decoration: none; border-bottom: 1px solid ${hexToRgba(accentColor, 0.25)}; padding-bottom: 6px; margin: 10px auto 20px auto; width: fit-content; color: ${accentColor}; }
+    .footer { position: fixed; bottom: 20px; left: 0; right: 0; text-align: center; border-top: 0.5px solid #ccc; padding-top: 5px; font-size: 11px; }
   `;
 
     // ---- Sub-blocks ----
@@ -315,7 +315,7 @@ const EmptyPrescriptionPrintable: React.FC<EmptyPrescriptionPrintableProps> = ({
                 )}
                 {!isHidden("footer") && (
                     <div style={{ ...getStyle("footer", true) }}>
-                        <div className="footer" style={{ position: "static", borderTop: "1px solid #aaa", paddingTop: "5px", fontSize: "11px", textAlign: "center" }}>
+                        <div className="footer" style={{ position: "static", borderTop: "0.5px solid #ccc", paddingTop: "5px", fontSize: "11px", textAlign: "center" }}>
                             <div>{prescriptionModel.address}</div>
                             {(prescriptionModel.phoneNumber1 || prescriptionModel.phoneNumber2) && (
                                 <div>
