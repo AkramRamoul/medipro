@@ -111,12 +111,17 @@ function PatientStep({
       setIsSearching(true);
       try {
         const { data } = await api.get('/patients');
-        const allPatients: Patient[] = Array.isArray(data) ? data : [];
+        const allPatients: Patient[] = Array.isArray(data) ? data.map(p => ({
+          ...p,
+          first_name: p.first_name || p.firstname,
+          last_name: p.last_name || p.lastname
+        })) : [];
         const q = query.trim().toLowerCase();
-        const filtered = allPatients.filter(p => 
-          (p.first_name + ' ' + p.last_name).toLowerCase().includes(q) ||
-          (p.last_name + ' ' + p.first_name).toLowerCase().includes(q)
-        );
+        const filtered = allPatients.filter(p => {
+          const fn = (p.first_name || "").toLowerCase();
+          const ln = (p.last_name || "").toLowerCase();
+          return (fn + ' ' + ln).includes(q) || (ln + ' ' + fn).includes(q);
+        });
         setResults(filtered.slice(0, 10)); // limit to top 10 matches
       } catch {
         setResults([]);
@@ -262,7 +267,7 @@ function PatientStep({
                   onClick={() => onSelect(p)}
                 >
                   <div className="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center text-xs font-bold shrink-0">
-                    {p.first_name[0]}{p.last_name[0]}
+                    {p.first_name?.[0]}{p.last_name?.[0]}
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium truncate">
