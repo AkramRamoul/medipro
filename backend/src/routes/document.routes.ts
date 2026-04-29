@@ -4,6 +4,15 @@ import { authorize } from '../middleware/role.middleware';
 
 const router = Router();
 
+router.get('/all', async (req, res, next) => {
+    try {
+        const documents = await documentService.getAll();
+        res.json(documents);
+    } catch (error) {
+        next(error);
+    }
+});
+
 router.get('/patient/:patientId', async (req, res, next) => {
     try {
         const documents = await documentService.getByPatientId(Number(req.params.patientId));

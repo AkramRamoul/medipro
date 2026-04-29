@@ -176,8 +176,7 @@ const DocumentTemplatesSettings: React.FC = () => {
               }
             />
             <p className="text-xs text-muted-foreground mt-1">
-              Utilisez des placeholders comme [Nom du Patient], [Date], etc. que
-              vous remplacerez lors de la création du document.
+              Utilisez des placeholders : <strong>[Nom du Patient]</strong>, <strong>[Date]</strong>, <strong>[Nom du Docteur]</strong>, <strong>[Ville]</strong> — ils seront remplacés automatiquement à la création du document.
             </p>
           </div>
 

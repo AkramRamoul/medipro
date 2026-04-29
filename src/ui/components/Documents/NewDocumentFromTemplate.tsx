@@ -7,6 +7,8 @@ import {
     Save,
     Calendar as CalendarIcon,
     AlertTriangle,
+    Printer,
+    Loader2
 } from "lucide-react";
 import { format, isToday } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -48,12 +50,22 @@ const NewDocumentFromTemplate: React.FC<NewDocumentFromTemplateProps> = ({
         useState<DocumentTemplate | null>(initialTemplate);
     const [editedContent, setEditedContent] = useState("");
     const [documentDate, setDocumentDate] = useState<Date>(new Date());
+    const [doctorName, setDoctorName] = useState("");
+    const [city, setCity] = useState("");
+    const [isPrinting, setIsPrinting] = useState(false);
 
     useEffect(() => {
         const fetchTemplates = async () => {
             try {
-                const { data } = await api.get('/documents/templates/all');
-                setTemplates(data);
+                const [{ data: templatesData }, { data: modelData }] = await Promise.all([
+                    api.get('/documents/templates/all'),
+                    api.get('/settings/prescription-model'),
+                ]);
+                setTemplates(templatesData);
+                if (modelData?.success && modelData.model) {
+                    if (modelData.model.nameFr) setDoctorName(modelData.model.nameFr);
+                    if (modelData.model.city)   setCity(modelData.model.city);
+                }
             } catch (error) {
                 toast.error("Erreur lors du chargement des modèles");
             } finally {
@@ -63,53 +75,47 @@ const NewDocumentFromTemplate: React.FC<NewDocumentFromTemplateProps> = ({
         fetchTemplates();
     }, []);
 
+    // Central helper — applies all placeholders to a raw template string
+    const applyPlaceholders = (raw: string, date: Date, name: string, ville: string): string => {
+        let content = raw;
+        content = content.replace(/\[Nom du Patient\]/g, `${patient.first_name} ${patient.last_name}`);
+        content = content.replace(/\[Date\]/g, format(date, "dd/MM/yyyy"));
+        if (name)  content = content.replace(/\[Nom du Docteur\]/g, name);
+        if (ville) content = content.replace(/\[Ville\]/g, ville);
+        return content;
+    };
+
     const handleSelectTemplate = (template: DocumentTemplate) => {
         if (selectorOnly && onTemplateSelect) {
             onTemplateSelect(template);
             return;
         }
-
-        let content = template.content;
-        const formattedDate = format(documentDate, "dd/MM/yyyy");
-        content = content.replace(
-            /\[Nom du Patient\]/g,
-            `${patient.first_name} ${patient.last_name}`,
-        );
-        content = content.replace(/\[Date\]/g, formattedDate);
-
         setSelectedTemplate(template);
-        setEditedContent(content);
+        setEditedContent(applyPlaceholders(template.content, documentDate, doctorName, city));
     };
 
-    // Initialize content if initialTemplate is provided
+    // Initialize / re-apply when initialTemplate, date, or doctorName changes
     useEffect(() => {
         if (initialTemplate) {
-            const formattedDate = format(documentDate, "dd/MM/yyyy");
-            let content = initialTemplate.content;
-            content = content.replace(
-                /\[Nom du Patient\]/g,
-                `${patient.first_name} ${patient.last_name}`,
-            );
-            content = content.replace(/\[Date\]/g, formattedDate);
-            setEditedContent(content);
+            setEditedContent(applyPlaceholders(initialTemplate.content, documentDate, doctorName, city));
         }
-    }, [initialTemplate]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [initialTemplate, doctorName, city]);
 
-    // Update placeholders when date changes if template is already selected
+    // Re-apply when date or doctorName changes and a template is already selected
     useEffect(() => {
         if (selectedTemplate) {
-            const formattedDate = format(documentDate, "dd/MM/yyyy");
-            let content = selectedTemplate.content;
-            content = content.replace(
-                /\[Nom du Patient\]/g,
-                `${patient.first_name} ${patient.last_name}`,
-            );
-            content = content.replace(/\[Date\]/g, formattedDate);
-            setEditedContent(content);
+            setEditedContent(applyPlaceholders(selectedTemplate.content, documentDate, doctorName, city));
         }
-    }, [documentDate]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [documentDate, doctorName, city]);
 
     const handleSave = async () => {
+        if (patient.id === 0) {
+            toast.error("Impossible d'enregistrer pour un patient saisi manuellement");
+            return;
+        }
+
         if (!editedContent.trim()) {
             toast.error("Le contenu ne peut pas être vide");
             return;
@@ -136,6 +142,44 @@ const NewDocumentFromTemplate: React.FC<NewDocumentFromTemplateProps> = ({
             }
         } catch (error) {
             toast.error("Une erreur est survenue");
+        }
+    };
+
+    const handlePrint = async () => {
+        setIsPrinting(true);
+        try {
+            const [logoRes, modelRes] = await Promise.all([
+                api.get('/settings/logo'),
+                api.get('/settings/prescription-model'),
+            ]);
+
+            if (!modelRes.data.success) throw new Error("Modèle introuvable");
+
+            const { renderToStaticMarkup } = await import("react-dom/server");
+            const { default: DocumentPrintable } = await import("./DocumentPrintable");
+            const { printHtml } = await import("../../lib/print-utils");
+
+            const html = renderToStaticMarkup(
+                <DocumentPrintable
+                    first_name={patient.first_name}
+                    last_name={patient.last_name}
+                    patientAge={patient.age}
+                    prescriptionModel={modelRes.data.model}
+                    image={logoRes.data.success ? logoRes.data.image : null}
+                    documentContent={editedContent}
+                    documentType="template"
+                    documentName={selectedTemplate?.name}
+                    documentDate={documentDate.toISOString()}
+                />
+            );
+
+            const result = await printHtml(`<!DOCTYPE html>${html}`);
+            if (result.success) toast.success("Impression lancée !");
+            else toast.error(`Erreur : ${result.error}`);
+        } catch (error) {
+            toast.error("Erreur lors de l'impression");
+        } finally {
+            setIsPrinting(false);
         }
     };
 
@@ -232,6 +276,16 @@ const NewDocumentFromTemplate: React.FC<NewDocumentFromTemplateProps> = ({
                     <div className="flex justify-end gap-3 pt-4 border-t">
                         <Button variant="outline" size="lg" onClick={onClose}>
                             Annuler
+                        </Button>
+                        <Button
+                            variant="outline"
+                            size="lg"
+                            className="gap-2 border-primary/20 text-primary hover:bg-primary/5"
+                            onClick={handlePrint}
+                            disabled={isPrinting}
+                        >
+                            {isPrinting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Printer className="h-4 w-4" />}
+                            Imprimer
                         </Button>
                         <Button
                             className="px-8 bg-primary hover:bg-primary/90 text-white"

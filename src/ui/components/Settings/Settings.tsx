@@ -82,7 +82,7 @@ function Settings() {
                   </TabsTrigger>
                   <TabsTrigger value="bilan-templates" className="flex items-center gap-3 px-4 py-3 w-full justify-start text-muted-foreground data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:font-semibold transition-all rounded-xl border border-transparent hover:bg-muted/50 group">
                     <ClipboardList className="w-4 h-4" />
-                    <span className="text-sm font-medium">Modèles de Bilans</span>
+                    <span className="text-sm font-medium">Bilans Types</span>
                   </TabsTrigger>
                 </TabsList>
               </div>
@@ -98,7 +98,7 @@ function Settings() {
                 <UserManagement />
               </TabsContent>
             )}
-            
+
             <TabsContent value="backup" className="mt-0 border-none outline-none focus-visible:ring-0">
               <DatabaseSettings />
             </TabsContent>

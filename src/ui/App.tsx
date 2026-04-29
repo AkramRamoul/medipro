@@ -28,6 +28,7 @@ const LoginPage = React.lazy(() => import("./routes/EnterPasswordScreen"));
 const PrescriptionModelForm = React.lazy(() => import("./Prescriptionsettings/PrescriptionSetting").then(m => ({ default: m.PrescriptionModelForm })));
 const MainAppointmentPage = React.lazy(() => import("./components/Appointment/MainAppointmentPage"));
 const ExpensesPage = React.lazy(() => import("./expenses/Page"));
+const DocumentsPage = React.lazy(() => import("./routes/Documents"));
 const LicenseScreen = React.lazy(() => import("./components/License/LicenseScreen"));
 const ForceResetScreen = React.lazy(() => import("./routes/ForceResetScreen"));
 
@@ -85,6 +86,7 @@ function App() {
                 <Route path="/Ordonnance" element={<PrescriptionModelForm />} />
                 <Route path="/appointments" element={<MainAppointmentPage />} />
                 <Route path="/expenses" element={<ExpensesPage />} />
+                <Route path="/documents" element={<DocumentsPage />} />
               </Route>
             </Routes>
           </Suspense>

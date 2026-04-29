@@ -99,7 +99,7 @@ const EmptyPrescriptionPrintable: React.FC<EmptyPrescriptionPrintableProps> = ({
     .services-ar { border-right: 1.5px solid ${hexToRgba(accentColor, 0.38)}; padding-right: 8px; padding-top: 2px; padding-bottom: 2px; margin-top: 2px; }
     .inscription-badge { display: inline-block; font-size: 9px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; padding: 2px 7px; border-radius: 3px; color: ${accentColor}; background-color: ${hexToRgba(accentColor, 0.03)}; margin-top: 4px; text-align: center; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     .inscription { font-size: 10px; margin-top: 5px; text-align: center; }
-    .divider { ${dividerCSS} margin: 10px 0; width: 100%; }
+    .divider { ${dividerCSS} margin: 8px 0; width: 100%; opacity: 0.7; }
     .patient-info { display: flex; justify-content: space-between; margin-top: 20px; margin-bottom: 20px; font-size: ${bodyFontSize}px; }
     .patient-details { text-align: left; }
     .document-info { text-align: right; }

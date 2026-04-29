@@ -1,5 +1,5 @@
 import { db } from '../db';
-import { Document as DocumentTable, documentTemplates } from '../db/schema';
+import { Document as DocumentTable, documentTemplates, patients } from '../db/schema';
 import { eq, desc } from 'drizzle-orm';
 
 export class DocumentService {
@@ -18,6 +18,26 @@ export class DocumentService {
             .from(DocumentTable)
             .where(eq(DocumentTable.id, id));
         return doc;
+    }
+
+    async getAll() {
+        const result = await db
+            .select({
+                id: DocumentTable.id,
+                patientId: DocumentTable.patientId,
+                patientFirstName: patients.first_name,
+                patientLastName: patients.last_name,
+                patientAge: patients.age,
+                name: DocumentTable.name,
+                type: DocumentTable.type,
+                documentDate: DocumentTable.documentDate,
+                createdAt: DocumentTable.createdAt,
+                content: DocumentTable.content,
+            })
+            .from(DocumentTable)
+            .leftJoin(patients, eq(DocumentTable.patientId, patients.id))
+            .orderBy(desc(DocumentTable.createdAt));
+        return result;
     }
 
     async create(data: any) {

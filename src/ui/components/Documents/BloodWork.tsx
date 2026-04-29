@@ -26,6 +26,8 @@ import {
   Search,
   AlertTriangle,
   ArrowLeft,
+  Printer,
+  Loader2
 } from "lucide-react";
 import { format, isToday, parseISO } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -98,6 +100,7 @@ export function BloodWork({
   const [allBilans, setAllBilans] = useState<{ name: string }[]>([]);
   const [templates, setTemplates] = useState<BilanTemplate[]>([]);
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
+  const [isPrinting, setIsPrinting] = useState(false);
   const suggestionsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -185,6 +188,14 @@ export function BloodWork({
   }
 
   async function onSubmit(values: z.infer<typeof bloodWorkSchema>) {
+    if (patient.id === 0) {
+      // It's a manual patient, just print it directly or show a toast
+      import("sonner").then(({ toast }) => {
+        toast.error("Impossible d'enregistrer pour un patient saisi manuellement");
+      });
+      return;
+    }
+
     try {
       await api.post("/documents", {
         patientId: patient.id,
@@ -196,6 +207,54 @@ export function BloodWork({
       onClose();
     } catch (error) {
       console.error("Failed to create document:", error);
+    }
+  }
+
+  async function handlePrint() {
+    const values = form.getValues();
+    if (values.results.length === 0) {
+      import("sonner").then(({ toast }) => {
+        toast.error("Veuillez ajouter au moins une analyse");
+      });
+      return;
+    }
+
+    setIsPrinting(true);
+    try {
+      const { toast } = await import("sonner");
+      const [logoRes, modelRes] = await Promise.all([
+        api.get('/settings/logo'),
+        api.get('/settings/prescription-model'),
+      ]);
+
+      if (!modelRes.data.success) throw new Error("Modèle introuvable");
+
+      const { renderToStaticMarkup } = await import("react-dom/server");
+      const { default: DocumentPrintable } = await import("./DocumentPrintable");
+      const { printHtml } = await import("../../lib/print-utils");
+
+      const html = renderToStaticMarkup(
+        <DocumentPrintable
+          first_name={patient.first_name}
+          last_name={patient.last_name}
+          patientAge={patient.age}
+          prescriptionModel={modelRes.data.model}
+          image={logoRes.data.success ? logoRes.data.image : null}
+          documentContent={values}
+          documentType="blood"
+          documentDate={new Date(values.date).toISOString()}
+        />
+      );
+
+      const result = await printHtml(`<!DOCTYPE html>${html}`);
+      if (result.success) toast.success("Impression lancée !");
+      else toast.error(`Erreur : ${result.error}`);
+    } catch (error) {
+      import("sonner").then(({ toast }) => {
+        toast.error("Erreur lors de l'impression");
+      });
+    } finally {
+      setIsPrinting(false);
     }
   }
 
@@ -439,6 +498,16 @@ export function BloodWork({
               >
                 <X className="w-4 h-4" />
                 Annuler
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handlePrint}
+                disabled={isPrinting}
+                className="gap-2 border-primary/20 text-primary hover:bg-primary/5"
+              >
+                {isPrinting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Printer className="w-4 h-4" />}
+                Imprimer
               </Button>
               <Button type="submit" className="gap-2 min-w-[150px]">
                 <Save className="w-4 h-4" />
