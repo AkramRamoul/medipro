@@ -4,7 +4,6 @@ import { useParams } from "react-router-dom";
 import { Button } from "../ui/button";
 import { Download, Loader2 } from "lucide-react";
 import { usePatientPdfExport } from "../../hooks/usePatientPdfExport";
-import { VitalsTrendCard } from "./VitalsTrendCard";
 import { useAuth } from "../../context/auth-context";
 
 // Lazy load tab components
@@ -15,6 +14,7 @@ const TimeLine = React.lazy(() => import("../Timeline/TimeLine"));
 const AppointmentTab = React.lazy(() => import("../Appointment/AppointmentTab").then(m => ({ default: m.AppointmentTab })));
 const VitalSignsChart = React.lazy(() => import("./VitalSignsChart").then(m => ({ default: m.VitalSignsChart })));
 const LabResultsTab = React.lazy(() => import("./LabResultsTab").then(m => ({ default: m.LabResultsTab })));
+const VitalsTrendCard = React.lazy(() => import("./VitalsTrendCard").then(m => ({ default: m.VitalsTrendCard })));
 
 const TabLoading = () => (
   <div className="flex items-center justify-center p-12 w-full">
@@ -54,7 +54,9 @@ function MainPage() {
 
       {/* Quick Vitals Overview */}
       <div className="w-full max-w-5xl mb-4">
-        <VitalsTrendCard patientId={id!} />
+        <Suspense fallback={<div className="h-24 w-full bg-muted/20 animate-pulse rounded-xl" />}>
+          <VitalsTrendCard patientId={id!} />
+        </Suspense>
       </div>
 
       <Tabs defaultValue="example" className="w-full max-w-5xl" onValueChange={setActiveTab}>

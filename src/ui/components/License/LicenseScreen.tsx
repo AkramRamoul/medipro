@@ -76,7 +76,13 @@ export default function LicenseScreen({ onSuccess }: LicenseScreenProps) {
 
       <div className="relative w-full max-w-md bg-card backdrop-blur-xl shadow-xl rounded-3xl overflow-hidden border border-border ring-1 ring-border/50">
         {/* Header Section - Medical Teal Gradient */}
-        <div className="bg-gradient-to-br from-primary to-primary/80 p-8 text-center text-primary-foreground">
+        <div className="relative bg-gradient-to-br from-primary to-primary/80 p-8 text-center text-primary-foreground">
+          {/* Lifetime Badge */}
+          <div className="absolute top-4 right-4 flex items-center gap-1.5 bg-white/20 px-3 py-1 rounded-full text-xs font-semibold backdrop-blur-md border border-white/30 shadow-sm">
+            <ShieldCheck className="h-3.5 w-3.5 text-white" />
+            <span className="text-white drop-shadow-sm">Licence à vie</span>
+          </div>
+
           <div className="mb-4 flex justify-center">
             <div className="h-16 w-16 bg-white/10 rounded-2xl flex items-center justify-center backdrop-blur-md shadow-inner border border-white/20">
               <Key className="h-8 w-8 text-white" />
@@ -85,8 +91,8 @@ export default function LicenseScreen({ onSuccess }: LicenseScreenProps) {
           <h1 className="text-2xl font-bold tracking-tight">
             Activation du Produit
           </h1>
-          <p className="text-primary-foreground/80 text-sm mt-1">
-            Entrez votre clé de licence pour continuer
+          <p className="text-primary-foreground/90 text-sm mt-2 font-medium">
+            Entrez votre clé pour débloquer un accès illimité à vie
           </p>
         </div>
 
@@ -178,7 +184,14 @@ export default function LicenseScreen({ onSuccess }: LicenseScreenProps) {
 
             {status === "invalid" && (
               <p className="text-center text-xs text-destructive font-medium animate-in fade-in slide-in-from-top-1">
-                La clé de licence fournie est incorrecte ou expirée.
+                La clé de licence fournie est incorrecte.
+              </p>
+            )}
+            
+            {!status && (
+              <p className="text-center text-[11px] text-muted-foreground font-medium flex items-center justify-center gap-1.5 mt-2">
+                <ShieldCheck className="h-3.5 w-3.5 text-green-500" />
+                Activation unique, aucun abonnement requis.
               </p>
             )}
           </div>

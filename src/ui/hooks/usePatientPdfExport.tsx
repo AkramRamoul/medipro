@@ -1,6 +1,4 @@
 import { useState } from "react";
-import { pdf } from "@react-pdf/renderer";
-import PatientRecordPdf from "../components/Patients/PatientRecordPdf";
 import api from "../axios";
 
 export function usePatientPdfExport() {
@@ -9,19 +7,23 @@ export function usePatientPdfExport() {
     const exportPdf = async (patientId: string) => {
         setIsExporting(true);
         try {
-            // Fetch all required data in parallel using the backend API
+            // Fetch all required data and dynamic imports in parallel
             const [
                 { data: patient },
                 { data: consultations },
                 { data: prescriptions },
                 { data: timeline },
-                { data: documents }
+                { data: documents },
+                { pdf },
+                { default: PatientRecordPdf }
             ] = await Promise.all([
                 api.get(`/patients/${patientId}`),
                 api.get(`/consultations/patient/${patientId}`),
                 api.get(`/prescriptions/patient/${patientId}`),
                 api.get(`/patients/${patientId}/timeline`),
-                api.get(`/documents/patient/${patientId}`)
+                api.get(`/documents/patient/${patientId}`),
+                import("@react-pdf/renderer"),
+                import("../components/Patients/PatientRecordPdf")
             ]);
 
             if (!patient) {
