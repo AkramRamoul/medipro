@@ -13,11 +13,12 @@ import { PrescriptionWithPatient } from "../type";
 import Modal from "../components/Modal";
 import SinglePrescription from "../components/Prescription/SinglePrescription";
 import Pagination from "../components/Pagination";
-import { Loader2, Search, Pill, Calendar, User, FileText } from "lucide-react";
-import DropDown from "./comps/DropDownPrescription";
+import { Loader2, Search, Pill, Calendar, User, FileText, Printer, Trash2 } from "lucide-react";
 import { Button } from "../components/ui/button";
 import GenericPrescriptionModal from "../components/Prescription/GenericPrescriptionModal";
+import DeletePrescriptionDialogue from "../components/Prescription/DeletePrescriptionDialogue";
 import { Plus } from "lucide-react";
+import { toast } from "sonner";
 import { Card, CardHeader, CardTitle } from "../components/ui/card";
 import {
   Dialog,
@@ -106,6 +107,49 @@ function Prescriptions() {
     // @ts-ignore
     setData(prescriptions.data);
     setIsLoading(false);
+  };
+
+  const handlePrint = async (prescription: PrescriptionWithPatient) => {
+    try {
+      const [logoRes, modelRes] = await Promise.all([
+        api.get("/settings/logo"),
+        api.get("/settings/prescription-model"),
+      ]);
+
+      if (!modelRes.data.success) {
+        toast.error("Le modèle de prescription n'est pas encore chargé.");
+        return;
+      }
+
+      const { renderToStaticMarkup } = await import("react-dom/server");
+      const { default: PrescriptionPrintable } = await import("../components/PrescriptionPrintable");
+
+      const htmlContent = renderToStaticMarkup(
+        <PrescriptionPrintable
+          patient={prescription.patient!}
+          prescriptionModel={modelRes.data.model}
+          image={logoRes.data.success ? logoRes.data.image : null}
+          medications={prescription.medications}
+          isPsychotropic={prescription.isPsychotropic}
+          psychotropicNumber={prescription.psychotropicNumber}
+          patientAddress={prescription.patientAddress}
+          prescriptionDate={prescription.date}
+        />
+      );
+
+      const fullHtml = `<!DOCTYPE html>${htmlContent}`;
+      const { printHtml } = await import("../lib/print-utils");
+      const result = await printHtml(fullHtml);
+
+      if (result.success) {
+        toast.success("Impression lancée !");
+      } else {
+        toast.error(`Erreur d'impression: ${result.error}`);
+      }
+    } catch (error) {
+      console.error("Failed to print:", error);
+      toast.error("Erreur lors de l'impression");
+    }
   };
 
   useEffect(() => {
@@ -307,18 +351,31 @@ function Prescriptions() {
                       </TableCell>
                       <TableCell>
                         <div
-                          className="flex justify-end items-center h-full opacity-60 hover:opacity-100 transition"
+                          className="flex items-center justify-end gap-1 opacity-60 group-hover:opacity-100 transition-opacity"
                           onClick={(e) => e.stopPropagation()}
                         >
-                          <DropDown
-                            prescription={prescription}
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            className="h-8 w-8 text-primary hover:bg-primary/10"
+                            onClick={() => handlePrint(prescription)}
+                            title="Imprimer"
+                          >
+                            <Printer className="w-4 h-4" />
+                          </Button>
+                          <DeletePrescriptionDialogue
+                            priscriptionId={prescription.id.toString()}
                             setData={setData}
-                            patient={prescription.patient!}
-                            medications={prescription.medications}
-                            isPsychotropic={prescription.isPsychotropic}
-                            psychotropicNumber={prescription.psychotropicNumber}
-                            patientAddress={prescription.patientAddress}
-                          />
+                          >
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              className="h-8 w-8 text-destructive hover:bg-destructive/10"
+                              title="Supprimer"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </DeletePrescriptionDialogue>
                         </div>
                       </TableCell>
                     </TableRow>

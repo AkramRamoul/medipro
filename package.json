@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "run-p dev:react dev:electron",
     "dev:react": "vite",
-    "dev:electron": "npm run transpile:electron && cross-env NODE_ENV=development electron .",
+    "dev:electron": "cross-env NODE_ENV=development npm run transpile:electron && cross-env NODE_ENV=development electron .",
     "build": "tsc && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
@@ -15,13 +15,13 @@
     "drizzle:push": "drizzle-kit push",
     "db:clear": "tsx scripts/clear-db.ts",
     "db:wipe-client": "tsx scripts/wipe-client-data.ts",
-    "transpile:electron": "tsc --project src/electron/tsconfig.json",
+    "transpile:electron": "tsc --project src/electron/tsconfig.json && node scripts/obfuscate-electron.mjs",
     "dist:win": "npm run build:all && electron-builder --win --x64",
     "dist:mac": "npm run build:all && electron-builder --mac",
     "dist:linux": "npm run build:all && electron-builder --linux",
     "build:all": "npm run transpile:electron && npm run build:frontend && npm run build:backend",
     "build:frontend": "vite build",
-    "build:backend": "cd backend && npm run build && npm run bundle:esbuild && (robocopy ../dist-react dist-react /E /Y || xcopy /E /I /Y ..\\dist-react dist-react)"
+    "build:backend": "cd backend && npm run build && npm run bundle:esbuild && cd .. && node scripts/obfuscate-bundle.mjs && cd backend && (robocopy ../dist-react dist-react /E /Y || xcopy /E /I /Y ..\\dist-react dist-react)"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
@@ -127,6 +127,7 @@
     "eslint-plugin-react-hooks": "^5.0.0",
     "eslint-plugin-react-refresh": "^0.4.18",
     "globals": "^15.14.0",
+    "javascript-obfuscator": "^5.4.2",
     "nexe": "^5.0.0-beta.4",
     "node-sea": "^0.3.0",
     "npm-run-all": "^4.1.5",
@@ -135,6 +136,7 @@
     "postject": "^1.0.0-alpha.6",
     "react-big-calendar": "^1.19.4",
     "rimraf": "^6.1.3",
+    "rollup-plugin-obfuscator": "^1.1.0",
     "tailwindcss": "^3.4.17",
     "ts-node-dev": "^2.0.0",
     "tsx": "^4.19.3",

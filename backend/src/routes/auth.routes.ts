@@ -22,17 +22,14 @@ const registerSchema = z.object({
 // Login route
 router.post('/login', async (req, res, next) => {
     try {
-        console.log(`[Auth] Login attempt for: ${req.body.email}`);
         const { email, password } = loginSchema.parse(req.body);
         const user = await userService.findByEmail(email);
 
         if (!user) {
-            console.log(`[Auth] User not found: ${email}`);
             return res.status(401).json({ success: false, message: 'Invalid credentials' });
         }
 
         const isMatch = await bcrypt.compare(password, user.password);
-        console.log(`[Auth] Password match for ${email}: ${isMatch}`);
 
         if (!isMatch) {
             return res.status(401).json({ success: false, message: 'Invalid credentials' });

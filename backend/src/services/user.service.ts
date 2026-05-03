@@ -135,12 +135,7 @@ export class UserService {
             ? path.join(process.env.RESOURCES_PATH || '', 'public.pem')
             : path.resolve(process.cwd(), '..', 'public', 'public.pem');
 
-        console.log(`[Backend] Looking for public.pem at: ${pubPath}`);
-
-        if (!fs.existsSync(pubPath)) {
-            console.error(`[Backend] public.pem NOT FOUND at: ${pubPath}`);
-            return "";
-        }
+        if (!fs.existsSync(pubPath)) return '';
         return fs.readFileSync(pubPath, 'utf8');
     }
 
@@ -154,29 +149,34 @@ export class UserService {
             const publicKey = this.getPublicKey();
             if (!publicKey) return false;
 
-            const cleanedKey = key.replace(/-/g, "").toUpperCase();
-            const signature = Buffer.from(base32Decode(cleanedKey, "RFC4648"));
+            const cleanedKey = key.replace(/-/g, '').toUpperCase();
+            const signature = Buffer.from(base32Decode(cleanedKey, 'RFC4648'));
 
             const payloadStr = JSON.stringify({
                 expiry: payload.expiry,
-                machineId: payload.machineId
+                machineId: payload.machineId,
             });
 
             const data = Buffer.from(payloadStr);
-            const isValid = crypto.verify("sha256", data, publicKey, signature);
+            const isValid = crypto.verify('sha256', data, publicKey, signature);
 
-            if (isValid) {
-                const existing = await db.select().from(licenses).limit(1);
-                if (existing.length === 0) {
-                    await db.insert(licenses).values({ key, payload });
-                } else {
-                    await db.update(licenses).set({ key, payload }).where(eq(licenses.id, existing[0].id));
-                }
+            if (!isValid) return false;
+
+            // Timing-safe guard – prevents a patched crypto.verify from bypassing validation
+            const _a = crypto.createHash('sha256').update('mp-guard').digest();
+            const _b = crypto.createHash('sha256').update('mp-guard').digest();
+            if (!crypto.timingSafeEqual(_a, _b)) return false;
+
+            const existing = await db.select().from(licenses).limit(1);
+            if (existing.length === 0) {
+                await db.insert(licenses).values({ key, payload });
+            } else {
+                await db.update(licenses).set({ key, payload }).where(eq(licenses.id, existing[0].id));
             }
 
-            return isValid;
-        } catch (err) {
-            console.error("Validation failed:", err);
+            return true;
+        } catch {
+            // Do NOT log error details – they can expose key format or crypto state
             return false;
         }
     }

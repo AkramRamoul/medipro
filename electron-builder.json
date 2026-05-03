@@ -60,7 +60,9 @@
     "target": [
       "nsis",
       "portable"
-    ]
+    ],
+    "certificateFile": "build/medipro.pfx",
+    "certificatePassword": "medipro"
   },
   "nsis": {
     "oneClick": false,
