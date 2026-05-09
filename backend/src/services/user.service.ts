@@ -149,7 +149,7 @@ export class UserService {
             const publicKey = this.getPublicKey();
             if (!publicKey) return false;
 
-            const cleanedKey = key.replace(/-/g, '').toUpperCase();
+            const cleanedKey = key.trim().replace(/-/g, '').toUpperCase();
             const signature = Buffer.from(base32Decode(cleanedKey, 'RFC4648'));
 
             const payloadStr = JSON.stringify({

@@ -38,8 +38,8 @@ export function AppSidebar() {
     { title: "Rendez-vous", url: "/appointments", icon: Calendar, permission: "VIEW_PATIENTS" as Permission },
     { title: "Consultations", url: "/consultations", icon: Clipboard, permission: "VIEW_MEDICAL_RECORDS" as Permission },
     { title: "Ordonnances", url: "/prescriptions", icon: PillBottle, permission: "VIEW_PRESCRIPTIONS" as Permission },
-    { title: "Dépenses", url: "/expenses", icon: Wallet, permission: "VIEW_EXPENSES" as Permission },
     { title: "Documents", url: "/documents", icon: FileText, permission: "VIEW_MEDICAL_RECORDS" as Permission },
+    { title: "Dépenses", url: "/expenses", icon: Wallet, permission: "VIEW_EXPENSES" as Permission },
     { title: "Modèle Ordonnance ", url: "/Ordonnance", icon: FilePen, permission: "MANAGE_SETTINGS" as Permission },
     { title: "Paramètres", url: "/settings", icon: SettingsIcon, permission: "MANAGE_SETTINGS" as Permission },
   ];

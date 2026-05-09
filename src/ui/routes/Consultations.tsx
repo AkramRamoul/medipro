@@ -21,6 +21,7 @@ import {
   FileText,
   Activity,
   X,
+  Trash2,
 } from "lucide-react";
 import DeleteDialogue from "../components/DeleteDialogue";
 import { Card, CardHeader, CardTitle } from "../components/ui/card";
@@ -117,8 +118,8 @@ function Page() {
   };
 
   return (
-    <div className="max-w-[80%] mx-auto space-y-6 mt-8">
-      <Card className="border-none shadow-sm bg-card">
+    <div className="max-w-[85%] mx-auto space-y-6 mt-8">
+      <Card className="border border-white/5 shadow-lg bg-gradient-to-br from-card to-card/80 backdrop-blur">
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <div>
             <CardTitle className="text-xl flex items-center gap-2 text-primary">
@@ -230,8 +231,8 @@ function Page() {
                       <Activity className="w-3 h-3" /> Diagnostic
                     </div>
                   </TableHead>
-                  <TableHead className="w-[80px] text-center">
-                    Actions
+                  <TableHead className="text-right w-[100px]">
+                    Options
                   </TableHead>
                 </TableRow>
               </TableHeader>
@@ -243,7 +244,7 @@ function Page() {
                       onClick={() => {
                         setSelectedPrescriptionId(consultation.id.toString());
                       }}
-                      className="cursor-pointer"
+                      className="cursor-pointer group"
                     >
                       <TableCell className="font-semibold">
                         {consultation.patient?.first_name || "N/A"}{" "}
@@ -276,15 +277,24 @@ function Page() {
                           )}
                         </div>
                       </TableCell>
-                      <TableCell className="w-[80px]">
+                      <TableCell>
                         <div
-                          className="flex justify-center items-center h-full"
+                          className="flex items-center justify-end gap-1 opacity-60 group-hover:opacity-100 transition-opacity"
                           onClick={(e) => e.stopPropagation()}
                         >
                           <DeleteDialogue
                             consultationId={consultation.id.toString()}
                             setData={setData}
-                          />
+                          >
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              className="h-8 w-8 text-destructive hover:bg-destructive/10"
+                              title="Supprimer"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </DeleteDialogue>
                         </div>
                       </TableCell>
                     </TableRow>

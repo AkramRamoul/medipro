@@ -7,25 +7,21 @@ import {
   SidebarMenuItem,
 } from "../components/ui/sidebar";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
-import { useAuth } from "../context/auth-context";
-import { useNavigate } from "react-router-dom";
 
 export function NavSecondary({
   ...props
 }: {} & React.ComponentPropsWithoutRef<typeof SidebarMenu>) {
-  const { logout } = useAuth();
-  const navigate = useNavigate();
 
   function handleLogout() {
-    logout();
-    navigate("/login");
+    // Reload the page to reset App state and show the lock screen if a password is set
+    window.location.reload();
   }
 
   return (
     <SidebarMenu {...props}>
       <SidebarMenuItem>
-        <SidebarMenuButton 
-          onClick={handleLogout} 
+        <SidebarMenuButton
+          onClick={handleLogout}
           tooltip="Déconnexion"
           className="transition-all duration-200 text-slate-600 dark:text-slate-300 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20 dark:hover:text-red-400 group"
         >
@@ -48,7 +44,7 @@ function HelpComponent() {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <SidebarMenuButton 
+        <SidebarMenuButton
           tooltip="Obtenir de l'aide"
           className="transition-all duration-200 text-slate-600 dark:text-slate-300 hover:bg-primary/10 hover:text-primary dark:hover:bg-primary/20 dark:hover:text-white group"
         >

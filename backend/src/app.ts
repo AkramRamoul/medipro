@@ -30,20 +30,22 @@ const distPath = isBundled
     ? (process.env.IS_PACKAGED_ELECTRON === "true" ? path.join(__dirname, 'dist-react') : path.join(projectRoot, '../dist-react'))
     : path.join(projectRoot, 'dist-react');
 
-app.use(express.static(distPath));
+if (env.NODE_ENV === 'production') {
+    app.use(express.static(distPath));
 
-// Root route or redirect
-app.get('/', (req: Request, res: Response) => {
-    res.sendFile(path.join(distPath, 'index.html'));
-});
+    // Root route or redirect
+    app.get('/', (req: Request, res: Response) => {
+        res.sendFile(path.join(distPath, 'index.html'));
+    });
 
-// SPA fallback for any other routes (except /api)
-app.use((req: Request, res: Response, next: any) => {
-    if (req.method === 'GET' && !req.path.startsWith('/api')) {
-        return res.sendFile(path.join(distPath, 'index.html'));
-    }
-    next();
-});
+    // SPA fallback for any other routes (except /api)
+    app.use((req: Request, res: Response, next: any) => {
+        if (req.method === 'GET' && !req.path.startsWith('/api')) {
+            return res.sendFile(path.join(distPath, 'index.html'));
+        }
+        next();
+    });
+}
 
 // 404 handler
 app.use(notFoundHandler);

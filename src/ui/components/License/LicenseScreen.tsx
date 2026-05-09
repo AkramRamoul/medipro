@@ -47,7 +47,7 @@ export default function LicenseScreen({ onSuccess }: LicenseScreenProps) {
     setStatus("checking");
     try {
       const { data: result } = await api.post("/users/license-submit", {
-        key,
+        key: key.trim(),
         payload,
       });
       setStatus(result.isValid ? "valid" : "invalid");

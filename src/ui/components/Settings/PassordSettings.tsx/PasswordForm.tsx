@@ -187,7 +187,7 @@ export function PasswordForm() {
                 <div className="relative">
                   <Input
                     type={showPassword ? "text" : "password"}
-                    placeholder="Enter new password"
+                    placeholder="Entrez le nouveau mot de passe"
                     {...field}
                   />
                   <button

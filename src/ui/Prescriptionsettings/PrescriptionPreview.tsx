@@ -260,30 +260,30 @@ export const PrescriptionPreview: React.FC<PrescriptionPreviewProps> = ({
             case "fr-only":
                 return <div className="flex justify-between items-start" style={{ marginBottom: mb, minHeight: minH }}>
                     <div className="flex-1">{frBlock}</div>
-                    <div className="ml-3 shrink-0">{logoBlock}</div>
+                    <div className="ml-3 pr-2 shrink-0">{logoBlock}</div>
                 </div>;
             case "ar-only":
                 return <div className="flex justify-between items-start" style={{ marginBottom: mb, minHeight: minH }}>
-                    <div className="mr-3 shrink-0">{logoBlock}</div>
+                    <div className="mr-3 pl-2 shrink-0">{logoBlock}</div>
                     <div className="flex-1">{arBlock}</div>
                 </div>;
             case "fr-logo-left":
                 return <div className="flex items-center" style={{ marginBottom: mb, minHeight: minH }}>
-                    <div className="pr-5 shrink-0 border-r-[1.5px]" style={{ borderColor: `${accentColor}40` }}>
+                    <div className="pl-2 pr-5 shrink-0">
                         {logoBlock}
                     </div>
                     <div className="flex-1 flex flex-col justify-center pl-5">{frBlock}</div>
                 </div>;
             case "ar-logo-right":
                 return <div className="flex items-center" style={{ marginBottom: mb, minHeight: minH }}>
-                    <div className="flex-1 flex flex-col justify-center pr-5" dir="rtl">{arBlock}</div>
-                    <div className="pl-5 shrink-0 border-l-[1.5px]" style={{ borderColor: `${accentColor}40` }}>
+                    <div className="flex-1 flex flex-col justify-center pr-12" dir="rtl">{arBlock}</div>
+                    <div className="pl-12 pr-2 shrink-0">
                         {logoBlock}
                     </div>
                 </div>;
             case "bilingual-logo-left":
                 return <div className="flex justify-between items-start" style={{ marginBottom: mb, minHeight: minH }}>
-                    <div className="w-[20%]">{logoBlock}</div>
+                    <div className="w-[20%] pr-2">{logoBlock}</div>
                     <div className="w-[40%] pl-2">{frBlock}</div>
                     <div className="w-[40%]">{arBlock}</div>
                 </div>;
@@ -291,7 +291,7 @@ export const PrescriptionPreview: React.FC<PrescriptionPreviewProps> = ({
                 return <div className="flex justify-between items-start" style={{ marginBottom: mb, minHeight: minH }}>
                     <div className="w-[40%]">{frBlock}</div>
                     <div className="w-[40%] pr-2">{arBlock}</div>
-                    <div className="w-[20%]">{logoBlock}</div>
+                    <div className="w-[20%] pl-2">{logoBlock}</div>
                 </div>;
             case "centered":
                 return <div className="flex flex-col items-center w-full" style={{ marginBottom: mb, minHeight: minH }}>

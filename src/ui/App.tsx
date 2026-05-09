@@ -1,18 +1,14 @@
-import { HashRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { HashRouter as Router, Routes, Route, } from "react-router-dom";
 import React, { Suspense, useEffect, useState } from "react";
 import Layout from "./routes/Layout";
 import { Toaster } from "sonner";
 import { AuthProvider } from "./context/auth-context";
-import RequirePassword from "./lib/RequirePassword";
 import { ThemeProvider } from "./components/theme-provider";
 import { Loader2 } from "lucide-react";
 import GlobalShortcuts from "./hooks/use-navigate";
 import api from "./axios";
-import { useAuth } from "./context/auth-context";
 
 function RoleBasedIndex() {
-  const { user } = useAuth();
-  if (user?.role === "receptionist") return <Navigate to="/patients" replace />;
   return <DashboardPage />;
 }
 
@@ -30,7 +26,6 @@ const MainAppointmentPage = React.lazy(() => import("./components/Appointment/Ma
 const ExpensesPage = React.lazy(() => import("./expenses/Page"));
 const DocumentsPage = React.lazy(() => import("./routes/Documents"));
 const LicenseScreen = React.lazy(() => import("./components/License/LicenseScreen"));
-const ForceResetScreen = React.lazy(() => import("./routes/ForceResetScreen"));
 
 const LoadingFallback = () => (
   <div className="flex items-center justify-center py-10 w-full h-screen">
@@ -41,20 +36,39 @@ const LoadingFallback = () => (
 function App() {
   const [licensed, setLicensed] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [passwordExists, setPasswordExists] = useState(false);
+  const [isUnlocked, setIsUnlocked] = useState(false);
 
   useEffect(() => {
     api.get("/users/init").then(({ data }) => {
       if (data.isLicensed) setLicensed(true);
+      if (data.passwordExists) {
+        setPasswordExists(true);
+      } else {
+        setIsUnlocked(true);
+      }
       setIsLoading(false);
     }).catch(err => {
       console.error("App init failed:", err);
       // Fallback to licensed in case of connection error during migration
       setLicensed(true);
+      setIsUnlocked(true); // fallback to unlocked on error
       setIsLoading(false);
     });
   }, []);
 
   if (isLoading) return <LoadingFallback />;
+
+  if (licensed && passwordExists && !isUnlocked) {
+    return (
+      <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
+        <Suspense fallback={<LoadingFallback />}>
+          <LoginPage onUnlock={() => setIsUnlocked(true)} />
+        </Suspense>
+        <Toaster position="top-center" />
+      </ThemeProvider>
+    );
+  }
 
   return licensed ? (
     <AuthProvider>
@@ -62,20 +76,7 @@ function App() {
         <Router>
           <Suspense fallback={<LoadingFallback />}>
             <Routes>
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/force-reset" element={
-                <RequirePassword>
-                  <ForceResetScreen />
-                </RequirePassword>
-              } />
-              <Route
-                path="/"
-                element={
-                  <RequirePassword>
-                    <Layout />
-                  </RequirePassword>
-                }
-              >
+              <Route path="/" element={<Layout />}>
                 <Route index element={<RoleBasedIndex />} />
                 <Route path="/prescriptions" element={<Prescriptions />} />
                 <Route path="/consultations" element={<Page />} />

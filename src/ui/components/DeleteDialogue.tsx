@@ -18,11 +18,16 @@ import api from "../axios";
 interface DeleteDialogueProps {
   consultationId: string;
   /* eslint-disable  @typescript-eslint/no-explicit-any */
+  children?: React.ReactNode;
 
   setData: React.Dispatch<React.SetStateAction<any[]>>;
 }
 
-function DeleteDialogue({ consultationId, setData }: DeleteDialogueProps) {
+function DeleteDialogue({
+  consultationId,
+  setData,
+  children,
+}: DeleteDialogueProps) {
   const [isDeleting, setIsDeleting] = useState(false);
 
   const handleDelete = () => {
@@ -47,13 +52,15 @@ function DeleteDialogue({ consultationId, setData }: DeleteDialogueProps) {
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <button
-          onClick={(e) => e.stopPropagation()}
-          className="p-2 rounded-md hover:bg-muted transition-colors duration-200"
-          aria-label="Delete consultation"
-        >
-          <TrashIcon className="h-5 w-5 text-muted-foreground hover:text-destructive hover:scale-110 transition-transform" />
-        </button>
+        {children || (
+          <button
+            onClick={(e) => e.stopPropagation()}
+            className="p-2 rounded-md hover:bg-muted transition-colors duration-200"
+            aria-label="Delete consultation"
+          >
+            <TrashIcon className="h-5 w-5 text-muted-foreground hover:text-destructive hover:scale-110 transition-transform" />
+          </button>
+        )}
       </AlertDialogTrigger>
 
       <AlertDialogContent onClick={(e) => e.stopPropagation()}>

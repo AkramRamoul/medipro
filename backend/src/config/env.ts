@@ -49,7 +49,7 @@ function deriveJwtSecret(): string {
 
 const getEnv = (): Env => {
     const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3001;
-    const NODE_ENV = process.env.NODE_ENV || 'production';
+    const NODE_ENV = process.env.NODE_ENV || (isBundled ? 'production' : 'development');
     const DATABASE_PATH = process.env.DATABASE_PATH || (isBundled ? path.join(path.dirname(process.execPath), 'database.db') : '../database.db');
     const CORS_ORIGIN = process.env.CORS_ORIGIN || '*';
     const JWT_SECRET = deriveJwtSecret();

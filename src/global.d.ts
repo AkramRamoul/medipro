@@ -220,6 +220,7 @@ export interface IElectronAPI {
   globalSearch: (query: string) => Promise<any[]>;
 }
 
+
 export interface Expense {
   id: number;
   description: string;

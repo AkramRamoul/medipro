@@ -32,3 +32,10 @@ public.pem
 .db
 *.db
 *.db.*
+# Build artifacts
+dist
+dist-react
+dist-electron
+backend/server-bundle.js
+backend/dist
+server-bundle.js

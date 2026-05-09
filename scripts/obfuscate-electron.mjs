@@ -39,7 +39,7 @@ const SENSITIVE_FILES = [
 ];
 
 const OBFUSCATOR_OPTIONS = {
-    compact: true,
+    compact: false,                     // Set to false for better error reporting during debugging
     controlFlowFlattening: false,       // Keep fast startup
     deadCodeInjection: false,           // Avoid size bloat
     stringArray: true,                  // Encode string literals
@@ -54,6 +54,7 @@ const OBFUSCATOR_OPTIONS = {
     debugProtection: false,
     disableConsoleOutput: false,        // Keep console for error logs
     sourceMap: false,
+    target: 'node',                     // Use node target for Electron main process
 };
 
 let count = 0;

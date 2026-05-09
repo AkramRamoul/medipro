@@ -116,8 +116,8 @@ function Prescriptions() {
         api.get("/settings/prescription-model"),
       ]);
 
-      if (!modelRes.data.success) {
-        toast.error("Le modèle de prescription n'est pas encore chargé.");
+      if (!modelRes.data.success || !modelRes.data.model) {
+        toast.error("Le modèle de prescription n'est pas encore configuré. Veuillez le configurer dans les paramètres.");
         return;
       }
 
@@ -199,7 +199,7 @@ function Prescriptions() {
   }, [location.state]);
 
   return (
-    <div className="max-w-[80%] mx-auto space-y-6 mt-8">
+    <div className="max-w-[85%] mx-auto space-y-6 mt-8">
       {/* Header Card */}
       <Card className="border border-white/5 shadow-lg bg-gradient-to-br from-card to-card/80 backdrop-blur">
         <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -308,14 +308,9 @@ function Prescriptions() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[30%]">
+                  <TableHead className="w-[45%]">
                     <div className="flex items-center gap-2">
-                      <User className="w-3 h-3" /> Nom
-                    </div>
-                  </TableHead>
-                  <TableHead className="w-[30%]">
-                    <div className="flex items-center gap-2">
-                      <User className="w-3 h-3" /> Prénom
+                      <User className="w-3 h-3" /> Patient
                     </div>
                   </TableHead>
                   <TableHead>
@@ -334,13 +329,11 @@ function Prescriptions() {
                     <TableRow
                       key={prescription.id}
                       onClick={() => setSelectedPrescription(prescription)}
-                      className="cursor-pointer"
+                      className="cursor-pointer group"
                     >
                       <TableCell className="font-semibold">
-                        {prescription.patient?.first_name || "N/A"}
-                      </TableCell>
-                      <TableCell>
-                        {prescription.patient?.last_name || "N/A"}
+                        {prescription.patient?.first_name || "N/A"}{" "}
+                        {prescription.patient?.last_name || ""}
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2 text-sm text-muted-foreground">

@@ -15,6 +15,8 @@ import {
   getfontPath,
 } from "./pathResolver.js";
 
+
+
 // Global window and process management
 let mainWindow: BrowserWindow | null = null;
 let backendProcess: any = null;
@@ -119,6 +121,8 @@ ipcMain.handle("load-fonts", async () => {
 
 
 
+
+
 function setAppMenu(mainWindow: BrowserWindow) {
   const isMac = process.platform === "darwin";
 
@@ -217,6 +221,7 @@ app.on("ready", async () => {
   mainWindow.maximize();
   mainWindow.show();
   setAppMenu(mainWindow);
+
 
   if (isDevelopment()) {
     mainWindow.loadURL("http://localhost:5123");

@@ -14,8 +14,10 @@ const EmptyPrescriptionPrintable: React.FC<EmptyPrescriptionPrintableProps> = ({
     prescriptionModel,
     image,
 }) => {
-    const servicesFr = JSON.parse(prescriptionModel.servicesFr || "[]");
-    const servicesAr = JSON.parse(prescriptionModel.servicesAr || "[]");
+    if (!prescriptionModel) return null;
+
+    const servicesFr = JSON.parse(prescriptionModel?.servicesFr || "[]");
+    const servicesAr = JSON.parse(prescriptionModel?.servicesAr || "[]");
 
     const origin = typeof window !== "undefined" ? window.location.origin : "";
 
@@ -85,11 +87,11 @@ const EmptyPrescriptionPrintable: React.FC<EmptyPrescriptionPrintableProps> = ({
     .col-ar-center { text-align: center; width: 45%; direction: rtl; display: flex; flex-direction: column; align-items: center; }
     /* Letterhead panels (fr-logo-left / ar-logo-right) */
     .header-panel { display: flex; align-items: stretch; margin-bottom: ${Math.max(20, logoSize * 0.35)}px; min-height: ${Math.max(100, logoSize + 30)}px; }
-    .panel-logo-left { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 8px; border-right: 2px solid ${accentColor}; flex-shrink: 0; width: ${logoSize + 20}px; }
-    .panel-logo-right { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 8px; border-left: 2px solid ${accentColor}; flex-shrink: 0; width: ${logoSize + 20}px; }
+    .panel-logo-left { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 8px; flex-shrink: 0; width: ${logoSize + 20}px; }
+    .panel-logo-right { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 8px; flex-shrink: 0; width: ${logoSize + 20}px; }
     .panel-text-fr { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 8px 12px; text-align: left; }
     .panel-text-ar { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 8px 12px; text-align: right; direction: rtl; }
-    .panel-inscription { margin-top: 4px; font-size: 9px; text-align: center; color: ${accentColor}; }
+    .panel-inscription { margin-top: 4px; font-size: 9px; text-align: center; color: ${accentColor}; white-space: nowrap; }
     .logo { width: ${logoSize}px; height: ${logoSize}px; object-fit: contain; }
     .watermark { position: fixed; top: 25%; left: 25%; width: 50%; height: 50%; opacity: ${watermarkOpacity}; z-index: -1; pointer-events: none; object-fit: contain; }
     .doctor-name { font-weight: bold; font-size: ${doctorNameFontSize}px; margin-bottom: 4px; color: ${accentColor}; }
@@ -97,8 +99,8 @@ const EmptyPrescriptionPrintable: React.FC<EmptyPrescriptionPrintableProps> = ({
     .service { font-size: ${specialtyFontSize}px; color: #666; }
     .services-fr { border-left: 1.5px solid ${hexToRgba(accentColor, 0.38)}; padding-left: 8px; padding-top: 2px; padding-bottom: 2px; margin-top: 2px; }
     .services-ar { border-right: 1.5px solid ${hexToRgba(accentColor, 0.38)}; padding-right: 8px; padding-top: 2px; padding-bottom: 2px; margin-top: 2px; }
-    .inscription-badge { display: inline-block; font-size: 9px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; padding: 2px 7px; border-radius: 3px; color: ${accentColor}; background-color: ${hexToRgba(accentColor, 0.03)}; margin-top: 4px; text-align: center; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    .inscription { font-size: 10px; margin-top: 5px; text-align: center; }
+    .inscription-badge { display: inline-block; font-size: 9px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; padding: 2px 7px; border-radius: 3px; color: ${accentColor}; background-color: ${hexToRgba(accentColor, 0.03)}; margin-top: 4px; text-align: center; -webkit-print-color-adjust: exact; print-color-adjust: exact; white-space: nowrap; }
+    .inscription { font-size: 10px; margin-top: 5px; text-align: center; white-space: nowrap; }
     .divider { ${dividerCSS} margin: 8px 0; width: 100%; opacity: 0.7; }
     .patient-info { display: flex; justify-content: space-between; margin-top: 20px; margin-bottom: 20px; font-size: ${bodyFontSize}px; }
     .patient-details { text-align: left; }
@@ -154,27 +156,22 @@ const EmptyPrescriptionPrintable: React.FC<EmptyPrescriptionPrintableProps> = ({
                 return (
                     <div className="header">
                         <div className="col-fr-full">{frContent}</div>
-                        <div className="col-logo">{logoContent}</div>
+                        <div className="col-logo" style={{ paddingRight: "10px" }}>{logoContent}</div>
                     </div>
                 );
             case "ar-only":
                 return (
                     <div className="header">
-                        <div className="col-logo">{logoContent}</div>
+                        <div className="col-logo" style={{ paddingLeft: "10px" }}>{logoContent}</div>
                         <div className="col-ar-full">{arContent}</div>
                     </div>
                 );
             case "fr-logo-left":
                 return (
                     <div className="header-panel">
-                        {/* Accent logo panel on left */}
-                        <div className="panel-logo-left">
-                            {image && <img src={image} className="logo" alt="Logo" />}
-                            {showInscriptionNumber && (
-                                <div className="panel-inscription" style={{ marginTop: "4px", fontWeight: "bold" }}>N° Ordre : {prescriptionModel.inscriptionNumber}</div>
-                            )}
+                        <div className="panel-logo-left" style={{ paddingLeft: "10px" }}>
+                            {logoContent}
                         </div>
-                        {/* French info on right */}
                         <div className="panel-text-fr">
                             {frContent}
                         </div>
@@ -183,23 +180,18 @@ const EmptyPrescriptionPrintable: React.FC<EmptyPrescriptionPrintableProps> = ({
             case "ar-logo-right":
                 return (
                     <div className="header-panel">
-                        {/* Arabic info on left */}
-                        <div className="panel-text-ar">
+                        <div className="panel-text-ar" style={{ paddingRight: "20px" }}>
                             {arContent}
                         </div>
-                        {/* Accent logo panel on right */}
-                        <div className="panel-logo-right">
-                            {image && <img src={image} className="logo" alt="Logo" />}
-                            {showInscriptionNumber && (
-                                <div className="panel-inscription" style={{ marginTop: "4px", fontWeight: "bold" }}>N° Ordre : {prescriptionModel.inscriptionNumber}</div>
-                            )}
+                        <div className="panel-logo-right" style={{ paddingRight: "10px", paddingLeft: "30px", width: logoSize + 40 }}>
+                            {logoContent}
                         </div>
                     </div>
                 );
             case "bilingual-logo-left":
                 return (
                     <div className="header">
-                        <div className="col-logo-side">{logoContent}</div>
+                        <div className="col-logo-side" style={{ paddingRight: "10px" }}>{logoContent}</div>
                         <div className="col-fr" style={{ paddingLeft: "10px" }}>{frContent}</div>
                         <div className="col-ar">{arContent}</div>
                     </div>
@@ -209,7 +201,7 @@ const EmptyPrescriptionPrintable: React.FC<EmptyPrescriptionPrintableProps> = ({
                     <div className="header">
                         <div className="col-fr">{frContent}</div>
                         <div className="col-ar" style={{ paddingRight: "10px" }}>{arContent}</div>
-                        <div className="col-logo-side">{logoContent}</div>
+                        <div className="col-logo-side" style={{ paddingLeft: "10px" }}>{logoContent}</div>
                     </div>
                 );
             case "centered":

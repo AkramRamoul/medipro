@@ -64,6 +64,21 @@ async function main() {
     await db.delete(auth);
     console.log("✅ Auth records cleared");
 
+    // NEW: Clear templates and other settings
+    const { documentTemplates, prescriptionTemplates, prescriptionTemplateMedications, labResults, examForms } = await import("../src/electron/schema");
+    await db.delete(documentTemplates);
+    console.log("✅ Document templates cleared");
+    
+    await db.delete(prescriptionTemplateMedications);
+    await db.delete(prescriptionTemplates);
+    console.log("✅ Prescription templates cleared");
+
+    await db.delete(labResults);
+    console.log("✅ Lab results cleared");
+
+    await db.delete(examForms);
+    console.log("✅ Exam forms cleared");
+
     console.log("✨ Database successfully emptied!");
   } catch (error) {
     console.error("❌ Failed to clear database:", error);

@@ -482,13 +482,17 @@ export default function DocumentsPage() {
                   <TableHead className="w-[20%]">
                     <div className="flex items-center gap-2"><Calendar className="w-3 h-3" /> Date</div>
                   </TableHead>
-                  <TableHead className="text-right w-[15%]">Actions</TableHead>
+                  <TableHead className="text-right w-[15%]">Options</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {paginated.length > 0 ? (
                   paginated.map((doc) => (
-                    <TableRow key={doc.id} className="group">
+                    <TableRow
+                      key={doc.id}
+                      className="group cursor-pointer"
+                      onClick={() => handlePrint(doc)}
+                    >
                       <TableCell className="font-medium">
                         {doc.patientFirstName} {doc.patientLastName}
                       </TableCell>
@@ -515,7 +519,10 @@ export default function DocumentsPage() {
                             : "—"}
                       </TableCell>
                       <TableCell>
-                        <div className="flex items-center justify-end gap-1 opacity-60 group-hover:opacity-100 transition-opacity">
+                        <div
+                          className="flex items-center justify-end gap-1 opacity-60 group-hover:opacity-100 transition-opacity"
+                          onClick={(e) => e.stopPropagation()}
+                        >
                           <Button
                             size="icon"
                             variant="ghost"

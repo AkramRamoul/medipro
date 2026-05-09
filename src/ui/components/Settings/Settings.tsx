@@ -1,6 +1,5 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import {
-  Users,
   Database,
   FileText,
   ClipboardList,
@@ -8,7 +7,8 @@ import {
   Activity,
   Layout,
   ShieldCheck,
-  Pill
+  Pill,
+  Lock
 } from "lucide-react";
 import DatabaseSettings from "./DataBaseSettings";
 import PrescriptionTemplatesSettings from "./PrescriptionTemplatesSettings";
@@ -17,15 +17,11 @@ import BilanListSettings from "./BilanListSettings";
 import BilanTemplatesSettings from "./BilanTemplatesSettings";
 import DiagnosticListSettings from "./ConsultationListSettings";
 import ExamFormsSettings from "./ExamFormsSettings";
-import UserManagement from "./UserManagement";
+import { PasswordForm } from "./PassordSettings.tsx/PasswordForm";
 import MedicationListSettings from "./MedicationListSettings";
-import { useAuth } from "../../context/auth-context";
 
 function Settings() {
-  const { user } = useAuth();
-  const isAdmin = user?.role === "admin";
-  const isMedical = user?.role === "doctor" || user?.role === "admin";
-  const defaultTab = isAdmin ? "users" : "backup";
+  const defaultTab = "backup";
 
 
   return (
@@ -41,15 +37,14 @@ function Settings() {
 
             <div className="space-y-8">
               <TabsList className="flex flex-col h-auto bg-transparent gap-1 p-0">
-                {isAdmin && (
-                  <TabsTrigger value="users" className="flex items-center gap-3 px-4 py-3 w-full justify-start text-muted-foreground data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:font-semibold transition-all rounded-xl border border-transparent hover:bg-muted/50 group">
-                    <Users className="w-4 h-4" />
-                    <span className="text-sm font-medium">Utilisateurs</span>
-                  </TabsTrigger>
-                )}
+
                 <TabsTrigger value="backup" className="flex items-center gap-3 px-4 py-3 w-full justify-start text-muted-foreground data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:font-semibold transition-all rounded-xl border border-transparent hover:bg-muted/50 group">
                   <Database className="w-4 h-4" />
                   <span className="text-sm font-medium">Base de données</span>
+                </TabsTrigger>
+                <TabsTrigger value="security" className="flex items-center gap-3 px-4 py-3 w-full justify-start text-muted-foreground data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:font-semibold transition-all rounded-xl border border-transparent hover:bg-muted/50 group">
+                  <Lock className="w-4 h-4" />
+                  <span className="text-sm font-medium">Sécurité</span>
                 </TabsTrigger>
               </TabsList>
 
@@ -93,41 +88,36 @@ function Settings() {
         {/* Main Seamless Content Area */}
         <main className="flex-1 min-w-0 bg-background overflow-y-auto">
           <div className="max-w-7xl px-8 py-10 md:px-12">
-            {isAdmin && (
-              <TabsContent value="users" className="mt-0 border-none outline-none focus-visible:ring-0">
-                <UserManagement />
-              </TabsContent>
-            )}
+
 
             <TabsContent value="backup" className="mt-0 border-none outline-none focus-visible:ring-0">
               <DatabaseSettings />
             </TabsContent>
+            <TabsContent value="security" className="mt-0 border-none outline-none focus-visible:ring-0">
+              <PasswordForm />
+            </TabsContent>
 
-            {isMedical && (
-              <>
-                <TabsContent value="exam-forms" className="mt-0 border-none outline-none focus-visible:ring-0">
-                  <ExamFormsSettings />
-                </TabsContent>
-                <TabsContent value="diagnostics" className="mt-0 border-none outline-none focus-visible:ring-0">
-                  <DiagnosticListSettings />
-                </TabsContent>
-                <TabsContent value="prescription-templates" className="mt-0 border-none outline-none focus-visible:ring-0">
-                  <PrescriptionTemplatesSettings />
-                </TabsContent>
-                <TabsContent value="document-templates" className="mt-0 border-none outline-none focus-visible:ring-0">
-                  <DocumentTemplatesSettings />
-                </TabsContent>
-                <TabsContent value="bilans" className="mt-0 border-none outline-none focus-visible:ring-0">
-                  <BilanListSettings />
-                </TabsContent>
-                <TabsContent value="medications" className="mt-0 border-none outline-none focus-visible:ring-0">
-                  <MedicationListSettings />
-                </TabsContent>
-                <TabsContent value="bilan-templates" className="mt-0 border-none outline-none focus-visible:ring-0">
-                  <BilanTemplatesSettings />
-                </TabsContent>
-              </>
-            )}
+            <TabsContent value="exam-forms" className="mt-0 border-none outline-none focus-visible:ring-0">
+              <ExamFormsSettings />
+            </TabsContent>
+            <TabsContent value="diagnostics" className="mt-0 border-none outline-none focus-visible:ring-0">
+              <DiagnosticListSettings />
+            </TabsContent>
+            <TabsContent value="prescription-templates" className="mt-0 border-none outline-none focus-visible:ring-0">
+              <PrescriptionTemplatesSettings />
+            </TabsContent>
+            <TabsContent value="document-templates" className="mt-0 border-none outline-none focus-visible:ring-0">
+              <DocumentTemplatesSettings />
+            </TabsContent>
+            <TabsContent value="bilans" className="mt-0 border-none outline-none focus-visible:ring-0">
+              <BilanListSettings />
+            </TabsContent>
+            <TabsContent value="medications" className="mt-0 border-none outline-none focus-visible:ring-0">
+              <MedicationListSettings />
+            </TabsContent>
+            <TabsContent value="bilan-templates" className="mt-0 border-none outline-none focus-visible:ring-0">
+              <BilanTemplatesSettings />
+            </TabsContent>
           </div>
         </main>
       </Tabs>

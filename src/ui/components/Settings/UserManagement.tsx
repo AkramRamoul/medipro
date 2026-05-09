@@ -37,7 +37,7 @@ interface User {
     id: number;
     email: string;
     role: "admin" | "doctor" | "receptionist";
-    created_at: string;
+    createdAt: string;
 }
 
 export default function UserManagement() {
@@ -253,11 +253,11 @@ export default function UserManagement() {
                                             <EditableRoleBadge user={user} />
                                         </TableCell>
                                         <TableCell className="text-left">
-                                            {new Date(user.created_at).toLocaleDateString("fr-FR", {
+                                            {user.createdAt ? new Date(user.createdAt).toLocaleDateString("fr-FR", {
                                                 day: "2-digit",
                                                 month: "long",
                                                 year: "numeric",
-                                            })}
+                                            }) : "N/A"}
                                         </TableCell>
                                         <TableCell className="text-right">
                                             <AlertDialog>

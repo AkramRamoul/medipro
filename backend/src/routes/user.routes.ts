@@ -75,14 +75,44 @@ router.patch('/:id/role', authMiddleware, authorize(['admin']), async (req, res,
     }
 });
 
-// Settings & Password management (Protected, user can change their own if needed, but for now simple)
-router.post('/change-password', authMiddleware, async (req, res, next) => {
+// Global Password management
+router.post('/create-password', async (req, res, next) => {
     try {
-        const { oldPassword, newPassword } = req.body;
-        const result = await userService.changePassword(oldPassword, newPassword);
+        const { password } = req.body;
+        const result = await userService.createPassword(password);
         res.json(result);
-    } catch (error) {
-        next(error);
+    } catch (error: any) {
+        res.status(400).json({ success: false, message: error.message });
+    }
+});
+
+router.post('/change-password', async (req, res, next) => {
+    try {
+        const { oldPassword, password } = req.body;
+        const result = await userService.changePassword(oldPassword, password);
+        res.json(result);
+    } catch (error: any) {
+        res.status(400).json({ success: false, message: error.message });
+    }
+});
+
+router.post('/remove-password', async (req, res, next) => {
+    try {
+        const { password } = req.body;
+        const result = await userService.removePassword(password);
+        res.json(result);
+    } catch (error: any) {
+        res.status(400).json({ success: false, message: error.message });
+    }
+});
+
+router.post('/verify-password', async (req, res, next) => {
+    try {
+        const { password } = req.body;
+        const isValid = await userService.checkPassword(password);
+        res.json({ success: isValid });
+    } catch (error: any) {
+        res.status(400).json({ success: false, message: error.message });
     }
 });
 

@@ -46,8 +46,7 @@ const seedInitialData = async () => {
                     isDefault: true,
                     content: `
         <div style="font-family: Arial, sans-serif;">
-          <p>Je soussigné, Docteur <strong>[Nom du Docteur]</strong>, certifie avoir examiné ce jour le nommé (e) :</p>
-          <p style="margin-left: 20px;"><strong>[Nom du Patient]</strong></p>
+          <p>Je soussigné, Docteur <strong>[Nom du Docteur]</strong>, certifie avoir examiné ce jour le nommé (e) : <strong>[Nom du Patient]</strong></p>
           <p>L'examen clinique ce jour ne révèle aucun signe clinique apparent de contre-indication à la pratique d'une activité physique et sportive.</p>
           <br/>
           <p style="text-align: right;">Fait à [Ville], le [Date]</p>
@@ -60,8 +59,7 @@ const seedInitialData = async () => {
                     isDefault: true,
                     content: `
         <div style="font-family: Arial, sans-serif;">
-          <p>Je soussigné, Docteur <strong>[Nom du Docteur]</strong>, certifie avoir examiné ce jour :</p>
-          <p style="margin-left: 20px;"><strong>[Nom du Patient]</strong></p>
+          <p>Je soussigné, Docteur <strong>[Nom du Docteur]</strong>, certifie avoir examiné ce jour : <strong>[Nom du Patient]</strong></p>
           <p>Son état de santé justifie un arrêt de travail de : <strong>......... jours</strong></p>
           <p>À compter du : <strong>[Date]</strong></p>
           <br/>
@@ -91,8 +89,7 @@ const seedInitialData = async () => {
                     isDefault: true,
                     content: `
         <div style="font-family: Arial, sans-serif;">
-          <p>Je soussigné, Docteur <strong>[Nom du Docteur]</strong>, certifie que l'état de santé du patient :</p>
-          <p style="margin-left: 20px;"><strong>[Nom du Patient]</strong></p>
+          <p>Je soussigné, Docteur <strong>[Nom du Docteur]</strong>, certifie que l'état de santé du patient : <strong>[Nom du Patient]</strong></p>
           <p>né(e) le <strong>[Date de Naissance]</strong>, nécessite un suivi régulier pour une affection de longue durée :</p>
           <p>....................................................................................</p>
           <br/>
@@ -201,4 +198,4 @@ export async function reinitializeDb() {
     await seedInitialData();
     console.log('✅ Database connection restored successfully.');
 }
-// Trigger restart 2
+// Trigger restart 3
