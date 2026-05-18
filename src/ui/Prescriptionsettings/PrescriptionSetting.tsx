@@ -7,13 +7,13 @@ import { toast } from "sonner";
 import { Button } from "../components/ui/button";
 import { PrescriptionPreview } from "./PrescriptionPreview";
 import {
-  Layout, RotateCcw, RefreshCw, Loader2, Save,
+  Layout, RefreshCw, Loader2, Save,
   ChevronDown, CheckCircle2, AlertCircle, User,
   Phone, Palette, Image as ImageIcon, Layers,
 } from "lucide-react";
 
 import { useDebounce } from "../hooks/use-debounce";
-import { FormState, ServiceItem, FormData, DEFAULT_ELEMENT_POSITIONS } from "./types";
+import { FormState, ServiceItem, FormData } from "./types";
 import { TemplateLayoutSelector } from "./components/TemplateLayoutSelector";
 import { DoctorInfoSection } from "./components/DoctorInfoSection";
 import { ServicesSection } from "./components/ServicesSection";
@@ -46,9 +46,6 @@ const DEFAULT_FORM: FormState = {
   titleText: "ORDONNANCE",
   showInscriptionNumber: true,
   templateLayout: "bilingual-logo-left",
-  customPositions: DEFAULT_ELEMENT_POSITIONS,
-  useCustomLayout: false,
-  hiddenElements: [] as import("./types").LayoutElementId[],
 };
 
 const DEFAULT_SERVICES: ServiceItem[] = [
@@ -105,7 +102,7 @@ export function PrescriptionModelForm() {
     defaultValues: { ...DEFAULT_FORM, services: DEFAULT_SERVICES }
   });
 
-  const { reset, handleSubmit, watch, setValue } = methods;
+  const { reset, handleSubmit, watch } = methods;
 
   useEffect(() => {
     if (logoData?.success && logoData.image) setLogoImage(logoData.image);
@@ -216,7 +213,6 @@ export function PrescriptionModelForm() {
             </span>
           ) : null}
 
-
           <Button type="button" variant="outline" size="sm" onClick={handleReload}
             disabled={isSaving} className="gap-1.5" title="Recharger les données enregistrées">
             <RefreshCw className="w-3.5 h-3.5" />
@@ -289,12 +285,6 @@ export function PrescriptionModelForm() {
             form={debouncedForm}
             services={debouncedForm.services || []}
             logoImage={logoImage}
-            onCustomLayoutChange={(positions, useCustomLayout, hidden) => {
-              setValue("customPositions", positions);
-              setValue("useCustomLayout", useCustomLayout);
-              setValue("hiddenElements", hidden);
-              setIsDirty(true);
-            }}
           />
           {/* Print button below preview */}
           <div className="mt-3 flex justify-center">

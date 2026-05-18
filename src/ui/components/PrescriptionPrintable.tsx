@@ -37,18 +37,25 @@ const PrescriptionPrintable: React.FC<PrescriptionPrintableProps> = ({
 
   if (!prescriptionModel) return null;
 
-  const servicesFr = JSON.parse(prescriptionModel?.servicesFr || "[]");
-  const servicesAr = JSON.parse(prescriptionModel?.servicesAr || "[]");
+  const servicesFr = JSON.parse(prescriptionModel.servicesFr || "[]");
+  const servicesAr = JSON.parse(prescriptionModel.servicesAr || "[]");
 
   const origin = typeof window !== "undefined" ? window.location.origin : "";
 
   const accentColor = prescriptionModel.accentColor || "#000000";
-  const fontFamily = prescriptionModel.fontFamily === "sans-serif" ? "sans-serif" : "'Amiri', serif";
 
+  const hexToRgba = (hex: string, alpha: number): string => {
+    const clean = hex.replace("#", "");
+    const r = parseInt(clean.slice(0, 2), 16);
+    const g = parseInt(clean.slice(2, 4), 16);
+    const b = parseInt(clean.slice(4, 6), 16);
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  };
+  const fontFamily = prescriptionModel.fontFamily === "sans-serif" ? "sans-serif" : "'Amiri', serif";
   const doctorNameFontSize = prescriptionModel.doctorNameFontSize ?? 14;
   const specialtyFontSize = prescriptionModel.specialtyFontSize ?? 10;
-  const titleFontSize = prescriptionModel.titleFontSize ?? 18;
-  const bodyFontSize = prescriptionModel.bodyFontSize ?? 12;
+  const titleFontSize = prescriptionModel.titleFontSize ?? 16;
+  const bodyFontSize = prescriptionModel.bodyFontSize ?? 11;
   const logoSize = prescriptionModel.logoSize ?? 60;
   const watermarkOpacity = (prescriptionModel.watermarkOpacity ?? 10) / 100;
   const dividerStyle = prescriptionModel.dividerStyle || "solid";
@@ -56,7 +63,6 @@ const PrescriptionPrintable: React.FC<PrescriptionPrintableProps> = ({
   const showInscriptionNumber = prescriptionModel.showInscriptionNumber ?? true;
   const templateLayout: string = prescriptionModel.templateLayout || "bilingual";
 
-  // Split medications into chunks of MEDS_PER_PAGE
   const medicationChunks: PrescriptionMed[][] = [];
   for (let i = 0; i < medications.length; i += MEDS_PER_PAGE) {
     medicationChunks.push(medications.slice(i, i + MEDS_PER_PAGE));
@@ -77,9 +83,7 @@ const PrescriptionPrintable: React.FC<PrescriptionPrintableProps> = ({
       font-weight: bold;
       font-style: normal;
     }
-    body { font-family: ${fontFamily}; font-size: ${bodyFontSize}px; margin: 0; padding: 0; }
-    .prescription-page { padding: 10px 20px; position: relative; }
-    .prescription-page + .prescription-page { page-break-before: always; }
+    body { font-family: ${fontFamily}; font-size: ${bodyFontSize}px; margin: 0; padding: 10px 20px; }
     .header {
       margin-bottom: ${Math.max(20, logoSize * 0.35)}px;
       min-height: ${Math.max(100, logoSize + 30)}px;
@@ -99,6 +103,23 @@ const PrescriptionPrintable: React.FC<PrescriptionPrintableProps> = ({
     .col-stacked-container { display: flex; width: 100%; justify-content: space-between; margin-top: 15px; }
     .col-fr-center { text-align: center; width: 45%; display: flex; flex-direction: column; align-items: center; }
     .col-ar-center { text-align: center; width: 45%; direction: rtl; display: flex; flex-direction: column; align-items: center; }
+    /* Bilingual Stacked */
+    .header-bilingual-stacked { display: flex; justify-content: space-between; align-items: flex-start; width: 100%; margin-bottom: ${Math.max(20, logoSize * 0.35)}px; min-height: ${Math.max(100, logoSize + 30)}px; }
+    .header-bilingual-stacked .col-left { width: 55%; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; text-align: center; padding-top: 5px; }
+    .header-bilingual-stacked .col-right { width: 45%; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; text-align: center; }
+    .header-bilingual-stacked .fr-block { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+    .header-bilingual-stacked .ar-block { display: flex; flex-direction: column; align-items: center; direction: rtl; gap: 2px; }
+    .header-bilingual-stacked .divider-container { display: flex; align-items: center; justify-content: center; width: 100px; margin: 14px 0; opacity: 0.8; }
+    .header-bilingual-stacked .divider-line { height: 1px; flex: 1; background-color: ${accentColor}; }
+    .header-bilingual-stacked .divider-dots { display: flex; gap: 3px; margin: 0 8px; align-items: center; }
+    .header-bilingual-stacked .divider-dot-s { width: 3px; height: 3px; border-radius: 50%; background-color: ${accentColor}; }
+    .header-bilingual-stacked .divider-dot-m { width: 4.5px; height: 4.5px; border-radius: 50%; background-color: ${accentColor}; }
+    .header-bilingual-stacked .clinic-name-ar { font-weight: bold; font-size: ${specialtyFontSize + 2}px; color: ${accentColor}; margin-bottom: 2px; letter-spacing: 0.5px; }
+    .header-bilingual-stacked .clinic-name-fr { font-weight: 500; font-size: ${specialtyFontSize}px; color: ${accentColor}; margin-bottom: 6px; letter-spacing: 0.3px; }
+    .header-bilingual-stacked .doctor-name { margin-bottom: 0; font-size: ${doctorNameFontSize * 1.15}px; font-weight: bold; text-transform: uppercase; color: ${accentColor}; letter-spacing: 0.5px; }
+    .header-bilingual-stacked .specialty { margin-bottom: 0; color: ${accentColor}; font-weight: 500; font-size: ${specialtyFontSize * 0.95}px; }
+    .header-bilingual-stacked .logo { width: ${logoSize}px; height: ${logoSize}px; margin-bottom: 8px; object-fit: contain; }
+    .header-bilingual-stacked .inscription-text { font-size: 9px; font-weight: 400; color: ${accentColor}; opacity: 0.85; margin-top: 4px; letter-spacing: 1px; }
     /* Letterhead panel (fr-logo-left / ar-logo-right) */
     .header-panel { display: flex; align-items: stretch; margin-bottom: ${Math.max(20, logoSize * 0.35)}px; min-height: ${Math.max(100, logoSize + 30)}px; }
     .panel-logo-left { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 8px; flex-shrink: 0; width: ${logoSize + 20}px; }
@@ -111,28 +132,27 @@ const PrescriptionPrintable: React.FC<PrescriptionPrintableProps> = ({
     .doctor-name { font-weight: bold; font-size: ${doctorNameFontSize}px; margin-bottom: 4px; color: ${accentColor}; }
     .specialty { font-size: ${specialtyFontSize}px; margin-bottom: 2px; color: #444; }
     .service { font-size: ${specialtyFontSize}px; color: #666; }
-    .services-fr { border-left: 1.5px solid ${accentColor}60; padding-left: 8px; padding-top: 2px; padding-bottom: 2px; margin-top: 2px; }
-    .services-ar { border-right: 1.5px solid ${accentColor}60; padding-right: 8px; padding-top: 2px; padding-bottom: 2px; margin-top: 2px; }
-    .inscription-badge { display: inline-block; font-size: 9px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; padding: 2px 7px; border-radius: 3px; color: ${accentColor}; background-color: ${accentColor}14; margin-top: 4px; text-align: center; white-space: nowrap; }
-    .inscription { font-size: 10px; margin-top: 5px; text-align: center; white-space: nowrap; }
-    .divider { ${dividerStyle === "none" ? "border: none;" : dividerStyle === "double" ? `border-bottom: 2px double #666;` : `border-bottom: 0.5px ${dividerStyle} #666;`} margin: 8px 0; width: 100%; border-color: ${accentColor}; opacity: 0.7; }
+    .services-fr { border-left: 1.5px solid ${hexToRgba(accentColor, 0.38)}; padding-left: 8px; padding-top: 2px; padding-bottom: 2px; margin-top: 2px; }
+    .services-ar { border-right: 1.5px solid ${hexToRgba(accentColor, 0.38)}; padding-right: 8px; padding-top: 2px; padding-bottom: 2px; margin-top: 2px; }
+    .inscription-badge { display: inline-block; font-size: 9px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; padding: 2px 7px; border-radius: 3px; color: ${accentColor}; background-color: ${hexToRgba(accentColor, 0.03)}; margin-top: 4px; text-align: center; -webkit-print-color-adjust: exact; print-color-adjust: exact; white-space: nowrap; }
+    .divider { ${dividerStyle === "none" ? "border: none;" : dividerStyle === "double" ? `border-bottom: 2px double #aaa;` : `border-bottom: 0.5px ${dividerStyle} #aaa;`} margin: 8px 0; width: 100%; opacity: 0.7; }
     .patient-info { display: flex; justify-content: space-between; margin-top: 20px; margin-bottom: 20px; font-size: ${bodyFontSize}px; }
     .patient-details { text-align: left; }
     .document-info { text-align: right; }
-    .title { display: block; text-align: center; font-size: ${titleFontSize}px; font-weight: bold; letter-spacing: 0.2em; text-decoration: none; border-bottom: 1px solid ${accentColor}40; padding-bottom: 6px; margin: 10px auto 20px auto; width: fit-content; color: ${accentColor}; }
-    .page-indicator { text-align: center; font-size: 10px; color: #888; margin-top: -15px; margin-bottom: 10px; }
-    .medications { margin-top: 25px; font-size: ${bodyFontSize}px; }
-    .medication-item { margin-bottom: 16px; display: flex; flex-direction: column; }
-    .med-header { display: flex; justify-content: space-between; align-items: baseline; width: 100%; }
-    .med-name-container { display: flex; align-items: baseline; gap: 10px; flex: 1; }
-    .med-number { font-weight: 300; color: ${accentColor}; font-size: 0.85em; min-width: 22px; text-align: left; opacity: 0.8; }
-    .med-name { font-weight: 500; color: #333; }
-    .med-meta { font-weight: 300; color: #666; font-size: 0.9em; white-space: nowrap; margin-left: 10px; }
-    .med-note { margin-top: 4px; font-style: italic; color: #666; margin-left: 32px; font-weight: 300; border-left: 1.5px solid ${accentColor}20; padding-left: 10px; font-size: 0.95em; }
-    .footer { position: fixed; bottom: 20px; left: 0; right: 0; text-align: center; border-top: 1px solid #aaa; padding-top: 5px; font-size: 11px; }
+    .title { display: block; text-align: center; font-size: ${titleFontSize}px; font-weight: bold; letter-spacing: 0.2em; text-decoration: none; border-bottom: 1px solid ${hexToRgba(accentColor, 0.25)}; padding-bottom: 6px; margin: 10px auto 20px auto; width: fit-content; color: ${accentColor}; }
+    .page-indicator { text-align: center; font-size: 10px; color: #888; margin-bottom: 10px; }
+    .medications { margin-top: 20px; font-size: ${bodyFontSize}px; }
+    .medication-item { margin-bottom: 14px; }
+    .med-row { display: flex; align-items: baseline; width: 100%; }
+    .med-number-dash { font-weight: 400; color: ${accentColor}; white-space: nowrap; flex-shrink: 0; min-width: 28px; }
+    .med-name-dots { flex: 1; overflow: hidden; white-space: nowrap; font-weight: 500; color: #222; }
+    .med-name-dots::after { content: " . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ."; font-weight: 300; color: #aaa; letter-spacing: 2px; }
+    .med-qty { white-space: nowrap; margin-left: 6px; font-weight: 400; color: #222; flex-shrink: 0; }
+    .med-note { margin-top: 2px; margin-left: 28px; color: #555; font-weight: 300; font-size: 0.95em; }
+    .footer { position: fixed; bottom: 20px; left: 0; right: 0; text-align: center; border-top: 0.5px solid #ccc; padding-top: 5px; font-size: 11px; }
   `;
 
-  // Sub-content blocks reused across templates
+  // Sub-content reused across templates
   const frContent = (
     <>
       <div className="doctor-name">{prescriptionModel.nameFr}</div>
@@ -226,6 +246,40 @@ const PrescriptionPrintable: React.FC<PrescriptionPrintableProps> = ({
             </div>
           </div>
         );
+      case "bilingual-stacked":
+        return (
+          <div className="header-bilingual-stacked">
+            <div className="col-left">
+              <div className="fr-block">
+                <div className="doctor-name">{prescriptionModel.nameFr}</div>
+                <div className="specialty">{prescriptionModel.specialtyFr}</div>
+              </div>
+              <div className="divider-container">
+                <div className="divider-line"></div>
+                <div className="divider-dots">
+                  <div className="divider-dot-s"></div>
+                  <div className="divider-dot-m"></div>
+                  <div className="divider-dot-s"></div>
+                </div>
+                <div className="divider-line"></div>
+              </div>
+              <div className="ar-block">
+                <div className="doctor-name">{prescriptionModel.nameAr}</div>
+                <div className="specialty">{prescriptionModel.specialtyAr}</div>
+              </div>
+            </div>
+            <div className="col-right">
+              {image && <img src={image} className="logo" alt="Logo" />}
+              <div className="clinic-name-ar">العيادة الطبية المختصة</div>
+              <div className="clinic-name-fr">Clinique Privée Spécialisée</div>
+              {showInscriptionNumber && (
+                <div className="inscription-text">
+                  N° d'ordre: {prescriptionModel.inscriptionNumber}
+                </div>
+              )}
+            </div>
+          </div>
+        );
       case "bilingual":
       default:
         return (
@@ -238,182 +292,6 @@ const PrescriptionPrintable: React.FC<PrescriptionPrintableProps> = ({
     }
   };
 
-  const renderPatientAndDivider = () => (
-    <>
-      <div className="divider" />
-      <div className="patient-info">
-        <div className="patient-details">
-          <div><strong>Nom :</strong> {patient.first_name} {patient.last_name}</div>
-          <div><strong>Âge :</strong> {patient.age} Ans</div>
-          {isPsychotropic && patientAddress && (
-            <div><strong>Adresse :</strong> {patientAddress}</div>
-          )}
-        </div>
-        <div className="document-info">
-          <div>{prescriptionModel.city}, le : {formatDate(prescriptionDate ? new Date(prescriptionDate) : new Date())}</div>
-          {isPsychotropic && psychotropicNumber && (
-            <div><strong>Numero de serie :</strong> {psychotropicNumber}</div>
-          )}
-        </div>
-      </div>
-    </>
-  );
-
-  const renderFooter = () => (
-    <div className="footer">
-      <div>{prescriptionModel.address}</div>
-      {(prescriptionModel.phoneNumber1 || prescriptionModel.phoneNumber2) && (
-        <div>
-          {prescriptionModel.phoneNumber1 && `Tél. : ${prescriptionModel.phoneNumber1}`}
-          {prescriptionModel.phoneNumber1 && prescriptionModel.phoneNumber2 && " | "}
-          {prescriptionModel.phoneNumber2 && `Mob. : ${prescriptionModel.phoneNumber2}`}
-        </div>
-      )}
-    </div>
-  );
-
-  const customPositionsObj = typeof prescriptionModel.customPositions === 'string'
-    ? JSON.parse(prescriptionModel.customPositions || '{}')
-    : (prescriptionModel.customPositions || {});
-  const useCustomLayout = Object.keys(customPositionsObj).length > 0;
-
-  const renderCustomLayoutBlocks = (chunk: PrescriptionMed[], pageIndex: number) => {
-    let hiddenElements = prescriptionModel.hiddenElements || [];
-    if (typeof hiddenElements === 'string') {
-      try { hiddenElements = JSON.parse(hiddenElements); } catch (e) { hiddenElements = []; }
-    }
-    if (!Array.isArray(hiddenElements)) hiddenElements = [];
-    const isHidden = (id: string) => hiddenElements.includes(id);
-
-    const getStyle = (id: string, fullWidth?: boolean): React.CSSProperties => {
-      const pos = customPositionsObj[id];
-      if (!pos || isHidden(id)) return { display: "none" };
-      return {
-        position: "absolute",
-        left: `${pos.x}%`,
-        top: `${pos.y}%`,
-        width: fullWidth ? "100%" : undefined,
-        maxWidth: fullWidth ? "100%" : "45%",
-      };
-    };
-
-    let maxTop = 0;
-    ["logo", "nameFr", "nameAr", "specialtyFr", "specialtyAr", "inscription", "divider", "title", "patientInfo", "dateCity"].forEach(id => {
-      if (!isHidden(id) && customPositionsObj[id] && customPositionsObj[id].y > maxTop) {
-        maxTop = customPositionsObj[id].y;
-      }
-    });
-    const medsTop = maxTop + 8;
-
-    return (
-      <div style={{ position: "relative", width: "100%", height: "209mm" }}>
-        {!isHidden("logo") && (
-          <div style={getStyle("logo")}>
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>{logoContent}</div>
-          </div>
-        )}
-        {!isHidden("nameFr") && (
-          <div style={getStyle("nameFr")}>
-            <div className="doctor-name">{prescriptionModel.nameFr}</div>
-          </div>
-        )}
-        {!isHidden("nameAr") && (
-          <div style={{ ...getStyle("nameAr"), textAlign: "right", direction: "rtl" }}>
-            <div className="doctor-name">{prescriptionModel.nameAr}</div>
-          </div>
-        )}
-        {!isHidden("specialtyFr") && (
-          <div style={getStyle("specialtyFr")}>
-            <div className="specialty">{prescriptionModel.specialtyFr}</div>
-            {servicesFr.map((srv: string, idx: number) => <div key={idx} className="service">{srv}</div>)}
-          </div>
-        )}
-        {!isHidden("specialtyAr") && (
-          <div style={{ ...getStyle("specialtyAr"), textAlign: "right", direction: "rtl" }}>
-            <div className="specialty">{prescriptionModel.specialtyAr}</div>
-            {servicesAr.map((srv: string, idx: number) => <div key={idx} className="service">{srv}</div>)}
-          </div>
-        )}
-        {!isHidden("inscription") && (
-          <div style={getStyle("inscription")}>
-            <div className="inscription" style={{ color: accentColor }}>N° {prescriptionModel.inscriptionNumber}</div>
-          </div>
-        )}
-        {!isHidden("divider") && (
-          <div style={{ ...getStyle("divider", true) }}>
-            <div className="divider" style={{ margin: 0, borderBottom: dividerStyle === "double" ? "2px double #666" : `0.75px ${dividerStyle} #666`, borderColor: accentColor, opacity: 0.6 }} />
-          </div>
-        )}
-        {!isHidden("title") && (
-          <div style={getStyle("title", true)}>
-            <div className="title" style={{ margin: 0, borderBottom: `1.2px solid ${accentColor}40` }}>{titleText}</div>
-          </div>
-        )}
-        {!isHidden("patientInfo") && (
-          <div style={getStyle("patientInfo")}>
-            <div className="patient-details" style={{ marginTop: 0, marginBottom: 0 }}>
-              <div><strong>Nom :</strong> {patient.first_name} {patient.last_name}</div>
-              <div><strong>Âge :</strong> {patient.age} Ans</div>
-              {isPsychotropic && patientAddress && <div><strong>Adresse :</strong> {patientAddress}</div>}
-            </div>
-          </div>
-        )}
-        {!isHidden("dateCity") && (
-          <div style={getStyle("dateCity")}>
-            <div className="document-info" style={{ marginTop: 0, marginBottom: 0 }}>
-              <div>{prescriptionModel.city}, le : {formatDate(prescriptionDate ? new Date(prescriptionDate) : new Date())}</div>
-              {isPsychotropic && psychotropicNumber && <div><strong>Numero de serie :</strong> {psychotropicNumber}</div>}
-            </div>
-          </div>
-        )}
-        {!isHidden("footer") && (
-          <div style={{ ...getStyle("footer", true) }}>
-            <div className="footer" style={{ position: "static", borderTop: "1px solid #aaa", paddingTop: "5px", fontSize: "11px", textAlign: "center" }}>
-              <div>{prescriptionModel.address}</div>
-              {(prescriptionModel.phoneNumber1 || prescriptionModel.phoneNumber2) && (
-                <div>
-                  {prescriptionModel.phoneNumber1 && `Tél. : ${prescriptionModel.phoneNumber1}`}
-                  {prescriptionModel.phoneNumber1 && prescriptionModel.phoneNumber2 && " | "}
-                  {prescriptionModel.phoneNumber2 && `Mob. : ${prescriptionModel.phoneNumber2}`}
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        <div className="medications" style={{ position: "absolute", top: `${medsTop}%`, left: 0, right: 0 }}>
-          {totalPages > 1 && (
-            <div className="page-indicator">
-              Page {pageIndex + 1} / {totalPages}
-            </div>
-          )}
-          {chunk.map((med, index) => {
-            const medIndex = pageIndex * MEDS_PER_PAGE + index + 1;
-            return (
-              <div key={index} className="medication-item">
-                <div className="med-header">
-                  <div className="med-name-container">
-                    <span className="med-number">{medIndex}.</span>
-                    <span className="med-name">
-                      {med.medicineName}
-                      {med.form ? ` ${med.form}` : ""}
-                      {med.dosage ? ` ${med.dosage}` : ""}
-                    </span>
-                  </div>
-                  <div className="med-meta">
-                    {med.quantity ? `(${med.quantity})` : ""}
-                    {med.duration ? ` (${med.duration})` : ""}
-                  </div>
-                </div>
-                {med.note && <div className="med-note">{med.note}</div>}
-              </div>
-            );
-          })}
-        </div>
-      </div>
-    );
-  };
-
   return (
     <html>
       <head>
@@ -422,50 +300,59 @@ const PrescriptionPrintable: React.FC<PrescriptionPrintableProps> = ({
       <body>
         {image && <img src={image} className="watermark" alt="" />}
 
-        {medicationChunks.map((chunk, pageIndex) => (
-          <div key={pageIndex} className="prescription-page">
-            {useCustomLayout ? renderCustomLayoutBlocks(chunk, pageIndex) : (
-              <>
-                {renderHeader()}
-                {renderPatientAndDivider()}
+        {renderHeader()}
 
-                <div className="title">{titleText}</div>
-                {totalPages > 1 && (
-                  <div className="page-indicator">
-                    Page {pageIndex + 1} / {totalPages}
-                  </div>
-                )}
+        <div className="divider" />
 
-                <div className="medications">
-                  {chunk.map((med, index) => {
-                    const medIndex = pageIndex * MEDS_PER_PAGE + index + 1;
-                    return (
-                      <div key={index} className="medication-item">
-                        <div className="med-header">
-                          <div className="med-name-container">
-                            <span className="med-number">{medIndex}.</span>
-                            <span className="med-name">
-                              {med.medicineName}
-                              {med.form ? ` ${med.form}` : ""}
-                              {med.dosage ? ` ${med.dosage}` : ""}
-                            </span>
-                          </div>
-                          <div className="med-meta">
-                            {med.quantity ? `(${med.quantity})` : ""}
-                            {med.duration ? ` (${med.duration})` : ""}
-                          </div>
-                        </div>
-                        {med.note && <div className="med-note">{med.note}</div>}
-                      </div>
-                    );
-                  })}
-                </div>
-
-                {renderFooter()}
-              </>
+        <div className="patient-info">
+          <div className="patient-details">
+            <div><strong>Nom :</strong> {patient.first_name} {patient.last_name}</div>
+            <div><strong>Âge :</strong> {patient.age} Ans</div>
+            {isPsychotropic && patientAddress && (
+              <div><strong>Adresse :</strong> {patientAddress}</div>
             )}
           </div>
-        ))}
+          <div className="document-info">
+            <div>{prescriptionModel.city}, le : {formatDate(prescriptionDate ? new Date(prescriptionDate) : new Date())}</div>
+            {isPsychotropic && psychotropicNumber && (
+              <div><strong>Numero de serie :</strong> {psychotropicNumber}</div>
+            )}
+          </div>
+        </div>
+
+        <div className="title">{titleText}</div>
+
+        <div className="medications">
+          {totalPages > 1 && <div className="page-indicator">Page 1 / {totalPages}</div>}
+          {(medicationChunks[0] || []).map((med, index) => {
+            const qtyLabel = [med.quantity, med.duration].filter(Boolean).join("  ");
+            return (
+              <div key={index} className="medication-item">
+                <div className="med-row">
+                  <span className="med-number-dash">{index + 1} - </span>
+                  <span className="med-name-dots">
+                    {med.medicineName}
+                    {med.form ? ` ${med.form}` : ""}
+                    {med.dosage ? ` ${med.dosage}` : ""}
+                  </span>
+                  {qtyLabel && <span className="med-qty">{qtyLabel}</span>}
+                </div>
+                {med.note && <div className="med-note">{med.note}</div>}
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="footer">
+          <div>{prescriptionModel.address}</div>
+          {(prescriptionModel.phoneNumber1 || prescriptionModel.phoneNumber2) && (
+            <div>
+              {prescriptionModel.phoneNumber1 && `Tél. : ${prescriptionModel.phoneNumber1}`}
+              {prescriptionModel.phoneNumber1 && prescriptionModel.phoneNumber2 && " | "}
+              {prescriptionModel.phoneNumber2 && `Mob. : ${prescriptionModel.phoneNumber2}`}
+            </div>
+          )}
+        </div>
       </body>
     </html>
   );

@@ -12,6 +12,7 @@ const TEMPLATES: { id: TemplateLayout; label: string; desc: string }[] = [
     { id: "bilingual-logo-left", label: "Bilingue FG", desc: "Logo + FR + AR" },
     { id: "bilingual-logo-right", label: "Bilingue FD", desc: "FR + AR + Logo" },
     { id: "centered", label: "Centré", desc: "Logo + Textes centrés" },
+    { id: "bilingual-stacked", label: "Superposé", desc: "FR/AR gauche, Logo droite" },
 ];
 
 const MiniPreview = ({ type, active }: { type: TemplateLayout; active: boolean }) => {
@@ -90,6 +91,19 @@ const MiniPreview = ({ type, active }: { type: TemplateLayout; active: boolean }
                 </div>
             </div>
         ),
+        "bilingual-stacked": (
+            <div className="flex justify-between items-start w-full gap-2">
+                <div className="flex-1 flex flex-col items-center gap-1.5">
+                    <Block align="center" />
+                    <div className="w-full border-t border-slate-300 dark:border-slate-600 border-dashed" />
+                    <Block align="center" />
+                </div>
+                <div className="flex-1 flex flex-col items-center gap-1 shrink-0">
+                    <Logo />
+                    <Txt w={12} sec />
+                </div>
+            </div>
+        ),
     };
 
     return (
@@ -102,7 +116,6 @@ const MiniPreview = ({ type, active }: { type: TemplateLayout; active: boolean }
 export function TemplateLayoutSelector() {
     const { control, setValue } = useFormContext<FormData>();
     const templateLayout = useWatch({ control, name: "templateLayout" });
-    const useCustomLayout = useWatch({ control, name: "useCustomLayout" });
 
     return (
         <section className="space-y-5">
@@ -113,27 +126,10 @@ export function TemplateLayoutSelector() {
                 <h3 className="font-semibold text-sm tracking-wide text-foreground/90 uppercase">Mise en page de l'en-tête</h3>
             </div>
 
-            <AnimatePresence>
-                {useCustomLayout && (
-                    <motion.div
-                        initial={{ opacity: 0, y: -10, height: 0 }}
-                        animate={{ opacity: 1, y: 0, height: "auto" }}
-                        exit={{ opacity: 0, y: -10, height: 0 }}
-                        className="overflow-hidden"
-                    >
-                        <div className="flex items-start gap-3 px-4 py-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-700 dark:text-amber-400 text-sm mb-4">
-                            <LayoutTemplate className="w-5 h-5 flex-shrink-0 mt-0.5" />
-                            <div className="flex-1 leading-relaxed">
-                                Vous utilisez une <strong>mise en page personnalisée (glisser-déposer)</strong>. <br />
-                                Pour revenir aux modèles standards, cliquez sur l'icône de rafraîchissement au-dessus de l'aperçu.
-                            </div>
-                        </div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
+
 
             <motion.div
-                className={`grid grid-cols-2 md:grid-cols-4 gap-3 lg:gap-4 transition-all duration-500 ${useCustomLayout ? "opacity-30 pointer-events-none grayscale-[0.8] blur-[1px]" : ""}`}
+                className="grid grid-cols-2 md:grid-cols-4 gap-3 lg:gap-4 transition-all duration-500"
                 layout
             >
                 {TEMPLATES.map((tpl) => {
@@ -142,13 +138,12 @@ export function TemplateLayoutSelector() {
                         <motion.button
                             key={tpl.id}
                             type="button"
-                            disabled={!!useCustomLayout}
                             onClick={() => setValue("templateLayout", tpl.id, { shouldValidate: true })}
                             whileHover={{ y: -2, scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
                             className={`relative group flex flex-col items-center gap-3 p-3 lg:p-4 rounded-xl border-2 text-left transition-all overflow-hidden ${isActive
-                                    ? "border-primary bg-primary/5 shadow-md shadow-primary/10"
-                                    : "border-border/50 bg-muted/10 hover:bg-muted/50 hover:border-border hover:shadow-sm"
+                                ? "border-primary bg-primary/5 shadow-md shadow-primary/10"
+                                : "border-border/50 bg-muted/10 hover:bg-muted/50 hover:border-border hover:shadow-sm"
                                 }`}
                         >
                             {/* Active background glow */}
