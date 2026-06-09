@@ -58,7 +58,8 @@ import {
   GripVertical,
   Clock,
   Package,
-  StickyNote
+  StickyNote,
+  Info
 } from "lucide-react";
 import { format, isToday } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -153,25 +154,25 @@ const SortableMedItem = memo(function SortableMedItem({
             </span>
           )}
         </div>
-        
+
         <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-sm text-muted-foreground">
           {med.quantity && (
-             <div className="flex items-center gap-1.5 bg-accent/50 px-2 py-0.5 rounded text-xs font-medium">
-               <Package className="h-3.5 w-3.5 text-muted-foreground/70" />
-               {med.quantity}
-             </div>
+            <div className="flex items-center gap-1.5 bg-accent/50 px-2 py-0.5 rounded text-xs font-medium">
+              <Package className="h-3.5 w-3.5 text-muted-foreground/70" />
+              {med.quantity}
+            </div>
           )}
           {med.duration && (
-             <div className="flex items-center gap-1.5 bg-accent/50 px-2 py-0.5 rounded text-xs font-medium">
-               <Clock className="h-3.5 w-3.5 text-muted-foreground/70" />
-               {med.duration}
-             </div>
+            <div className="flex items-center gap-1.5 bg-accent/50 px-2 py-0.5 rounded text-xs font-medium">
+              <Clock className="h-3.5 w-3.5 text-muted-foreground/70" />
+              {med.duration}
+            </div>
           )}
           {med.note && (
-             <div className="flex items-center gap-1.5 text-foreground/80 bg-amber-50 dark:bg-amber-500/10 dark:text-amber-200/90 text-amber-900 px-2 py-0.5 rounded text-xs">
-               <StickyNote className="h-3.5 w-3.5 opacity-70" />
-               <span className="font-semibold italic">{capitalizeMedName(med.note)}</span>
-             </div>
+            <div className="flex items-center gap-1.5 text-foreground/80 bg-amber-50 dark:bg-amber-500/10 dark:text-amber-200/90 text-amber-900 px-2 py-0.5 rounded text-xs">
+              <StickyNote className="h-3.5 w-3.5 opacity-70" />
+              <span className="font-semibold italic">{capitalizeMedName(med.note)}</span>
+            </div>
           )}
         </div>
       </div>
@@ -202,6 +203,33 @@ const SortableMedItem = memo(function SortableMedItem({
     </div>
   );
 });
+
+const getSeverityStyles = (severity: "low" | "medium" | "high") => {
+  switch (severity) {
+    case "high":
+      return {
+        container: "bg-red-50/80 text-red-950 border-red-200/80 dark:bg-red-950/20 dark:text-red-200 dark:border-red-900/40",
+        icon: "text-red-500 dark:text-red-400",
+        badge: "bg-red-100 dark:bg-red-900/40 text-red-800 dark:text-red-200 border border-red-200 dark:border-red-900/30",
+        label: "Élevée"
+      };
+    case "medium":
+      return {
+        container: "bg-amber-50/80 text-amber-950 border-amber-200/80 dark:bg-amber-950/20 dark:text-amber-200 dark:border-amber-900/40",
+        icon: "text-amber-500 dark:text-amber-400",
+        badge: "bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-200 border border-amber-200 dark:border-amber-900/30",
+        label: "Modérée"
+      };
+    case "low":
+    default:
+      return {
+        container: "bg-blue-50/80 text-blue-950 border-blue-200/80 dark:bg-blue-950/20 dark:text-blue-200 dark:border-blue-900/40",
+        icon: "text-blue-500 dark:text-blue-400",
+        badge: "bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-200 border border-blue-200 dark:border-blue-900/30",
+        label: "Faible"
+      };
+  }
+};
 
 const NewPrescriptionForm = ({
   id,
@@ -454,7 +482,7 @@ const NewPrescriptionForm = ({
           setSuggestions([]);
           return;
         }
-        
+
         if (query.trim() === "") {
           setSuggestions([]);
           return;
@@ -940,22 +968,54 @@ const NewPrescriptionForm = ({
       )}
 
       {interactions.length > 0 && (
-        <div className="space-y-2 animate-in slide-in-from-top-2">
-          {interactions.map((warn, idx) => (
-            <div key={idx} className={`p-3 rounded-md flex gap-3 items-start border ${warn.severity === 'high' ? 'bg-red-50 text-red-900 border-red-200 dark:bg-red-950/30 dark:text-red-200 dark:border-red-900/50' : 'bg-amber-50 text-amber-900 border-amber-200 dark:bg-amber-950/30 dark:text-amber-200 dark:border-amber-900/50'}`}>
-              <AlertTriangle className={`h-5 w-5 shrink-0 mt-0.5 ${warn.severity === 'high' ? 'text-red-500 dark:text-red-400' : 'text-amber-500 dark:text-amber-400'}`} />
-              <div className="flex-1 text-sm text-left">
-                <div className="font-semibold mb-1 flex items-center gap-2">
-                  Interaction Détectée
-                  <span className={`text-[10px] uppercase font-bold px-1.5 py-0.5 rounded ${warn.severity === 'high' ? 'bg-red-200 dark:bg-red-900/50 text-red-800 dark:text-red-200' : 'bg-amber-200 dark:bg-amber-900/50 text-amber-800 dark:text-amber-200'}`}>
-                    {warn.severity === 'high' ? 'Élevée' : 'Modérée'}
-                  </span>
-                </div>
-                <div className="opacity-90">{warn.message}</div>
-                <div className="mt-1.5 text-xs opacity-75 font-medium">Médicaments concernés : {warn.drugs.join(', ')}</div>
-              </div>
+        <div className="space-y-3 animate-in slide-in-from-top-2">
+          {/* Aide à la décision clinique - disclaimer */}
+          <div className="p-3 rounded-xl border bg-slate-50 text-slate-700 border-slate-200 dark:bg-slate-900/30 dark:text-slate-300 dark:border-slate-800 flex gap-2.5 items-start text-xs leading-relaxed shadow-sm">
+            <Info className="h-4 w-4 shrink-0 text-slate-500 dark:text-slate-400 mt-0.5" />
+            <div className="text-left">
+              <strong className="font-semibold text-slate-900 dark:text-slate-200">Aide à la décision clinique :</strong> Ce module vérifie automatiquement les interactions médicamenteuses potentielles. Le jugement clinique du médecin reste l'autorité finale pour toute prescription.
             </div>
-          ))}
+          </div>
+
+          {interactions.map((warn, idx) => {
+            const styles = getSeverityStyles(warn.severity);
+            return (
+              <div
+                key={idx}
+                className={`p-4 rounded-xl flex gap-3.5 items-start border shadow-sm transition-all duration-200 ${styles.container}`}
+              >
+                <AlertTriangle className={`h-5 w-5 shrink-0 mt-0.5 ${styles.icon}`} />
+                <div className="flex-1 text-sm text-left space-y-1.5">
+                  <div className="flex items-center justify-between flex-wrap gap-2">
+                    <span className="font-bold text-sm tracking-tight">Interaction Détectée</span>
+                    <span className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded-full ${styles.badge}`}>
+                      {styles.label}
+                    </span>
+                  </div>
+
+                  <div className="font-medium opacity-95 text-[13.5px] leading-snug">{warn.message}</div>
+
+                  {warn.mechanism && (
+                    <div className="text-xs leading-relaxed opacity-90 border-l-2 border-current/25 pl-2.5 my-1.5">
+                      <span className="font-bold">Mécanisme : </span>
+                      {warn.mechanism}
+                    </div>
+                  )}
+
+                  {warn.recommendation && (
+                    <div className="text-xs leading-relaxed opacity-90 border-l-2 border-current/25 pl-2.5 my-1.5">
+                      <span className="font-bold">Recommandation : </span>
+                      {warn.recommendation}
+                    </div>
+                  )}
+
+                  <div className="text-xs opacity-75 font-medium pt-0.5">
+                    Médicaments concernés : <span className="font-semibold">{warn.drugs.join(', ')}</span>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
         </div>
       )}
 

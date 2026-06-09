@@ -110,16 +110,16 @@ export const PrescriptionPreview: React.FC<PrescriptionPreviewProps> = ({
                     <div className="flex-1">{arBlock}</div>
                 </div>;
             case "fr-logo-left":
-                return <div className="flex items-center" style={{ marginBottom: mb, minHeight: minH }}>
-                    <div className="pl-2 pr-5 shrink-0">
+                return <div className="flex justify-between items-start" style={{ marginBottom: mb, minHeight: minH }}>
+                    <div className="pl-4 pr-4 mt-2 shrink-0">
                         {logoBlock}
                     </div>
-                    <div className="flex-1 flex flex-col justify-center pl-5">{frBlock}</div>
+                    <div className="flex-1 flex justify-end pl-4 mt-2">{frBlock}</div>
                 </div>;
             case "ar-logo-right":
-                return <div className="flex items-center" style={{ marginBottom: mb, minHeight: minH }}>
-                    <div className="flex-1 flex flex-col justify-center pr-12" dir="rtl">{arBlock}</div>
-                    <div className="pl-12 pr-2 shrink-0">
+                return <div className="flex justify-between items-start" style={{ marginBottom: mb, minHeight: minH }}>
+                    <div className="flex-1 flex justify-start pr-4 mt-2" dir="rtl">{arBlock}</div>
+                    <div className="pl-4 pr-4 mt-2 shrink-0">
                         {logoBlock}
                     </div>
                 </div>;

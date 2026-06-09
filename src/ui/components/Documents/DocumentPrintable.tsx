@@ -119,11 +119,11 @@ const DocumentPrintable: React.FC<DocumentPrintableProps> = ({
     .header-bilingual-stacked .logo { width: ${logoSize}px; height: ${logoSize}px; margin-bottom: 8px; object-fit: contain; }
     .header-bilingual-stacked .inscription-text { font-size: 9px; font-weight: 400; color: ${accentColor}; opacity: 0.85; margin-top: 4px; letter-spacing: 1px; }
     /* Letterhead panel (fr-logo-left / ar-logo-right) */
-    .header-panel { display: flex; align-items: stretch; margin-bottom: ${Math.max(20, logoSize * 0.35)}px; min-height: ${Math.max(100, logoSize + 30)}px; }
-    .panel-logo-left { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 8px; flex-shrink: 0; width: ${logoSize + 20}px; }
-    .panel-logo-right { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 8px; flex-shrink: 0; width: ${logoSize + 20}px; }
-    .panel-text-fr { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 8px 12px; text-align: left; }
-    .panel-text-ar { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 8px 12px; text-align: right; direction: rtl; }
+    .header-panel { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: ${Math.max(20, logoSize * 0.35)}px; min-height: ${Math.max(100, logoSize + 30)}px; }
+    .panel-logo-left { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 8px; flex-shrink: 0; width: ${logoSize + 20}px; }
+    .panel-logo-right { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 8px; flex-shrink: 0; width: ${logoSize + 20}px; }
+    .panel-text-fr { display: flex; flex-direction: column; justify-content: flex-start; padding: 8px 12px; text-align: left; }
+    .panel-text-ar { display: flex; flex-direction: column; justify-content: flex-start; padding: 8px 12px; text-align: right; direction: rtl; }
     .panel-inscription { margin-top: 4px; font-size: 9px; text-align: center; color: ${accentColor}; white-space: nowrap; }
     .logo { width: ${logoSize}px; height: ${logoSize}px; object-fit: contain; }
     .watermark { position: fixed; top: 25%; left: 25%; width: 50%; height: 50%; opacity: ${watermarkOpacity}; z-index: -1; pointer-events: none; }

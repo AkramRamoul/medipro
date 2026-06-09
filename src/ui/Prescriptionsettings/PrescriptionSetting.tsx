@@ -23,17 +23,17 @@ import { LogoUploadSection } from "./components/LogoUploadSection";
 import PrintButton from "./EmptyPrintButton";
 
 const DEFAULT_FORM: FormState = {
-  nameFr: "Dr. Rayan Ramoul",
-  nameAr: "د. ريان رمول",
-  specialtyFr: "Spécialiste en Cardiologie",
-  specialtyAr: "أخصائي أمراض القلب والشرايين",
+  nameFr: "",
+  nameAr: "",
+  specialtyFr: "",
+  specialtyAr: "",
   servicesFr: "",
   servicesAr: "",
-  inscriptionNumber: "12345/2026",
-  address: "123 Boulevard de l'Avenir, Centre Médical",
-  phoneNumber1: "05 55 12 34 56",
-  phoneNumber2: "06 66 98 76 54",
-  city: "Alger",
+  inscriptionNumber: "",
+  address: "",
+  phoneNumber1: "",
+  phoneNumber2: "",
+  city: "",
   accentColor: "#2563eb",
   fontFamily: "inter",
   doctorNameFontSize: 16,
@@ -48,11 +48,7 @@ const DEFAULT_FORM: FormState = {
   templateLayout: "bilingual-logo-left",
 };
 
-const DEFAULT_SERVICES: ServiceItem[] = [
-  { fr: "Échocardiographie Doppler", ar: "تخطيط صدى القلب دوبلر" },
-  { fr: "Électrocardiogramme (ECG)", ar: "تخطيط كهربية القلب" },
-  { fr: "Holter Rythmique", ar: "جهاز هولتر لمراقبة النبض" },
-];
+const DEFAULT_SERVICES: ServiceItem[] = [];
 
 const fetcher = (url: string) => api.get(url).then(res => res.data);
 

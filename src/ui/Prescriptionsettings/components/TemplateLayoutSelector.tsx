@@ -57,14 +57,14 @@ const MiniPreview = ({ type, active }: { type: TemplateLayout; active: boolean }
             </div>
         ),
         "fr-logo-left": (
-            <div className="flex items-start w-full gap-2">
+            <div className="flex justify-between items-start w-full gap-2">
                 <Logo />
-                <div className="flex-1 border-l border-slate-200 dark:border-slate-700 pl-2"><Block /></div>
+                <div className="border-l border-slate-200 dark:border-slate-700 pl-2"><Block /></div>
             </div>
         ),
         "ar-logo-right": (
-            <div className="flex items-start w-full gap-2">
-                <div className="flex-1 border-r border-slate-200 dark:border-slate-700 pr-2"><Block align="right" /></div>
+            <div className="flex justify-between items-start w-full gap-2">
+                <div className="border-r border-slate-200 dark:border-slate-700 pr-2"><Block align="right" /></div>
                 <Logo />
             </div>
         ),
