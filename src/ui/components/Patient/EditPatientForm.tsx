@@ -31,7 +31,7 @@ import { useAuth } from "../../context/auth-context";
 const patientSchema = z.object({
   first_name: z.string().min(2, "Le nom doit comporter au moins 2 caractères"),
   last_name: z.string().min(2, "Le prénom doit comporter au moins 2 caractères"),
-  age: z.coerce.number().min(1, "L'âge doit être d'au moins 1"),
+  dateOfBirth: z.string().optional(),
   gender: z.enum(["Male", "Female"]),
   contact: z.string().nullish(),
   weight: z.coerce.number().nullish(),
@@ -61,7 +61,7 @@ export function EditPatientForm({ id }: { id: string }) {
     defaultValues: {
       first_name: "",
       last_name: "",
-      age: undefined,
+      dateOfBirth: "",
       gender: "Male",
       weight: undefined,
       contact: "",
@@ -155,15 +155,14 @@ export function EditPatientForm({ id }: { id: string }) {
           {/* Âge & Sexe */}
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="grid gap-2">
-              <Label htmlFor="age">Âge</Label>
+              <Label htmlFor="dateOfBirth">Date de naissance</Label>
               <Input
-                {...register("age")}
-                id="age"
-                type="number"
-                placeholder="Entrer l'âge"
+                {...register("dateOfBirth")}
+                id="dateOfBirth"
+                type="date"
               />
-              {errors.age && (
-                <p className="text-destructive text-sm">{errors.age.message}</p>
+              {errors.dateOfBirth && (
+                <p className="text-destructive text-sm">{errors.dateOfBirth.message}</p>
               )}
             </div>
 

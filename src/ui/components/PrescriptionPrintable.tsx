@@ -307,7 +307,16 @@ const PrescriptionPrintable: React.FC<PrescriptionPrintableProps> = ({
         <div className="patient-info">
           <div className="patient-details">
             <div><strong>Nom :</strong> {patient.first_name} {patient.last_name}</div>
-            <div><strong>Âge :</strong> {patient.age} Ans</div>
+            <div><strong>Âge :</strong> {(() => {
+              const dob = patient.dateOfBirth;
+              if (!dob) return 'N/A';
+              const birth = new Date(dob);
+              const today = new Date();
+              let age = today.getFullYear() - birth.getFullYear();
+              const m = today.getMonth() - birth.getMonth();
+              if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
+              return `${age} Ans`;
+            })()}</div>
             {isPsychotropic && patientAddress && (
               <div><strong>Adresse :</strong> {patientAddress}</div>
             )}

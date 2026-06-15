@@ -6,7 +6,7 @@ export type Patient = {
   id: string;
   firstname: string;
   lastname: string;
-  age?: number;
+  dateOfBirth?: string;
   gender?: string;
   contact: string;
   lastVisit: string | null;

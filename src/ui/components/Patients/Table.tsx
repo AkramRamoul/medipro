@@ -151,9 +151,18 @@ function PatientsTable({
         return false;
       }
 
-      // Age Range Filter
       if (ageRangeFilter !== "all") {
-        const age = patient.age || 0;
+        const dob = patient.dateOfBirth;
+        const age = (() => {
+          if (!dob) return null;
+          const birth = new Date(dob);
+          const today = new Date();
+          let a = today.getFullYear() - birth.getFullYear();
+          const m = today.getMonth() - birth.getMonth();
+          if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) a--;
+          return a;
+        })();
+        if (age === null) return false;
         if (ageRangeFilter === "0-18" && (age < 0 || age > 18)) return false;
         if (ageRangeFilter === "18-40" && (age < 18 || age > 40)) return false;
         if (ageRangeFilter === "40-60" && (age < 40 || age > 60)) return false;
@@ -192,7 +201,20 @@ function PatientsTable({
     return g === "female" || g === "f" || g === "femme";
   }).length;
   
-  const avgAge = Math.round(patients.reduce((acc, p) => acc + (p.age || 0), 0) / (patients.length || 1));
+  const avgAge = Math.round(
+    patients
+      .map(p => {
+        if (!p.dateOfBirth) return null;
+        const birth = new Date(p.dateOfBirth);
+        const today = new Date();
+        let a = today.getFullYear() - birth.getFullYear();
+        const m = today.getMonth() - birth.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) a--;
+        return a;
+      })
+      .filter((a): a is number => a !== null)
+      .reduce((acc, a, _, arr) => acc + a / arr.length, 0)
+  );
 
   const sortedData = [...filteredData].sort((a, b) => {
     // ... existing sort logic ...

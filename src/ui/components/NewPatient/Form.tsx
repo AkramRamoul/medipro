@@ -26,7 +26,7 @@ const patientSchema = z.object({
     .string()
     .min(2, "Le prénom doit comporter au moins 2 caractères."),
   last_name: z.string().min(2, "Le nom doit comporter au moins 2 caractères."),
-  age: z.coerce.number().min(1, "L'âge doit être au moins de 1 an."),
+  dateOfBirth: z.string().optional(),
   gender: z.enum(["Male", "Female"], {
     errorMap: () => ({ message: "Le sexe est requis." }),
   }),
@@ -139,18 +139,17 @@ export function AddPatientForm({ onClose, onSave }: AddPatientFormProps) {
             </div>
 
             <div className="grid gap-2">
-              <Label htmlFor="age" className="text-foreground">
-                Âge
+              <Label htmlFor="dateOfBirth" className="text-foreground">
+                Date de naissance
               </Label>
               <Input
-                {...register("age")}
-                id="age"
-                type="number"
-                placeholder="Entrez l'âge"
+                {...register("dateOfBirth")}
+                id="dateOfBirth"
+                type="date"
                 className="bg-background text-foreground"
               />
-              {errors.age && (
-                <p className="text-destructive text-sm">{errors.age.message}</p>
+              {errors.dateOfBirth && (
+                <p className="text-destructive text-sm">{errors.dateOfBirth.message}</p>
               )}
             </div>
           </div>

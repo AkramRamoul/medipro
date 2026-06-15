@@ -9,7 +9,7 @@ export class PatientService {
                 id: patients.id,
                 firstname: patients.first_name,
                 lastname: patients.last_name,
-                age: patients.age,
+                dateOfBirth: patients.dateOfBirth,
                 gender: patients.gender,
                 contact: patients.contact,
                 address: patients.address,

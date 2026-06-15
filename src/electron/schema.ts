@@ -5,7 +5,7 @@ export const patients = sqliteTable("patients", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   first_name: text("first_name").notNull(),
   last_name: text("last_name").notNull(),
-  age: integer("age").notNull(),
+  dateOfBirth: text("date_of_birth"),
   gender: text("gender").notNull(),
   contact: text("contact"),
   address: text("address"),

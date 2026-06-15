@@ -14,7 +14,7 @@ import { format, isToday } from "date-fns";
 import { fr } from "date-fns/locale";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Calendar } from "../ui/calendar";
-import { cn } from "../../lib/utils";
+import { cn, calculateAge } from "../../lib/utils";
 import { Card, CardHeader, CardTitle } from "../ui/card";
 import Editor from "../Editor/Editor";
 import { Patient } from "../../type";
@@ -163,7 +163,7 @@ const NewDocumentFromTemplate: React.FC<NewDocumentFromTemplateProps> = ({
                 <DocumentPrintable
                     first_name={patient.first_name}
                     last_name={patient.last_name}
-                    patientAge={patient.age}
+                    patientAge={calculateAge(patient.dateOfBirth) ?? 0}
                     prescriptionModel={modelRes.data.model}
                     image={logoRes.data.success ? logoRes.data.image : null}
                     documentContent={editedContent}

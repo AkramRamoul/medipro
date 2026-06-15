@@ -115,7 +115,16 @@ const PatientRecordPdf = ({
           <View style={styles.row}>
             <Text style={styles.label}>Âge:</Text>
             <Text style={styles.value}>
-              {patient.age ? `${patient.age} ans` : "N/A"}
+              {(() => {
+                const dob = patient.dateOfBirth;
+                if (!dob) return 'N/A';
+                const birth = new Date(dob);
+                const today = new Date();
+                let age = today.getFullYear() - birth.getFullYear();
+                const m = today.getMonth() - birth.getMonth();
+                if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
+                return `${age} ans`;
+              })()}
             </Text>
           </View>
           <View style={styles.row}>

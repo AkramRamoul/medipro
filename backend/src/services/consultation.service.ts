@@ -43,7 +43,7 @@ export class ConsultationService {
                     id: patients.id,
                     first_name: patients.first_name,
                     last_name: patients.last_name,
-                    age: patients.age,
+                    dateOfBirth: patients.dateOfBirth,
                 },
             })
             .from(consultations)
@@ -316,15 +316,16 @@ export class ConsultationService {
                     else 'other' end`),
             db.select({
                 ageGroup: sql<string>`case 
-                    when age < 18 then 'Pédiatrie'
-                    when age between 18 and 60 then 'Adulte'
+                    when (strftime('%Y', 'now') - strftime('%Y', date_of_birth)) - (strftime('%m-%d', 'now') < strftime('%m-%d', date_of_birth)) < 18 then 'Pédiatrie'
+                    when (strftime('%Y', 'now') - strftime('%Y', date_of_birth)) - (strftime('%m-%d', 'now') < strftime('%m-%d', date_of_birth)) between 18 and 60 then 'Adulte'
                     else 'Senior' end`,
                 count: sql<number>`count(*)`
             })
                 .from(patients)
+                .where(sql`date_of_birth IS NOT NULL`)
                 .groupBy(sql`case 
-                    when age < 18 then 'Pédiatrie'
-                    when age between 18 and 60 then 'Adulte'
+                    when (strftime('%Y', 'now') - strftime('%Y', date_of_birth)) - (strftime('%m-%d', 'now') < strftime('%m-%d', date_of_birth)) < 18 then 'Pédiatrie'
+                    when (strftime('%Y', 'now') - strftime('%Y', date_of_birth)) - (strftime('%m-%d', 'now') < strftime('%m-%d', date_of_birth)) between 18 and 60 then 'Adulte'
                     else 'Senior' end`),
             db
                 .select({ sum: sql<number>`COALESCE(sum(${consultations.amountPaid}), 0)` })

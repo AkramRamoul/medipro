@@ -4,6 +4,7 @@ import { Document, smallPatient } from "../../type";
 import { DropdownMenuItem } from "../ui/dropdown-menu";
 import { Printer } from "lucide-react";
 import api from "../../axios";
+import { calculateAge } from "../../lib/utils";
 
 const DocPrint = ({
   patient,
@@ -62,7 +63,7 @@ const DocPrint = ({
         <DocumentPrintable
           first_name={patient.first_name}
           last_name={patient.last_name}
-          patientAge={patient.age}
+          patientAge={calculateAge(patient.dateOfBirth) ?? 0}
           prescriptionModel={prescriptionModel}
           image={image}
           documentContent={document.content}

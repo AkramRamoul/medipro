@@ -27,7 +27,7 @@ export class DocumentService {
                 patientId: DocumentTable.patientId,
                 patientFirstName: patients.first_name,
                 patientLastName: patients.last_name,
-                patientAge: patients.age,
+                patientDob: patients.dateOfBirth,
                 name: DocumentTable.name,
                 type: DocumentTable.type,
                 documentDate: DocumentTable.documentDate,

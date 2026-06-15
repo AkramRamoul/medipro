@@ -33,7 +33,7 @@ import {
   FileCheck,
   ChevronDown,
 } from "lucide-react";
-import { cn } from "../lib/utils";
+import { cn, calculateAge } from "../lib/utils";
 import { toast } from "sonner";
 import { Input as ShadInput } from "../components/ui/input";
 import { Label } from "../components/ui/label";
@@ -55,7 +55,7 @@ type DocWithPatient = {
   patientId: number;
   patientFirstName: string | null;
   patientLastName: string | null;
-  patientAge: number | null;
+  patientDob: string | null;
   name: string | null;
   type: "blood" | "certificate" | "report" | "template";
   documentDate: string | null;
@@ -100,7 +100,7 @@ function PatientStep({
   // Manual fields
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
-  const [age, setAge] = useState("");
+  const [dateOfBirth, setDateOfBirth] = useState("");
 
   const isValid = firstName.trim() !== "" && lastName.trim() !== "";
 
@@ -138,7 +138,7 @@ function PatientStep({
       id: 0,
       first_name: firstName.trim(),
       last_name: lastName.trim(),
-      age: Number(age) || 0,
+      dateOfBirth: dateOfBirth || undefined,
       gender: "Non spécifié",
       contact: "",
       createdAt: new Date().toISOString().split("T")[0],
@@ -209,17 +209,13 @@ function PatientStep({
               />
             </div>
             <div className="space-y-1">
-              <Label className="text-xs flex items-center gap-1">
-                <Hash className="w-3 h-3 opacity-60" /> Âge
-                <span className="text-muted-foreground font-normal">(optionnel)</span>
+              <Label className="text-xs">
+                Date de naissance <span className="text-muted-foreground font-normal">(optionnel)</span>
               </Label>
               <Input
-                type="number"
-                min={0}
-                max={130}
-                value={age}
-                onChange={(e) => setAge(e.target.value)}
-                placeholder="Âge en années"
+                type="date"
+                value={dateOfBirth}
+                onChange={(e) => setDateOfBirth(e.target.value)}
                 onKeyDown={(e) => { if (e.key === "Enter" && isValid) handleManualContinue(); }}
               />
             </div>
@@ -273,7 +269,9 @@ function PatientStep({
                     <p className="text-sm font-medium truncate">
                       {p.first_name} {p.last_name}
                     </p>
-                    <p className="text-xs text-muted-foreground">{p.age} ans</p>
+                    <p className="text-xs text-muted-foreground">
+                      {calculateAge(p.dateOfBirth) !== null ? `${calculateAge(p.dateOfBirth)} ans` : "—"}
+                    </p>
                   </div>
                   <ChevronRight className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
                 </div>
@@ -372,7 +370,7 @@ export default function DocumentsPage() {
       const patient = {
         first_name: doc.patientFirstName ?? "",
         last_name: doc.patientLastName ?? "",
-        age: doc.patientAge ?? 0,
+        age: calculateAge(doc.patientDob) ?? 0,
       };
 
       const [logoRes, modelRes] = await Promise.all([

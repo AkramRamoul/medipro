@@ -33,7 +33,7 @@ import { format, isToday, parseISO } from "date-fns";
 import { fr } from "date-fns/locale";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Calendar } from "../ui/calendar";
-import { cn } from "../../lib/utils";
+import { cn, calculateAge } from "../../lib/utils";
 import { Patient } from "../../type";
 import { Separator } from "../ui/separator";
 import api from "../../axios";
@@ -237,7 +237,7 @@ export function BloodWork({
         <DocumentPrintable
           first_name={patient.first_name}
           last_name={patient.last_name}
-          patientAge={patient.age}
+          patientAge={calculateAge(patient.dateOfBirth) ?? 0}
           prescriptionModel={modelRes.data.model}
           image={logoRes.data.success ? logoRes.data.image : null}
           documentContent={values}

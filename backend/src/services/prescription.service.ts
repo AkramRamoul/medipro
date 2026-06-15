@@ -19,7 +19,7 @@ export class PrescriptionService {
                     id: patients.id,
                     first_name: patients.first_name,
                     last_name: patients.last_name,
-                    age: patients.age,
+                    dateOfBirth: patients.dateOfBirth,
                 },
                 medications: prescriptionMedications,
             })
