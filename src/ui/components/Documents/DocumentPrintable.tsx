@@ -97,27 +97,10 @@ const DocumentPrintable: React.FC<DocumentPrintableProps> = ({
     .col-fr-full { text-align: left; flex: 1; }
     .col-ar-full { text-align: right; direction: rtl; flex: 1; }
     .col-logo-side { width: 20%; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; }
-    .header-centered { display: flex; flex-direction: column; align-items: center; width: 100%; margin-bottom: ${Math.max(20, logoSize * 0.35)}px; position: relative; }
-    .col-stacked-container { display: flex; width: 100%; justify-content: space-between; margin-top: 15px; }
-    .col-fr-center { text-align: center; width: 45%; display: flex; flex-direction: column; align-items: center; }
-    .col-ar-center { text-align: center; width: 45%; direction: rtl; display: flex; flex-direction: column; align-items: center; }
-    /* Bilingual Stacked */
-    .header-bilingual-stacked { display: flex; justify-content: space-between; align-items: flex-start; width: 100%; margin-bottom: ${Math.max(20, logoSize * 0.35)}px; min-height: ${Math.max(100, logoSize + 30)}px; }
-    .header-bilingual-stacked .col-left { width: 55%; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; text-align: center; padding-top: 5px; }
-    .header-bilingual-stacked .col-right { width: 45%; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; text-align: center; }
-    .header-bilingual-stacked .fr-block { display: flex; flex-direction: column; align-items: center; gap: 2px; }
-    .header-bilingual-stacked .ar-block { display: flex; flex-direction: column; align-items: center; direction: rtl; gap: 2px; }
-    .header-bilingual-stacked .divider-container { display: flex; align-items: center; justify-content: center; width: 100px; margin: 14px 0; opacity: 0.8; }
-    .header-bilingual-stacked .divider-line { height: 1px; flex: 1; background-color: ${accentColor}; }
-    .header-bilingual-stacked .divider-dots { display: flex; gap: 3px; margin: 0 8px; align-items: center; }
-    .header-bilingual-stacked .divider-dot-s { width: 3px; height: 3px; border-radius: 50%; background-color: ${accentColor}; }
-    .header-bilingual-stacked .divider-dot-m { width: 4.5px; height: 4.5px; border-radius: 50%; background-color: ${accentColor}; }
-    .header-bilingual-stacked .clinic-name-ar { font-weight: bold; font-size: ${specialtyFontSize + 2}px; color: ${accentColor}; margin-bottom: 2px; letter-spacing: 0.5px; }
-    .header-bilingual-stacked .clinic-name-fr { font-weight: 500; font-size: ${specialtyFontSize}px; color: ${accentColor}; margin-bottom: 6px; letter-spacing: 0.3px; }
-    .header-bilingual-stacked .doctor-name { margin-bottom: 0; font-size: ${doctorNameFontSize * 1.15}px; font-weight: bold; text-transform: uppercase; color: ${accentColor}; letter-spacing: 0.5px; }
-    .header-bilingual-stacked .specialty { margin-bottom: 0; color: ${accentColor}; font-weight: 500; font-size: ${specialtyFontSize * 0.95}px; }
-    .header-bilingual-stacked .logo { width: ${logoSize}px; height: ${logoSize}px; margin-bottom: 8px; object-fit: contain; }
-    .header-bilingual-stacked .inscription-text { font-size: 9px; font-weight: 400; color: ${accentColor}; opacity: 0.85; margin-top: 4px; letter-spacing: 1px; }
+    .header-centered { display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: ${Math.max(20, logoSize * 0.35)}px; position: relative; }
+    .col-fr-center { text-align: center; width: 40%; display: flex; flex-direction: column; align-items: center; }
+    .col-ar-center { text-align: center; width: 40%; direction: rtl; display: flex; flex-direction: column; align-items: center; }
+
     /* Letterhead panel (fr-logo-left / ar-logo-right) */
     .header-panel { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: ${Math.max(20, logoSize * 0.35)}px; min-height: ${Math.max(100, logoSize + 30)}px; }
     .panel-logo-left { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 8px; flex-shrink: 0; width: ${logoSize + 20}px; }
@@ -231,47 +214,18 @@ const DocumentPrintable: React.FC<DocumentPrintableProps> = ({
             case "centered":
                 return (
                     <div className="header-centered">
-                        <div className="col-logo">{logoContent}</div>
-                        <div className="col-stacked-container">
-                            <div className="col-fr-center">{frContent}</div>
-                            <div className="col-ar-center">{arContent}</div>
+                        <div className="col-fr-center">
+                            <div className="doctor-name">{prescriptionModel.nameFr}</div>
+                            <div className="specialty">{prescriptionModel.specialtyFr}</div>
+                        </div>
+                        <div className="col-logo-side">{logoContent}</div>
+                        <div className="col-ar-center">
+                            <div className="doctor-name">{prescriptionModel.nameAr}</div>
+                            <div className="specialty">{prescriptionModel.specialtyAr}</div>
                         </div>
                     </div>
                 );
-            case "bilingual-stacked":
-                return (
-                    <div className="header-bilingual-stacked">
-                        <div className="col-left">
-                            <div className="fr-block">
-                                <div className="doctor-name">{prescriptionModel.nameFr}</div>
-                                <div className="specialty">{prescriptionModel.specialtyFr}</div>
-                            </div>
-                            <div className="divider-container">
-                                <div className="divider-line"></div>
-                                <div className="divider-dots">
-                                    <div className="divider-dot-s"></div>
-                                    <div className="divider-dot-m"></div>
-                                    <div className="divider-dot-s"></div>
-                                </div>
-                                <div className="divider-line"></div>
-                            </div>
-                            <div className="ar-block">
-                                <div className="doctor-name">{prescriptionModel.nameAr}</div>
-                                <div className="specialty">{prescriptionModel.specialtyAr}</div>
-                            </div>
-                        </div>
-                        <div className="col-right">
-                            {image && <img src={image} className="logo" alt="Logo" />}
-                            <div className="clinic-name-ar">العيادة الطبية المختصة</div>
-                            <div className="clinic-name-fr">Clinique Privée Spécialisée</div>
-                            {showInscriptionNumber && (
-                                <div className="inscription-text">
-                                    N° d'ordre: {prescriptionModel.inscriptionNumber}
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                );
+
             case "bilingual":
             default:
                 return (

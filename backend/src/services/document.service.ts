@@ -1,6 +1,7 @@
 import { db } from '../db';
 import { Document as DocumentTable, documentTemplates, patients } from '../db/schema';
 import { eq, desc } from 'drizzle-orm';
+import { calculateAge } from './patient.service';
 
 export class DocumentService {
     async getByPatientId(patientId: number) {
@@ -27,7 +28,7 @@ export class DocumentService {
                 patientId: DocumentTable.patientId,
                 patientFirstName: patients.first_name,
                 patientLastName: patients.last_name,
-                patientDob: patients.dateOfBirth,
+                patientDateOfBirth: patients.dateOfBirth,
                 name: DocumentTable.name,
                 type: DocumentTable.type,
                 documentDate: DocumentTable.documentDate,
@@ -37,7 +38,11 @@ export class DocumentService {
             .from(DocumentTable)
             .leftJoin(patients, eq(DocumentTable.patientId, patients.id))
             .orderBy(desc(DocumentTable.createdAt));
-        return result;
+
+        return result.map((doc: any) => ({
+            ...doc,
+            patientAge: calculateAge(doc.patientDateOfBirth),
+        }));
     }
 
     async create(data: any) {

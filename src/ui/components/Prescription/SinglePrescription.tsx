@@ -1,5 +1,6 @@
 import { PrescriptionMed } from "../../../electron/schema";
 import { smallPatient } from "../../type";
+import { formatAge } from "../../lib/ageUtils";
 import PrintButton from "../PrintButton";
 import { Button } from "../ui/button";
 import {
@@ -90,16 +91,7 @@ function SinglePrescription({
                   {patient.first_name} {patient.last_name}
                 </h3>
                 <p className="text-sm text-muted-foreground font-semibold mt-0.5">
-                  {(() => {
-                    const dob = patient.dateOfBirth;
-                    if (!dob) return 'N/A';
-                    const birth = new Date(dob);
-                    const today = new Date();
-                    let age = today.getFullYear() - birth.getFullYear();
-                    const m = today.getMonth() - birth.getMonth();
-                    if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
-                    return `${age} ans`;
-                  })()}
+                  {formatAge(patient.dateOfBirth, patient.age)}
                 </p>
               </div>
               {patientAddress && (

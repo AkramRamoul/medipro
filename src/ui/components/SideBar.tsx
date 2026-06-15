@@ -10,6 +10,7 @@ import {
   Wallet,
   CalendarCheck,
   FileText,
+  HelpCircle,
 } from "lucide-react";
 
 import {
@@ -25,6 +26,7 @@ import {
 } from "../components/ui/sidebar";
 import { NavSecondary } from "./Nav-secondary";
 import { useAuth, Permission } from "../context/auth-context";
+import { HelpDialog } from "./HelpDialog";
 
 export function AppSidebar() {
   const location = useLocation();
@@ -83,6 +85,23 @@ export function AppSidebar() {
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 ))}
+
+                <SidebarMenuItem>
+                  <HelpDialog
+                    trigger={
+                      <SidebarMenuButton
+                        tooltip="Aide & Raccourcis"
+                        className="mt-2 hover:bg-transparent hover:text-inherit cursor-pointer"
+                        asChild
+                      >
+                        <button className="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-300 text-[15px] font-medium text-slate-600 dark:text-slate-300 hover:bg-primary/10 hover:text-primary dark:hover:bg-primary/20 dark:hover:text-white group w-full text-left">
+                          <HelpCircle className="w-5 h-5 transition-transform duration-200 group-hover:scale-110" />
+                          <span>Aide & Raccourcis</span>
+                        </button>
+                      </SidebarMenuButton>
+                    }
+                  />
+                </SidebarMenuItem>
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import api from "../../axios";
 import { Document, smallPatient } from "../../type";
-import { calculateAge } from "../../lib/utils";
+import { calculateAge } from "../../lib/ageUtils";
 import {
   Card,
   CardContent,
@@ -80,7 +80,7 @@ export function SingleDocument({ document, patient, onClose }: SingleDocumentPro
         <DocumentPrintable
           first_name={patient.first_name}
           last_name={patient.last_name}
-          patientAge={calculateAge(patient.dateOfBirth) ?? 0}
+          patientAge={calculateAge(patient.dateOfBirth) ?? patient.age ?? 0}
           prescriptionModel={prescriptionModel}
           image={image}
           documentContent={document.content}

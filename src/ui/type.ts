@@ -4,7 +4,8 @@ export type Patient = {
   id: number;
   first_name: string;
   last_name: string;
-  dateOfBirth?: string;
+  age: number | null;
+  dateOfBirth?: string | null;
   gender: string;
   contact: string;
   address?: string;
@@ -131,7 +132,8 @@ export type PrescriptionWithPatient = {
     id: number;
     first_name: string;
     last_name: string;
-    dateOfBirth?: string;
+    age: number | null;
+    dateOfBirth?: string | null;
   } | null;
 };
 export type ConsultationWithPatient = {
@@ -150,7 +152,8 @@ export type ConsultationWithPatient = {
     id: number;
     first_name: string;
     last_name: string;
-    dateOfBirth?: string;
+    age: number | null;
+    dateOfBirth?: string | null;
   } | null;
 };
 
@@ -158,7 +161,8 @@ export type smallPatient = {
   id: number;
   first_name: string;
   last_name: string;
-  dateOfBirth?: string;
+  age: number | null;
+  dateOfBirth?: string | null;
 };
 
 export type monthlyPatients = {

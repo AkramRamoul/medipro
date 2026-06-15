@@ -33,11 +33,12 @@ import { format, isToday, parseISO } from "date-fns";
 import { fr } from "date-fns/locale";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Calendar } from "../ui/calendar";
-import { cn, calculateAge } from "../../lib/utils";
+import { cn } from "../../lib/utils";
 import { Patient } from "../../type";
 import { Separator } from "../ui/separator";
 import api from "../../axios";
 import { Badge } from "../ui/badge";
+import { calculateAge } from "../../lib/ageUtils";
 
 interface BilanTemplate {
   name: string;
@@ -237,7 +238,7 @@ export function BloodWork({
         <DocumentPrintable
           first_name={patient.first_name}
           last_name={patient.last_name}
-          patientAge={calculateAge(patient.dateOfBirth) ?? 0}
+          patientAge={calculateAge(patient.dateOfBirth) ?? patient.age ?? 0}
           prescriptionModel={modelRes.data.model}
           image={logoRes.data.success ? logoRes.data.image : null}
           documentContent={values}
@@ -325,7 +326,7 @@ export function BloodWork({
                             )}
                           >
                             {field.value ? (
-                              format(parseISO(field.value), "PPP", { locale: fr })
+                              format(parseISO(field.value), "dd/MM/yyyy")
                             ) : (
                               <span>Choisir une date</span>
                             )}

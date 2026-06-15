@@ -1,4 +1,3 @@
-import React from "react";
 import { Layout, SlidersHorizontal, Type, Minus, Eye, EyeOff } from "lucide-react";
 import { useFormContext, useWatch } from "react-hook-form";
 import { FormData } from "../types";
@@ -41,7 +40,7 @@ export function VisualAndLayoutSettings() {
                                         key={color}
                                         type="button"
                                         title={`Couleur ${color}`}
-                                        onClick={() => setValue("accentColor", color, { shouldValidate: true })}
+                                        onClick={() => setValue("accentColor", color, { shouldValidate: true, shouldDirty: true })}
                                         className={`w-6 h-6 rounded-full border border-white shadow-sm ring-1 ring-black/10 transition-transform hover:scale-110 ${accentColor === color ? 'scale-125 ring-primary' : ''}`}
                                         style={{ backgroundColor: color }}
                                     />
@@ -162,7 +161,7 @@ export function VisualAndLayoutSettings() {
                             <button
                                 key={value}
                                 type="button"
-                                onClick={() => setValue("dividerStyle", value, { shouldValidate: true })}
+                                onClick={() => setValue("dividerStyle", value, { shouldValidate: true, shouldDirty: true })}
                                 className={`flex-1 py-1.5 px-2 text-xs font-medium rounded-md transition-all ${dividerStyle === value
                                     ? "bg-background shadow-sm text-foreground"
                                     : "text-muted-foreground hover:text-foreground"
@@ -190,7 +189,7 @@ export function VisualAndLayoutSettings() {
                         <span className="text-sm font-medium block mb-1">Affichage du N° d'ordre</span>
                         <button
                             type="button"
-                            onClick={() => setValue("showInscriptionNumber", !showInscriptionNumber, { shouldValidate: true })}
+                            onClick={() => setValue("showInscriptionNumber", !showInscriptionNumber, { shouldValidate: true, shouldDirty: true })}
                             className={`flex items-center gap-2 px-4 py-2.5 rounded-md border transition-all text-sm font-medium w-full justify-center ${showInscriptionNumber
                                 ? "bg-primary/10 border-primary/30 text-primary"
                                 : "bg-muted/50 border-muted text-muted-foreground"

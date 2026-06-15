@@ -14,11 +14,12 @@ import { format, isToday } from "date-fns";
 import { fr } from "date-fns/locale";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Calendar } from "../ui/calendar";
-import { cn, calculateAge } from "../../lib/utils";
+import { cn } from "../../lib/utils";
 import { Card, CardHeader, CardTitle } from "../ui/card";
 import Editor from "../Editor/Editor";
 import { Patient } from "../../type";
 import api from "../../axios";
+import { calculateAge } from "../../lib/ageUtils";
 
 interface DocumentTemplate {
     id: number;
@@ -64,7 +65,7 @@ const NewDocumentFromTemplate: React.FC<NewDocumentFromTemplateProps> = ({
                 setTemplates(templatesData);
                 if (modelData?.success && modelData.model) {
                     if (modelData.model.nameFr) setDoctorName(modelData.model.nameFr);
-                    if (modelData.model.city)   setCity(modelData.model.city);
+                    if (modelData.model.city) setCity(modelData.model.city);
                 }
             } catch (error) {
                 toast.error("Erreur lors du chargement des modèles");
@@ -80,7 +81,7 @@ const NewDocumentFromTemplate: React.FC<NewDocumentFromTemplateProps> = ({
         let content = raw;
         content = content.replace(/\[Nom du Patient\]/g, `${patient.first_name} ${patient.last_name}`);
         content = content.replace(/\[Date\]/g, format(date, "dd/MM/yyyy"));
-        if (name)  content = content.replace(/\[Nom du Docteur\]/g, name);
+        if (name) content = content.replace(/\[Nom du Docteur\]/g, name);
         if (ville) content = content.replace(/\[Ville\]/g, ville);
         return content;
     };
@@ -99,7 +100,7 @@ const NewDocumentFromTemplate: React.FC<NewDocumentFromTemplateProps> = ({
         if (initialTemplate) {
             setEditedContent(applyPlaceholders(initialTemplate.content, documentDate, doctorName, city));
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [initialTemplate, doctorName, city]);
 
     // Re-apply when date or doctorName changes and a template is already selected
@@ -107,7 +108,7 @@ const NewDocumentFromTemplate: React.FC<NewDocumentFromTemplateProps> = ({
         if (selectedTemplate) {
             setEditedContent(applyPlaceholders(selectedTemplate.content, documentDate, doctorName, city));
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [documentDate, doctorName, city]);
 
     const handleSave = async () => {
@@ -163,7 +164,7 @@ const NewDocumentFromTemplate: React.FC<NewDocumentFromTemplateProps> = ({
                 <DocumentPrintable
                     first_name={patient.first_name}
                     last_name={patient.last_name}
-                    patientAge={calculateAge(patient.dateOfBirth) ?? 0}
+                    patientAge={calculateAge(patient.dateOfBirth) ?? patient.age ?? 0}
                     prescriptionModel={modelRes.data.model}
                     image={logoRes.data.success ? logoRes.data.image : null}
                     documentContent={editedContent}
@@ -232,7 +233,7 @@ const NewDocumentFromTemplate: React.FC<NewDocumentFromTemplateProps> = ({
                                     )}
                                 >
                                     <CalendarIcon className="mr-2 h-4 w-4" />
-                                    {format(documentDate, "PPP", { locale: fr })}
+                                    {format(documentDate, "dd/MM/yyyy")}
                                 </Button>
                             </PopoverTrigger>
                             <PopoverContent className="w-auto p-0" align="end">

@@ -4,6 +4,7 @@ import { eq, sql, desc } from 'drizzle-orm';
 import fs from 'fs';
 import path from 'path';
 import { env } from '../config/env';
+import { calculateAge } from './patient.service';
 
 export class PrescriptionService {
     async getAll() {
@@ -42,7 +43,10 @@ export class PrescriptionService {
                     isPsychotropic: row.isPsychotropic,
                     psychotropicNumber: row.psychotropicNumber,
                     patientId: row.patientId,
-                    patient: row.patient,
+                    patient: row.patient ? {
+                        ...row.patient,
+                        age: calculateAge(row.patient.dateOfBirth)
+                    } : null,
                     medications: [],
                 });
             }
@@ -335,15 +339,15 @@ export class PrescriptionService {
         const medsPath = this.getAssetPath('meds.json');
         try {
             const mappedMedications: any[] = [];
-            
+
             if (fs.existsSync(medsPath)) {
                 const data = await fs.promises.readFile(medsPath, 'utf-8');
                 const rawMedications = JSON.parse(data);
-                
+
                 for (const group of rawMedications) {
                     const dciRaw = (group.genericName || "").trim();
                     const dci = this.toTitleCase(dciRaw);
-                    
+
                     for (const variant of group.variants || []) {
                         const brandRaw = (variant.brandName || "").trim();
                         const dosage = (variant.dosage || "").trim();
@@ -363,7 +367,7 @@ export class PrescriptionService {
             }
 
             const customMeds = await this.getCustomMedications();
-            
+
             // De-duplicate results
             const uniqueMeds = new Map();
             mappedMedications.forEach((med: any) => {

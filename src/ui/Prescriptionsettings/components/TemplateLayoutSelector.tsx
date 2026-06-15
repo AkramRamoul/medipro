@@ -12,7 +12,6 @@ const TEMPLATES: { id: TemplateLayout; label: string; desc: string }[] = [
     { id: "bilingual-logo-left", label: "Bilingue FG", desc: "Logo + FR + AR" },
     { id: "bilingual-logo-right", label: "Bilingue FD", desc: "FR + AR + Logo" },
     { id: "centered", label: "Centré", desc: "Logo + Textes centrés" },
-    { id: "bilingual-stacked", label: "Superposé", desc: "FR/AR gauche, Logo droite" },
 ];
 
 const MiniPreview = ({ type, active }: { type: TemplateLayout; active: boolean }) => {
@@ -83,27 +82,13 @@ const MiniPreview = ({ type, active }: { type: TemplateLayout; active: boolean }
             </div>
         ),
         "centered": (
-            <div className="flex flex-col items-center w-full gap-2">
+            <div className="flex justify-between items-center w-full gap-1">
+                <div className="flex-1"><Block align="center" /></div>
                 <Logo />
-                <div className="flex justify-between w-full gap-2">
-                    <div className="flex-1"><Block align="center" /></div>
-                    <div className="flex-1"><Block align="center" /></div>
-                </div>
+                <div className="flex-1"><Block align="center" /></div>
             </div>
         ),
-        "bilingual-stacked": (
-            <div className="flex justify-between items-start w-full gap-2">
-                <div className="flex-1 flex flex-col items-center gap-1.5">
-                    <Block align="center" />
-                    <div className="w-full border-t border-slate-300 dark:border-slate-600 border-dashed" />
-                    <Block align="center" />
-                </div>
-                <div className="flex-1 flex flex-col items-center gap-1 shrink-0">
-                    <Logo />
-                    <Txt w={12} sec />
-                </div>
-            </div>
-        ),
+
     };
 
     return (
@@ -138,7 +123,7 @@ export function TemplateLayoutSelector() {
                         <motion.button
                             key={tpl.id}
                             type="button"
-                            onClick={() => setValue("templateLayout", tpl.id, { shouldValidate: true })}
+                            onClick={() => setValue("templateLayout", tpl.id, { shouldValidate: true, shouldDirty: true })}
                             whileHover={{ y: -2, scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
                             className={`relative group flex flex-col items-center gap-3 p-3 lg:p-4 rounded-xl border-2 text-left transition-all overflow-hidden ${isActive

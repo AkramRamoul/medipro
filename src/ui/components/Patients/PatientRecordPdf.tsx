@@ -9,6 +9,8 @@ import {
 import AmiriRegular from "/fonts/Amiri-Regular.ttf";
 import AmiriBold from "/fonts/Amiri-Bold.ttf";
 
+import { formatAge } from "../../lib/ageUtils";
+
 Font.register({
   family: "Amiri",
   fonts: [{ src: AmiriRegular }, { src: AmiriBold, fontWeight: "bold" }],
@@ -115,16 +117,7 @@ const PatientRecordPdf = ({
           <View style={styles.row}>
             <Text style={styles.label}>Âge:</Text>
             <Text style={styles.value}>
-              {(() => {
-                const dob = patient.dateOfBirth;
-                if (!dob) return 'N/A';
-                const birth = new Date(dob);
-                const today = new Date();
-                let age = today.getFullYear() - birth.getFullYear();
-                const m = today.getMonth() - birth.getMonth();
-                if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
-                return `${age} ans`;
-              })()}
+              {formatAge(patient.dateOfBirth, patient.age)}
             </Text>
           </View>
           <View style={styles.row}>

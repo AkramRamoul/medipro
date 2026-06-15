@@ -5,6 +5,8 @@ import BackButton from "../components/BackButton";
 import { useLocation } from "react-router-dom";
 import { ThemeToggle } from "../components/ThemeToggle";
 import { CommandPalette } from "../components/CommandPalette";
+import { HelpDialog } from "../components/HelpDialog";
+import { HelpCircle } from "lucide-react";
 
 const Layout = () => {
   const location = useLocation();
@@ -19,7 +21,17 @@ const Layout = () => {
               <SidebarTrigger />
               {!hideBackButton && <BackButton />}
             </div>
-            <div className="flex items-center pr-2">
+            <div className="flex items-center pr-2 gap-1">
+              <HelpDialog
+                trigger={
+                  <button
+                    className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 transition-colors cursor-pointer group"
+                    title="Centre d'aide & Raccourcis"
+                  >
+                    <HelpCircle className="w-5 h-5 transition-transform duration-200 group-hover:scale-110" />
+                  </button>
+                }
+              />
               <ThemeToggle />
             </div>
           </div>

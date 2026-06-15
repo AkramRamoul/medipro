@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { toast } from "sonner";
@@ -19,6 +20,18 @@ const MedicationListSettings: React.FC = () => {
     const [newName, setNewName] = useState("");
     const [newForm, setNewForm] = useState("");
     const [newDosage, setNewDosage] = useState("");
+
+    const [searchParams, setSearchParams] = useSearchParams();
+
+    useEffect(() => {
+        const queryName = searchParams.get("name");
+        if (queryName) {
+            setNewName(queryName);
+            const newParams = new URLSearchParams(searchParams);
+            newParams.delete("name");
+            setSearchParams(newParams, { replace: true });
+        }
+    }, [searchParams, setSearchParams]);
 
     const fetchMedications = async () => {
         setIsLoading(true);

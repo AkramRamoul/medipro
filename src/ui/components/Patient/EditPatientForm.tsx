@@ -23,15 +23,19 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Textarea } from "../ui/textarea";
 import { useEffect, useState } from "react";
-import { Loader2 } from "lucide-react";
+import { Loader2, CalendarIcon } from "lucide-react";
 import { toast } from "sonner";
 import api from "../../axios";
 import { useAuth } from "../../context/auth-context";
+import { format, parseISO } from "date-fns";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { Calendar } from "../ui/calendar";
+import { cn } from "../../lib/utils";
 
 const patientSchema = z.object({
   first_name: z.string().min(2, "Le nom doit comporter au moins 2 caractères"),
   last_name: z.string().min(2, "Le prénom doit comporter au moins 2 caractères"),
-  dateOfBirth: z.string().optional(),
+  dateOfBirth: z.string().min(1, "La date de naissance est requise"),
   gender: z.enum(["Male", "Female"]),
   contact: z.string().nullish(),
   weight: z.coerce.number().nullish(),
@@ -47,6 +51,8 @@ type PatientData = z.infer<typeof patientSchema>;
 
 export function EditPatientForm({ id }: { id: string }) {
   const [loading, setLoading] = useState(true);
+  const [dobPickerOpen, setDobPickerOpen] = useState(false);
+  const [selectedDob, setSelectedDob] = useState<Date | undefined>(undefined);
   const { can } = useAuth();
   const canEditMedical = can("EDIT_MEDICAL_RECORDS");
 
@@ -80,6 +86,17 @@ export function EditPatientForm({ id }: { id: string }) {
         .then(({ data }) => {
           if (data) {
             reset(data);
+            // Populate the calendar picker from the API date (yyyy-MM-dd or ISO)
+            if (data.dateOfBirth) {
+              try {
+                const d = data.dateOfBirth.includes('T')
+                  ? parseISO(data.dateOfBirth)
+                  : parseISO(data.dateOfBirth + 'T00:00:00');
+                setSelectedDob(d);
+              } catch {
+                // ignore parse errors
+              }
+            }
           }
         })
         .catch((error: Error) =>
@@ -152,20 +169,8 @@ export function EditPatientForm({ id }: { id: string }) {
             </div>
           </div>
 
-          {/* Âge & Sexe */}
+          {/* Sexe & Date de naissance */}
           <div className="grid gap-4 sm:grid-cols-2">
-            <div className="grid gap-2">
-              <Label htmlFor="dateOfBirth">Date de naissance</Label>
-              <Input
-                {...register("dateOfBirth")}
-                id="dateOfBirth"
-                type="date"
-              />
-              {errors.dateOfBirth && (
-                <p className="text-destructive text-sm">{errors.dateOfBirth.message}</p>
-              )}
-            </div>
-
             <div className="grid gap-2">
               <Label htmlFor="gender">Sexe</Label>
               <Controller
@@ -183,6 +188,52 @@ export function EditPatientForm({ id }: { id: string }) {
                   </Select>
                 )}
               />
+            </div>
+
+            <div className="grid gap-2">
+              <Label htmlFor="dateOfBirth">Date de naissance</Label>
+              <Controller
+                name="dateOfBirth"
+                control={control}
+                render={({ field }) => (
+                  <Popover open={dobPickerOpen} onOpenChange={setDobPickerOpen}>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className={cn(
+                          "w-full justify-start text-left font-normal",
+                          !selectedDob && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {selectedDob
+                          ? format(selectedDob, "dd/MM/yyyy")
+                          : "Sélectionner une date"}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={selectedDob}
+                        onSelect={(d) => {
+                          setSelectedDob(d);
+                          field.onChange(d ? format(d, "yyyy-MM-dd") : "");
+                          setDobPickerOpen(false);
+                        }}
+                        captionLayout="dropdown"
+                        fromYear={1900}
+                        toYear={new Date().getFullYear()}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                )}
+              />
+              {errors.dateOfBirth && (
+                <p className="text-destructive text-sm">
+                  {errors.dateOfBirth.message}
+                </p>
+              )}
             </div>
           </div>
 

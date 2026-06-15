@@ -7,7 +7,7 @@ import api from "../../axios";
 type Patient = {
   first_name: string;
   last_name: string;
-  dateOfBirth?: string;
+  dateOfBirth: string;
   gender: "Male" | "Female";
   weight?: number;
   contact?: string;

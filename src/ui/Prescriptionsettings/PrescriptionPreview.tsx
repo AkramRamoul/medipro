@@ -136,60 +136,18 @@ export const PrescriptionPreview: React.FC<PrescriptionPreviewProps> = ({
                     <div className="w-[20%] pl-2">{logoBlock}</div>
                 </div>;
             case "centered":
-                return <div className="flex flex-col items-center w-full" style={{ marginBottom: mb, minHeight: minH }}>
-                    <div className="mb-3">{logoBlock}</div>
-                    <div className="flex justify-between w-full">
-                        <div className="w-[45%] text-center flex flex-col items-center">
-                            <div className="font-bold" style={{ color: accentColor, fontSize: doctorNameSize }}>{form.nameFr || "Nom du Docteur"}</div>
-                            <div className="text-gray-600" style={{ fontSize: specialtySize }}>{form.specialtyFr || "Spécialité"}</div>
-                        </div>
-                        <div className="w-[45%] text-center flex flex-col items-center" dir="rtl">
-                            <div className="font-bold" style={{ color: accentColor, fontSize: doctorNameSize }}>{form.nameAr || "اسم الطبيب"}</div>
-                            <div className="text-gray-600" style={{ fontSize: specialtySize }}>{form.specialtyAr || "التخصص"}</div>
-                        </div>
+                return <div className="flex justify-between items-center w-full" style={{ marginBottom: mb, minHeight: minH }}>
+                    <div className="w-[40%] text-center flex flex-col items-center">
+                        <div className="font-bold" style={{ color: accentColor, fontSize: doctorNameSize }}>{form.nameFr || "Nom du Docteur"}</div>
+                        <div className="text-gray-600" style={{ fontSize: specialtySize }}>{form.specialtyFr || "Spécialité"}</div>
+                    </div>
+                    <div className="w-[20%] flex justify-center">{logoBlock}</div>
+                    <div className="w-[40%] text-center flex flex-col items-center" dir="rtl">
+                        <div className="font-bold" style={{ color: accentColor, fontSize: doctorNameSize }}>{form.nameAr || "اسم الطبيب"}</div>
+                        <div className="text-gray-600" style={{ fontSize: specialtySize }}>{form.specialtyAr || "التخصص"}</div>
                     </div>
                 </div>;
-            case "bilingual-stacked":
-                return <div className="flex justify-between items-start w-full gap-4" style={{ marginBottom: mb, minHeight: minH }}>
-                    <div className="w-[55%] flex flex-col items-center justify-start text-center pt-2">
-                        <div className="flex flex-col items-center gap-0.5">
-                            <div className="font-bold tracking-wide uppercase" style={{ color: accentColor, fontSize: doctorNameSize * 1.15 }}>{form.nameFr || "Dr NOM et Prénom"}</div>
-                            <div className="font-medium" style={{ fontSize: specialtySize * 0.95, color: accentColor }}>{form.specialtyFr || "Médecin spécialiste"}</div>
-                        </div>
 
-                        {/* Elegant ornamental divider */}
-                        <div className="flex items-center justify-center my-3.5 w-32 opacity-80">
-                            <div className="h-[1px] flex-1" style={{ backgroundColor: accentColor }} />
-                            <div className="mx-2 flex gap-1 items-center">
-                                <div className="w-[3px] h-[3px] rounded-full" style={{ backgroundColor: accentColor }} />
-                                <div className="w-[4.5px] h-[4.5px] rounded-full" style={{ backgroundColor: accentColor }} />
-                                <div className="w-[3px] h-[3px] rounded-full" style={{ backgroundColor: accentColor }} />
-                            </div>
-                            <div className="h-[1px] flex-1" style={{ backgroundColor: accentColor }} />
-                        </div>
-
-                        <div className="flex flex-col items-center gap-0.5" dir="rtl">
-                            <div className="font-extrabold tracking-tight" style={{ color: accentColor, fontSize: doctorNameSize * 1.25 }}>{form.nameAr || "الحكيم الإسم و اللقب"}</div>
-                            <div className="font-medium" style={{ fontSize: specialtySize * 1.05, color: accentColor }}>{form.specialtyAr || "طبيب متخصص"}</div>
-                        </div>
-                    </div>
-
-                    <div className="w-[45%] flex flex-col items-center justify-start pt-1 shrink-0">
-                        {logoImage
-                            ? <img src={logoImage} alt="Logo" className="object-contain drop-shadow-sm mb-3" style={{ width: logoSizePx, height: logoSizePx }} />
-                            : <div className="bg-slate-50 border border-slate-200 rounded-lg flex items-center justify-center text-slate-400 font-semibold tracking-widest shadow-sm mb-3" style={{ width: logoSizePx, height: logoSizePx, fontSize: "0.5rem" }}>LOGO</div>}
-
-                        <div className="text-center w-full">
-                            <div className="font-bold mb-0.5 tracking-wide" style={{ color: accentColor, fontSize: specialtySize * 1.1 }}>العيادة الطبية المختصة</div>
-                            <div className="font-medium tracking-wide" style={{ color: accentColor, fontSize: specialtySize * 0.9 }}>Clinique Privée Spécialisée</div>
-                            {showInscNo && (
-                                <div className="text-[0.6rem] font-medium tracking-widest mt-1.5 opacity-80" style={{ color: accentColor }}>
-                                    N° d'ordre: {form.inscriptionNumber || "0000"}
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                </div>;
             default: // bilingual
                 return <div className="flex justify-between items-start" style={{ marginBottom: mb, minHeight: minH }}>
                     <div className="w-[40%]">{frBlock}</div>
@@ -200,32 +158,27 @@ export const PrescriptionPreview: React.FC<PrescriptionPreviewProps> = ({
     };
 
     return (
-        <div className="sticky top-8">
+        <div>
             <style>{`@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=Merriweather:wght@400;700&family=Montserrat:wght@400;600;700&family=Playfair+Display:wght@400;600;700&family=Roboto:wght@400;500;700&display=swap');`}</style>
 
-            {/* Toolbar */}
-            <div className="flex items-center justify-between mb-3 px-1">
-                <h3 className="text-lg font-semibold">Aperçu en direct</h3>
-            </div>
-
             {/* Zoom controls */}
-            <div className="flex items-center justify-center gap-2 mb-3">
+            <div className="flex items-center justify-center gap-2 mb-4">
                 <button type="button" disabled={zoom <= ZOOM_MIN} onClick={() => setZoom(z => Math.max(ZOOM_MIN, +(z - ZOOM_STEP).toFixed(2)))}
-                    className="p-1.5 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 hover:bg-gray-100 disabled:opacity-40 transition-colors">
-                    <ZoomOut className="h-4 w-4" />
+                    className="p-1.5 rounded-lg border border-border bg-background hover:bg-muted disabled:opacity-30 transition-colors">
+                    <ZoomOut className="h-3.5 w-3.5" />
                 </button>
                 <button type="button" onClick={() => setZoom(1.0)}
-                    className="px-2 py-1 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-xs font-medium min-w-[3.5rem] transition-colors">
+                    className="px-3 py-1.5 rounded-lg border border-border bg-background text-xs font-semibold min-w-[4rem] transition-colors hover:bg-muted">
                     {Math.round(zoom * 100)}%
                 </button>
                 <button type="button" disabled={zoom >= ZOOM_MAX} onClick={() => setZoom(z => Math.min(ZOOM_MAX, +(z + ZOOM_STEP).toFixed(2)))}
-                    className="p-1.5 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 hover:bg-gray-100 disabled:opacity-40 transition-colors">
-                    <ZoomIn className="h-4 w-4" />
+                    className="p-1.5 rounded-lg border border-border bg-background hover:bg-muted disabled:opacity-30 transition-colors">
+                    <ZoomIn className="h-3.5 w-3.5" />
                 </button>
                 {zoom !== 1.0 && (
                     <button type="button" onClick={() => setZoom(1.0)}
-                        className="p-1.5 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 hover:bg-gray-100 transition-colors ml-1">
-                        <RotateCcw className="h-3.5 w-3.5" />
+                        className="p-1.5 rounded-lg border border-border bg-background hover:bg-muted transition-colors ml-1">
+                        <RotateCcw className="h-3 w-3" />
                     </button>
                 )}
             </div>
@@ -295,8 +248,8 @@ export const PrescriptionPreview: React.FC<PrescriptionPreviewProps> = ({
                 </div>
             </div>
 
-            <p className="mt-4 text-xs text-muted-foreground text-center px-4 italic">
-                * Aperçu approximatif de l'impression finale sur papier A5.
+            <p className="mt-4 text-xs text-muted-foreground/60 text-center px-4 italic">
+                * Aperçu approximatif — impression finale sur papier A5.
             </p>
         </div>
     );

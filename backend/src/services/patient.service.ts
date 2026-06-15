@@ -2,6 +2,20 @@ import { db } from '../db';
 import { patients, consultations, prescriptions, prescriptionMedications, Document as DocumentTable, labResults } from '../db/schema';
 import { eq, sql, desc, or, like } from 'drizzle-orm';
 import ExcelJS from 'exceljs';
+
+export function calculateAge(dateOfBirth: string | null | undefined): number | null {
+    if (!dateOfBirth) return null;
+    const dob = new Date(dateOfBirth);
+    if (isNaN(dob.getTime())) return null;
+    const today = new Date();
+    let age = today.getFullYear() - dob.getFullYear();
+    const monthDiff = today.getMonth() - dob.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
+        age--;
+    }
+    return age;
+}
+
 export class PatientService {
     async getAll() {
         const result = await db
@@ -30,6 +44,7 @@ export class PatientService {
 
         return result.map((patient: any) => ({
             ...patient,
+            age: calculateAge(patient.dateOfBirth),
             createdAt: patient.createdAt ? new Date(patient.createdAt).toISOString() : null,
             lastVisit:
                 patient.lastVisit && typeof patient.lastVisit === "string"
@@ -50,6 +65,7 @@ export class PatientService {
 
         return {
             ...patient,
+            age: calculateAge((patient as any).dateOfBirth),
             createdAt: patient.createdAt ? new Date(patient.createdAt).toISOString().split("T")[0] : null,
         };
     }
@@ -226,13 +242,13 @@ export class PatientService {
                     // For now, I'll use doc.name if we query it, or a generic title.
                     // Oh wait, looking at the query, `name` is not selected. I should modify the SQL select first.
                     summary = (doc as any).name || "Lettre / Document";
-                    
+
                     // The content is HTML, extracting text might be complex, or we can just leave details empty
                     // or try to strip HTML tags if possible.
                     if (doc.content && typeof doc.content === 'string') {
-                         // Simple HTML stripper for details preview
-                         const stripped = doc.content.replace(/<[^>]*>?/gm, '');
-                         details = stripped.slice(0, 50) + (stripped.length > 50 ? "..." : "");
+                        // Simple HTML stripper for details preview
+                        const stripped = doc.content.replace(/<[^>]*>?/gm, '');
+                        details = stripped.slice(0, 50) + (stripped.length > 50 ? "..." : "");
                     }
                 }
 
@@ -359,11 +375,11 @@ export class PatientService {
 
     async exportLabResultsExcel(patientId: number) {
         const results = await this.getLabResults(patientId);
-        
+
         const workbook = new ExcelJS.Workbook();
         workbook.creator = 'Doc App';
         workbook.created = new Date();
-        
+
         const sheet = workbook.addWorksheet('Bilan Biologique');
 
         sheet.columns = [
@@ -387,7 +403,7 @@ export class PatientService {
 
         results.forEach((panel: any) => {
             const dateStr = panel.measuredAt ? new Date(panel.measuredAt).toLocaleDateString("fr-FR") : '';
-            
+
             panel.entries.forEach((entry: any) => {
                 let statusLabel = 'Normal';
                 if (entry.status === 'high') statusLabel = 'Élevé';
@@ -412,10 +428,10 @@ export class PatientService {
         });
 
         const buffer = await workbook.xlsx.writeBuffer();
-        
-        return { 
-            buffer: buffer, 
-            filename: `bilan_biologique_patient_${patientId}.xlsx` 
+
+        return {
+            buffer: buffer,
+            filename: `bilan_biologique_patient_${patientId}.xlsx`
         };
     }
 

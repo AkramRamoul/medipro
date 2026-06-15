@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState, useCallback, memo } from "react";
+import { useNavigate } from "react-router-dom";
+
 import {
   DndContext,
   closestCenter,
@@ -244,6 +246,7 @@ const NewPrescriptionForm = ({
   refreshPrescriptions: () => void;
   patient: Patient;
 }) => {
+  const navigate = useNavigate();
   const [medications, setMedications] = useState<Medication[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [suggestions, setSuggestions] = useState<Medication[]>([]);
@@ -681,7 +684,7 @@ const NewPrescriptionForm = ({
                     )}
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
-                    {format(prescriptionDate, "PPP", { locale: fr })}
+                    {format(prescriptionDate, "dd/MM/yyyy")}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="end">
@@ -760,7 +763,23 @@ const NewPrescriptionForm = ({
               ref={containerRef}
               className="md:col-span-4 relative space-y-2"
             >
-              <Label>Médicament</Label>
+              <div className="flex justify-between items-center">
+                <Label>Médicament</Label>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const query = inputValue.trim();
+                    navigate(
+                      query
+                        ? `/settings?tab=medications&name=${encodeURIComponent(query)}`
+                        : "/settings?tab=medications"
+                    );
+                  }}
+                  className="text-xs text-muted-foreground hover:text-primary hover:underline transition-all cursor-pointer font-medium"
+                >
+                  médicament introuvable ?
+                </button>
+              </div>
               <Input
                 type="text"
                 value={inputValue}

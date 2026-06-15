@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Patient } from "../Home/colums";
+import { calculateAge } from "../../lib/ageUtils";
 import {
   Table,
   TableBody,
@@ -151,18 +152,9 @@ function PatientsTable({
         return false;
       }
 
+      // Age Range Filter
       if (ageRangeFilter !== "all") {
-        const dob = patient.dateOfBirth;
-        const age = (() => {
-          if (!dob) return null;
-          const birth = new Date(dob);
-          const today = new Date();
-          let a = today.getFullYear() - birth.getFullYear();
-          const m = today.getMonth() - birth.getMonth();
-          if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) a--;
-          return a;
-        })();
-        if (age === null) return false;
+        const age = patient.age ?? calculateAge(patient.dateOfBirth) ?? 0;
         if (ageRangeFilter === "0-18" && (age < 0 || age > 18)) return false;
         if (ageRangeFilter === "18-40" && (age < 18 || age > 40)) return false;
         if (ageRangeFilter === "40-60" && (age < 40 || age > 60)) return false;
@@ -190,31 +182,18 @@ function PatientsTable({
   // Stats calculation — based on ALL patients (not affected by search/date/archive filters)
   // This matches the dashboard's statistics
   const totalFiltered = patients.length;
-  
+
   const maleCount = patients.filter(p => {
     const g = (p.gender || "").toLowerCase();
     return g === "male" || g === "m" || g === "homme";
   }).length;
-  
+
   const femaleCount = patients.filter(p => {
     const g = (p.gender || "").toLowerCase();
     return g === "female" || g === "f" || g === "femme";
   }).length;
-  
-  const avgAge = Math.round(
-    patients
-      .map(p => {
-        if (!p.dateOfBirth) return null;
-        const birth = new Date(p.dateOfBirth);
-        const today = new Date();
-        let a = today.getFullYear() - birth.getFullYear();
-        const m = today.getMonth() - birth.getMonth();
-        if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) a--;
-        return a;
-      })
-      .filter((a): a is number => a !== null)
-      .reduce((acc, a, _, arr) => acc + a / arr.length, 0)
-  );
+
+  const avgAge = Math.round(patients.reduce((acc, p) => acc + (p.age ?? calculateAge(p.dateOfBirth) ?? 0), 0) / (patients.length || 1));
 
   const sortedData = [...filteredData].sort((a, b) => {
     // ... existing sort logic ...
@@ -389,14 +368,14 @@ function PatientsTable({
                         {date?.from ? (
                           date.to ? (
                             <>
-                              {format(date.from, "LLL dd, y", { locale: fr })} -{" "}
-                              {format(date.to, "LLL dd, y", { locale: fr })}
+                              {format(date.from, "dd/MM/yyyy")} -{" "}
+                              {format(date.to, "dd/MM/yyyy")}
                             </>
                           ) : (
-                            format(date.from, "LLL dd, y", { locale: fr })
+                            format(date.from, "dd/MM/yyyy")
                           )
                         ) : (
-                          <span>Pick a date</span>
+                          <span>Choisir une date</span>
                         )}
                       </Button>
                     </PopoverTrigger>

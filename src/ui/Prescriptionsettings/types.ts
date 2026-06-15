@@ -6,8 +6,7 @@ export type TemplateLayout =
     | "ar-logo-right"
     | "bilingual-logo-left"
     | "bilingual-logo-right"
-    | "centered"
-    | "bilingual-stacked";
+    | "centered";
 
 
 export interface FormState {

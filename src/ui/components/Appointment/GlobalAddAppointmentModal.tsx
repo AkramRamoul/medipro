@@ -9,7 +9,7 @@ import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Textarea } from "../ui/textarea";
 import { useState, useEffect } from "react";
-import { Loader2, Calendar, Clock, FileText, UserSearch, User } from "lucide-react";
+import { Loader2, Calendar, Clock, FileText, UserSearch, User, CalendarIcon } from "lucide-react";
 import api from "../../axios";
 import {
     Command,
@@ -21,6 +21,8 @@ import {
 } from "../ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { format } from "date-fns";
+import { Calendar as CalendarComponent } from "../ui/calendar";
+import { cn } from "../../lib/utils";
 
 interface GlobalAddAppointmentModalProps {
     isOpen: boolean;
@@ -41,7 +43,9 @@ export function GlobalAddAppointmentModal({
     const [openCombobox, setOpenCombobox] = useState(false);
 
     const [title, setTitle] = useState("");
-    const [date, setDate] = useState("");
+    const [date, setDate] = useState(""); // stored as yyyy-MM-dd for API
+    const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
+    const [datePickerOpen, setDatePickerOpen] = useState(false);
     const [time, setTime] = useState("");
     const [notes, setNotes] = useState("");
     const [isLoading, setIsLoading] = useState(false);
@@ -62,9 +66,12 @@ export function GlobalAddAppointmentModal({
     useEffect(() => {
         if (initialDate && isOpen) {
             setDate(format(initialDate, "yyyy-MM-dd"));
+            setSelectedDate(initialDate);
             setTime(format(initialDate, "HH:mm"));
         } else if (isOpen && !date) {
-            setDate(format(new Date(), "yyyy-MM-dd"));
+            const today = new Date();
+            setDate(format(today, "yyyy-MM-dd"));
+            setSelectedDate(today);
         }
     }, [initialDate, isOpen]);
 
@@ -92,6 +99,7 @@ export function GlobalAddAppointmentModal({
             // Reset form
             setTitle("");
             setDate("");
+            setSelectedDate(undefined);
             setTime("");
             setNotes("");
             setSelectedPatientId(null);
@@ -180,20 +188,35 @@ export function GlobalAddAppointmentModal({
 
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
-                            <Label htmlFor="date" className="text-sm font-medium">
-                                Date
-                            </Label>
-                            <div className="relative">
-                                <Input
-                                    id="date"
-                                    type="date"
-                                    value={date}
-                                    onChange={(e) => setDate(e.target.value)}
-                                    className="pl-9 bg-muted/30 border-input/50 focus:bg-background transition-all block"
-                                    required
-                                />
-                                <Calendar className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground pointer-events-none" />
-                            </div>
+                            <Label className="text-sm font-medium">Date</Label>
+                            <Popover open={datePickerOpen} onOpenChange={setDatePickerOpen}>
+                                <PopoverTrigger asChild>
+                                    <Button
+                                        variant="outline"
+                                        className={cn(
+                                            "w-full justify-start text-left font-normal bg-muted/30 border-input/50 hover:bg-background",
+                                            !selectedDate && "text-muted-foreground"
+                                        )}
+                                    >
+                                        <CalendarIcon className="mr-2 h-4 w-4" />
+                                        {selectedDate
+                                            ? format(selectedDate, "dd/MM/yyyy")
+                                            : "Sélectionner une date"}
+                                    </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-auto p-0" align="start">
+                                    <CalendarComponent
+                                        mode="single"
+                                        selected={selectedDate}
+                                        onSelect={(d) => {
+                                            setSelectedDate(d);
+                                            setDate(d ? format(d, "yyyy-MM-dd") : "");
+                                            setDatePickerOpen(false);
+                                        }}
+                                        initialFocus
+                                    />
+                                </PopoverContent>
+                            </Popover>
                         </div>
                         <div className="space-y-2">
                             <Label

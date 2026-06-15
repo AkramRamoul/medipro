@@ -8,8 +8,9 @@ import { Button } from "../components/ui/button";
 import { PrescriptionPreview } from "./PrescriptionPreview";
 import {
   Layout, RefreshCw, Loader2, Save,
-  ChevronDown, CheckCircle2, AlertCircle, User,
+  CheckCircle2, AlertCircle, User,
   Phone, Palette, Image as ImageIcon, Layers,
+  FileText, ChevronDown,
 } from "lucide-react";
 
 import { useDebounce } from "../hooks/use-debounce";
@@ -52,43 +53,65 @@ const DEFAULT_SERVICES: ServiceItem[] = [];
 
 const fetcher = (url: string) => api.get(url).then(res => res.data);
 
-// ── Accordion Section ──────────────────────────────────────────────────────
+// ── Accordion Section ────────────────────────────────────────────────────────
 function AccordionSection({
-  title, icon, defaultOpen = false, children,
+  title,
+  icon,
+  badge,
+  defaultOpen = false,
+  children,
 }: {
-  id: string; title: string; icon: React.ReactNode; defaultOpen?: boolean; children: React.ReactNode;
+  title: string;
+  icon: React.ReactNode;
+  badge?: string;
+  defaultOpen?: boolean;
+  children: React.ReactNode;
 }) {
   const [open, setOpen] = useState(defaultOpen);
+
   return (
-    <div className="border border-border rounded-xl overflow-hidden">
+    <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200">
+      {/* Header – clickable trigger */}
       <button
         type="button"
         onClick={() => setOpen(o => !o)}
-        className="w-full flex items-center justify-between px-4 py-3 bg-muted/30 hover:bg-muted/50 transition-colors"
+        className="w-full flex items-center gap-3 px-5 py-4 border-b border-border/60 bg-muted/20 hover:bg-muted/40 transition-colors duration-150 text-left"
       >
-        <div className="flex items-center gap-2 text-sm font-semibold">
-          <span className="text-primary">{icon}</span>
-          {title}
+        <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/10 text-primary shrink-0">
+          {icon}
         </div>
+        <div className="flex-1 min-w-0">
+          <span className="font-semibold text-sm text-foreground">{title}</span>
+        </div>
+        {badge && (
+          <span className="text-[10px] font-bold uppercase tracking-wider text-primary/60 bg-primary/8 px-2 py-0.5 rounded-full">
+            {badge}
+          </span>
+        )}
         <ChevronDown
-          className={`w-4 h-4 text-muted-foreground transition-transform duration-200 ${open ? "rotate-180" : ""}`}
+          className={`w-4 h-4 text-muted-foreground ml-1 shrink-0 transition-transform duration-300 ${open ? "rotate-180" : ""
+            }`}
         />
       </button>
-      {open && (
-        <div className="px-4 py-4 bg-background border-t border-border">
-          {children}
+
+      {/* Collapsible body */}
+      <div
+        className={`grid transition-all duration-300 ease-in-out ${open ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+          }`}
+      >
+        <div className="overflow-hidden">
+          <div className="px-5 py-5">{children}</div>
         </div>
-      )}
+      </div>
     </div>
   );
 }
 
-// ── Main Form ──────────────────────────────────────────────────────────────
+// ── Main Form ───────────────────────────────────────────────────────────────
 export function PrescriptionModelForm() {
   const [logoImage, setLogoImage] = useState<string | null>(null);
   const fileUploaderProps = useFileUploader();
   const [isSaving, setIsSaving] = useState(false);
-  const [isDirty, setIsDirty] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
 
   const { data: logoData, isLoading: isFetchingLogo } = useSWR('/settings/logo', fetcher, { revalidateOnFocus: false });
@@ -98,7 +121,7 @@ export function PrescriptionModelForm() {
     defaultValues: { ...DEFAULT_FORM, services: DEFAULT_SERVICES }
   });
 
-  const { reset, handleSubmit, watch } = methods;
+  const { reset, handleSubmit, watch, formState: { isDirty } } = methods;
 
   useEffect(() => {
     if (logoData?.success && logoData.image) setLogoImage(logoData.image);
@@ -115,19 +138,11 @@ export function PrescriptionModelForm() {
         if (parsed.length > 0) parsedServices = parsed;
       } catch { /* ignore */ }
       reset({ ...DEFAULT_FORM, ...model, services: parsedServices });
-      setIsDirty(false);
     }
   }, [modelData, reset]);
 
-  // Track dirty state via watch
-  useEffect(() => {
-    const sub = watch(() => setIsDirty(true));
-    return () => sub.unsubscribe();
-  }, [watch]);
-
   const watchedValues = watch();
   const debouncedForm = useDebounce(watchedValues, 300);
-
 
   const handleReload = () => {
     if (modelData?.success && modelData.model) {
@@ -143,7 +158,6 @@ export function PrescriptionModelForm() {
     } else {
       reset({ ...DEFAULT_FORM, services: DEFAULT_SERVICES });
     }
-    setIsDirty(false);
     mutateModel();
   };
 
@@ -154,7 +168,7 @@ export function PrescriptionModelForm() {
       if (result.success) {
         toast.success("Modèle enregistré avec succès !");
         setLastSaved(new Date());
-        setIsDirty(false);
+        reset(data);
         mutateModel();
       } else {
         toast.error(result.error || "Erreur lors de l'enregistrement");
@@ -171,124 +185,209 @@ export function PrescriptionModelForm() {
 
   if (isFetching) {
     return (
-      <div className="min-h-[60vh] flex flex-col items-center justify-center gap-3">
-        <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-          <Loader2 className="w-6 h-6 animate-spin text-primary" />
+      <div className="min-h-[60vh] flex flex-col items-center justify-center gap-4">
+        <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center shadow-sm">
+          <Loader2 className="w-7 h-7 animate-spin text-primary" />
         </div>
-        <p className="text-muted-foreground text-sm">Chargement des paramètres...</p>
+        <div className="text-center">
+          <p className="text-sm font-medium text-foreground">Chargement en cours</p>
+          <p className="text-xs text-muted-foreground mt-0.5">Récupération des paramètres du modèle...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto py-6 px-4 max-w-[1400px]">
+    <div className="min-h-screen bg-background">
 
       {/* ── Page Header ─────────────────────────────────────────────────── */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-            <Layout className="w-5 h-5 text-primary" />
-          </div>
-          <div>
-            <h1 className="text-xl font-bold leading-tight">Modèle d'ordonnance</h1>
-            <p className="text-xs text-muted-foreground">
-              Personnalisez l'en-tête, le pied de page et le design de vos ordonnances.
-            </p>
+      <div className="border-b border-border/60 bg-card/50 backdrop-blur-sm sticky top-0 z-30">
+        <div className="container mx-auto max-w-[1400px] px-6 py-4">
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3.5">
+              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center border border-primary/20 shadow-sm">
+                <Layout className="w-5 h-5 text-primary" />
+              </div>
+              <div>
+                <h1 className="text-lg font-bold leading-tight tracking-tight">Modèle d'ordonnance</h1>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Personnalisez l'en-tête, le design et le pied de page de vos ordonnances.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2.5">
+              {/* Status indicator */}
+              {isDirty ? (
+                <span className="hidden md:flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/50 text-amber-700 dark:text-amber-400 font-medium">
+                  <AlertCircle className="w-3 h-3" />
+                  Modifications non enregistrées
+                </span>
+              ) : lastSaved ? (
+                <span className="hidden md:flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/50 text-emerald-700 dark:text-emerald-400 font-medium">
+                  <CheckCircle2 className="w-3 h-3" />
+                  Enregistré à {lastSaved.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}
+                </span>
+              ) : null}
+
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handleReload}
+                disabled={isSaving}
+                className="gap-1.5 h-8 text-xs"
+                title="Recharger les données enregistrées"
+              >
+                <RefreshCw className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Recharger</span>
+              </Button>
+            </div>
           </div>
         </div>
+      </div>
 
-        <div className="flex items-center gap-2">
-          {/* Status badge */}
-          {isDirty ? (
-            <span className="hidden sm:flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-amber-50 border border-amber-200 text-amber-700">
-              <AlertCircle className="w-3 h-3" /> Modifications non enregistrées
-            </span>
-          ) : lastSaved ? (
-            <span className="hidden sm:flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-green-50 border border-green-200 text-green-700">
-              <CheckCircle2 className="w-3 h-3" /> Enregistré à {lastSaved.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}
-            </span>
-          ) : null}
+      {/* ── Main Content ─────────────────────────────────────────────────── */}
+      <div className="container mx-auto max-w-[1400px] px-6 py-8">
+        <div className="grid grid-cols-1 xl:grid-cols-[1fr_400px] gap-8 items-start">
 
-          <Button type="button" variant="outline" size="sm" onClick={handleReload}
-            disabled={isSaving} className="gap-1.5" title="Recharger les données enregistrées">
-            <RefreshCw className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Recharger</span>
+          {/* ── Left: Form ─────────────────────────────────────────────── */}
+          <FormProvider {...methods}>
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+
+              <AccordionSection
+                title="Modèle de mise en page"
+                icon={<Layers className="w-4 h-4" />}
+                badge="Requis"
+                defaultOpen
+              >
+                <TemplateLayoutSelector />
+              </AccordionSection>
+
+              <AccordionSection
+                title="Logo du cabinet"
+                icon={<ImageIcon className="w-4 h-4" />}
+                defaultOpen
+              >
+                <LogoUploadSection
+                  logoImage={logoImage}
+                  setLogoImage={setLogoImage}
+                  handleFileUpload={fileUploaderProps.handleFileUpload}
+                />
+              </AccordionSection>
+
+              <AccordionSection
+                title="Informations du Docteur"
+                icon={<User className="w-4 h-4" />}
+                badge="Requis"
+                defaultOpen
+              >
+                <DoctorInfoSection />
+              </AccordionSection>
+
+              <AccordionSection
+                title="Services & Actes"
+                icon={<FileText className="w-4 h-4" />}
+              >
+                <ServicesSection />
+              </AccordionSection>
+
+              <AccordionSection
+                title="Contact & Inscription"
+                icon={<Phone className="w-4 h-4" />}
+              >
+                <ContactAndRegistration />
+              </AccordionSection>
+
+              <AccordionSection
+                title="Personnalisation Visuelle"
+                icon={<Palette className="w-4 h-4" />}
+              >
+                <VisualAndLayoutSettings />
+              </AccordionSection>
+
+              {/* ── Save button ──────────────────────────────────────── */}
+              <div className="pt-2 pb-8">
+                <Button
+                  type="submit"
+                  disabled={isSaving}
+                  className="w-full h-11 text-sm font-semibold gap-2 rounded-xl shadow-sm"
+                >
+                  {isSaving ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Save className="w-4 h-4" />
+                  )}
+                  {isSaving ? "Enregistrement..." : "Enregistrer les modifications"}
+                </Button>
+              </div>
+
+            </form>
+          </FormProvider>
+
+          {/* ── Right: Sticky Preview ────────────────────────────────── */}
+          <div className="xl:sticky xl:top-[73px] space-y-3">
+            <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-sm">
+              {/* Preview header */}
+              <div className="flex items-center gap-2 px-4 py-3 border-b border-border/60 bg-muted/20">
+                <div className="w-2 h-2 rounded-full bg-red-400" />
+                <div className="w-2 h-2 rounded-full bg-amber-400" />
+                <div className="w-2 h-2 rounded-full bg-emerald-400" />
+                <span className="text-xs font-semibold text-muted-foreground ml-2 tracking-wide">Aperçu en direct</span>
+                <span className="ml-auto text-[10px] text-muted-foreground/60 font-medium italic">Papier A5</span>
+              </div>
+
+              {/* Preview body */}
+              <div className="p-4">
+                <PrescriptionPreview
+                  form={debouncedForm}
+                  services={debouncedForm.services || []}
+                  logoImage={logoImage}
+                />
+              </div>
+            </div>
+
+            {/* Print button */}
+            <div className="flex justify-center">
+              <PrintButton model={debouncedForm} image={logoImage} />
+            </div>
+
+            {/* Hint */}
+            <p className="text-[11px] text-muted-foreground/70 text-center px-4 leading-relaxed">
+              L'aperçu se met à jour automatiquement à chaque modification.
+              L'impression finale sera sur papier A5.
+            </p>
+          </div>
+
+        </div>
+      </div>
+
+      {/* ── Floating unsaved-changes bar ────────────────────────────────── */}
+      <div
+        className={`fixed bottom-6 left-1/2 -translate-x-1/2 z-40 transition-all duration-300 ${isDirty
+          ? "opacity-100 translate-y-0 pointer-events-auto"
+          : "opacity-0 translate-y-4 pointer-events-none"
+          }`}
+      >
+        <div className="flex items-center gap-3 bg-background/95 dark:bg-card/95 backdrop-blur-md border border-border rounded-2xl px-5 py-3 shadow-2xl shadow-black/10 min-w-[320px]">
+          <div className="w-6 h-6 rounded-full bg-amber-100 dark:bg-amber-950/50 flex items-center justify-center shrink-0">
+            <AlertCircle className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+          </div>
+          <p className="text-sm text-muted-foreground flex-1">Modifications non enregistrées</p>
+          <Button
+            form="prescription-form"
+            type="submit"
+            disabled={isSaving}
+            size="sm"
+            className="gap-1.5 h-8 font-semibold rounded-xl text-xs"
+            onClick={handleSubmit(onSubmit)}
+          >
+            {isSaving ? <Loader2 className="w-3 h-3 animate-spin" /> : <Save className="w-3 h-3" />}
+            {isSaving ? "Enregistrement..." : "Enregistrer"}
           </Button>
         </div>
       </div>
 
-      {/* ── Two-column layout ───────────────────────────────────────────── */}
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-6 items-start">
-
-        {/* Left: Form */}
-        <FormProvider {...methods}>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
-
-            <AccordionSection id="template" title="Modèle de mise en page" icon={<Layers className="w-4 h-4" />} defaultOpen>
-              <TemplateLayoutSelector />
-            </AccordionSection>
-
-            <AccordionSection id="logo" title="Logo du cabinet" icon={<ImageIcon className="w-4 h-4" />} defaultOpen>
-              <LogoUploadSection
-                logoImage={logoImage}
-                setLogoImage={setLogoImage}
-                handleFileUpload={fileUploaderProps.handleFileUpload}
-              />
-            </AccordionSection>
-
-            <AccordionSection id="doctor" title="Informations du Docteur" icon={<User className="w-4 h-4" />} defaultOpen>
-              <DoctorInfoSection />
-            </AccordionSection>
-
-            <AccordionSection id="services" title="Services & Actes" icon={<Layers className="w-4 h-4" />}>
-              <ServicesSection />
-            </AccordionSection>
-
-            <AccordionSection id="contact" title="Contact & Inscription" icon={<Phone className="w-4 h-4" />}>
-              <ContactAndRegistration />
-            </AccordionSection>
-
-            <AccordionSection id="visual" title="Personnalisation Visuelle" icon={<Palette className="w-4 h-4" />}>
-              <VisualAndLayoutSettings />
-            </AccordionSection>
-
-            {/* ── Sticky save bar ────────────────────────────────────── */}
-            <div className={`sticky bottom-4 z-20 transition-all duration-300 ${isDirty ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2 pointer-events-none"}`}>
-              <div className="flex items-center gap-3 bg-background/95 backdrop-blur border border-border rounded-xl px-4 py-3 shadow-xl">
-                <AlertCircle className="w-4 h-4 text-amber-500 flex-shrink-0" />
-                <p className="text-sm text-muted-foreground flex-1">Vous avez des modifications non enregistrées.</p>
-                <Button type="submit" disabled={isSaving} size="sm" className="gap-2 font-semibold">
-                  {isSaving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
-                  {isSaving ? "Enregistrement..." : "Enregistrer"}
-                </Button>
-              </div>
-            </div>
-
-            {/* Always-visible save button (fallback when bar is hidden) */}
-            <div className="flex gap-3 pt-2">
-              <Button type="submit" disabled={isSaving} className="flex-1 h-11 text-base font-semibold gap-2">
-                {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                {isSaving ? "Enregistrement..." : "Enregistrer les modifications"}
-              </Button>
-            </div>
-
-          </form>
-        </FormProvider>
-
-        {/* Right: Live preview (sticky) */}
-        <div className="lg:sticky lg:top-6">
-          <PrescriptionPreview
-            form={debouncedForm}
-            services={debouncedForm.services || []}
-            logoImage={logoImage}
-          />
-          {/* Print button below preview */}
-          <div className="mt-3 flex justify-center">
-            <PrintButton model={debouncedForm} image={logoImage} />
-          </div>
-        </div>
-
-      </div>
     </div>
   );
 }

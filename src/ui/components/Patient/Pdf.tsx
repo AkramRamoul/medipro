@@ -12,6 +12,7 @@ import AmiriRegular from "/fonts/Amiri-Regular.ttf";
 import AmiriBold from "/fonts/Amiri-Bold.ttf";
 import { smallPatient } from "../../type";
 import { PrescriptionMed } from "../../../electron/schema";
+import { formatAge } from "../../lib/ageUtils";
 
 Font.register({
   family: "Amiri",
@@ -221,18 +222,9 @@ const PrescriptionPDF = ({
               <Text style={styles.infoPatient}>
                 Nom : {patient?.first_name} {patient?.last_name}
               </Text>
-              <Text style={styles.infoPatient}>{
-                (() => {
-                  const dob = patient?.dateOfBirth;
-                  if (!dob) return 'Âge : N/A';
-                  const birth = new Date(dob);
-                  const today = new Date();
-                  let age = today.getFullYear() - birth.getFullYear();
-                  const m = today.getMonth() - birth.getMonth();
-                  if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
-                  return `Âge : ${age} Ans`;
-                })()
-              }</Text>
+              <Text style={styles.infoPatient}>
+                Âge : {formatAge(patient?.dateOfBirth, patient?.age)}
+              </Text>
               {isPsychotropic && patientAddress && (
                 <Text style={styles.infoPatient}>
                   Adresse : {patientAddress}

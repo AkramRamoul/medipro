@@ -20,18 +20,23 @@ import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Textarea } from "../ui/textarea";
+import { useState } from "react";
+import { format } from "date-fns";
+import { CalendarIcon } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { Calendar } from "../ui/calendar";
+import { cn } from "../../lib/utils";
 
 const patientSchema = z.object({
   first_name: z
     .string()
     .min(2, "Le prénom doit comporter au moins 2 caractères."),
   last_name: z.string().min(2, "Le nom doit comporter au moins 2 caractères."),
-  dateOfBirth: z.string().optional(),
+  dateOfBirth: z.string().min(1, "La date de naissance est requise."),
   gender: z.enum(["Male", "Female"], {
-    errorMap: () => ({ message: "Le sexe est requis." }),
+    error: "Le sexe est requis.",
   }),
   contact: z.string().optional(),
-  tags: z.string().optional(),
   weight: z.coerce.number().optional(),
   notes: z.string().optional(),
 });
@@ -44,6 +49,9 @@ interface AddPatientFormProps {
 }
 
 export function AddPatientForm({ onClose, onSave }: AddPatientFormProps) {
+  const [dobPickerOpen, setDobPickerOpen] = useState(false);
+  const [selectedDob, setSelectedDob] = useState<Date | undefined>(undefined);
+
   const {
     register,
     handleSubmit,
@@ -73,30 +81,13 @@ export function AddPatientForm({ onClose, onSave }: AddPatientFormProps) {
           {/* First Name & Last Name */}
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="grid gap-2">
-              <Label htmlFor="firstName" className="text-foreground">
-                Nom
-              </Label>
-              <Input
-                {...register("first_name")}
-                id="firstName"
-                placeholder="Entrez le nom"
-                className="bg-background text-foreground"
-              />
-              {errors.first_name && (
-                <p className="text-destructive text-sm">
-                  {errors.first_name.message}
-                </p>
-              )}
-            </div>
-
-            <div className="grid gap-2">
               <Label htmlFor="lastName" className="text-foreground">
-                Prénom
+                Nom
               </Label>
               <Input
                 {...register("last_name")}
                 id="lastName"
-                placeholder="Entrez le prénom"
+                placeholder="Entrez le nom"
                 className="bg-background text-foreground"
               />
               {errors.last_name && (
@@ -105,9 +96,26 @@ export function AddPatientForm({ onClose, onSave }: AddPatientFormProps) {
                 </p>
               )}
             </div>
+
+            <div className="grid gap-2">
+              <Label htmlFor="firstName" className="text-foreground">
+                Prénom
+              </Label>
+              <Input
+                {...register("first_name")}
+                id="firstName"
+                placeholder="Entrez le prénom"
+                className="bg-background text-foreground"
+              />
+              {errors.first_name && (
+                <p className="text-destructive text-sm">
+                  {errors.first_name.message}
+                </p>
+              )}
+            </div>
           </div>
 
-          {/* Gender & Age */}
+          {/* Gender & Date of Birth */}
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="grid gap-2">
               <Label htmlFor="gender" className="text-foreground">
@@ -126,7 +134,7 @@ export function AddPatientForm({ onClose, onSave }: AddPatientFormProps) {
                     </SelectTrigger>
                     <SelectContent className="bg-background text-foreground">
                       <SelectItem value="Male">Homme</SelectItem>
-                      <SelectItem value="Female">Femmelle</SelectItem>
+                      <SelectItem value="Female">Femelle</SelectItem>
                     </SelectContent>
                   </Select>
                 )}
@@ -142,14 +150,47 @@ export function AddPatientForm({ onClose, onSave }: AddPatientFormProps) {
               <Label htmlFor="dateOfBirth" className="text-foreground">
                 Date de naissance
               </Label>
-              <Input
-                {...register("dateOfBirth")}
-                id="dateOfBirth"
-                type="date"
-                className="bg-background text-foreground"
+              <Controller
+                name="dateOfBirth"
+                control={control}
+                render={({ field }) => (
+                  <Popover open={dobPickerOpen} onOpenChange={setDobPickerOpen}>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className={cn(
+                          "w-full justify-start text-left font-normal bg-background text-foreground",
+                          !selectedDob && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {selectedDob
+                          ? format(selectedDob, "dd/MM/yyyy")
+                          : "Sélectionner une date"}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={selectedDob}
+                        onSelect={(d) => {
+                          setSelectedDob(d);
+                          field.onChange(d ? format(d, "yyyy-MM-dd") : "");
+                          setDobPickerOpen(false);
+                        }}
+                        captionLayout="dropdown"
+                        fromYear={1900}
+                        toYear={new Date().getFullYear()}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                )}
               />
               {errors.dateOfBirth && (
-                <p className="text-destructive text-sm">{errors.dateOfBirth.message}</p>
+                <p className="text-destructive text-sm">
+                  {errors.dateOfBirth.message}
+                </p>
               )}
             </div>
           </div>
@@ -174,15 +215,21 @@ export function AddPatientForm({ onClose, onSave }: AddPatientFormProps) {
             </div>
 
             <div className="grid gap-2">
-              <Label htmlFor="tags" className="text-foreground">
-                Tags / Groupes (Séparés par des virgules)
+              <Label htmlFor="weight" className="text-foreground">
+                Poids (kg, Facultatif)
               </Label>
               <Input
-                {...register("tags")}
-                id="tags"
-                placeholder="ex: diabétique, hypertendu"
+                {...register("weight")}
+                id="weight"
+                type="number"
+                placeholder="ex: 70"
                 className="bg-background text-foreground"
               />
+              {errors.weight && (
+                <p className="text-destructive text-sm">
+                  {errors.weight.message}
+                </p>
+              )}
             </div>
           </div>
 

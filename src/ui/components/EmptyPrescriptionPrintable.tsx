@@ -81,10 +81,9 @@ const EmptyPrescriptionPrintable: React.FC<EmptyPrescriptionPrintableProps> = ({
     .col-fr-full { text-align: left; flex: 1; }
     .col-ar-full { text-align: right; direction: rtl; flex: 1; }
     .col-logo-side { width: 20%; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; }
-    .header-centered { display: flex; flex-direction: column; align-items: center; width: 100%; margin-bottom: ${Math.max(20, logoSize * 0.35)}px; position: relative; }
-    .col-stacked-container { display: flex; width: 100%; justify-content: space-between; margin-top: 15px; }
-    .col-fr-center { text-align: center; width: 45%; display: flex; flex-direction: column; align-items: center; }
-    .col-ar-center { text-align: center; width: 45%; direction: rtl; display: flex; flex-direction: column; align-items: center; }
+    .header-centered { display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: ${Math.max(20, logoSize * 0.35)}px; position: relative; }
+    .col-fr-center { text-align: center; width: 40%; display: flex; flex-direction: column; align-items: center; }
+    .col-ar-center { text-align: center; width: 40%; direction: rtl; display: flex; flex-direction: column; align-items: center; }
     /* Letterhead panels (fr-logo-left / ar-logo-right) */
     .header-panel { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: ${Math.max(20, logoSize * 0.35)}px; min-height: ${Math.max(100, logoSize + 30)}px; }
     .panel-logo-left { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 8px; flex-shrink: 0; width: ${logoSize + 20}px; }
@@ -207,10 +206,14 @@ const EmptyPrescriptionPrintable: React.FC<EmptyPrescriptionPrintableProps> = ({
             case "centered":
                 return (
                     <div className="header-centered">
-                        <div className="col-logo">{logoContent}</div>
-                        <div className="col-stacked-container">
-                            <div className="col-fr-center">{frContent}</div>
-                            <div className="col-ar-center">{arContent}</div>
+                        <div className="col-fr-center">
+                            <div className="doctor-name">{prescriptionModel.nameFr}</div>
+                            <div className="specialty">{prescriptionModel.specialtyFr}</div>
+                        </div>
+                        <div className="col-logo-side">{logoContent}</div>
+                        <div className="col-ar-center">
+                            <div className="doctor-name">{prescriptionModel.nameAr}</div>
+                            <div className="specialty">{prescriptionModel.specialtyAr}</div>
                         </div>
                     </div>
                 );

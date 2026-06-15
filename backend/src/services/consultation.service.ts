@@ -5,6 +5,7 @@ import fs from 'fs';
 import path from 'path';
 import { env } from '../config/env';
 import { Role, hasPermission } from '../middleware/role.middleware';
+import { calculateAge } from './patient.service';
 
 export class ConsultationService {
     private maskConsultation(c: any, role: Role) {
@@ -50,8 +51,16 @@ export class ConsultationService {
             .leftJoin(patients, eq(consultations.patientId, patients.id))
             .orderBy(desc(consultations.date));
 
-        if (!role) return result;
-        return result.map(c => this.maskConsultation(c, role));
+        const mapped = result.map((c: any) => ({
+            ...c,
+            patient: c.patient ? {
+                ...c.patient,
+                age: calculateAge(c.patient.dateOfBirth)
+            } : null
+        }));
+
+        if (!role) return mapped;
+        return mapped.map(c => this.maskConsultation(c, role));
     }
 
     async getById(id: number, role?: Role) {
@@ -117,9 +126,9 @@ export class ConsultationService {
 
     async update(id: number, data: any) {
         const { id: _, vitals, ...rest } = data;
-        
+
         const updateData: any = { ...rest };
-        
+
         if (vitals) {
             if (vitals.bpSystolic && vitals.bpDiastolic) {
                 updateData.bloodPressure = `${vitals.bpSystolic}/${vitals.bpDiastolic}`;
@@ -316,16 +325,17 @@ export class ConsultationService {
                     else 'other' end`),
             db.select({
                 ageGroup: sql<string>`case 
-                    when (strftime('%Y', 'now') - strftime('%Y', date_of_birth)) - (strftime('%m-%d', 'now') < strftime('%m-%d', date_of_birth)) < 18 then 'Pédiatrie'
-                    when (strftime('%Y', 'now') - strftime('%Y', date_of_birth)) - (strftime('%m-%d', 'now') < strftime('%m-%d', date_of_birth)) between 18 and 60 then 'Adulte'
+                    when ${patients.dateOfBirth} is null then 'Inconnu'
+                    when cast((julianday('now') - julianday(${patients.dateOfBirth})) / 365.25 as integer) < 18 then 'Pédiatrie'
+                    when cast((julianday('now') - julianday(${patients.dateOfBirth})) / 365.25 as integer) between 18 and 60 then 'Adulte'
                     else 'Senior' end`,
                 count: sql<number>`count(*)`
             })
                 .from(patients)
-                .where(sql`date_of_birth IS NOT NULL`)
                 .groupBy(sql`case 
-                    when (strftime('%Y', 'now') - strftime('%Y', date_of_birth)) - (strftime('%m-%d', 'now') < strftime('%m-%d', date_of_birth)) < 18 then 'Pédiatrie'
-                    when (strftime('%Y', 'now') - strftime('%Y', date_of_birth)) - (strftime('%m-%d', 'now') < strftime('%m-%d', date_of_birth)) between 18 and 60 then 'Adulte'
+                    when ${patients.dateOfBirth} is null then 'Inconnu'
+                    when cast((julianday('now') - julianday(${patients.dateOfBirth})) / 365.25 as integer) < 18 then 'Pédiatrie'
+                    when cast((julianday('now') - julianday(${patients.dateOfBirth})) / 365.25 as integer) between 18 and 60 then 'Adulte'
                     else 'Senior' end`),
             db
                 .select({ sum: sql<number>`COALESCE(sum(${consultations.amountPaid}), 0)` })
@@ -433,7 +443,7 @@ export class ConsultationService {
             )
             .groupBy(expenses.category)
             .orderBy(desc(sql`sum(${expenses.amount})`));
-            
+
         return result;
     }
 
