@@ -11,7 +11,10 @@ interface ModalProps {
 const Modal: React.FC<ModalProps> = ({ isOpen = false, onClose, children }) => {
   return (
     <Transition show={isOpen} as={Fragment}>
-      <Dialog as="div" className="relative z-50" onClose={onClose}>
+      {/* onClose is a no-op: closing is handled by the backdrop onClick below.
+          This prevents Headless UI from firing onClose when Radix portals
+          (e.g. the date-picker calendar) are interacted with outside the panel. */}
+      <Dialog as="div" className="relative z-50" onClose={() => {}}>
         {/* Backdrop with premium blur */}
         <TransitionChild
           as={Fragment}
@@ -22,7 +25,10 @@ const Modal: React.FC<ModalProps> = ({ isOpen = false, onClose, children }) => {
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <div className="fixed inset-0 bg-black/40 backdrop-blur-md transition-opacity" />
+          <div
+            className="fixed inset-0 bg-black/40 backdrop-blur-md transition-opacity"
+            onClick={onClose}
+          />
         </TransitionChild>
 
         <div className="fixed inset-0 z-10 flex items-center justify-center p-4">

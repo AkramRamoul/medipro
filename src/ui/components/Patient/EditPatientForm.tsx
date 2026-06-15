@@ -23,14 +23,13 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Textarea } from "../ui/textarea";
 import { useEffect, useState } from "react";
-import { Loader2, CalendarIcon } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import api from "../../axios";
 import { useAuth } from "../../context/auth-context";
 import { format, parseISO } from "date-fns";
-import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
-import { Calendar } from "../ui/calendar";
 import { cn } from "../../lib/utils";
+import { DOBPicker } from "../ui/dob-picker";
 
 const patientSchema = z.object({
   first_name: z.string().min(2, "Le nom doit comporter au moins 2 caractères"),
@@ -51,7 +50,6 @@ type PatientData = z.infer<typeof patientSchema>;
 
 export function EditPatientForm({ id }: { id: string }) {
   const [loading, setLoading] = useState(true);
-  const [dobPickerOpen, setDobPickerOpen] = useState(false);
   const [selectedDob, setSelectedDob] = useState<Date | undefined>(undefined);
   const { can } = useAuth();
   const canEditMedical = can("EDIT_MEDICAL_RECORDS");
@@ -196,37 +194,13 @@ export function EditPatientForm({ id }: { id: string }) {
                 name="dateOfBirth"
                 control={control}
                 render={({ field }) => (
-                  <Popover open={dobPickerOpen} onOpenChange={setDobPickerOpen}>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className={cn(
-                          "w-full justify-start text-left font-normal",
-                          !selectedDob && "text-muted-foreground"
-                        )}
-                      >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {selectedDob
-                          ? format(selectedDob, "dd/MM/yyyy")
-                          : "Sélectionner une date"}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={selectedDob}
-                        onSelect={(d) => {
-                          setSelectedDob(d);
-                          field.onChange(d ? format(d, "yyyy-MM-dd") : "");
-                          setDobPickerOpen(false);
-                        }}
-                        captionLayout="dropdown"
-                        fromYear={1900}
-                        toYear={new Date().getFullYear()}
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
+                  <DOBPicker
+                    value={selectedDob}
+                    onChange={(d) => {
+                      setSelectedDob(d);
+                      field.onChange(d ? format(d, "yyyy-MM-dd") : "");
+                    }}
+                  />
                 )}
               />
               {errors.dateOfBirth && (

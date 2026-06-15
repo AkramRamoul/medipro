@@ -1,204 +1,124 @@
-import React, { useState, useEffect, useMemo } from "react";
-import { useSearchParams } from "react-router-dom";
-import { Button } from "../ui/button";
-import { Input } from "../ui/input";
-import { toast } from "sonner";
-import { Trash2, Plus, Search, Loader2 } from "lucide-react";
-import api from "../../axios";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
+import {
+  Database,
+  FileText,
+  ClipboardList,
+  FlaskConical,
+  Activity,
+  Layout,
+  ShieldCheck,
+  Pill,
+  Lock
+} from "lucide-react";
+import DatabaseSettings from "./DataBaseSettings";
+import PrescriptionTemplatesSettings from "./PrescriptionTemplatesSettings";
+import DocumentTemplatesSettings from "./DocumentTemplatesSettings";
+import BilanListSettings from "./BilanListSettings";
+import BilanTemplatesSettings from "./BilanTemplatesSettings";
+import DiagnosticListSettings from "./ConsultationListSettings";
+import ExamFormsSettings from "./ExamFormsSettings";
+import { PasswordForm } from "./PassordSettings.tsx/PasswordForm";
+import MedicationListSettings from "./MedicationListSettings";
 
-interface CustomMedication {
-  name: string;
-  form: string;
-  dosage: string;
-}
-
-const MedicationListSettings: React.FC = () => {
-  const [medications, setMedications] = useState<CustomMedication[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isSaving, setIsSaving] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [newName, setNewName] = useState("");
-  const [newForm, setNewForm] = useState("");
-  const [newDosage, setNewDosage] = useState("");
-
-  const [searchParams, setSearchParams] = useSearchParams();
-
-  useEffect(() => {
-    const queryName = searchParams.get("name");
-    if (queryName) {
-      setNewName(queryName);
-      const newParams = new URLSearchParams(searchParams);
-      newParams.delete("name");
-      setSearchParams(newParams, { replace: true });
-    }
-  }, [searchParams, setSearchParams]);
-
-  const fetchMedications = async () => {
-    setIsLoading(true);
-    try {
-      const response = await api.get("/prescriptions/custom-medications");
-      setMedications(response.data || []);
-    } catch (error) {
-      toast.error("Erreur lors du chargement des médicaments");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchMedications();
-  }, []);
-
-  const filteredMedications = useMemo(() => {
-    return medications.filter((m) =>
-      m.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      m.form.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      m.dosage.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-  }, [medications, searchQuery]);
-
-  const handleAdd = () => {
-    const name = newName.trim();
-    const form = newForm.trim();
-    const dosage = newDosage.trim();
-
-    if (!name) {
-      toast.error("Le nom du médicament est obligatoire");
-      return;
-    }
-
-    if (medications.some((m) => m.name.toLowerCase() === name.toLowerCase() && m.form.toLowerCase() === form.toLowerCase() && m.dosage.toLowerCase() === dosage.toLowerCase())) {
-      toast.error("Ce médicament existe déjà dans la liste personnalisée");
-      return;
-    }
-
-    setMedications([{ name, form, dosage }, ...medications]);
-    setNewName("");
-    setNewForm("");
-    setNewDosage("");
-    toast.info("Médicament ajouté à la liste temporaire. N'oubliez pas d'enregistrer.");
-  };
-
-  const handleDelete = (name: string, form: string, dosage: string) => {
-    setMedications(medications.filter((m) => !(m.name === name && m.form === form && m.dosage === dosage)));
-  };
-
-  const handleSave = async () => {
-    setIsSaving(true);
-    try {
-      const response = await api.post("/prescriptions/custom-medications", medications);
-      if (response.data.success) {
-        toast.success("Liste des médicaments mise à jour avec succès");
-      } else {
-        toast.error("Erreur lors de l'enregistrement : " + response.data.error);
-      }
-    } catch (error) {
-      toast.error("Une erreur est survenue lors de l'enregistrement");
-    } finally {
-      setIsSaving(false);
-    }
-  };
+function Settings() {
+  const defaultTab = "backup";
 
   return (
-    <div className="space-y-6 text-left">
-      <div className="flex items-center justify-between">
-        <div className="space-y-1">
-          <h3 className="text-xl font-semibold">Catalogue Médicaments Personnalisé</h3>
-          <p className="text-sm text-muted-foreground">
-            Ajoutez des médicaments spécifiques qui n'apparaissent pas dans la liste par défaut.
-          </p>
-        </div>
-        <Button
-          onClick={handleSave}
-          disabled={isSaving || isLoading}
-          variant="default"
-          className="shadow-md"
-        >
-          {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-          Enregistrer les modifications
-        </Button>
-      </div>
+    <div className="min-h-[calc(100vh-80px)] bg-background">
+      <Tabs defaultValue={defaultTab} className="flex w-full min-h-[calc(100vh-80px)]">
+        {/* Seamless Navigation Sidebar */}
+        <aside className="w-72 flex-shrink-0 border-r bg-muted/20">
+          <div className="sticky top-0 p-6 space-y-8">
+            <div>
+              <h2 className="text-2xl font-bold tracking-tight">Paramètres</h2>
+              <p className="text-[10px] text-muted-foreground mt-1 uppercase font-black tracking-widest px-1">Administration</p>
+            </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t">
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Ajouter un nouveau médicament</label>
-            <div className="flex flex-col gap-2">
-              <Input
-                placeholder="Nom du médicament (ex: Paracétamol)"
-                value={newName}
-                onChange={(e) => setNewName(e.target.value)}
-              />
-              <div className="flex gap-2">
-                <Input
-                  placeholder="Forme (ex: Comprimé)"
-                  value={newForm}
-                  onChange={(e) => setNewForm(e.target.value)}
-                />
-                <Input
-                  placeholder="Dosage (ex: 500mg)"
-                  value={newDosage}
-                  onChange={(e) => setNewDosage(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && handleAdd()}
-                />
+            <div className="space-y-8">
+              <TabsList className="flex flex-col h-auto bg-transparent gap-1 p-0">
+                <TabsTrigger value="backup" className="flex items-center gap-3 px-4 py-3 w-full justify-start text-muted-foreground data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:font-semibold transition-all rounded-xl border border-transparent hover:bg-muted/50 group">
+                  <Database className="w-4 h-4" />
+                  <span className="text-sm font-medium">Base de données</span>
+                </TabsTrigger>
+                <TabsTrigger value="security" className="flex items-center gap-3 px-4 py-3 w-full justify-start text-muted-foreground data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:font-semibold transition-all rounded-xl border border-transparent hover:bg-muted/50 group">
+                  <Lock className="w-4 h-4" />
+                  <span className="text-sm font-medium">Sécurité</span>
+                </TabsTrigger>
+              </TabsList>
+
+              <div className="space-y-3">
+                <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest px-4">Configuration Médicale</p>
+                <TabsList className="flex flex-col h-auto bg-transparent gap-1 p-0">
+                  <TabsTrigger value="exam-forms" className="flex items-center gap-3 px-4 py-3 w-full justify-start text-muted-foreground data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:font-semibold transition-all rounded-xl border border-transparent hover:bg-muted/50 group">
+                    <Layout className="w-4 h-4" />
+                    <span className="text-sm font-medium">Examens</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="diagnostics" className="flex items-center gap-3 px-4 py-3 w-full justify-start text-muted-foreground data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:font-semibold transition-all rounded-xl border border-transparent hover:bg-muted/50 group">
+                    <Activity className="w-4 h-4" />
+                    <span className="text-sm font-medium">Lexique Diagnostics</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="prescription-templates" className="flex items-center gap-3 px-4 py-3 w-full justify-start text-muted-foreground data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:font-semibold transition-all rounded-xl border border-transparent hover:bg-muted/50 group">
+                    <ShieldCheck className="w-4 h-4" />
+                    <span className="text-sm font-medium">Ordonnances Types</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="document-templates" className="flex items-center gap-3 px-4 py-3 w-full justify-start text-muted-foreground data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:font-semibold transition-all rounded-xl border border-transparent hover:bg-muted/50 group">
+                    <FileText className="w-4 h-4" />
+                    <span className="text-sm font-medium">Modèles de Documents</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="bilans" className="flex items-center gap-3 px-4 py-3 w-full justify-start text-muted-foreground data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:font-semibold transition-all rounded-xl border border-transparent hover:bg-muted/50 group">
+                    <FlaskConical className="w-4 h-4" />
+                    <span className="text-sm font-medium">Catalogue Analyses</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="medications" className="flex items-center gap-3 px-4 py-3 w-full justify-start text-muted-foreground data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:font-semibold transition-all rounded-xl border border-transparent hover:bg-muted/50 group">
+                    <Pill className="w-4 h-4" />
+                    <span className="text-sm font-medium">Catalogue Médicaments</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="bilan-templates" className="flex items-center gap-3 px-4 py-3 w-full justify-start text-muted-foreground data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:font-semibold transition-all rounded-xl border border-transparent hover:bg-muted/50 group">
+                    <ClipboardList className="w-4 h-4" />
+                    <span className="text-sm font-medium">Bilans Types</span>
+                  </TabsTrigger>
+                </TabsList>
               </div>
-              <Button onClick={handleAdd} className="mt-2">
-                <Plus className="h-4 w-4 mr-2" /> Ajouter
-              </Button>
             </div>
           </div>
+        </aside>
 
-          <div className="space-y-2 pt-4">
-            <label className="text-sm font-medium text-muted-foreground italic">
-              Nombre de médicaments personnalisés : {medications.length}
-            </label>
-          </div>
-        </div>
+        {/* Main Seamless Content Area */}
+        <main className="flex-1 min-w-0 bg-background overflow-y-auto">
+          <div className="max-w-7xl px-8 py-10 md:px-12">
+            <TabsContent value="backup" className="mt-0 border-none outline-none focus-visible:ring-0">
+              <DatabaseSettings />
+            </TabsContent>
+            <TabsContent value="security" className="mt-0 border-none outline-none focus-visible:ring-0">
+              <PasswordForm />
+            </TabsContent>
 
-        <div className="space-y-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              className="pl-9"
-              placeholder="Rechercher dans la liste personnalisée..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
+            <TabsContent value="exam-forms" className="mt-0 border-none outline-none focus-visible:ring-0">
+              <ExamFormsSettings />
+            </TabsContent>
+            <TabsContent value="diagnostics" className="mt-0 border-none outline-none focus-visible:ring-0">
+              <DiagnosticListSettings />
+            </TabsContent>
+            <TabsContent value="prescription-templates" className="mt-0 border-none outline-none focus-visible:ring-0">
+              <PrescriptionTemplatesSettings />
+            </TabsContent>
+            <TabsContent value="document-templates" className="mt-0 border-none outline-none focus-visible:ring-0">
+              <DocumentTemplatesSettings />
+            </TabsContent>
+            <TabsContent value="bilans" className="mt-0 border-none outline-none focus-visible:ring-0">
+              <BilanListSettings />
+            </TabsContent>
+            <TabsContent value="medications" className="mt-0 border-none outline-none focus-visible:ring-0">
+              <MedicationListSettings />
+            </TabsContent>
+            <TabsContent value="bilan-templates" className="mt-0 border-none outline-none focus-visible:ring-0">
+              <BilanTemplatesSettings />
+            </TabsContent>
           </div>
-
-          <div className="border rounded-md max-h-[400px] overflow-y-auto divide-y divide-border bg-muted/20">
-            {isLoading ? (
-              <div className="p-8 text-center text-muted-foreground">Chargement...</div>
-            ) : filteredMedications.length === 0 ? (
-              <div className="p-8 text-center text-muted-foreground italic">
-                Aucun résultat trouvé.
-              </div>
-            ) : (
-              filteredMedications.map((med, idx) => (
-                <div key={idx} className="flex flex-col p-3 hover:bg-muted/40 transition-colors">
-                  <div className="flex items-center justify-between">
-                    <span className="font-semibold text-sm">{med.name}</span>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
-                      onClick={() => handleDelete(med.name, med.form, med.dosage)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                  <div className="flex gap-2 text-xs text-muted-foreground mt-1">
-                    {med.form && <span className="bg-muted px-1.5 py-0.5 rounded">{med.form}</span>}
-                    {med.dosage && <span>{med.dosage}</span>}
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
-      </div>
+        </main>
+      </Tabs>
     </div>
   );
-};
+}
 
-export default MedicationListSettings;
+export default Settings;

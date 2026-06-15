@@ -432,7 +432,7 @@ export function LabResultsTab({ patientId }: LabResultsTabProps) {
 
           <div className="rounded-xl border border-primary/10 overflow-hidden shadow-sm">
             <Table>
-              <TableHeader className="bg-muted/50">
+              <TableHeader>
                 <TableRow>
                   <TableHead>Paramètre</TableHead>
                   <TableHead className="w-[120px]">Valeur</TableHead>

@@ -6,18 +6,12 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "../components/ui/sidebar";
-import { useAuth } from "../context/auth-context";
-import { useNavigate } from "react-router-dom";
-
 export function NavSecondary({
   ...props
 }: {} & React.ComponentPropsWithoutRef<typeof SidebarMenu>) {
-  const { logout } = useAuth();
-  const navigate = useNavigate();
 
   function handleLogout() {
-    logout();
-    navigate("/login");
+    window.location.reload();
   }
 
   return (
