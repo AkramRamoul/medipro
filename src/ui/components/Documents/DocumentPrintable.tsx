@@ -122,6 +122,10 @@ const DocumentPrintable: React.FC<DocumentPrintableProps> = ({
     .document-info { text-align: right; }
     .title { display: block; text-align: center; font-size: ${titleFontSize}px; font-weight: bold; letter-spacing: 0.2em; text-decoration: none; border-bottom: 1px solid ${hexToRgba(accentColor, 0.25)}; padding-bottom: 6px; margin: 10px auto 20px auto; width: fit-content; color: ${accentColor}; }
     .content { margin-top: 15px; font-size: ${bodyFontSize}px; line-height: 1.6; }
+    .blood-work-list { margin-top: 20px; font-size: ${bodyFontSize + 3}px; line-height: 1.8; padding-left: 10px; }
+    .blood-work-item { display: flex; align-items: baseline; margin-bottom: 8px; }
+    .blood-work-number { font-weight: bold; color: ${accentColor}; margin-right: 12px; width: 28px; flex-shrink: 0; text-align: right; }
+    .blood-work-name { font-weight: 500; color: #111; }
     .footer { position: fixed; bottom: 20px; left: 0; right: 0; text-align: center; border-top: 0.5px solid #ccc; padding-top: 5px; font-size: 11px; }
     .bold { font-weight: bold; }
     .underline { text-decoration: underline; }
@@ -270,12 +274,13 @@ const DocumentPrintable: React.FC<DocumentPrintableProps> = ({
 
                 <div className="content">
                     {documentType === "blood" ? (
-                        <div>
+                        <div className="blood-work-list">
                             {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                             {(documentContent as any)?.results?.map(
                                 (item: string, index: number) => (
-                                    <div key={index} style={{ marginBottom: 5 }}>
-                                        - {item}
+                                    <div key={index} className="blood-work-item">
+                                        <span className="blood-work-number">{index + 1}.</span>
+                                        <span className="blood-work-name">{item}</span>
                                     </div>
                                 )
                             )}
