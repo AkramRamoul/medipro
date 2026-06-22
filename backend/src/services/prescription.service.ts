@@ -133,6 +133,7 @@ export class PrescriptionService {
     async create(data: any) {
         const {
             patientId,
+            consultationId,
             medications,
             isPsychotropic,
             patientAddress: frontendAddress,
@@ -172,6 +173,7 @@ export class PrescriptionService {
             .insert(prescriptions)
             .values({
                 patientId,
+                consultationId: consultationId || null,
                 prescriptionDate: prescriptionDate || new Date().toISOString(),
                 createdAt: new Date().toISOString(),
                 is_psychotropic: isPsychotropic,

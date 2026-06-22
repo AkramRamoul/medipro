@@ -1,5 +1,5 @@
 import { db } from '../db';
-import { consultations, patients, expenses, prescriptions, appointments, customFields, examForms } from '../db/schema';
+import { consultations, patients, expenses, prescriptions, prescriptionMedications, appointments, customFields, examForms, Document as DocumentTable } from '../db/schema';
 import { eq, sql, desc, and, isNotNull } from 'drizzle-orm';
 import fs from 'fs';
 import path from 'path';
@@ -69,8 +69,23 @@ export class ConsultationService {
             .from(consultations)
             .where(eq(consultations.id, id));
 
-        if (!result || !role) return result;
-        return this.maskConsultation(result, role);
+        if (!result) return result;
+
+        const [patientResult] = await db
+            .select()
+            .from(patients)
+            .where(eq(patients.id, result.patientId));
+
+        const mapped = {
+            ...result,
+            patient: patientResult ? {
+                ...patientResult,
+                age: calculateAge(patientResult.dateOfBirth)
+            } : null
+        };
+
+        if (!role) return mapped;
+        return this.maskConsultation(mapped, role);
     }
 
     async getByPatientId(patientId: number, role?: Role) {
@@ -659,6 +674,56 @@ export class ConsultationService {
             .where(sql`date(${consultations.date}) = date('now')`)
             .orderBy(desc(consultations.date));
         return result;
+    }
+
+    async getLinkedRecords(id: number) {
+        const result = await db
+            .select({
+                id: prescriptions.id,
+                prescriptionDate: prescriptions.prescriptionDate,
+                createdAt: prescriptions.createdAt,
+                isPsychotropic: prescriptions.is_psychotropic,
+                psychotropicNumber: prescriptions.psychotropic_number,
+                patientAddress: prescriptions.patient_address,
+                medications: prescriptionMedications,
+            })
+            .from(prescriptions)
+            .leftJoin(
+                prescriptionMedications,
+                eq(prescriptions.id, prescriptionMedications.prescriptionId),
+            )
+            .where(eq(prescriptions.consultationId, id));
+
+        const prescriptionsMap = new Map();
+
+        result.forEach((row) => {
+            if (!prescriptionsMap.has(row.id)) {
+                prescriptionsMap.set(row.id, {
+                    id: row.id,
+                    prescriptionDate: row.prescriptionDate,
+                    createdAt: row.createdAt,
+                    isPsychotropic: row.isPsychotropic,
+                    psychotropicNumber: row.psychotropicNumber,
+                    patientAddress: row.patientAddress,
+                    medications: [],
+                });
+            }
+            if (row.medications) {
+                prescriptionsMap.get(row.id).medications.push(row.medications);
+            }
+        });
+
+        const linkedPrescriptions = Array.from(prescriptionsMap.values());
+
+        const linkedDocuments = await db
+            .select()
+            .from(DocumentTable)
+            .where(eq(DocumentTable.consultationId, id));
+
+        return {
+            prescriptions: linkedPrescriptions,
+            documents: linkedDocuments,
+        };
     }
 }
 

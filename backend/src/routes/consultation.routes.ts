@@ -237,6 +237,16 @@ router.get('/:id', authorize('VIEW_PATIENTS'), async (req, res, next) => {
     }
 });
 
+// Get linked records for consultation
+router.get('/:id/linked-records', authorize('VIEW_PATIENTS'), async (req, res, next) => {
+    try {
+        const records = await consultationService.getLinkedRecords(Number(req.params.id));
+        res.json(records);
+    } catch (error) {
+        next(error);
+    }
+});
+
 // Create consultation
 router.post('/', authorize('EDIT_MEDICAL_RECORDS'), async (req, res, next) => {
     try {

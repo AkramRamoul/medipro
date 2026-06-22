@@ -239,12 +239,18 @@ const NewPrescriptionForm = ({
   onBack,
   refreshPrescriptions,
   patient,
+  inline = false,
+  consultationId,
+  ensureConsultationSaved,
 }: {
   id: string;
   onClose: () => void;
   onBack?: () => void;
   refreshPrescriptions: () => void;
   patient: Patient;
+  inline?: boolean;
+  consultationId?: number;
+  ensureConsultationSaved?: () => Promise<number>;
 }) => {
   const navigate = useNavigate();
   const [medications, setMedications] = useState<Medication[]>([]);
@@ -334,6 +340,14 @@ const NewPrescriptionForm = ({
       toast.error("Veuillez ajouter au moins un médicament !");
       return;
     }
+    let actualConsultationId = consultationId;
+    if (!actualConsultationId && ensureConsultationSaved) {
+      try {
+        actualConsultationId = await ensureConsultationSaved();
+      } catch (err) {
+        console.error("Failed to ensure consultation is saved:", err);
+      }
+    }
     const prescriptionData = {
       patientId: id,
       medications: selectedMedications.map((med) => ({
@@ -347,6 +361,7 @@ const NewPrescriptionForm = ({
       isPsychotropic,
       patientAddress,
       prescriptionDate: prescriptionDate.toISOString(),
+      consultationId: actualConsultationId,
     };
     try {
       const { data: response } = await api.post('/prescriptions', prescriptionData);
@@ -354,9 +369,19 @@ const NewPrescriptionForm = ({
         if (response.psychotropic_number) {
           setPsychotropicNumber(response.psychotropic_number.toString());
         }
-        toast.success("enregistré avec succès !");
+        toast.success("Ordonnance enregistrée avec succès !");
         refreshPrescriptions();
-        onClose();
+        if (inline) {
+          // Reset form for next entry instead of navigating away
+          setSelectedMedications([]);
+          setIsPsychotropic(false);
+          setPrescriptionDate(new Date());
+          setInputValue("");
+          setSelectedMedication(null);
+        }
+        else {
+          onClose();
+        }
       } else {
         toast.error("Échec de l'enregistrement de l'ordonnance :");
       }
@@ -639,29 +664,31 @@ const NewPrescriptionForm = ({
     <div className="relative max-w-5xl mx-auto space-y-6">
       <Card className="border-border shadow-sm">
         <CardHeader className="pb-4">
-          <div className="flex items-center justify-between mb-4">
-            {onBack ? (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={onBack}
-                className="gap-2 text-muted-foreground hover:text-primary transition-colors"
-              >
-                <ArrowLeft className="w-4 h-4" />
-                Modifier le patient
-              </Button>
-            ) : (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={onClose}
-                className="gap-2 text-muted-foreground hover:text-primary transition-colors"
-              >
-                <ArrowLeft className="w-4 h-4" />
-                Retour
-              </Button>
-            )}
-          </div>
+          {!inline && (
+            <div className="flex items-center justify-between mb-4">
+              {onBack ? (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={onBack}
+                  className="gap-2 text-muted-foreground hover:text-primary transition-colors"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                  Modifier le patient
+                </Button>
+              ) : (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={onClose}
+                  className="gap-2 text-muted-foreground hover:text-primary transition-colors"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                  Retour
+                </Button>
+              )}
+            </div>
+          )}
           <div className="flex items-center justify-between">
             <div>
               <CardTitle className="text-xl flex items-center gap-2 text-primary">
@@ -758,7 +785,7 @@ const NewPrescriptionForm = ({
               </Button>
             </div>
           )}
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end text-left">
+          <div className={inline ? "grid grid-cols-1 sm:grid-cols-6 gap-4 items-end text-left" : "grid grid-cols-1 md:grid-cols-12 gap-4 items-end text-left"}>
             <div
               ref={containerRef}
               className="md:col-span-4 relative space-y-2"
@@ -815,7 +842,7 @@ const NewPrescriptionForm = ({
               )}
             </div>
 
-            <div className="md:col-span-4 space-y-2">
+            <div className={inline ? "sm:col-span-3 space-y-2" : "md:col-span-4 space-y-2"}>
               <Label>Forme</Label>
               <Input
                 type="text"
@@ -825,7 +852,7 @@ const NewPrescriptionForm = ({
               />
             </div>
 
-            <div className="md:col-span-4 space-y-2">
+            <div className={inline ? "sm:col-span-3 space-y-2" : "md:col-span-4 space-y-2"}>
               <Label>Dosage</Label>
               <Input
                 type="text"
@@ -835,7 +862,7 @@ const NewPrescriptionForm = ({
               />
             </div>
 
-            <div className="md:col-span-2 space-y-2">
+            <div className={inline ? "sm:col-span-2 space-y-2" : "md:col-span-2 space-y-2"}>
               <Label>Quantité</Label>
               <Input
                 type="number"
@@ -848,7 +875,7 @@ const NewPrescriptionForm = ({
                 placeholder="Qte"
               />
             </div>
-            <div className="md:col-span-4 space-y-2">
+            <div className={inline ? "sm:col-span-4 space-y-2" : "md:col-span-4 space-y-2"}>
               <div className="flex justify-between items-center">
                 <Label>Durée</Label>
                 <div className="flex gap-1">
@@ -873,7 +900,7 @@ const NewPrescriptionForm = ({
                 className="w-full"
               />
             </div>
-            <div className="md:col-span-6 space-y-2">
+            <div className={inline ? "sm:col-span-6 space-y-2" : "md:col-span-6 space-y-2"}>
               <div className="flex justify-between items-center">
                 <Label>Note</Label>
                 <div className="flex gap-1">
@@ -1080,10 +1107,12 @@ const NewPrescriptionForm = ({
       )}
 
       <div className="flex justify-end gap-3 pt-4 border-t">
-        <Button onClick={onClose} variant="ghost" size="lg">
-          <X className="w-4 h-4" />
-          Annuler
-        </Button>
+        {!inline && (
+          <Button onClick={onClose} variant="ghost" size="lg">
+            <X className="w-4 h-4" />
+            Annuler
+          </Button>
+        )}
         {selectedMedications.length > 0 && (
           <Button
             onClick={() => setIsTemplateDialogOpen(true)}
@@ -1103,6 +1132,8 @@ const NewPrescriptionForm = ({
           patientAddress={patientAddress}
           prescriptionDate={prescriptionDate.toISOString()}
           disabled={selectedMedications.length === 0}
+          onPrinted={handleSave}
+
         />
         {Number(id) !== 0 && (
           <Button

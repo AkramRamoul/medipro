@@ -14,6 +14,10 @@ const PrintButton = ({
   patientAddress,
   prescriptionDate,
   disabled,
+  onPrinted,
+  size = "lg",
+  variant = "default",
+  className,
 }: {
   patient: smallPatient;
   prescription: PrescriptionMed[];
@@ -22,6 +26,10 @@ const PrintButton = ({
   patientAddress?: string | null;
   prescriptionDate?: string | null;
   disabled?: boolean;
+  onPrinted?: () => void;
+  size?: "default" | "sm" | "lg" | "icon";
+  variant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link";
+  className?: string;
 }) => {
   const [prescriptionModel, setPrescriptionModel] = useState(null);
   const [image, setImage] = useState<string | null>(null);
@@ -86,6 +94,9 @@ const PrintButton = ({
 
       if (result.success) {
         toast.success("Impression lancée !");
+        if (onPrinted) {
+          onPrinted();
+        }
       } else {
         toast.error(`Erreur d'impression: ${result.error}`);
       }
@@ -97,12 +108,13 @@ const PrintButton = ({
 
   return (
     <Button
-      size="lg"
+      size={size}
+      variant={variant}
       onClick={(e) => {
         e.stopPropagation();
         handlePrint();
       }}
-      className="bg-primary px-4 py-2"
+      className={className || "bg-primary px-4 py-2"}
     >
       <Printer className="w-4 h-4" />
       Imprimer

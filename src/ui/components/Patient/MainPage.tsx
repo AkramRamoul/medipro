@@ -77,6 +77,14 @@ function MainPage() {
                 Consultation
               </TabsTrigger>
             )}
+            {isMedical && (
+              <TabsTrigger
+                value="prescriptions"
+                className="flex-1 text-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+              >
+                Ordonnances & Bilans
+              </TabsTrigger>
+            )}
             <TabsTrigger
               value="vitals"
               className="flex-1 text-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
@@ -89,14 +97,7 @@ function MainPage() {
             >
               Analyses
             </TabsTrigger>
-            {isMedical && (
-              <TabsTrigger
-                value="prescriptions"
-                className="flex-1 text-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-              >
-                Ordonnances & Bilans
-              </TabsTrigger>
-            )}
+
             {isMedical && (
               <TabsTrigger
                 value="letters"
@@ -147,6 +148,7 @@ function MainPage() {
                 <MainPrescriptionPage id={id!} mode="prescriptions" />
               </TabsContent>
             )}
+
             {activeTab === "letters" && isMedical && (
               <TabsContent value="letters" className="m-0 border-none p-0 shadow-none">
                 <MainPrescriptionPage id={id!} mode="letters" />

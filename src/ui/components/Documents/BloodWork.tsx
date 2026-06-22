@@ -39,6 +39,7 @@ import { Separator } from "../ui/separator";
 import api from "../../axios";
 import { Badge } from "../ui/badge";
 import { calculateAge } from "../../lib/ageUtils";
+import { toast } from "sonner";
 
 interface BilanTemplate {
   name: string;
@@ -82,10 +83,16 @@ export function BloodWork({
   patient,
   onClose,
   refreshDocuments,
+  inline = false,
+  consultationId,
+  ensureConsultationSaved,
 }: {
   patient: Patient;
   onClose: () => void;
   refreshDocuments: () => void;
+  inline?: boolean;
+  consultationId?: number;
+  ensureConsultationSaved?: () => Promise<number>;
 }) {
   const form = useForm<z.infer<typeof bloodWorkSchema>>({
     resolver: zodResolver(bloodWorkSchema),
@@ -190,11 +197,17 @@ export function BloodWork({
 
   async function onSubmit(values: z.infer<typeof bloodWorkSchema>) {
     if (patient.id === 0) {
-      // It's a manual patient, just print it directly or show a toast
-      import("sonner").then(({ toast }) => {
-        toast.error("Impossible d'enregistrer pour un patient saisi manuellement");
-      });
+      toast.error("Impossible d'enregistrer pour un patient saisi manuellement");
       return;
+    }
+
+    let actualConsultationId = consultationId;
+    if (!actualConsultationId && ensureConsultationSaved) {
+      try {
+        actualConsultationId = await ensureConsultationSaved();
+      } catch (err) {
+        console.error("Failed to ensure consultation is saved:", err);
+      }
     }
 
     try {
@@ -203,20 +216,29 @@ export function BloodWork({
         type: "blood",
         content: values,
         documentDate: new Date(values.date).toISOString(),
+        consultationId: actualConsultationId,
       });
       refreshDocuments();
-      onClose();
+      toast.success("Bilan enregistré avec succès !");
+      if (inline) {
+        form.reset({
+          patientName: `${patient.last_name} ${patient.first_name}`,
+          date: format(new Date(), "yyyy-MM-dd"),
+          results: [],
+        });
+      } else {
+        onClose();
+      }
     } catch (error) {
       console.error("Failed to create document:", error);
+      toast.error("Erreur lors de l'enregistrement");
     }
   }
 
   async function handlePrint() {
     const values = form.getValues();
     if (values.results.length === 0) {
-      import("sonner").then(({ toast }) => {
-        toast.error("Veuillez ajouter au moins une analyse");
-      });
+      toast.error("Veuillez ajouter au moins une analyse");
       return;
     }
 
@@ -248,9 +270,48 @@ export function BloodWork({
       );
 
       const result = await printHtml(`<!DOCTYPE html>${html}`);
-      if (result.success) toast.success("Impression lancée !");
-      else toast.error(`Erreur : ${result.error}`);
+      if (result.success) {
+        toast.success("Impression lancée !");
+
+        // Auto-save logic
+        if (patient.id !== 0) {
+          try {
+            let actualConsultationId = consultationId;
+            if (!actualConsultationId && ensureConsultationSaved) {
+              try {
+                actualConsultationId = await ensureConsultationSaved();
+              } catch (err) {
+                console.error("Failed to ensure consultation is saved:", err);
+              }
+            }
+
+            await api.post("/documents", {
+              patientId: patient.id,
+              type: "blood",
+              content: values,
+              documentDate: new Date(values.date).toISOString(),
+              consultationId: actualConsultationId,
+            });
+            refreshDocuments();
+            toast.success("Bilan enregistré automatiquement avec succès !");
+            if (inline) {
+              form.reset({
+                patientName: `${patient.last_name} ${patient.first_name}`,
+                date: format(new Date(), "yyyy-MM-dd"),
+                results: [],
+              });
+            } else {
+              onClose();
+            }
+          } catch (e) {
+            console.error("Auto-save failed", e);
+          }
+        }
+      } else {
+        toast.error(`Erreur : ${result.error}`);
+      }
     } catch (error) {
+      console.error(error);
       import("sonner").then(({ toast }) => {
         toast.error("Erreur lors de l'impression");
       });
@@ -263,14 +324,16 @@ export function BloodWork({
     <Card className="w-full max-w-4xl mx-auto border-none shadow-none">
       <CardHeader className="pb-4 border-b mb-6">
         <div className="flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={onClose}
-            className="h-9 w-9 text-muted-foreground hover:text-primary transition-colors"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </Button>
+          {!inline && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onClose}
+              className="h-9 w-9 text-muted-foreground hover:text-primary transition-colors"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
+          )}
           <div>
             <CardTitle className="flex items-center gap-3 text-xl text-primary">
               <FlaskConical className="w-6 h-6" />

@@ -63,6 +63,8 @@ export const prescriptions = sqliteTable("prescriptions", {
   patientId: integer("patient_id")
     .notNull()
     .references(() => patients.id, { onDelete: "cascade" }),
+  consultationId: integer("consultation_id")
+    .references(() => consultations.id, { onDelete: "set null" }),
   prescriptionDate: text("prescription_date").notNull().default(sql`CURRENT_TIMESTAMP`),
   createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
   is_psychotropic: integer("is_psychotropic", { mode: "boolean" }).default(false),
@@ -165,6 +167,8 @@ export const Document = sqliteTable("document", {
   patientId: integer("patient_id")
     .notNull()
     .references(() => patients.id, { onDelete: "cascade" }),
+  consultationId: integer("consultation_id")
+    .references(() => consultations.id, { onDelete: "set null" }),
   name: text("name"),
   type: text("type", { enum: docTypeEnums }).notNull(),
   content: text("content", { mode: "json" })
