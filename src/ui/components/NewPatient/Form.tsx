@@ -22,7 +22,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Textarea } from "../ui/textarea";
 import { useState } from "react";
 import { format } from "date-fns";
-import { cn } from "../../lib/utils";
 import { DOBPicker } from "../ui/dob-picker";
 
 const patientSchema = z.object({
