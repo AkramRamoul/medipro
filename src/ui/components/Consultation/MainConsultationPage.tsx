@@ -16,6 +16,7 @@ function ConsultationForm({ id }: { id: string }) {
   const [openConsultationId, setOpenConsultationId] = useState<string | null>(
     null,
   );
+  const [editingConsultationId, setEditingConsultationId] = useState<string | null>(null);
 
   const fetchConsultations = useCallback(async () => {
     try {
@@ -45,7 +46,11 @@ function ConsultationForm({ id }: { id: string }) {
       <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
         <NewConsultationForm
           id={id}
-          onClose={() => setIsOpen(false)}
+          resumingConsultationId={editingConsultationId || undefined}
+          onClose={() => {
+            setIsOpen(false);
+            setEditingConsultationId(null);
+          }}
           refreshConsultations={fetchConsultations}
         />
       </div>
@@ -95,7 +100,14 @@ function ConsultationForm({ id }: { id: string }) {
                 <ConsultationCard
                   key={cons.id}
                   consultation={cons}
-                  onClick={() => setOpenConsultationId(cons.id.toString())}
+                  onClick={() => {
+                    if (cons.status === "in_progress") {
+                      setEditingConsultationId(cons.id);
+                      setIsOpen(true);
+                    } else {
+                      setOpenConsultationId(cons.id.toString());
+                    }
+                  }}
                   onDelete={async () => {
                     await api.delete(`/consultations/${cons.id}`);
                     fetchConsultations();

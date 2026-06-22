@@ -19,6 +19,8 @@ import {
   Banknote,
   Check,
   ArrowLeft,
+  Printer,
+  CalendarDays,
 } from "lucide-react";
 import {
   Select,
@@ -33,16 +35,19 @@ import { toast } from "sonner";
 import { Separator } from "../ui/separator";
 import api from "../../axios";
 import NewPrescriptionForm from "../Prescription/NewPrescriptionForm";
+import PrintButton from "../PrintButton";
 import { BloodWork } from "../Documents/BloodWork";
 
 function NewConsultationForm({
   id,
   onClose,
   refreshConsultations,
+  resumingConsultationId,
 }: {
   id: string;
   onClose: () => void;
   refreshConsultations: () => void;
+  resumingConsultationId?: string;
 }) {
   const [patient, setPatient] = useState<Patient | null>(null);
   const [loading, setLoading] = useState(true);
@@ -63,6 +68,8 @@ function NewConsultationForm({
   const [isResuming, setIsResuming] = useState(false);
   const [linkedAppointmentId, setLinkedAppointmentId] = useState<number | null>(null);
   const [savedConsultationId, setSavedConsultationId] = useState<number | null>(null);
+  const [linkedRecords, setLinkedRecords] = useState<{ prescriptions: any[], documents: any[] }>({ prescriptions: [], documents: [] });
+  const [isPrintingBilan, setIsPrintingBilan] = useState(false);
 
   const [examFormTemplates, setExamFormTemplates] = useState<any[]>([]);
   const [selectedFormId, setSelectedFormId] = useState<string>("none");
@@ -91,24 +98,122 @@ function NewConsultationForm({
       })
       .catch(console.error);
 
-    // Check for existing in-progress consultation for today
-    api.get(`/consultations/patient/${id}`)
-      .then(({ data: consultations }: { data: any[] }) => {
-        const today = new Date().toISOString().split('T')[0];
-        const inProgress = consultations.find(c =>
-          c.status === 'in_progress' &&
-          c.date.startsWith(today)
-        );
+    if (resumingConsultationId) {
+      api.get(`/consultations/${resumingConsultationId}`)
+        .then(({ data: cons }) => {
+          if (cons) {
+            setExistingConsultationId(cons.id);
+            setIsResuming(true);
+            setLinkedAppointmentId(cons.appointmentId);
+            setReason(cons.reason || "");
+            setSymptoms(cons.symptoms || "");
+            setDiagnosis(cons.diagnosis || "");
+            setNotes(cons.notes || "");
+            setGlucose(cons.glucose || "");
+            setWeight(cons.weight || "");
+            setTemperature(cons.temperature || "");
+            setAmountPaid(cons.amountPaid?.toString() || "");
+            if (cons.formId) {
+              setSelectedFormId(cons.formId.toString());
+              setExamFormData(cons.formData || {});
+            }
+            const bp = cons.bloodPressure;
+            if (bp && bp.includes("/")) {
+              const [sys, dia] = bp.split("/");
+              setBpSystolic(sys);
+              setBpDiastolic(dia);
+            }
+          }
+        })
+        .catch(console.error);
+    } else {
+      // Check for existing in-progress consultation for today
+      api.get(`/consultations/patient/${id}`)
+        .then(({ data: consultations }: { data: any[] }) => {
+          const today = new Date().toISOString().split('T')[0];
+          const inProgress = consultations.find(c =>
+            c.status === 'in_progress' &&
+            c.date.startsWith(today)
+          );
 
-        if (inProgress) {
-          setExistingConsultationId(inProgress.id);
-          setIsResuming(true);
-          setLinkedAppointmentId(inProgress.appointmentId);
-          if (inProgress.reason) setReason(inProgress.reason);
-        }
-      })
-      .catch(console.error);
-  }, [id]);
+          if (inProgress) {
+            setExistingConsultationId(inProgress.id);
+            setIsResuming(true);
+            setLinkedAppointmentId(inProgress.appointmentId);
+            if (inProgress.reason) setReason(inProgress.reason);
+          }
+        })
+        .catch(console.error);
+    }
+  }, [id, resumingConsultationId]);
+
+  const fetchLinkedRecords = async (consId: number) => {
+    try {
+      const { data } = await api.get(`/consultations/${consId}/linked-records`);
+      setLinkedRecords(data);
+    } catch (error) {
+      console.error("Error fetching linked records:", error);
+    }
+  };
+
+  const handlePrintBilan = async (documentData: any) => {
+    setIsPrintingBilan(true);
+    try {
+      const [logoRes, modelRes] = await Promise.all([
+        api.get('/settings/logo'),
+        api.get('/settings/prescription-model'),
+      ]);
+
+      if (!modelRes.data.success) throw new Error("Modèle introuvable");
+
+      const { renderToStaticMarkup } = await import("react-dom/server");
+      const { default: DocumentPrintable } = await import("../Documents/DocumentPrintable");
+      const { printHtml } = await import("../../lib/print-utils");
+
+      const html = renderToStaticMarkup(
+        <DocumentPrintable
+          first_name={patient?.first_name || ""}
+          last_name={patient?.last_name || ""}
+          patientAge={patient?.age || 0}
+          prescriptionModel={modelRes.data.model}
+          image={logoRes.data.success ? logoRes.data.image : null}
+          documentContent={documentData.content}
+          documentType="blood"
+          documentDate={documentData.documentDate || documentData.createdAt}
+        />
+      );
+
+      const result = await printHtml(`<!DOCTYPE html>${html}`);
+      if (result.success) toast.success("Impression lancée !");
+      else toast.error(`Erreur : ${result.error}`);
+    } catch (error) {
+      console.error(error);
+      toast.error("Erreur lors de l'impression du bilan");
+    } finally {
+      setIsPrintingBilan(false);
+    }
+  };
+
+  useEffect(() => {
+    const activeId = savedConsultationId || existingConsultationId;
+    if (activeId) {
+      fetchLinkedRecords(activeId);
+    }
+  }, [savedConsultationId, existingConsultationId]);
+
+  const handleRefreshPrescriptions = () => {
+    const activeId = savedConsultationId || existingConsultationId;
+    if (activeId) {
+      fetchLinkedRecords(activeId);
+    }
+  };
+
+  const handleRefreshDocuments = () => {
+    const activeId = savedConsultationId || existingConsultationId;
+    if (activeId) {
+      fetchLinkedRecords(activeId);
+    }
+  };
 
   useEffect(() => {
     api.get("/consultations/diagnostics/common")
@@ -194,9 +299,10 @@ function NewConsultationForm({
     };
 
     try {
-      let createdId = existingConsultationId;
-      if (existingConsultationId) {
-        await api.put(`/consultations/${existingConsultationId}`, consultationData);
+      const activeId = savedConsultationId || existingConsultationId;
+      let createdId = activeId;
+      if (activeId) {
+        await api.put(`/consultations/${activeId}`, consultationData);
       } else {
         const res = await api.post('/consultations', consultationData);
         if (res.data && res.data.id) {
@@ -267,6 +373,20 @@ function NewConsultationForm({
     }
   };
 
+  const handleClose = async () => {
+    const activeId = savedConsultationId || existingConsultationId;
+    if (activeId) {
+      try {
+        await api.put(`/consultations/${activeId}`, {
+          status: "completed"
+        });
+      } catch (error) {
+        console.error("Failed to auto-complete consultation on close:", error);
+      }
+    }
+    onClose();
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -284,7 +404,7 @@ function NewConsultationForm({
           <Button
             variant="ghost"
             size="icon"
-            onClick={onClose}
+            onClick={handleClose}
             className="h-10 w-10 text-muted-foreground hover:text-primary transition-colors"
           >
             <ArrowLeft className="w-6 h-6" />
@@ -302,7 +422,7 @@ function NewConsultationForm({
         <div className="flex items-center gap-3">
           <Button
             variant="outline"
-            onClick={onClose}
+            onClick={handleClose}
             className="gap-2"
           >
             <X className="w-4 h-4" />
@@ -692,12 +812,56 @@ function NewConsultationForm({
                   <div className="bg-primary/5 p-4 border-b">
                     <h3 className="font-semibold text-lg text-primary">Ordonnance</h3>
                   </div>
-                  <div className="p-4">
+                  <div className="p-4 space-y-4">
+                    {/* List of saved prescriptions */}
+                    {linkedRecords.prescriptions.length > 0 && (
+                      <div className="space-y-3 mb-4">
+                        <h4 className="text-xs font-bold uppercase text-primary/70 tracking-wider">
+                          Ordonnances enregistrées ({linkedRecords.prescriptions.length})
+                        </h4>
+                        <div className="space-y-2">
+                          {linkedRecords.prescriptions.map((p) => (
+                            <div key={p.id} className="border rounded-md p-3 space-y-2 bg-muted/20 relative group text-left">
+                              <div className="flex justify-between items-start mb-1">
+                                <span className="text-[10px] font-medium text-muted-foreground flex items-center gap-1">
+                                  <CalendarDays className="w-3 h-3" />
+                                  {new Date(p.prescriptionDate || p.createdAt).toLocaleDateString()}
+                                </span>
+                                <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                  <PrintButton
+                                    patient={patient}
+                                    prescription={p.medications}
+                                    isPsychotropic={p.isPsychotropic}
+                                    psychotropicNumber={p.psychotropicNumber}
+                                    patientAddress={p.patientAddress}
+                                    prescriptionDate={p.prescriptionDate}
+                                    variant="ghost"
+                                    size="sm"
+                                    className="h-8 px-2 text-xs text-muted-foreground hover:text-foreground"
+                                  />
+                                </div>
+                              </div>
+                              <ul className="space-y-1">
+                                {(p.medications || []).map((med: any, idx: number) => (
+                                  <li key={idx} className="text-xs">
+                                    <span className="font-semibold">{med.medicineName}</span>
+                                    {med.dosage && <span className="text-muted-foreground"> - {med.dosage}</span>}
+                                    {med.duration && <span className="text-muted-foreground"> - {med.duration} jrs</span>}
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          ))}
+                        </div>
+                        <Separator />
+                      </div>
+                    )}
+
                     <NewPrescriptionForm
                       id={id}
                       patient={patient}
                       onClose={() => { }}
-                      refreshPrescriptions={() => { }}
+                      refreshPrescriptions={handleRefreshPrescriptions}
                       inline={true}
                       consultationId={activeConsultationId || undefined}
                       ensureConsultationSaved={ensureConsultationSaved}
@@ -711,11 +875,47 @@ function NewConsultationForm({
                   <div className="bg-blue-500/5 p-4 border-b">
                     <h3 className="font-semibold text-lg text-blue-600">Bilan Sanguin</h3>
                   </div>
-                  <div className="p-4">
+                  <div className="p-4 space-y-4">
+                    {/* List of saved blood works */}
+                    {linkedRecords.documents.filter(d => d.type === 'blood').length > 0 && (
+                      <div className="space-y-3 mb-4">
+                        <h4 className="text-xs font-bold uppercase text-blue-600/70 tracking-wider">
+                          Bilans enregistrés ({linkedRecords.documents.filter(d => d.type === 'blood').length})
+                        </h4>
+                        <div className="space-y-2">
+                          {linkedRecords.documents.filter(d => d.type === 'blood').map((d) => (
+                            <div key={d.id} className="border rounded-md p-3 space-y-2 bg-muted/20 relative group text-left">
+                              <div className="flex justify-between items-start mb-1">
+                                <span className="text-[10px] font-medium text-muted-foreground flex items-center gap-1">
+                                  <CalendarDays className="w-3 h-3" />
+                                  {new Date(d.documentDate || d.createdAt).toLocaleDateString()}
+                                </span>
+                                <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex items-center px-2 py-1.5 text-xs outline-none transition-colors hover:bg-accent hover:text-accent-foreground cursor-pointer select-none rounded-sm border bg-background" onClick={(e) => {
+                                  e.stopPropagation();
+                                  handlePrintBilan(d);
+                                }}>
+                                  {isPrintingBilan ? <Loader2 className="mr-1 h-3 w-3 animate-spin" /> : <Printer className="mr-1 h-3 w-3" />}
+                                  Imprimer
+                                </div>
+                              </div>
+                              <div className="flex flex-wrap gap-1 mt-1">
+                                {(d.content?.results || []).map((test: string, idx: number) => (
+                                  <span key={idx} className="bg-background border px-1.5 py-0.5 rounded-full text-[10px] font-medium shadow-sm">
+                                    {test}
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                        <Separator />
+                      </div>
+                    )}
+
                     <BloodWork
                       patient={patient}
                       onClose={() => { }}
-                      refreshDocuments={() => { }}
+                      refreshDocuments={handleRefreshDocuments}
                       inline={true}
                       consultationId={activeConsultationId || undefined}
                       ensureConsultationSaved={ensureConsultationSaved}

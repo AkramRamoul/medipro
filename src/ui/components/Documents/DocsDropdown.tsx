@@ -40,7 +40,7 @@ function DocsDropdown({ document, setData, patinet }: DropDownProps) {
             Supprimer
           </DropdownMenuItem>
         </DeleteDocButton>
-        <DocPrint patient={patinet} window={window} document={document} />
+        <DocPrint patient={patinet} document={document} />
       </DropdownMenuContent>
     </DropdownMenu>
   );
