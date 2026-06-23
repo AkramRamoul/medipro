@@ -709,12 +709,13 @@ function NewConsultationForm({
                   Constantes Vitales
                 </h3>
 
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-muted/20 rounded-lg border border-border/50">
-                  <div className="space-y-2">
+                <div className="grid grid-cols-2 gap-4 p-4 bg-muted/20 rounded-lg border border-border/50">
+                  {/* Blood Pressure — spans full row so the two sub-inputs have room */}
+                  <div className="col-span-2 space-y-2">
                     <Label className="text-xs font-medium text-muted-foreground uppercase flex items-center gap-1">
-                      <Heart className="w-3 h-3" /> Tension (SYS/DIA)
+                      <Heart className="w-3 h-3" /> Tension Artérielle (SYS / DIA)
                     </Label>
-                    <div className="flex gap-2">
+                    <div className="flex items-center gap-3">
                       <Input
                         type="number"
                         placeholder="120"
@@ -722,9 +723,7 @@ function NewConsultationForm({
                         onChange={(e) => setBpSystolic(e.target.value)}
                         className="bg-background text-center"
                       />
-                      <span className="text-xl text-muted-foreground font-light">
-                        /
-                      </span>
+                      <span className="text-xl text-muted-foreground font-light select-none">/</span>
                       <Input
                         type="number"
                         placeholder="80"
@@ -761,7 +760,7 @@ function NewConsultationForm({
                     />
                   </div>
 
-                  <div className="space-y-2">
+                  <div className="col-span-2 space-y-2">
                     <Label className="text-xs font-medium text-muted-foreground uppercase flex items-center gap-1">
                       <Thermometer className="w-3 h-3" /> Température (°C)
                     </Label>
@@ -770,7 +769,7 @@ function NewConsultationForm({
                       placeholder="37.0"
                       value={temperature}
                       onChange={(e) => setTemperature(e.target.value)}
-                      className="bg-background"
+                      className="bg-background max-w-sm"
                     />
                   </div>
                 </div>
