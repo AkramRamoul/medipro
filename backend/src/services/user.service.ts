@@ -146,26 +146,25 @@ export class UserService {
 
     async validateLicense(key: string, payload: { expiry: string; machineId: string }) {
         try {
-            const publicKey = this.getPublicKey();
-            if (!publicKey) return false;
+            const secret = process.env.LICENSE_SECRET ?? 'your-super-secret-hmac-key-change-me';
+            if (!secret) return false;
 
             const cleanedKey = key.trim().replace(/-/g, '').toUpperCase();
-            const signature = Buffer.from(base32Decode(cleanedKey, 'RFC4648'));
+            const keyDigest = Buffer.from(base32Decode(cleanedKey, 'RFC4648'));
 
             const payloadStr = JSON.stringify({
                 expiry: payload.expiry,
                 machineId: payload.machineId,
             });
 
-            const data = Buffer.from(payloadStr);
-            const isValid = crypto.verify('sha256', data, publicKey, signature);
+            const expectedHmac = crypto.createHmac('sha256', secret);
+            expectedHmac.update(payloadStr);
+            const expectedDigest = expectedHmac.digest().slice(0, 10);
 
+            if (keyDigest.length !== expectedDigest.length) return false;
+
+            const isValid = crypto.timingSafeEqual(keyDigest, expectedDigest);
             if (!isValid) return false;
-
-            // Timing-safe guard – prevents a patched crypto.verify from bypassing validation
-            const _a = crypto.createHash('sha256').update('mp-guard').digest();
-            const _b = crypto.createHash('sha256').update('mp-guard').digest();
-            if (!crypto.timingSafeEqual(_a, _b)) return false;
 
             const existing = await db.select().from(licenses).limit(1);
             if (existing.length === 0) {
